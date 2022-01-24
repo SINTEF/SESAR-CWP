@@ -7,9 +7,8 @@ const size = 20;
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 function Aircrafts(props){
     const{data,onClick} = props;
-
     return data.map((aircraft_data)=>(
-        <Marker key={aircraft_data.uniqueFlightID} longitude={aircraft_data.longitude} latitude={aircraft_data.latitude}>
+        <Marker key={aircraft_data.assignedFlightId} longitude={aircraft_data.lastKnownLongitude} latitude={aircraft_data.lastKnownLatitude}>
       <svg
       height={size}
       viewBox='0 0 24 24'
@@ -26,4 +25,5 @@ function Aircrafts(props){
     ));
 }
 
-export default React.memo(Aircrafts);
+// export default React.memo(Aircrafts);
+export default Aircrafts;

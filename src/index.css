@@ -53,3 +53,19 @@ code {
     outline: none;
     text-transform: uppercase;
 }
+
+.aircraft-list {
+    position: absolute;
+    top: 0;
+    left: 5;
+    width: 250px;
+    background: #000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    padding: 20px 24px;
+    margin: 20px;
+    font-size: 13px;
+    line-height: 2;
+    color: #000;
+    outline: none;
+    text-transform: uppercase;
+}
