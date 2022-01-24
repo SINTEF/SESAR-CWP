@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
+import './mqtt';
 
 //Removed StrictMode to be able to make SectorConfigutations Draggable (will see if this causes problems) <React.StrictMode>
 ReactDOM.render(
@@ -17,3 +18,4 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
