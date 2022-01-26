@@ -1,7 +1,7 @@
 import mqtt from 'mqtt';
 import rlite from 'rlite-router';
 
-import {notFound, todo, ignored, targetReport} from './message-handlers';
+import {notFound, todo, ignored, targetReport, newFlight} from './message-handlers';
 
 const client = mqtt.connect('ws://localhost:9001/mqtt');
 
@@ -25,7 +25,7 @@ const router = rlite(notFound, {
     'ATM/:clientId/FlightMilestonePositions/:flightUniqueId': todo,
     'ATM/:clientId/PlannedFlights/:flightUniqueId': todo,
     'ATM/:clientId/AircraftTypes/:vehicleTypeId': todo,
-    'ATM/:clientId/NewFlights/:flightUniqueId': todo,
+    'ATM/:clientId/NewFlights/:flightUniqueId': newFlight,
     'ATM/:clientId/FlightStatusCodes/:flightUniqueId': todo,
     'ATM/:clientId/Routes/:networkId/:objectId': todo,
     'ATM/:clientId/FlightRoutes/:flightUniqueId': todo,
