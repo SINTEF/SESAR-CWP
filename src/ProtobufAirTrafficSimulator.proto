@@ -1,0 +1,626 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+package ProtobufAirTrafficSimulator;
+
+
+// ###################################################################################
+// * Enumerations, begin.                                                            |
+//  ##################################################################################
+
+// Enumeration of the different stages of planning.
+enum PlanningStage {
+  REFERENCE = 0;  // Specifies the reference for a milestone event.
+                  // Reference values should be sent once and therafter never modified throughout
+                  // the planning process.
+  TARGET    = 1;  // Specifies the target for a milestone event.
+                  // Target values may dynamically be changed throughout the planning process
+                  // to reflect updated information/preferences.
+  PLAN      = 2;  // Specifies the plan for a milestone event, i.e., as planned by MadMan.
+                  // Planned values may dynamically be changed throughout the planning process
+                  // to reflect updated plans from MadMan.
+  CLEARED   = 3;  // Specifies that clearance has been given for a milestone event to take place.
+  ACTUAL    = 4;  // Specifies the actual of a milestone event, i.e., the real-time event.
+                  // // Actual values should only be sent once.
+}
+
+// The different milestones we have for a flight.
+enum Milestone {
+  M_NONE                  = 0;    // Not a milestone.
+  OFFBLOCK                = 1;    // Specifies that we are dealing with a off block milestone.
+                                  // Off block time is when the aircraft starts moving from the stand.
+                                  // Note that startup approval time must be earlier than the off block time.
+  END_PUSHBACK            = 2;    // Specifies that we are dealing with a end-of-puchback milestone.
+                                  // EndPushback time is when the aircraft stops moving backward.
+  M_RUNWAY_ENTRY          = 3;    // Specifies that we are dealing with a runway entry milestone.
+                                  // Runway entry time is when the aircraft enters the runway entry point.
+  M_TAKE_OFF              = 4;    // Specifies that we are dealing with a take off milestone.
+                                  // Take off time is when the aircraft becomes airborne.
+  LEAVING_DEPARTURE_T_M_A = 5;    // Specifies the milestone that the departing aircraft is leaving
+                                  // the TMA of the departure airport.
+  ENTERING_ARRIVAL_T_M_A  = 6;    // Specifies the milestone that the arriving aircraft is entering
+                                  // the TMA of the arrival airport.
+  METERING_FIX            = 7;    // Specifies that we are dealing with an airplane passing the metering fix.
+                                  // The metering fix is where we are synchronising airborne and ground trajectories.
+                                  // It is also where CTA/i4D operation ends.
+  FINAL_APPROACH          = 8;    // Specifies the milestone where final approach starts.
+                                  // A final approach is the last leg in an aircraft's approach to landing,
+                                  // when the aircraft is lined up with the runway and descending for landing.
+  M_LANDING               = 9;    // Specifies that we are dealing with a landing milestone.
+                                  // Landing time is the time when the aircraft touch down on the runway.
+  M_RUNWAY_EXIT           = 10;   // Specifies that we are dealing with a runway exit milestone.
+                                  // Runway exit time is when the aircraft passes the runway exit point.
+  INBLOCK                 = 11;   // Specifies that we are dealing with a in block milestone.
+                                  // In block time is when the aircraft has entered the stand and stops moving.
+}
+
+// The different vehicle categories that exist.
+enum VehicleCategory {
+  VC_UNKNOWN       = 0;
+  AIRCRAFT         = 1;
+  GROUND_VEHICLE    = 2;
+}
+
+// Status code to denote the state of a flight.
+enum FlightStatusCode {
+  FS_NONE        = 0; // The status of a flight which has not yet received a status code.
+  SCHEDULED      = 1; // The status of flights that are anticipated to depart and arrive according to flight plan.
+  ACTIVE         = 2; // The status of flights that are pushed back from stand or flights that are airborne.
+  REDIRECTED     = 3; // The status of flights that are airborne and has changed its destination to an unscheduled airport.
+  DIVERTED       = 4; // The status of flights that has landed at an unscheduled airport.
+  CANCELLED      = 5; // The status of flights that have been cancelled.
+  COMPLETED      = 6; // The status of flights that are completed.
+  PENDING        = 7; // The status of flights that are temporarily idle, e.g., while waiting for further information.
+}
+
+// Enumeration of the different types of objects that can be addressed.
+enum ObjectType {
+  OT_UNKNOWN                = 0;  // An unknown object type.
+  AIRPORT_NETWORK           = 1;  // An network defining the airport's apron (including the runway).
+  TERMINAL_MANOEUVRING_AREA = 2;  // An network defining the airport's TMA.
+  OT_POINT                  = 3;  // A point in a network (not a waypoint).
+  OT_SEGMENT                = 4;  // A segment in a network.
+  OT_STAND_MANOEUVRE        = 5;  // A stand manoeuvre (e.g., pushback).
+  TAXI_ROUTE                = 6;  // A taxi route.
+  OT_DEPARTURE_ROUTE        = 7;  // A departure route from a runway to a TMA exit point or to the SID final waypoint.
+  OT_ARRIVAL_ROUTE          = 8;  // An arrival Route from a TMA entry point or from the STAR initial waypoint to a runway.
+  OT_STAND                  = 9;  // A stand where aircrafts can be parked.
+  WAYPOINT                  = 10; // A uniquely identifiable point.
+  OT_RUNWAY                 = 11; // A physical runway.
+  RUNWAY_ORIENTATION        = 12; // A runway orientation.
+  AIRPORT                   = 13; // An airport.
+  AIRSPACE                  = 14; // A larger part of airspace that contains different sectors.
+  AIRSPACE_CONFIGURATION    = 15; // A combination of airspace that can be together active or inactive within a period of time.
+  SECTOR                    = 16; // A part of airspace or airport where one or more air traffic controllers can be responsible for.
+  AIR_BLOCK                 = 17; // A part of airspace which represents a volume that acts as an elementary building block for other airspaces.
+
+}
+
+// The different types of Waypoints. Use Waypoint.IsA to evaluate the type of a waypoint.
+enum WaypointType {
+  WT_NONE                   = 0;  // Waypoint of unknown type.
+  GATE                      = 1;  // At a terminal's gate.
+  WT_STAND                  = 2;  // A defined position for loading/unloading aircrafts but not a terminal's gate.
+  PUSHBACK_POINT            = 3;  // A point where the pushback from a stand ends, i.e. where it terminates the reverse movement.
+  INTERSECTION              = 4;  // A taxiway intersection.
+  WT_HOLDING_POINT          = 5;  // A holding position.
+  WT_DEICING_AREA           = 6;  // A de-icing area.
+  WT_CLEARANCE_BAR          = 7;  // A taxiway intersection that marks a clearance limit.
+  RUNWAY_NODE               = 8;  // A point on the runway.
+  WT_RUNWAY_ENTRY           = 9;  // A runway entry.
+  WT_RUNWAY_EXIT            = 10; // A runway exit.
+  RUNWAY_THRESHOLD          = 11; // A runway threshold.
+  WT_IN_FLIGHT              = 12; // A waypoint in a departure or arrival route.
+}
+
+// The different types of network resources. Use NetworkResource.IsA to evaluate the type of a NetworkResource.
+enum NetworkResourceType {
+  NRT_UNKNOWN                = 0;  // A network resource with an unknown type. This is the default type for a network resource.
+  NRT_POINT                  = 1;  // A network resource that represents a Point (see also class Point).
+  NRT_SEGMENT                = 2;  // A network resource that represents a Segment (see also class Segment).
+  NRT_STAND                  = 3;  // A network resource that represents a stand (see also class Stand).
+  NRT_STAND_MANOEUVRE        = 4;  // A network resource that represents part of (or is used by) a a StandManoeuvre.
+  APRON                      = 5;  // A network resource that represents part of the apron network at an airport.
+  TAXIWAY                    = 6;  // A network resource that represents part of the taxiway network at an airport.
+  NRT_RUNWAY                 = 7;  // A network resource that represents a runway or part of a runway for take-off and/or landing.
+  NTR_ARRIVAL_ROUTE          = 8;  // A network resource that represents a part of an ArrivalRoute.
+  NTR_DEPARTURE_ROUTE        = 9;  // A network resource that represents a part of a DepartureRoute.
+  NTR_HOLDING_POINT          = 10; // A network resource that represents a holding position.
+  NTR_CLEARANCE_BAR          = 11; // A network resource that represents  taxiway intersection that marks a clearance limit.
+  NTR_DEICING_AREA           = 12; // A network resource that represents a de-icing area.
+  ROAD                       = 13; // A network resource that represents the road area used for the ground vehicles.
+  ARRIVAL_OR_DEPARTURE_ROUTE = 14; // A network resource that represents a part of an ArrivalRoute or a DepartureRoute.
+  NTR_ANY                    = 15; // A network resource type which represents any of the above (except unknown).
+
+}
+
+// Different types of activities.
+enum ActivityType {
+  AT_UNKNOWN        = 0;
+  GROUND            = 1;  // A vehicle/aircraft movement on the ground.
+  TOWING            = 2;  // The vehicle/aircraft is towed (by a car).
+  TAXI_OUT          = 3;  // A vehicle movement due to a departure.
+  TAXI_IN           = 4;  // A vehicle movement due to an arrival.
+  AT_TAKE_OFF       = 5;  // A vehicle movement for a depature on the runway.
+  AT_LANDING        = 6;  // A vehicle movement for an arrival on the runway.
+  AT_IN_FLIGHT      = 7;  // A vehicle movement in the air.
+  RUNWAY_INSPECTION = 8;  // A runway inspection.
+  AT_ALL            = 9;  // All activities.
+}
+
+// The different directions relevant for segments.
+enum SegmentDirection {
+  SD_NONE       = 0; // No direction.
+  START_TO_END  = 1; // Direction following the definition of the segment.
+  END_TO_START  = 2; // Direction opposite of the definition of the segment.
+  SD_ALL        = 3; // Both directions.
+}
+
+// Enumeration of the different types of general access levels for aircrafts.
+enum AccessType {
+  CLOSED      = 0;  // No access for any aircraft.
+  ARRIVALS    = 1;  // Access for arrival flights.
+  DEPARTURES  = 2;  // Access for depature flights.
+  OPEN        = 3;  // Access for all aircrafts.
+}
+
+
+
+// Enumeration of aircraft speed categories. --> This has replaced TakeOffSpeedCategory.
+enum SpeedCategory {
+  SC_UNKNOWN = 0;
+  SLOW       = 1;
+  FAST       = 2;
+  SC_ALL     = 3;
+}
+
+// Enumeration of the wake turbulence categories (WTC) in increasing order.
+enum WakeTurbulenceCategory {
+  WTC_UNKNOWN         = 0;  // WTC not known.
+  WTC_LIGHT           = 1;  // Light [L] (A).
+  LOWER_MEDIUM        = 2;  // Lower medium [S] (B).
+  UPPER_MEDIUM        = 3;  // Upper medium [M] (C).
+  LOWER_HEAVY         = 4;  // Lower heavy [C] (D).
+  UPPER_HEAVY         = 5;  // Upper heavy [H] (E).
+  JUMBO               = 6;  // Super heavy [J] (F).
+  WTC_ALL             = 7;  // All.
+}
+
+// Represents an aviation flight category that could be either visual or instrumental meteorological conditions.
+enum AviationFlightCategory {
+  V_M_C         = 0; // Visual Meteorological Conditions (visibility > 5 mi).
+  MARGINAL_V_M_C  = 1; // Marginal Visual Meteorological Conditions (visibility between 3 and 5 mi).
+  I_M_C           = 2; // Instrumental Meteorological Conditions (visibility 1 mi or more but less than 3 mi).
+  MARGINAL_I_M_C  = 3; // Marginal Instrumental Meteorological Conditions (visibility < 1 mi).
+}
+
+// Represents different levels of deicing (from level A to E taking 5, 7, 10, 12, 15, 20 minutes).
+enum DeIcingLevel {
+  DIL_NONE  = 0;
+  DIL_LIGHT = 1;
+  MODERATE  = 2;
+  SEVERE    = 3;
+  EXTREME   = 4;
+}
+
+// Represents different levels of visibility.
+enum VisibilityLevel {
+  HIGH  = 0; // High visiblity. Low visibility procedures are not required.
+  LOW   = 1; // Low/reduced visibility. Low visibility procedures are required.
+}
+
+// The aircraft class of an aircraft. The classes are represented by A, B, C, D, E, F where A is smallest, F is largest.
+// None if not applicable. The classes should be ordered in increasing order.
+enum AircraftClass {
+  ACC_NONE  = 0;
+  A         = 1;
+  B         = 2;
+  C         = 3;
+  D         = 4;
+  E         = 5;
+  F         = 6;
+}
+
+// This is not included in  the MadMan simulator. --> Might be interesting to request since
+// we can then illustrate a variety of meshes if we know exactly the aircraft category.
+//enum AircraftCategory {
+//  OTHER_CATEGORY = 0;
+//  LANDPLANE = 1;
+//  SEAPLANE = 2;
+//  AMPHIBIAN = 3;
+//  GYROCOPTER = 4;
+//  HELICOPTER = 5;
+//  TILTWING = 6;
+//}
+
+// This is not included in the MadMan simulator.
+//enum AircraftEnginesType {
+//  OTHER_ENGINE_TYPE = 0;
+//  JET = 1;
+//  PISTON = 2;
+//  TURBOPROP = 3;
+//  ELECTRIC = 4;
+//}
+
+
+// ###################################################################################
+// * Enumerations, end.                                                              |
+//  ##################################################################################
+
+
+// ###################################################################################
+// * Messages, begin.                                                                |
+//  ##################################################################################
+
+//  Provides information of the flexibility in time for a milestone.
+//  Concept: A FlightMilestoneMessage about a future milestone comes with a time for when the milestone
+//  should happen. The PreferenceInterval gives additional information about the amount of flexibility
+//  for the milestone and how important it is for the source of the message that the milestone happens
+//  near the given time.
+//  This example define a preference interval where it is allowed to deviate as much as 5 minutes
+//  earlier to 10 minutes later. There is no cost associated to the event being earlier but there is a
+//  cost of 10 (cost units) per second the event is later than the expressed time.
+//  new PreferenceInterval(new TimeSpan(0, 5, 0), new TimeSpan(0, 10, 0), 0, 10);
+message PreferenceInterval {
+  google.protobuf.Duration maxEarlier   = 1;  // The maximum time the event is allowed to be shifted to be earlier than the expressed time.
+                                              // Use TimeSpan.MaxValue if there is no limit.
+  google.protobuf.Duration maxLater     = 2;  // Use TimeSpan.MaxValue if there is no limit.
+                                              // The maximum time the event is allowed to be shifted to be later than the expressed time.
+  float costPerSecondEarlier            = 3;  // The cost per second that the event is earlier than the expressed time.
+  float costPerSecondLater              = 4;  // The cost per second that the event is later than the expressed time.
+}
+
+// A position given with a coordinate.
+message Position4D {
+  //string networkId                = 1;  // The unique name of the network where the object is located.
+  google.protobuf.Timestamp time  = 1;  // Inherited from Position.
+                                        // The time for the position.
+  float latitude                  = 2;  // GPS Position (WGS84).
+  float longitude                 = 3;
+  float altitude                  = 4;  // Altitude (if known).
+}
+
+// A position given with a coordinate (X,Y,Z) where X and Y are coonrdinates in the plane and Z gives the altitude.
+// The Z-coordinate (altitude) is optional.
+// The unit is in meters relative to an origin coordinate defined for the network.
+message Position4DCartesian {
+  //string networkId                = 1;  // The unique name of the network where the object is located.
+  google.protobuf.Timestamp time  = 1;  // Inherited from Position.
+                                        // The time for the position.
+  float x                         = 2;
+  float y                         = 3;
+  float z                         = 4;
+  Milestone milestone             = 5;
+}
+
+// A position addressing a unique object by its identifier.
+// The receiving system is assumed to know the position of the referenced object.
+message PositionAtObject {
+  //string networkId                =  1; // The unique name of the network where the object is located.
+  google.protobuf.Timestamp time  =  1; // Inherited from Position.
+                                        // The time for the position.
+  string objectId                 =  2; // The id of the object.
+  ObjectType objectType           =  3; // The type of object being identified.
+  Milestone milestone             =  4; // The optional milestone relating to this position.
+}
+
+// A position along the trajectory
+// Abstract class
+message Position {
+  oneof position {
+    Position4D position4D                   = 1;
+    Position4DCartesian position4DCartesian = 2;
+    PositionAtObject positionAtObject       = 3;
+  }
+}
+
+message AirspaceVolumeReference {
+  string volumeId               = 1; // The id of the volume it is referring to.
+  int32 bottomFlightLevel       = 2; // The bottom flight level, if not given then <see cref="FlightLevel.MinValue"/> is used.
+  int32 topFlightLevel          = 3; // The top flight level, if not given <see cref="FlightLevel.MaxValue"/> is used.
+}
+
+message TesselatedSectorSurface {
+  //string surfaceType        = 1; // Can be either bottom, wall or top surface.
+  repeated Position corners   = 1; // Should be of type Position4D with time 00:00:00.
+  repeated int32 triangles    = 2; // Indices for the surface's triangles, should be 3 times the size of the corners list.
+}
+
+// A trajectory (path and time), e.g., for an aircraft.
+// Concept: The trajectory consists of an ordered sequence of positions with a specified time and
+// position. If the aircraft stays at a position for a period of time then the position should be
+// repeated twice to specify both the entry time and the exit time. Positions (waypoints, runways)
+// that can be identified through an unique id should be represented as an PositionObject while other
+// positions needed to specify trajectory in sufficient detail will be represented as a Position4D.
+message Trajectory {
+  string id                     = 1;  // An optional id that make it possible to refer to this trajectory by name.
+  repeated Position trajectory  = 2;  // The complete list of positions.
+}
+
+// A message used to communicate to the UI interface (Unreal4) that all initialisation values have been transmitted.
+message InitialisationCompleted {
+  google.protobuf.Timestamp completionTime = 1;
+  int32 numAirspaceConfigs                 = 2;
+  int32 numAirspaces                       = 3;
+  int32 numSectors                         = 4;
+  int32 numAirblocks                       = 5;
+  int32 numWaypoints                       = 6;
+}
+
+message SimulatorTime {
+  google.protobuf.Timestamp time = 1;
+  float speedFactor              = 2;
+}
+
+// A message used to inform the MadMan Library of position, direction and speed of the aircraft.
+// assigned to the flight.
+message TargetReportMessage {
+  string xmlElementName                   =  1; // Inherited from EventMessage, The XML name of the event.
+  string vehicleId                        =  2; // The ID of the vehicle in question.
+  google.protobuf.Timestamp time          =  3; // The time for the observation.
+  float latitude                          =  4; // GPS Position (WGS84).
+  float longitude                         =  5; // -||-
+  float altitude                          =  6; // -||- Altitude (if known)
+  float speed                             =  7; // Speed (m/s).
+  float bearing                           =  8; // The bearing (degrees).
+  google.protobuf.Timestamp timeStamp     =  9; // The time when the message was sent.
+
+}
+
+message AllTargetReports {
+  repeated TargetReportMessage reports = 1;
+}
+
+// A message for specifying the reference/target/actual time of a milestone.
+message FlightMilestoneTimeMessage {
+  string xmlElementName                   = 1;  // Inherited from EventMessage, The XML name of the event.
+  string flightUniqueId                   = 2;  // Inherited from FlightMessage.
+                                                // A unique ID for the flight (preferably unique worldwide and across days).
+                                                // Messages with the same flight unique id will be assumed to relate to the same flight.
+  PlanningStage planningStage             = 3;  // Inherited from FlightMilestoneMessage.
+                                                // The type of milestone this message specifies.
+  Milestone milestone                     = 4;  // Inherited from FlightMilestoneMessage.
+                                                // Which milestone this message specifies.
+  google.protobuf.Timestamp milestoneTime = 5;  // The time for the milestone.
+  PreferenceInterval preferenceInterval   = 6;  // The preference's flexibility in time for the milestone.
+}
+
+// A message for specifying the reference/target/actual position of a milestone.
+message FlightMilestonePositionMessage {
+  string xmlElementName                   = 1;  // Inherited from EventMessage, The XML name of the event.
+  string flightUniqueId                   = 2;  // Inherited from FlightMessage.
+                                                // A unique ID for the flight (preferably unique worldwide and across days).
+                                                // Messages with the same flight unique id will be assumed to relate to the same flight.
+  PlanningStage planningStage             = 3;  // Inherited from FlightMilestoneMessage.
+                                                // The type of milestone this message specifies.
+  Milestone milestone                     = 4;  // Inherited from FlightMilestoneMessage.
+  PositionAtObject position               = 5;  // The position identified through the name of the waypoint/stand/runway.
+  float preference                        = 6;  // The weight of the preference. Zero value for the preference is interpreted as "information only" and can be used to send information about actual positions.
+  google.protobuf.Timestamp timeStampSent = 7;  // The time for which when the message was sent (system time).
+}
+
+// A message describing the plan for a flight.
+message PlannedFlightMessage {
+  string xmlElementName                               = 1;  // Inherited from EventMessage, The XML name of the event.
+  string flightUniqueId                               = 2;  // Inherited from FlightMessage.
+                                                            // A unique ID for the flight (preferably unique worldwide and across days).
+                                                            // Messages with the same flight unique id will be assumed to relate to the same flight.
+  Trajectory trajectory                               = 3;  // The detailed trajectory.
+  google.protobuf.Duration  minimumRunwaySeparation   = 4;  // The minimum amount of time the flight must be separated from the next flight.
+  google.protobuf.Duration  minimumFlowSeparation     = 5;  // MAAS if arrival or MDDS if departure.
+}
+
+//  A message describing a new aircraft.
+message NewAircraftMessage {
+  string xmlElementName                               = 1;  // Inherited from EventMessage, The XML name of the event.
+  string aircraftId                                   = 2;  // The unique id of the aircraft.
+  string aircraftType                                 = 3;  // The unique identifier of the aircraft type.
+  WakeTurbulenceCategory wakeTurbulenceCategory       = 4;  // Optional wake turbulence category. If null derived from aircraftType.
+}
+
+// A message describing a new vehicle type.
+message NewAircraftTypeMessage {
+  string xmlElementName                               = 1;  // Inherited from EventMessage, The XML name of the event.
+  string vehicleTypeId                                = 2;  // The unique id of the aircraft type.
+  float preferredGroundSpeed                          = 3;  // The preferred speed of the vehicle type (m/s).
+  float maximumGroundSpeed                            = 4;  // The maximum speed of the vehicle type (m/s).
+  float minimumTakeOffDistance                        = 5;  // The minimum runway distance that this type of vehicle needs to take off (m).
+  float wingSpan                                      = 6;  // The wingspan of the vehicle type (m).
+  float length                                        = 7;  // The length of the vehicle type (m).
+  WakeTurbulenceCategory  wakeTurbulenceCategory      = 8;  // The wake turbence category of a vehicle type, can be Light, Medium, Heavy or Jumbo, typically used to determine wake vortex separations.
+  SpeedCategory takeOffSpeedCategory                  = 9;  // The takeoff speed category of a vehicle type.
+  google.protobuf.Duration minStartUpTime             = 10; // The engine start up time. The aircraft cannot start moving directly when the engines are not started yet.
+  AircraftClass aircraftClass                         = 11; // The aircraft class of the vehicle type if applicable.
+  float height                                        = 12; // The height of this vehicle type (m).
+  VehicleCategory vehicleCategory                     = 13; // The aircraft category.
+  // Following is a list of data fields that may be of interest:
+  // float enginesStartupTime           - Time to startup the engines (s)
+  // AircraftCategory aircraftCategory  - The aircraft category (OTHER_CATEGORY, LANDPLANE, SEAPLANE, AMPHIBIAN, GYROCOPTER, HELICOPTER and TILTWING).
+  // AircraftEnginesType enginesType    - Type of the engines (OTHER_ENGINE_TYPE, JET, PISTON, TURBOPROP and ELECTRIC).
+  // int32 numberOfEngines              - The number of engines.
+  // string model                       - Commercial name of the aircraft.
+  // string manufacturer                - Name of the manufacturer.
+}
+
+// A message describing a new flight to the MadMan Library. This message must be added
+// before any other messages related to this flight.
+message NewFlightMessage {
+  string xmlElementName   = 1;  // Inherited from EventMessage, The XML name of the event.
+  string flightUniqueId   = 2;  // Inherited from FlightMessage, a unique id for the flight.
+  string callSign         = 3;  // The call sign for the flight.
+  string departureAirport = 4;  // The ICAO code for the airport the flight departs from.
+  string arrivalAirport   = 5;  // The ICAO code for the destination airport of the flight.
+  string aircraftId       = 6;  // The unique id of the aircraft that performs the flight.
+}
+
+// Event used to inform the MadMan Library about a change in status code for a flight.
+message FlightStatusCodeMessage {
+  string xmlElementName       = 1;  // Inherited from EventMessage, The XML name of the event.
+  string flightUniqueId       = 2;  // Inherited from FlightMessage, a unique id for the flight.
+  FlightStatusCode statusCode = 3;  // The status code.
+}
+
+// A message describing a new route.
+message NewRouteMessage {
+  string xmlElementName       = 1;  // Inherited from EventMessage, The XML name of the event.
+  string networkId            = 2;  // Inherited from NetworkAndObjectReferenceMessage.
+                                    // The network's id (must be unique within the application).
+  string routeId              = 3;  // Corresponds to objectId Inherited from ObjectReferenceMessage.
+                                    // The object's id (must be unique for the given object type).
+  ObjectType routeType        = 4;  // Inherited from ObjectReferenceMessage.
+                                    // The object's type.
+  Trajectory trajectory       = 5;  // A list of positions ordered chronologically.
+  SpeedCategory speedCategory = 6;  //  The speed category applicable for this route.
+}
+
+// A message used to inform the MadMan Library to give route information to a flight,
+// e.g., to assign a default a default flight route, to specifiy alternative routes,
+// to change the current route to one of the alternatives or to modify a portion of a route.
+
+message FlightRouteMessage {
+  string xmlElementName = 1;        // Inherited from EventMessage, The XML name of the event.z
+  string flightUniqueId = 2;        // A unique id for the flight.
+  PlanningStage planningStage = 3;  // The stage of planning, see method documentation for details.
+  ObjectType routeType = 4;         // The type of route.
+  Trajectory route = 5;             // A list of positions ordered chronologically or a reference to a known route.
+  float preference = 6;             // The weight of the preference. Normally only used for the planning stage reference and target.
+}
+
+// A message describing a new stand manoeuvre
+ message NewStandManoeuvreMessage {
+   string xmlElementName       = 1;  // Inherited from EventMessage, The XML name of the event.
+   string networkId            = 2;  // Inherited from NetworkAndObjectReferenceMessage.
+   string routeId              = 3;  // Corresponds to objectId Inherited from ObjectReferenceMessage.
+   ObjectType routeType        = 4;  // Inherited from ObjectReferenceMessage.
+   Trajectory route            = 5;  // A list of positions ordered chronologically.
+   SpeedCategory speedCategory = 6;  // The speed category applicable for this route.
+   Position stand              = 7;  // The position of the stand.
+   Position endPushback        = 8;  // The position where the backward motion of the pushback manoeuvre ends.
+   float bearing               = 9;  // The optional bearing of the vehicle after performing the manoeuvre.
+}
+
+message NewAirspaceMessage {
+  string xmlElementName                                     = 1; // Inherited from EventMessage, The XML name of the event.
+  string airspaceId                                         = 2; // Inherited from NewAirspaceVolumeMessage, the id of the airspace volume that we are defining.
+  repeated AirspaceVolumeReference includedAirspaceVolumes  = 3; // Inherited from NewAirspaceVolumeMessage, the included airspace volumes.
+  repeated Position area                                    = 4; // A polygon area defining the 2D part of the volume.
+  string description                                        = 5; // A description.
+  ObjectType objectType                                     = 6; // The airspace object type.
+}
+
+// Creates a new sector message. A sector is volume in air or on the
+// ground for which one or more air traffic controlelrs can be responsible for.
+// The volume is described by including other already defined airspace volumes.
+message NewSectorMessage {
+  string xmlElementName                                    = 1; // Inherited from EventMessage, The XML name of the event.
+  string sectorId                                          = 2; // Inherited from NewAirspaceVolumeMessage, the id of the sector that we are defining.
+  string description                                       = 3; // A description.
+  repeated AirspaceVolumeReference includedAirspaceVolumes = 4; // The included airspace volumes.
+  repeated Position area                                   = 5; // A polygon area defining the 2D part of the volume.
+  ObjectType objectType                                    = 6; // The sector object type.
+}
+
+message NewAirBlockMessage {
+  string xmlElementName    = 1; // Inherited from EventMessage, The XML name of the event.
+  string airBlockId        = 2; // Inherited from NewAirspaceVolumeMessage, the id of the airblock that we are defining.
+  string description       = 3; // A description.
+  repeated Position area   = 4; // Counter-clockwise enumeration of positions(longitude/latitude) of the volume, an optional
+                                // bottom level and upper level can be defined. If not defined, the airblock goes from 0 meter.
+                                // to double.MaxValue meters. The Altitude in the position 4D message is not taking into account.
+                                // Also, not the time in the Position4D class.
+  int32 bottomFlightLevel  = 5; // The bottom flight level of this airblock.
+  int32 topFlightLevel     = 6; // The top flight level of this airblock.
+  ObjectType objectType    = 7; // The airblock object type.
+}
+
+
+message NewAirspaceConfigurationMessage {
+  string xmlElementName                                    = 1;  // Inherited from EventMessage, The XML name of the event.
+  string configurationId                                   = 2;  // The unique id of the configuration.
+  string description                                       = 3;  // A more elaborate description of the airspace volume.
+  repeated AirspaceVolumeReference includedAirspaceVolumes = 5; // The included airspace volumes.
+  repeated Position area                                   = 6;  // The volume id of the airspace volumes that are part of the sector. Typically, the volumes are of airlock type.
+  ObjectType objectType                                    = 7;  // The airspace configuration object type.
+}
+
+// A message that tells the period when an airspace is available.
+message AirspaceAvailabilityMessage {
+  string xmlElementName                 = 1;  // Inherited from EventMessage, The XML name of the event.
+  string airspaceId                     = 2;  // The airspace id. In most cases this will refer to an airspace configuration.
+  google.protobuf.Timestamp startTime   = 3;  // The start of the time interval, inherited from TimeIntervalMessage.
+  google.protobuf.Timestamp endTime     = 4;  // The end of the time interval, inherited from TimeIntervalMessage.
+}
+
+// Creates a message about a new segment. If a segment with the same id exists, then the existing segment should be updated according to this message.
+message NewSegmentMessage {
+  string xmlElementName           = 1;  // Inherited from EventMessage, The XML name of the event.
+  string networkId                = 2;  // The unique name of the network where the object is located.
+  string segmentId                = 3;  // The unique id of the segment.
+  NetworkResourceType segmentType = 4;  // The object type.
+  Trajectory points               = 5;  // The trajectory given as an ordered sequence of points.
+  float curvature                 = 6;  // The curvature of the segment, i.e., the number of degrees the bearing changes per meter traversed.
+  SegmentDirection direction      = 7;  // The default direction for which the segment can be traversed.
+}
+
+// A message describing a new waypoint in the network.
+message NewWaypointMessage {
+  string xmlElementName     = 1;  // Inherited from EventMessage, The XML name of the event.
+  string networkId          = 2;  // The unique name of the network where the object is located.
+  string objectId           = 3;  // The unique id for the waypoint.
+  ObjectType objectType     = 4;  // The object type for the point.
+  WaypointType waypointType = 5;  // The type of waypoint.
+  repeated string points    = 6;  // The points within the waypoint area.
+}
+
+// A message describing a new point in the network.
+message NewPointMessage {
+  string xmlElementName     = 1;  // Inherited from EventMessage, The XML name of the event.
+  string networkId          = 2;  // The unique name of the network where the object is located.
+  string nodeId             = 3;  // The unique id for the point.
+  ObjectType nodeType       = 4;  // The object type for the point.
+  Position position         = 5;  // The position for the point.
+}
+
+// A message sent when there is a status update w.r.t a role, this can be either a controller or a (pseudo) pilot.
+// This can be in the event that a flight has been set to tentative, or been accepted by a controller.
+message RoleConfigurationMessage {
+    string roleName                   = 1;  // Name of the role, e.g. CWP1, Pseudo-pilot1 etc.
+    string sectorToControl            = 2;  // Sector this role is responsible for.
+    string actualIdOfSectorToControl  = 3;  // Actual id of the sector to control.
+    repeated string acceptedFlights   = 4;  // Flights this role has accepted responsibility for.
+    repeated string tentativeFlights  = 5;  // Flights this role has accepted future responsibility for, will be accepted when invoked as such.
+}
+
+message CurrentAirspaceConfigurationMessage {
+  string CurrentAirspaceConfiguration = 1;
+}
+
+message TesselatedAirspaceVolumeMessage {
+  string airspaceVolumeId                             = 1; // Id of the tesselated airspace volume.
+  string belongsToAirspaceConfigId                    = 2; // Id of the airspace configuration this tesselated volume belongs to.
+  int32 numberOfVolumesInConfig                       = 3; // The number of volumes in the airspace configuration this volume belongs to.
+  repeated TesselatedSectorSurface tesselatedSurfaces = 4; // A list of all the tesselated surfaces.
+}
+
+message NewAirspaceVolumeFlightListMessage {
+  string airspaceVolumeId         = 1;  // Id of the airspace volume this flight list belongs to.
+  repeated string flightsInVolume = 2; //Ids of all the flights in this volume.
+}
+
+message AddAcceptedFlightMessage {
+  string fromControllableAirspaceVolume   = 1; // Id of the controllable airspace volume that released ownership of the flight to toRole.
+  string toControllableAirspaceVolume     = 2; // Id of the controllable airspace volume that accepted the flight, that has become the owner.
+  string flightId                         = 3; // The id of the accepted flight.
+  google.protobuf.Timestamp timeStamp     = 4; // The time for when the accept happened.
+}
+
+message AddTentativeFlightMessage {
+  string fromControllableAirspaceVolume   = 1; // Id of the controllable airspace volume that coordinated next ownership of the flight to toRole.
+  string toControllableAirspaceVolume     = 2; // Id of the controllable airspace volume that gains next ownership of the flight, upon acceptance.
+  string flightId                         = 3; // The id of the tentative flight.
+  google.protobuf.Timestamp timeStamp     = 4; // The time for when the tentative happened.
+}
+// ###################################################################################
+// * Messages, end.                                                                  |
+//  ##################################################################################
