@@ -6,7 +6,7 @@ export function notFound(params, message, url) {
 }
 
 export function todo(params, message, url) {
-  console.info('MQTT message received but event handler is not yet implemented', url, message);
+  // console.info('MQTT message received but event handler is not yet implemented', url, message);
 }
 
 export function ignored() { }

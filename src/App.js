@@ -10,9 +10,11 @@ import { render } from '@testing-library/react';
 import { aircraftStore } from './state';
 import { ListGroup } from 'react-bootstrap';
 import AircraftListElement from './AircraftListElement';
+import { observer } from 'mobx-react';
 
 import { sectorLayer } from './sector-layer';
 import { outlineLayer } from './outline-style';
+import { useAircrafts } from './model/AircraftStore';
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -44,6 +46,7 @@ const scaleControlStyle = {
 
 
 export default function App(props) {
+  // const aircraftStore = useAircrafts();
 
   const [viewport, setViewport] = useState({
     longitude: 64.12345,
@@ -70,6 +73,9 @@ export default function App(props) {
       ]
     }
   }
+  // useEffect(()=> {
+//   aircraftStore.fetchAircrafts()
+// },[aircraftStore]); //new store, lets re-run
 
   return (
     <>
@@ -79,7 +85,7 @@ export default function App(props) {
         mapStyle="mapbox://styles/opheliaprillard/ckypvi7mb0pfx15pj15t3iqjh" //Black screen style
         mapboxApiAccessToken={MAPBOX_TOKEN}
       >
-        <Aircrafts data={aircraftStore.aircrafts} onClick={setPopupInfo} />
+        <Aircrafts data={aircraftStore.aircraftsWithPosition} onClick={setPopupInfo} />
         {popupInfo && (
           <Popup
             tipSize={5}
@@ -103,7 +109,7 @@ export default function App(props) {
       <div className='aircraft-list'>
         <h3 style={{ color: '#ffffff' }}>Flights</h3>
         <ListGroup as="ul">
-          <AircraftListElement data={aircraftStore.aircrafts} />
+          <AircraftListElement data={aircraftStore.aircraftsWithPosition} />
         </ListGroup>
       </div>
       <SectorConfiguration />

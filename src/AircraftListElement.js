@@ -1,9 +1,10 @@
 import * as React from 'react';
 import {ListGroup} from 'react-bootstrap';
+import { observer } from 'mobx-react';
 
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
-function AircraftListElement(props){
+export default observer(function AircraftListElement(props){
     const{data,onClick} = props;
     return data.map((aircraft_data)=>(
         <ListGroup.Item key={aircraft_data.assignedFlightId} action as="li">
@@ -14,7 +15,7 @@ function AircraftListElement(props){
             </li> */}
         </ListGroup.Item>
     ));
-}
+})
 
 // export default React.memo(Aircrafts);
-export default AircraftListElement;
+// export default AircraftListElement;
