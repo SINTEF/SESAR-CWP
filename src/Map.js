@@ -34,11 +34,23 @@ const scaleControlStyle = {
   padding: '10px'
 };
 
+const mapStyle = {
+  "version": 8,
+  "name": "Black",
+  "metadata": {},
+  "sources": {},
+  "layers": [{
+    "id": "background",
+    "type": "background", "paint": {}
+  }],
+};
+
 export default function Map(props) {
   const [viewport, setViewport] = useState({
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
+    maxPitch: 60,
   });
 
   const [popupInfo, setPopupInfo] = useState(null);
@@ -63,9 +75,7 @@ export default function Map(props) {
   // }
   return (<ReactMapGL {...viewport} width="100vw" height="100vh"
     onViewportChange={setViewport}
-    attributionControl={false}
-    mapStyle="mapbox://styles/opheliaprillard/ckypvi7mb0pfx15pj15t3iqjh" //Black screen style
-    mapboxApiAccessToken={MAPBOX_TOKEN}
+    mapStyle={mapStyle}
   >
     <Aircrafts onClick={setPopupInfo} />
     {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
@@ -74,6 +84,5 @@ export default function Map(props) {
     <FullscreenControl style={fullscreenControlStyle} />
     <NavigationControl style={navStyle} />
     <ScaleControl style={scaleControlStyle} />
-    <AttributionControl compact={true} style={attributionStyle} />
   </ReactMapGL>);
 }

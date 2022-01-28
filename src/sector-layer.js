@@ -1,8 +1,8 @@
 export const sectorLayer = {
-    id:'sectorpolygon',
-    type:'fill',
+    id: 'sectorpolygon',
+    type: 'fill',
     paint: {
-        'fill-color':{
+        'fill-color': {
             property: 'percentile',
             stops: [
                 [0, '#3288bd'],
@@ -16,6 +16,6 @@ export const sectorLayer = {
                 [8, '#d53e4f']
             ]
         },
-        'fill-opacity':0.8
+        'fill-opacity': 0.8
     }
 };

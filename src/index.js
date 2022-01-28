@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
 import App from "./App";
@@ -10,7 +10,7 @@ import './mqtt';
 
 //Removed StrictMode to be able to make SectorConfigutations Draggable (will see if this causes problems) <React.StrictMode>
 ReactDOM.render(
-    <App />,
+  <App />,
   document.getElementById("root")
 );
 

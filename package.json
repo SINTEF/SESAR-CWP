@@ -12,7 +12,7 @@
         "fs": "^0.0.1-security",
         "google-protobuf": "^3.19.3",
         "https-browserify": "^1.0.0",
-        "mapbox-gl": "^2.6.1",
+        "maplibre-gl": "^2.1.0",
         "mobx": "^6.3.12",
         "mobx-react-lite": "^3.2.3",
         "mobx-state-tree": "^5.1.0",

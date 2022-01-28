@@ -17,6 +17,9 @@ module.exports = function override(config, env) {
             Buffer: ['buffer', 'Buffer'],
         }),
     );
+    config.resolve.alias = {
+        'mapbox-gl': 'maplibre-gl',
+    };
 
     return config;
 }
