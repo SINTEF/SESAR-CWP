@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ListGroup } from 'react-bootstrap';
-import { observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
 import { aircraftStore } from './state';
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes

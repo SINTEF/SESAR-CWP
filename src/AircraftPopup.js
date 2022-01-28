@@ -1,4 +1,4 @@
-import { observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
 import { Popup } from 'react-map-gl';
 import { aircraftStore } from './state';
 
