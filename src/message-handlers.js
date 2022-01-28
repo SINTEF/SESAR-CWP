@@ -1,5 +1,5 @@
 import AirtrafficMessages from './ProtobufAirTrafficSimulator_pb';
-import { aircraftStore } from './state';
+import { aircraftStore, sectorStore } from './state';
 
 export function notFound(params, message, url) {
   console.warn('MQTT message received but no matching route found', url, message);
@@ -19,4 +19,13 @@ export function targetReport({ clientId, vehicleId }, message, url) {
 export function newFlight({clientId, flightUniqueId}, message, url) {
   var protoMessage = AirtrafficMessages.NewFlightMessage.deserializeBinary(message);
   aircraftStore.handleNewFlight(protoMessage);
+}
+
+export function newAirspaceConfiguration({configurationId}, message, url){
+  var protoMessage = AirtrafficMessages.NewAirspaceConfigurationMessage.deserializeBinary(message);
+  sectorStore.handleNewAirspaceConfiguration(protoMessage);
+  
+}
+export function airspaces({airspaceId}, message, url){
+  var protoMessage = AirtrafficMessages.NewAirspaceMessage.deserializeBinary(message);
 }

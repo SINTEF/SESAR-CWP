@@ -1,5 +1,5 @@
 import { types } from 'mobx-state-tree';
-import { aircraftStore } from '../state';
+// import { aircraftStore } from '../state';
 
 import AircraftModel from './AircraftModel';
 

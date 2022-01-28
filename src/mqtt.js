@@ -2,7 +2,7 @@ import mqtt from 'mqtt';
 import { transaction } from 'mobx';
 import rlite from 'rlite-router';
 
-import { notFound, todo, ignored, targetReport, newFlight } from './message-handlers';
+import {notFound, todo, ignored, targetReport, newFlight, newAirspaceConfiguration, airspaces} from './message-handlers';
 
 const client = mqtt.connect('ws://localhost:9001/mqtt');
 
@@ -32,10 +32,10 @@ const router = rlite(notFound, {
     'ATM/:clientId/Routes/:networkId/:objectId': todo,
     'ATM/:clientId/FlightRoutes/:flightUniqueId': todo,
     'ATM/:clientId/StandManoeuvres/:networkId/:objectId': todo,
-    'ATM/:clientId/Airspaces/:airspaceId': todo,
+    'ATM/:clientId/Airspaces/:airspaceId': airspaces,
     'ATM/:clientId/Sectors/:sectorId': todo,
     'ATM/:clientId/Airblocks/:airblockId': todo,
-    'ATM/:clientId/AirspaceConfigurations/:configurationId': todo,
+    'ATM/:clientId/AirspaceConfigurations/:configurationId': newAirspaceConfiguration,
     'ATM/:clientId/AirspaceAvailability/:airspaceId/:time': todo,
     'ATM/:clientId/Segments/:segmentId': todo,
     'ATM/:clientId/Waypoints/:objectId': todo,
