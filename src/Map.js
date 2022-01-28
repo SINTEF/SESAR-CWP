@@ -13,23 +13,23 @@ const attributionStyle = {
   bottom: 0
 }
 const geolocateStyle = {
-  bottom: 150,
+  bottom: 157,
   left: 0,
   padding: '10px'
 };
 const fullscreenControlStyle = {
-  bottom: 185,
+  bottom: 120,
   left: 0,
   padding: '10px'
 };
 const navStyle = {
-  bottom: 60,
+  bottom: 25,
   left: 0,
 
   padding: '10px'
 };
 const scaleControlStyle = {
-  bottom: 36,
+  bottom: 0,
   left: 0,
   padding: '10px'
 };
@@ -76,6 +76,7 @@ export default function Map(props) {
     onViewportChange={setViewport}
     mapStyle={mapStyle}
     maxPitch={60}
+    attributionControl={false}
   >
     <Aircrafts onClick={setPopupInfo} />
     {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
