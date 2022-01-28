@@ -14,6 +14,6 @@ export default observer(function AircraftPopup(props) {
     longitude={info.lastKnownLongitude}
     latitude={info.lastKnownLatitude}
     closeOnClick={true}
-    onClose={onClose}> Callsign: {info.assignedFlightId} {info.lastKnownLongitude} and {info.lastKnownLongitude}
+    onClose={onClose}> Callsign: {info.assignedFlightId} {info.lastKnownLongitude} and {info.lastKnownLatitude}
   </Popup>);
 });

@@ -1,11 +1,10 @@
 
 import { useState } from 'react';
-import ReactMapGL, { AttributionControl, Source, Layer, Popup, NavigationControl, ScaleControl, GeolocateControl, FullscreenControl } from 'react-map-gl';
+import ReactMapGL, { AttributionControl, Popup, NavigationControl, ScaleControl, GeolocateControl, FullscreenControl } from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
-import { sectorLayer } from './sector-layer';
-import { outlineLayer } from './outline-style';
 import AircraftPopup from './AircraftPopup';
+import SectorPolygon from './SectorPolygons';
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -44,25 +43,24 @@ export default function Map(props) {
 
   const [popupInfo, setPopupInfo] = useState(null);
 
-  const data = { //create a store for this data as well
-    'type': 'Feature',
-    'geometry': {
-      'type': 'Polygon',
-      'coordinates': [
-        [
-          [67.13734, 9.13745],
-          [66.96466, 9.8097],
-          [68.03252, 10.3252],
-          [69.06, 11.98],
-          [68.06, 10.98],
-          [67.06, 12.98],
-          [66.06, 9.98],
-          [67.13734, 9.13745],
-        ]
-      ]
-    }
-  }
-
+  // const data = { //create a store for this data as well, using <Source> and take out in new element to create sectors and not update map all the time
+  //   'type': 'Feature',
+  //   'geometry': {
+  //     'type': 'Polygon',
+  //     'coordinates': [
+  //       [
+  //         [67.13734, 9.13745],
+  //         [66.96466, 9.8097],
+  //         [68.03252, 10.3252],
+  //         [69.06, 11.98],
+  //         [68.06, 10.98],
+  //         [67.06, 12.98],
+  //         [66.06, 9.98],
+  //         [67.13734, 9.13745],
+  //       ]
+  //     ]
+  //   }
+  // }
   return (<ReactMapGL {...viewport} width="100vw" height="100vh"
     onViewportChange={setViewport}
     attributionControl={false}
@@ -71,10 +69,7 @@ export default function Map(props) {
   >
     <Aircrafts onClick={setPopupInfo} />
     {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
-    <Source type="geojson" data={data}>
-      <Layer {...sectorLayer} />
-      <Layer {...outlineLayer} />
-    </Source>
+    <SectorPolygon/>
     <GeolocateControl style={geolocateStyle} />
     <FullscreenControl style={fullscreenControlStyle} />
     <NavigationControl style={navStyle} />

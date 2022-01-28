@@ -68,4 +68,6 @@ code {
     color: #000;
     outline: none;
     text-transform: uppercase;
+    height: 250px;
+    overflow-y: scroll;
 }

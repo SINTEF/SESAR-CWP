@@ -13,7 +13,7 @@ export default types.model("AircraftStore", {
   aircrafts: types.map(AircraftModel),
 }).views(store => ({
   get aircraftsWithPosition() {
-    const aircrafts = Array.from(store.aircrafts.values())
+    const aircrafts = Array.from(store.aircrafts.values()) //Here also used to filter aircrafts based on altitude
       .filter(({ lastKnownLongitude }) => lastKnownLongitude !== 0)
     //debugger;
     return aircrafts
@@ -48,25 +48,4 @@ export default types.model("AircraftStore", {
       }
       aircraft.handleTargetReport(targetReport);
     },
-    // async fetchAircrafts(){
-    //   const data = await fetchAircrafts() //Getting the aircrafts data
-    //       const newAircrafts = data.map(aircraft => ({
-    //           aircraftId: aircraft.aircraftId,
-    //           assignedFlightId: aircraft.assignedFlightId,
-    //           lastKnownLongitude: aircraft.lastKnownLongitude,
-    //           lastKnownLatitude: aircraft.lastKnownLatitude,
-    //           lastKnownAltitude: aircraft.lastKnownAltitude
-    //       }))
-    //       store.setAircrafts(newAircrafts)
-    // }
   }));
-
-// let _aircraftStore
-// export const useAircrafts = () => {
-//   if(!aircraftStore){
-//     _aircraftStore = AircraftModel.create({
-//       aircrafts:[]
-//     })
-//   }
-//   return _aircraftStore;
-// };
