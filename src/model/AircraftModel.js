@@ -12,9 +12,9 @@ export default types.model("AircraftModel", {
     lastTargetReportTime: 0,
 })).actions(self => ({
     handleTargetReport(targetReport) {
-        // Ignore target reports that are older than the latest one
+        // Ignore target reports that are older than the previous one
         // This is because MQTT doesn't guarantie the order of the received messages
-        // We could use a better message queue like RabbitMQ but it would have more overhead
+        // We could use a MQTT broker that is a message queue with an order, like RabbitMQ
         const time = targetReport.getTime();
         const timestamp = time.getSeconds() + time.getNanos() * 1e-9;
         if (timestamp < self.lastTargetReportTime) {
