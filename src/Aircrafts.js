@@ -1,33 +1,41 @@
-import { observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
 import * as React from 'react';
-import { Marker } from 'react-map-gl';
 
+import { aircraftStore } from './state';
+import AircraftMarker from './AircraftMarker';
 
-const ICON = `M22 16.21v-1.895L14 8V4a2 2 0 0 0-4 0v4.105L2 14.42v1.789l8-2.81V18l-3 2v2l5-2 5 2v-2l-3-2v-4.685l8 2.895z`;
-
-const size = 20;
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
-export default observer( function Aircrafts(props) {
-    const { data, onClick } = props;
+export default observer(function Aircrafts(props) {
+    const { onClick } = props;
+    const data = aircraftStore.aircraftsWithPosition;
     // Convert the map to an array and remove the aircrafts containing undefined values
     // as we have not received a target report for them yet
-    return data.map((aircraft_data) => (
-        <Marker key={aircraft_data.assignedFlightId} longitude={aircraft_data.lastKnownLongitude} latitude={aircraft_data.lastKnownLatitude}>
-            <svg
-                height={size}
-                viewBox='0 0 24 24'
-                preserveAspectRatio='xMidYMid meet'
-                style={{
-                    cursor: 'pointer',
-                    fill: '#fff', //change depending on limbo or own flights
-                    stroke: 'none',
-                    transform: `translate(${-size / 2}px, ${size}px)`
-                }}
-                onClick={() => onClick(aircraft_data)} >
-                <path d={ICON} /></svg>
-        </Marker>
-    ));
-})
+    /*const geojson = {
+        type: 'FeatureCollection',
+        features: data.map(({ lastKnownLongitude, lastKnownLatitude }) => (
+            { type: 'Feature', geometry: { type: 'Point', coordinates: [lastKnownLongitude, lastKnownLatitude] } }
+        )),
+    };
 
-// export default React.memo(Aircrafts);
-// export default Aircrafts;
+    const layerStyle = {
+        id: 'point',
+        type: 'circle',
+        paint: {
+            'circle-radius': 10,
+            'circle-color': '#007cbf'
+        }
+    };
+
+    return (<Source id="aircrafts" type="geojson" data={geojson}>
+        <Layer {...layerStyle} />
+    </Source>);
+    */
+    return data.map((aircraft_data) => {
+        const aircraftId = aircraft_data.aircraftId;
+        const bearing = aircraft_data.lastKnownBearing;
+        const longitude = aircraft_data.lastKnownLongitude;
+        const latitude = aircraft_data.lastKnownLatitude;
+        const flightId = aircraft_data.assignedFlightId;
+        return <AircraftMarker key={flightId} flightId={flightId} bearing={bearing} longitude={longitude} latitude={latitude} onClick={() => onClick(aircraftId)} />;
+    });
+})

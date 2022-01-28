@@ -14,7 +14,7 @@
         "https-browserify": "^1.0.0",
         "mapbox-gl": "^2.6.1",
         "mobx": "^6.3.12",
-        "mobx-react": "^7.2.1",
+        "mobx-react-lite": "^3.2.3",
         "mobx-state-tree": "^5.1.0",
         "mqtt": "^4.3.4",
         "os": "^0.1.2",

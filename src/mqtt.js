@@ -1,4 +1,5 @@
 import mqtt from 'mqtt';
+import { transaction } from 'mobx';
 import rlite from 'rlite-router';
 
 import {notFound, todo, ignored, targetReport, newFlight, newAirspaceConfiguration, airspaces} from './message-handlers';
@@ -7,9 +8,9 @@ const client = mqtt.connect('ws://localhost:9001/mqtt');
 
 // var message = new airtrafficMessages.Position4D(); //creating a new message
 
-client.on('connect', function() {
+client.on('connect', function () {
     console.log("Connected to MQTT broker");
-    client.subscribe('ATM/#', function(err) {
+    client.subscribe('ATM/#', function (err) {
         console.log("Subscribed to all topics");
         if (!err) {
             client.publish('hello', 'Hello world')
@@ -47,14 +48,28 @@ const router = rlite(notFound, {
     'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': todo,
     'ATM/:clientId/status/time': todo,
     'ATM/:clientId/status/:status': todo,
-
-
 });
 
-client.on('message', function(topic, message) {
-    try {
-        router(topic, message);
-    } catch (error) {
-        console.error("Error while handling MQTT message", error);
+let incoming_messages_queue = [];
+let incoming_messages_batch_id = 0;
+
+function process_incoming_messages() {
+    transaction(() => {
+        incoming_messages_batch_id = 0;
+        incoming_messages_queue.forEach(({ topic, message }) => {
+            try {
+                router(topic, message);
+            } catch (error) {
+                console.error("Error while handling MQTT message", error);
+            }
+        });
+    });
+    incoming_messages_queue = [];
+}
+
+client.on('message', function (topic, message) {
+    incoming_messages_queue.push({ topic, message });
+    if (incoming_messages_batch_id === 0) {
+        incoming_messages_batch_id = window.requestAnimationFrame(process_incoming_messages);
     }
 });

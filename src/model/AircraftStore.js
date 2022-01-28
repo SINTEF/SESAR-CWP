@@ -12,53 +12,54 @@ import AircraftModel from './AircraftModel';
 export default types.model("AircraftStore", {
   aircrafts: types.map(AircraftModel),
 }).views(store => ({
-  get aircraftsWithPosition(){
+  get aircraftsWithPosition() {
     const aircrafts = Array.from(store.aircrafts.values())
-        .filter(({ lastKnownLongitude }) => lastKnownLongitude !== 0)
+      .filter(({ lastKnownLongitude }) => lastKnownLongitude !== 0)
     //debugger;
     return aircrafts
   }
 }))
-.actions(store => ({
+  .actions(store => ({
 
-  setAircrafts(newAircrafts) {
-    store.aircrafts = newAircrafts;
-  },
-  handleNewFlight(newFlight) {
-    // debugger;
-    //console.log(newFlight.getAircraftid())
-    store.aircrafts.put(AircraftModel.create({
+    setAircrafts(newAircrafts) {
+      store.aircrafts = newAircrafts;
+    },
+    handleNewFlight(newFlight) {
+      // debugger;
+      const id = newFlight.getAircraftid();
+      if (store.aircrafts.has(id)) {
+        console.log("updating");
+        //store.aircrafts.get(id).update(newFlight);
+      } else {
+        store.aircrafts.set(id, AircraftModel.create({
 
-      // TODO check what these contains because we may have some surprises
-      aircraftId: newFlight.getAircraftid(),
-      assignedFlightId: newFlight.getFlightuniqueid(),
-    }));
-  },
-  handleTargetReport(targetReport) {
-    const vehicleId = targetReport.getVehicleid();
-    const aircraft = store.aircrafts.get(vehicleId);
-    if (!aircraft) {
-      console.warn("Received target report for unknown aircraft", vehicleId);
-      return;
-    }
-    aircraft.lastKnownAltitude = targetReport.getAltitude();
-    aircraft.lastKnownLatitude = targetReport.getLatitude();
-    aircraft.lastKnownLongitude = targetReport.getLongitude();
-    aircraft.lastKnownBearing = targetReport.getBearing();
-    aircraft.lastKnownSpeed = targetReport.getSpeed();
-  },
-  // async fetchAircrafts(){
-  //   const data = await fetchAircrafts() //Getting the aircrafts data
-  //       const newAircrafts = data.map(aircraft => ({
-  //           aircraftId: aircraft.aircraftId,
-  //           assignedFlightId: aircraft.assignedFlightId,
-  //           lastKnownLongitude: aircraft.lastKnownLongitude,
-  //           lastKnownLatitude: aircraft.lastKnownLatitude,
-  //           lastKnownAltitude: aircraft.lastKnownAltitude
-  //       }))
-  //       store.setAircrafts(newAircrafts)
-  // }
-}));
+          // TODO check what these contains because we may have some surprises
+          aircraftId: newFlight.getAircraftid(),
+          assignedFlightId: newFlight.getFlightuniqueid(),
+        }));
+      }
+    },
+    handleTargetReport(targetReport) {
+      const vehicleId = targetReport.getVehicleid();
+      const aircraft = store.aircrafts.get(vehicleId);
+      if (!aircraft) {
+        console.warn("Received target report for unknown aircraft", vehicleId);
+        return;
+      }
+      aircraft.handleTargetReport(targetReport);
+    },
+    // async fetchAircrafts(){
+    //   const data = await fetchAircrafts() //Getting the aircrafts data
+    //       const newAircrafts = data.map(aircraft => ({
+    //           aircraftId: aircraft.aircraftId,
+    //           assignedFlightId: aircraft.assignedFlightId,
+    //           lastKnownLongitude: aircraft.lastKnownLongitude,
+    //           lastKnownLatitude: aircraft.lastKnownLatitude,
+    //           lastKnownAltitude: aircraft.lastKnownAltitude
+    //       }))
+    //       store.setAircrafts(newAircrafts)
+    // }
+  }));
 
 // let _aircraftStore
 // export const useAircrafts = () => {
