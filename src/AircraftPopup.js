@@ -9,6 +9,7 @@ export default observer(function AircraftPopup(props) {
 
   return (<Popup
     tipSize={5}
+    offsetTop={-5}
     anchor="bottom"
     longitude={info.lastKnownLongitude}
     latitude={info.lastKnownLatitude}
