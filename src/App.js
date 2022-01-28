@@ -46,8 +46,6 @@ const scaleControlStyle = {
 
 
 export default function App(props) {
-  // const aircraftStore = useAircrafts();
-
   const [viewport, setViewport] = useState({
     longitude: 64.12345,
     latitude: 9.35321,
@@ -93,7 +91,7 @@ export default function App(props) {
             longitude={popupInfo.lastKnownLongitude}
             latitude={popupInfo.lastKnownLatitude}
             closeOnClick={true}
-            onClose={setPopupInfo}> Callsign: {popupInfo.assignedFlightId} {popupInfo.lastKnownLongitude} and {popupInfo.lastKnownLongitude}
+            onClose={setPopupInfo}> Callsign: {popupInfo.assignedFlightId} {popupInfo.lastKnownLongitude} and {popupInfo.lastKnownLatitude}
           </Popup>
         )}
         <Source type="geojson" data={data}>
