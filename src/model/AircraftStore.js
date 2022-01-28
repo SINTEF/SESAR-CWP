@@ -40,18 +40,13 @@ export default types.model("AircraftStore", {
       }
     },
     handleTargetReport(targetReport) {
-      console.log("target report");
       const vehicleId = targetReport.getVehicleid();
       const aircraft = store.aircrafts.get(vehicleId);
       if (!aircraft) {
         console.warn("Received target report for unknown aircraft", vehicleId);
         return;
       }
-      aircraft.lastKnownAltitude = targetReport.getAltitude();
-      aircraft.lastKnownLatitude = targetReport.getLatitude();
-      aircraft.lastKnownLongitude = targetReport.getLongitude();
-      aircraft.lastKnownBearing = targetReport.getBearing();
-      aircraft.lastKnownSpeed = targetReport.getSpeed();
+      aircraft.handleTargetReport(targetReport);
     },
     // async fetchAircrafts(){
     //   const data = await fetchAircrafts() //Getting the aircrafts data
