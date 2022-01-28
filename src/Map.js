@@ -50,7 +50,6 @@ export default function Map(props) {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
-    maxPitch: 60,
   });
 
   const [popupInfo, setPopupInfo] = useState(null);
@@ -76,6 +75,7 @@ export default function Map(props) {
   return (<ReactMapGL {...viewport} width="100vw" height="100vh"
     onViewportChange={setViewport}
     mapStyle={mapStyle}
+    maxPitch={60}
   >
     <Aircrafts onClick={setPopupInfo} />
     {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
