@@ -37,8 +37,8 @@ const scaleControlStyle = {
 export default function Map(props) {
   const [viewport, setViewport] = useState({
     longitude: 9.27,
-    latitude: 9.27,
-    zoom: 3
+    latitude: 45.11,
+    zoom: 6.3,
   });
 
   const [popupInfo, setPopupInfo] = useState(null);
@@ -69,7 +69,7 @@ export default function Map(props) {
   >
     <Aircrafts onClick={setPopupInfo} />
     {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
-    <SectorPolygon/>
+    <SectorPolygon />
     <GeolocateControl style={geolocateStyle} />
     <FullscreenControl style={fullscreenControlStyle} />
     <NavigationControl style={navStyle} />
