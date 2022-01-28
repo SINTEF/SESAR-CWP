@@ -8,15 +8,6 @@ import SectorPolygon from './SectorPolygons';
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const attributionStyle = {
-  right: 0,
-  bottom: 0
-}
-const geolocateStyle = {
-  bottom: 157,
-  left: 0,
-  padding: '10px'
-};
 const fullscreenControlStyle = {
   bottom: 120,
   left: 0,
@@ -81,8 +72,7 @@ export default function Map(props) {
     <Aircrafts onClick={setPopupInfo} />
     {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
     <SectorPolygon />
-    <GeolocateControl style={geolocateStyle} />
-    <FullscreenControl style={fullscreenControlStyle} />
+    <FullscreenControl style={fullscreenControlStyle} container={document.body} />
     <NavigationControl style={navStyle} />
     <ScaleControl style={scaleControlStyle} />
   </ReactMapGL>);
