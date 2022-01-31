@@ -11,7 +11,9 @@ export default observer(function AircraftListElement(props) {
     <ListGroup.Item key={aircraft_data.assignedFlightId} action as="li">
       {/* <li key={aircraft_data.aircraftId}>
               <a href="#" onClick={() => undefined}> */}
-      {aircraft_data.assignedFlightId}
+      <b>FlightId: {aircraft_data.assignedFlightId}</b> <br></br> 
+      Speed: {Math.floor(aircraft_data.lastKnownSpeed)} <br></br> 
+      Position: {Math.floor(aircraft_data.lastKnownLongitude)}, {Math.floor(aircraft_data.lastKnownLatitude)}, {Math.floor(aircraft_data.lastKnownAltitude)} <br></br> 
       {/* </a>
             </li> */}
     </ListGroup.Item>
