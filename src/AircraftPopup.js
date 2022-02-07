@@ -17,7 +17,7 @@ export default observer(function AircraftPopup(props) {
     anchor="bottom"
     longitude={info.lastKnownLongitude}
     latitude={info.lastKnownLatitude}
-    closeOnClick={false}
-    onClose={onClose}> Callsign: {info.assignedFlightId} {info.lastKnownLongitude} and {info.lastKnownLatitude}
+    closeOnClick={true}
+    onClose={onClose}> FlightId: {info.assignedFlightId} <br></br> Longitude: {parseFloat((info.lastKnownLongitude).toFixed(5))} <br></br> Latitude: {parseFloat((info.lastKnownLatitude).toFixed(5))}
   </Popup>);
 });

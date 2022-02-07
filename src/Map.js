@@ -1,11 +1,13 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ReactMapGL, { NavigationControl, ScaleControl, FullscreenControl } from 'react-map-gl';
 import * as maplibregl from 'maplibre-gl';
 
 import Aircrafts from './Aircrafts';
 import AircraftPopup from './AircraftPopup';
 import SectorPolygon from './SectorPolygons';
+import { targetReport } from './message-handlers';
+import { Overlay, Button } from 'react-bootstrap';
 
 const mapStyle = {
   "version": 8,
@@ -52,6 +54,9 @@ export default function Map(props) {
   //   }
   // }
 
+  const [show,setShow] = useState(false);
+  const target = useRef(null);
+
   const onAircraftClick = (aircraftId) => {
     setPopupInfo(aircraftId);
   };
@@ -70,6 +75,26 @@ export default function Map(props) {
     <Aircrafts onClick={onAircraftClick} />
     {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
     <SectorPolygon />
+    {/* <Button className="filt-button" variant="secondary" ref={target}
+    onClick={() => setShow(!show)}>
+    FILT
+    </Button>
+    <Overlay target = {target.current} show={show} placement="top">
+      {({placement, arrowPropes, show:_show, popper, ...props}) => (
+        <div
+        {...props}
+            style={{
+              backgroundColor: 'rgba(0,0,0)',
+              // padding: '2px 10px',
+              color: 'white',
+              // borderRadius: 3,
+              ...props.style,
+            }}
+        >
+        Filtering
+        </div>
+      )}
+    </Overlay> */}
     <ScaleControl position="bottom-left" />
     <NavigationControl position="bottom-left" />
     <FullscreenControl position="bottom-left" containerId="root" />
