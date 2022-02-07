@@ -6,6 +6,10 @@ export default observer(function AircraftPopup(props) {
 
   const { onClose, aircraftId } = props;
   const info = aircraftStore.aircrafts.get(aircraftId);
+  if (!info) {
+    console.warn('No aircraft with id', aircraftId);
+    return null;
+  }
 
   return (<Popup
     tipSize={5}
@@ -13,7 +17,7 @@ export default observer(function AircraftPopup(props) {
     anchor="bottom"
     longitude={info.lastKnownLongitude}
     latitude={info.lastKnownLatitude}
-    closeOnClick={true}
+    closeOnClick={false}
     onClose={onClose}> Callsign: {info.assignedFlightId} {info.lastKnownLongitude} and {info.lastKnownLatitude}
   </Popup>);
 });

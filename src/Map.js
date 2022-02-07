@@ -1,29 +1,11 @@
 
 import { useState } from 'react';
-import ReactMapGL, { AttributionControl, Popup, NavigationControl, ScaleControl, GeolocateControl, FullscreenControl } from 'react-map-gl';
+import ReactMapGL, { NavigationControl, ScaleControl, FullscreenControl } from 'react-map-gl';
+import * as maplibregl from 'maplibre-gl';
 
 import Aircrafts from './Aircrafts';
 import AircraftPopup from './AircraftPopup';
 import SectorPolygon from './SectorPolygons';
-
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
-
-const fullscreenControlStyle = {
-  bottom: 120,
-  left: 0,
-  padding: '10px'
-};
-const navStyle = {
-  bottom: 25,
-  left: 0,
-
-  padding: '10px'
-};
-const scaleControlStyle = {
-  bottom: 0,
-  left: 0,
-  padding: '10px'
-};
 
 const mapStyle = {
   "version": 8,
@@ -36,12 +18,17 @@ const mapStyle = {
   }],
 };
 
+const style = {
+  width: '100vw',
+  height: '100vh'
+};
+
 export default function Map(props) {
-  const [viewport, setViewport] = useState({
+  let initialViewState = {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
-  });
+  };
 
   const [popupInfo, setPopupInfo] = useState(null);
 
@@ -63,17 +50,26 @@ export default function Map(props) {
   //     ]
   //   }
   // }
-  return (<ReactMapGL {...viewport} width="100vw" height="100vh"
-    onViewportChange={setViewport}
+
+  const onAircraftClick = (aircraftId) => {
+    setPopupInfo(aircraftId);
+  };
+  const onPopupClose = () => {
+    setPopupInfo(null);
+  };
+
+  return (<ReactMapGL
+    style={style}
+    initialViewState={initialViewState}
     mapStyle={mapStyle}
-    maxPitch={60}
     attributionControl={false}
+    mapLib={maplibregl}
   >
-    <Aircrafts onClick={setPopupInfo} />
-    {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
+    <Aircrafts onClick={onAircraftClick} />
+    {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
     <SectorPolygon />
-    <FullscreenControl style={fullscreenControlStyle} container={document.body} />
-    <NavigationControl style={navStyle} />
-    <ScaleControl style={scaleControlStyle} />
+    <ScaleControl position="bottom-left" />
+    <NavigationControl position="bottom-left" />
+    <FullscreenControl position="bottom-left" containerId="root" />
   </ReactMapGL>);
 }
