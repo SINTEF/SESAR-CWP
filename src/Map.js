@@ -65,6 +65,7 @@ export default function Map(props) {
     mapStyle={mapStyle}
     attributionControl={false}
     mapLib={maplibregl}
+    antialias={true}
   >
     <Aircrafts onClick={onAircraftClick} />
     {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
