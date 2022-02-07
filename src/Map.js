@@ -1,46 +1,37 @@
 
 import { useState, useRef } from 'react';
-import ReactMapGL, { AttributionControl, Popup, NavigationControl, ScaleControl, GeolocateControl, FullscreenControl } from 'react-map-gl';
+import ReactMapGL, { NavigationControl, ScaleControl, FullscreenControl } from 'react-map-gl';
+import * as maplibregl from 'maplibre-gl';
+
 import Aircrafts from './Aircrafts';
 import AircraftPopup from './AircraftPopup';
 import SectorPolygon from './SectorPolygons';
 import { targetReport } from './message-handlers';
 import { Overlay, Button } from 'react-bootstrap';
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+const mapStyle = {
+  "version": 8,
+  "name": "Black",
+  "metadata": {},
+  "sources": {},
+  "layers": [{
+    "id": "background",
+    "type": "background", "paint": {}
+  }],
+};
 
-const attributionStyle = {
-  right: 0,
-  bottom: 0
-}
-const geolocateStyle = {
-  bottom: 150,
-  left: 0,
-  padding: '10px'
-};
-const fullscreenControlStyle = {
-  bottom: 160,
-  left: 0,
-  padding: '10px'
-};
-const navStyle = {
-  bottom: 60,
-  left: 0,
-
-  padding: '10px'
-};
-const scaleControlStyle = {
-  bottom: 36,
-  left: 0,
-  padding: '10px'
+const style = {
+  width: '100vw',
+  height: '100vh',
+  background: 'black'
 };
 
 export default function Map(props) {
-  const [viewport, setViewport] = useState({
+  let initialViewState = {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
-  });
+  };
 
   const [popupInfo, setPopupInfo] = useState(null);
 
@@ -62,16 +53,27 @@ export default function Map(props) {
   //     ]
   //   }
   // }
+
   const [show,setShow] = useState(false);
   const target = useRef(null);
-  return (<ReactMapGL {...viewport} width="100vw" height="100vh"
-    onViewportChange={setViewport}
+
+  const onAircraftClick = (aircraftId) => {
+    setPopupInfo(aircraftId);
+  };
+  const onPopupClose = () => {
+    setPopupInfo(null);
+  };
+
+  return (<ReactMapGL
+    style={style}
+    initialViewState={initialViewState}
+    mapStyle={mapStyle}
     attributionControl={false}
-    mapStyle="mapbox://styles/opheliaprillard/ckypvi7mb0pfx15pj15t3iqjh" //Black screen style
-    mapboxApiAccessToken={MAPBOX_TOKEN}
+    mapLib={maplibregl}
+    antialias={true}
   >
-    <Aircrafts onClick={setPopupInfo} />
-    {popupInfo && (<AircraftPopup onClose={setPopupInfo} aircraftId={popupInfo} />)}
+    <Aircrafts onClick={onAircraftClick} />
+    {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
     <SectorPolygon />
     {/* <Button className="filt-button" variant="secondary" ref={target}
     onClick={() => setShow(!show)}>
@@ -93,10 +95,8 @@ export default function Map(props) {
         </div>
       )}
     </Overlay> */}
-    {/* <GeolocateControl style={geolocateStyle} /> */}
-    <FullscreenControl style={fullscreenControlStyle} />
-    <NavigationControl style={navStyle} />
-    {/* <ScaleControl style={scaleControlStyle} /> */}
-    <AttributionControl compact={true} style={attributionStyle} />
+    <ScaleControl position="bottom-left" />
+    <NavigationControl position="bottom-left" />
+    <FullscreenControl position="bottom-left" containerId="root" />
   </ReactMapGL>);
 }

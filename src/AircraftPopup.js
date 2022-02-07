@@ -6,6 +6,10 @@ export default observer(function AircraftPopup(props) {
 
   const { onClose, aircraftId } = props;
   const info = aircraftStore.aircrafts.get(aircraftId);
+  if (!info) {
+    console.warn('No aircraft with id', aircraftId);
+    return null;
+  }
 
   return (<Popup
     tipSize={5}

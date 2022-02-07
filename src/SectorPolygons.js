@@ -9,32 +9,29 @@ import { outlineLayer } from './outline-style';
 export default observer(function SectorPolygon(props) {
     const edgeData = sectorStore.edges;
     const sectorData = sectorStore.areaOfIncludedAirspaces; //Both sectors and airspaces
-    const sectors = []
-    sectorData.map(airspace => (
-        sectors.push({
-            'type': 'Feature',
-            'properties': {
-                'color': "#fff",
-                'width': 1,
-                // 'dasharray':[2,1],
-            },
-            'geometry': {
-                'type': 'Polygon',
-                'coordinates': [airspace.airspaceArea.map(area => (
-                    [area.longitude, area.latitude])
-                )]
-            }
-        })));
-    var sectorJson = JSON.parse(JSON.stringify(sectors));
+    const sectors = sectorData.map(airspace => ({
+        'type': 'Feature',
+        'properties': {
+            'color': "#fff",
+            'width': 1,
+            // 'dasharray':[2,1],
+        },
+        'geometry': {
+            'type': 'Polygon',
+            'coordinates': [airspace.airspaceArea.map(area => (
+                [area.longitude, area.latitude])
+            )]
+        }
+    }));
     const geoJson = {
         type: 'FeatureCollection',
         features:
-            [...sectorJson,
+            [...sectors,
             {
                 'type': 'Feature',
                 'properties': {
                     'color': "#f0f",
-                    'width':3,
+                    'width': 3,
                     // 'dasharray':[2,2],
 
                 },
