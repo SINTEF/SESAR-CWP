@@ -13,7 +13,7 @@ export default types.model("AircraftStore", {
   aircrafts: types.map(AircraftModel),
 }).views(store => ({
   get aircraftsWithPosition() {
-    const aircrafts = Array.from(store.aircrafts.values()) //Here also used to filter aircrafts based on altitude
+    const aircrafts = Array.from(store.aircrafts.values()) //Here also use to filter aircrafts based on altitude
       .filter(({ lastKnownLongitude }) => lastKnownLongitude !== 0)
     //debugger;
     return aircrafts
