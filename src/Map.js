@@ -20,7 +20,8 @@ const mapStyle = {
 
 const style = {
   width: '100vw',
-  height: '100vh'
+  height: '100vh',
+  background: 'black'
 };
 
 export default function Map(props) {
