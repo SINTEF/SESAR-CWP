@@ -7,14 +7,16 @@ import AircraftModel from './AircraftModel';
 //   const response = await fetch(URL);
 //   return response.json();
 // }
-
+const highest_altitude = 10000;
+const lowest_altitude = 5000;
 // Only way of manipulating data in MST is by creating Actions
 export default types.model("AircraftStore", {
   aircrafts: types.map(AircraftModel),
 }).views(store => ({
   get aircraftsWithPosition() {
     const aircrafts = Array.from(store.aircrafts.values()) //Here also use to filter aircrafts based on altitude
-      .filter(({ lastKnownLongitude }) => lastKnownLongitude !== 0)
+      .filter(({ lastKnownLongitude, lastKnownAltitude }) => lastKnownLongitude !== 0 && lastKnownAltitude > lowest_altitude && lastKnownAltitude < highest_altitude)
+      // .filter(({ lastKnownAltitude }) => lastKnownAltitude > lowest_altitude && lastKnownAltitude < highest_altitude)
     //debugger;
     return aircrafts
   }

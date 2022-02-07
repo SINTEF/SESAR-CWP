@@ -8,7 +8,7 @@ export default observer(function AircraftListElement(props) {
   const { onClick } = props;
   const data = aircraftStore.aircraftsWithPosition;
   return data.map((aircraft_data) => (
-    <ListGroup.Item key={aircraft_data.assignedFlightId} action as="li">
+    <ListGroup.Item variant="secondary" key={aircraft_data.assignedFlightId} action as="li">
       {/* <li key={aircraft_data.aircraftId}>
               <a href="#" onClick={() => undefined}> */}
       <b>FlightId: {aircraft_data.assignedFlightId}</b> <br></br> 

@@ -12,30 +12,30 @@ const SectorConfiguration = ({ sectorConfiguration }) => (
     <div className='control-panel'>
     <Accordion defaultActiveKey={['0']} alwaysOpen>
   <Accordion.Item eventKey="0">
-    <Accordion.Header>Configuration Time #1</Accordion.Header>
+    <Accordion.Header>From 12:00 to 12:30</Accordion.Header>
     <Accordion.Body>
-    <CardGroup>
+    <CardGroup variant='secondary'>
   <Card><Button variant="primary">
-    <Card.Body>
-      <Card.Title>Sector</Card.Title>
+    <Card.Body variant='secondary'>
+      <Card.Title>Sector 7</Card.Title>
       <Card.Text>
-        Additional Info
+        FI 250-999
       </Card.Text>
     </Card.Body>
   </Button></Card>
  <Card><Button variant="danger">
     <Card.Body>
-      <Card.Title>Card title</Card.Title>
+      <Card.Title>Sector 6</Card.Title>
       <Card.Text>
-        Infomation
+        FI 250-999
       </Card.Text>
     </Card.Body>
   </Button></Card>
-  <Card><Button variant="warning">
+  <Card><Button variant="warning"> 
     <Card.Body>
-      <Card.Title>Card title</Card.Title>
+      <Card.Title>Sector 4</Card.Title>
       <Card.Text>
-        More Info
+       FI 250-999
       </Card.Text>
     </Card.Body>
   </Button></Card>
@@ -43,27 +43,27 @@ const SectorConfiguration = ({ sectorConfiguration }) => (
     </Accordion.Body>
   </Accordion.Item>
   <Accordion.Item eventKey="1">
-    <Accordion.Header>Configuration Time #2</Accordion.Header>
+    <Accordion.Header>From 12:30 to 13:00</Accordion.Header>
     <Accordion.Body>
     <CardGroup>
-  <Card><Button variant="primary">
+  <Card><Button style={{height:'8rem'}} variant="primary">
     <Card.Body>
       <Card.Title>Sector</Card.Title>
       <Card.Text>
-        Additional Info
+        FI 250-999
       </Card.Text>
     </Card.Body>
   </Button></Card>
  <Card><ListGroup><Button style={{height:'4rem'}} variant="danger">
-    <Card.Body> Card Title
+    <Card.Body> Sector 6
       {/* <Card.Title>Card title</Card.Title> */}
       {/* <Card.Text>
         Infomation
       </Card.Text> */}
     </Card.Body>
   </Button>
-  <Button style={{height:'3.9rem'}} variant="success">
-    <Card.Body> Sector
+  <Button style={{height:'4rem'}} variant="success">
+    <Card.Body> Sector 4
       {/* <Card.Title>Card title</Card.Title> */}
       {/* <Card.Text>
         Infomation
@@ -72,9 +72,9 @@ const SectorConfiguration = ({ sectorConfiguration }) => (
   </Button>
   </ListGroup>
   </Card>
-  <Card><Button variant="warning">
+  <Card><Button style={{height:'8rem'}} variant="warning">
     <Card.Body>
-      <Card.Title>Card title</Card.Title>
+      <Card.Title>Sector 3</Card.Title>
       <Card.Text>
         More Info
       </Card.Text>

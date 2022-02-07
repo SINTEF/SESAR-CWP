@@ -16,7 +16,6 @@ export const SectorModel = types.model("SectorModel",{ // One sector
     sectorId: types.identifier,
     bottomFlightLevel: types.optional(types.number, 0),
     topFlightLevel: types.optional(types.number, 0),
-    // coordinates: types.array(CoordinatePair)
 })
 //only way of manipulating data in MST is by creating Actions
 export default types.model("SectorStore", { //SectorStore also known as configuration of airspace
@@ -34,7 +33,7 @@ export default types.model("SectorStore", { //SectorStore also known as configur
             }))      
         })
         store.edges = newEdges;
-        //If sector if airspace - devide into different
+        //If sector is airspace - devide into different
         newConfig.getIncludedairspacevolumesList().map((includedAirspace) =>{
             if (store.sectors.has(includedAirspace.getVolumeid())){
                 console.log("updating");

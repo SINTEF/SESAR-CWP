@@ -13,7 +13,7 @@ export default function App(props) {
   return (
     <>
       <Map />
-      <h3 className ='flights-title' style={{ color: '#ffffff' }}>Flights</h3>
+      {/* <h3 className ='flights-title' style={{ color: '#ffffff' }}>Flights</h3> */}
       <div className='aircraft-list'>
         <ListGroup as="ul">
           <AircraftListElement />
