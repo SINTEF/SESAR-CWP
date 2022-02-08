@@ -5,6 +5,8 @@ import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from '
 import AircraftPopup from './AircraftPopup';
 import Aircrafts from './Aircrafts';
 import SectorPolygon from './SectorPolygons';
+import { targetReport } from './message-handlers';
+import { Overlay, Card, Accordion, useAccordionButton } from 'react-bootstrap';
 
 const mapStyle = {
   version: 8,
@@ -52,6 +54,16 @@ export default function Map() {
   //     ]
   //   }
   // }
+  function CustomToggle({ children, eventkey }) {
+    const smallerButton = useAccordionButton(eventkey)
+    return (
+      <button
+        type="button"
+        style={{ backgroundColor: 'rgb(34, 34, 34)' }}
+        onClick={smallerButton}
+      ></button>
+    )
+  }
 
   const onAircraftClick = (aircraftId) => {
     setPopupInfo(aircraftId);
@@ -60,19 +72,28 @@ export default function Map() {
     setPopupInfo(undefined);
   };
 
-  return (
-    <ReactMapGL
-      style={style}
-      initialViewState={initialViewState}
-      mapStyle={mapStyle}
-      attributionControl={false}
-      mapLib={maplibregl}
-      antialias
-    >
-      <Aircrafts onClick={onAircraftClick} />
-      {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
-      <SectorPolygon />
-      {/* <Button className="filt-button" variant="secondary" ref={target}
+  return (<ReactMapGL
+    style={style}
+    initialViewState={initialViewState}
+    mapStyle={mapStyle}
+    attributionControl={false}
+    mapLib={maplibregl}
+    antialias={true}
+  >
+    <Aircrafts onClick={onAircraftClick} />
+    {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
+    <SectorPolygon />
+    <Accordion defaultActiveKey="0">
+      <Card>
+        <Card.Header>
+          <CustomToggle eventKey="0">Click me!</CustomToggle>
+        </Card.Header>
+        <Accordion.Collapse eventKey="0">
+          <Card.Body>Hello! I'm the body</Card.Body>
+        </Accordion.Collapse>
+      </Card>
+    </Accordion>
+    {/* <Button ref={target}
     onClick={() => setShow(!show)}>
     FILT
     </Button>
@@ -81,7 +102,7 @@ export default function Map() {
         <div
         {...props}
             style={{
-              backgroundColor: 'rgba(0,0,0)',
+              // backgroundColor: 'rgba(0,0,0)',
               // padding: '2px 10px',
               color: 'white',
               // borderRadius: 3,
@@ -92,9 +113,9 @@ export default function Map() {
         </div>
       )}
     </Overlay> */}
-      <ScaleControl position="bottom-left" />
-      <NavigationControl position="bottom-left" />
-      <FullscreenControl position="bottom-left" containerId="root" />
-    </ReactMapGL>
+    <ScaleControl position="bottom-left" />
+    <NavigationControl position="bottom-left" />
+    <FullscreenControl position="bottom-left" containerId="root" />
+  </ReactMapGL>
   );
 }

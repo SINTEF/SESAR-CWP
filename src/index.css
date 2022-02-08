@@ -59,13 +59,11 @@ code {
     top: 0;
     left: 5;
     width: 250px;
-    /* background: #000; */
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); */
     padding: 10px 14px;
     margin: 8px;
     font-size: 10px;
     line-height: 2;
-    color: #fff;
+    /* color: #fff; */
     outline: none;
     text-transform: uppercase;
     height: 250px;
@@ -91,13 +89,57 @@ code {
     display: none;
 }
 
-.darkened {
-    background-color: rgb(73, 73, 73);
+
+/* .filt-button {
+    position: fixed;
+    bottom: 1;
+    left: 0;
+} */
+
+
+/* For popup on flights */
+
+.mapboxgl-popup-close-button {
     color: white;
 }
 
-.filt-button {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+.mapboxgl-popup-content {
+    background: rgb(34, 34, 34);
+    color: white;
+    /* border-top-color: white; */
 }
+
+.mapboxgl-popup-anchor-bottom>.mapboxgl-popup-content {
+    margin-top: 15px;
+}
+
+.mapboxgl-popup-anchor-bottom>.mapboxgl-popup-tip {
+    border-top-color: rgb(34, 34, 34);
+}
+
+
+/* Filter panel and button */
+
+
+/* .panel-header {
+    border: 1px solid #cccc;
+    font-weight: normal;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.panel-header button {
+    border: white;
+    background: rgb(34, 34, 34);
+}
+
+.panel-header button:focus {
+    outline: 0px auto -webkit-focus-ring-color;
+}
+
+.panel-body {
+    border: 1px solid #dddddd;
+    background: rgb(34, 34, 34);
+    color: white;
+    padding: 5px;
+    border-top: none;
+} */
