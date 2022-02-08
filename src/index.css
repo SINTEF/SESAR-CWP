@@ -120,6 +120,60 @@ code {
 
 /* Filter panel and button */
 
+.filter-panel {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 500px;
+    background: transparent;
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); */
+    /* padding: 12px 24px;
+    margin: 20px; */
+    font-size: 13px;
+    /* line-height: 2; */
+    color: white;
+    outline: none;
+    /* text-transform: uppercase; */
+}
+
+.filter-panel .card {
+    flex-direction: column-reverse;
+    background: transparent !important;
+}
+
+.filter-header {
+    /* border: 1px solid #cccc; */
+    font-weight: normal;
+    background: transparent !important;
+}
+
+.filter-header button {
+    /* border: 1px solid #cccc; */
+    font-weight: normal;
+    background: black;
+    margin-top: -8px;
+    margin-left: -15px;
+    padding: 6px;
+}
+
+.body-panel {
+    border: 1px solid white;
+    background: rgb(34, 34, 34);
+    padding-bottom: 0;
+    margin-bottom: 0;
+    width: 20em;
+}
+
+.set-button {
+    background: 'rgb(34, 34, 34)';
+    color: '#fff';
+}
+
+
+/* .info {
+    background: black;
+} */
+
 
 /* .panel-header {
     border: 1px solid #cccc;

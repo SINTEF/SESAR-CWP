@@ -1,12 +1,14 @@
 import * as maplibregl from 'maplibre-gl';
+import PropTypes from 'prop-types';
 import React, { useState } from 'react';
+import {
+  Accordion, Card, Col, Container, Row, useAccordionButton,
+} from 'react-bootstrap';
 import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from 'react-map-gl';
 
 import AircraftPopup from './AircraftPopup';
 import Aircrafts from './Aircrafts';
 import SectorPolygon from './SectorPolygons';
-import { targetReport } from './message-handlers';
-import { Overlay, Card, Accordion, useAccordionButton } from 'react-bootstrap';
 
 const mapStyle = {
   version: 8,
@@ -25,6 +27,23 @@ const style = {
   height: '100vh',
   background: 'black',
 };
+function CustomToggle({ children, eventKey }) {
+  const smallerButton = useAccordionButton(eventKey);
+  return (
+    // eslint-disable-next-line jsx-a11y/control-has-associated-label
+    <button
+      type="button"
+      style={{ backgroundColor: 'rgb(34, 34, 34)', color: '#fff' }}
+      onClick={smallerButton}
+    >
+      {children}
+    </button>
+  );
+}
+CustomToggle.propTypes = {
+  children: PropTypes.string.isRequired,
+  eventKey: PropTypes.string.isRequired,
+};
 
 export default function Map() {
   const initialViewState = {
@@ -35,87 +54,66 @@ export default function Map() {
 
   const [popupInfo, setPopupInfo] = useState(undefined);
 
-  // const data = { //create a store for this data as well, using <Source> and take out
-  // in new element to create sectors and not update map all the time
-  //   'type': 'Feature',
-  //   'geometry': {
-  //     'type': 'Polygon',
-  //     'coordinates': [
-  //       [
-  //         [67.13734, 9.13745],
-  //         [66.96466, 9.8097],
-  //         [68.03252, 10.3252],
-  //         [69.06, 11.98],
-  //         [68.06, 10.98],
-  //         [67.06, 12.98],
-  //         [66.06, 9.98],
-  //         [67.13734, 9.13745],
-  //       ]
-  //     ]
-  //   }
-  // }
-  function CustomToggle({ children, eventkey }) {
-    const smallerButton = useAccordionButton(eventkey)
-    return (
-      <button
-        type="button"
-        style={{ backgroundColor: 'rgb(34, 34, 34)' }}
-        onClick={smallerButton}
-      ></button>
-    )
-  }
-
   const onAircraftClick = (aircraftId) => {
     setPopupInfo(aircraftId);
   };
   const onPopupClose = () => {
     setPopupInfo(undefined);
   };
+  const highestBound = 10_500;
+  const lowestBound = 2500;
 
-  return (<ReactMapGL
-    style={style}
-    initialViewState={initialViewState}
-    mapStyle={mapStyle}
-    attributionControl={false}
-    mapLib={maplibregl}
-    antialias={true}
-  >
-    <Aircrafts onClick={onAircraftClick} />
-    {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
-    <SectorPolygon />
-    <Accordion defaultActiveKey="0">
-      <Card>
-        <Card.Header>
-          <CustomToggle eventKey="0">Click me!</CustomToggle>
-        </Card.Header>
-        <Accordion.Collapse eventKey="0">
-          <Card.Body>Hello! I'm the body</Card.Body>
-        </Accordion.Collapse>
-      </Card>
-    </Accordion>
-    {/* <Button ref={target}
-    onClick={() => setShow(!show)}>
-    FILT
-    </Button>
-    <Overlay target = {target.current} show={show} placement="top">
-      {({placement, arrowPropes, show:_show, popper, ...props}) => (
-        <div
-        {...props}
-            style={{
-              // backgroundColor: 'rgba(0,0,0)',
-              // padding: '2px 10px',
-              color: 'white',
-              // borderRadius: 3,
-              ...props.style,
-            }}
-        >
-        Filtering
-        </div>
-      )}
-    </Overlay> */}
-    <ScaleControl position="bottom-left" />
-    <NavigationControl position="bottom-left" />
-    <FullscreenControl position="bottom-left" containerId="root" />
-  </ReactMapGL>
+  return (
+    <ReactMapGL
+      style={style}
+      initialViewState={initialViewState}
+      mapStyle={mapStyle}
+      attributionControl={false}
+      mapLib={maplibregl}
+      antialias
+    >
+      <Aircrafts onClick={onAircraftClick} />
+      {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
+      <SectorPolygon />
+      <Accordion className="filter-panel">
+        <Card className="card">
+          <Card.Header className="filter-header">
+            <CustomToggle eventKey="0">FILT</CustomToggle>
+          </Card.Header>
+          <Accordion.Collapse eventKey="0">
+            <Card.Body className="body-panel">
+              <Container>
+                <Col className="align-self-center">
+                  <p>
+                    Altitude Filter
+                  </p>
+                </Col>
+                <Row className="justify-content-md-center">
+                  <div className="col align-self-center">
+                    <button type="button" className="set-button"> SET </button>
+                  </div>
+                  <div className="col align-self-start">
+                    <h4>
+                      H:
+                      {' '}
+                      {highestBound / 10}
+                    </h4>
+
+                    <h4>
+                      L:
+                      {' '}
+                      {lowestBound / 10}
+                    </h4>
+                  </div>
+                </Row>
+              </Container>
+            </Card.Body>
+          </Accordion.Collapse>
+        </Card>
+      </Accordion>
+      <ScaleControl position="bottom-left" />
+      <NavigationControl position="bottom-left" />
+      <FullscreenControl position="bottom-left" containerId="root" />
+    </ReactMapGL>
   );
 }
