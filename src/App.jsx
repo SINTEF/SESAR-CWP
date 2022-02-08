@@ -5,6 +5,7 @@ import SectorConfiguration from './SectorConfiguration';
 import { render } from '@testing-library/react';
 import AircraftListElement from './AircraftListElement';
 import Map from './Map';
+import SectorConfiguration from './SectorConfiguration';
 
 
 
@@ -17,7 +18,7 @@ export default function App(props) {
       <SectorConfiguration />
 
     </>
-  )
+  );
 }
 
 export function renderToDom(container) {

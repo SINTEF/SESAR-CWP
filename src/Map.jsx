@@ -1,41 +1,42 @@
-
-import { useState, useRef } from 'react';
-import ReactMapGL, { NavigationControl, ScaleControl, FullscreenControl } from 'react-map-gl';
 import * as maplibregl from 'maplibre-gl';
+import React, { useState } from 'react';
+import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from 'react-map-gl';
 
-import Aircrafts from './Aircrafts';
 import AircraftPopup from './AircraftPopup';
+import Aircrafts from './Aircrafts';
 import SectorPolygon from './SectorPolygons';
 import { targetReport } from './message-handlers';
 import { Overlay, Card, Accordion, useAccordionButton } from 'react-bootstrap';
 
 const mapStyle = {
-  "version": 8,
-  "name": "Black",
-  "metadata": {},
-  "sources": {},
-  "layers": [{
-    "id": "background",
-    "type": "background", "paint": {}
+  version: 8,
+  name: 'Black',
+  metadata: {},
+  sources: {},
+  layers: [{
+    id: 'background',
+    type: 'background',
+    paint: {},
   }],
 };
 
 const style = {
   width: '100vw',
   height: '100vh',
-  background: 'black'
+  background: 'black',
 };
 
-export default function Map(props) {
-  let initialViewState = {
+export default function Map() {
+  const initialViewState = {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
   };
 
-  const [popupInfo, setPopupInfo] = useState(null);
+  const [popupInfo, setPopupInfo] = useState(undefined);
 
-  // const data = { //create a store for this data as well, using <Source> and take out in new element to create sectors and not update map all the time
+  // const data = { //create a store for this data as well, using <Source> and take out
+  // in new element to create sectors and not update map all the time
   //   'type': 'Feature',
   //   'geometry': {
   //     'type': 'Polygon',
@@ -53,25 +54,22 @@ export default function Map(props) {
   //     ]
   //   }
   // }
-  function CustomToggle({children,eventkey}){
+  function CustomToggle({ children, eventkey }) {
     const smallerButton = useAccordionButton(eventkey)
     return (
       <button
-      type="button"
-      style={{backgroundColor:'rgb(34, 34, 34)'}}
-      onClick={smallerButton}
+        type="button"
+        style={{ backgroundColor: 'rgb(34, 34, 34)' }}
+        onClick={smallerButton}
       ></button>
     )
   }
-
-  const [show,setShow] = useState(false);
-  const target = useRef(null);
 
   const onAircraftClick = (aircraftId) => {
     setPopupInfo(aircraftId);
   };
   const onPopupClose = () => {
-    setPopupInfo(null);
+    setPopupInfo(undefined);
   };
 
   return (<ReactMapGL
@@ -94,7 +92,7 @@ export default function Map(props) {
           <Card.Body>Hello! I'm the body</Card.Body>
         </Accordion.Collapse>
       </Card>
-      </Accordion>
+    </Accordion>
     {/* <Button ref={target}
     onClick={() => setShow(!show)}>
     FILT
@@ -118,5 +116,6 @@ export default function Map(props) {
     <ScaleControl position="bottom-left" />
     <NavigationControl position="bottom-left" />
     <FullscreenControl position="bottom-left" containerId="root" />
-  </ReactMapGL>);
+  </ReactMapGL>
+  );
 }

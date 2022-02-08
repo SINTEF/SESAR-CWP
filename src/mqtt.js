@@ -1,21 +1,21 @@
-import mqtt from 'mqtt';
 import { transaction } from 'mobx';
+import mqtt from 'mqtt';
 import rlite from 'rlite-router';
 
-import {notFound, todo, ignored, targetReport, newFlight, newAirspaceConfiguration, airspaces} from './message-handlers';
+import {
+    airspaces, ignored, newAirspaceConfiguration, newFlight, notFound, targetReport, todo,
+} from './messageHandlers';
 
 const client = mqtt.connect('ws://localhost:9001/mqtt');
 
-// var message = new airtrafficMessages.Position4D(); //creating a new message
-
-client.on('connect', function () {
-    console.log("Connected to MQTT broker");
-    client.subscribe('ATM/#', function (err) {
-        console.log("Subscribed to all topics");
-        if (!err) {
-            client.publish('hello', 'Hello world')
+client.on('connect', () => {
+    // console.debug('Connected to MQTT broker');
+    client.subscribe('ATM/#', (error) => {
+        if (error) {
+            // eslint-disable-next-line no-console
+            console.error('Failed to subscribe to MQTT topics', error);
         }
-    })
+    });
 });
 
 const router = rlite(notFound, {
@@ -50,26 +50,27 @@ const router = rlite(notFound, {
     'ATM/:clientId/status/:status': todo,
 });
 
-let incoming_messages_queue = [];
-let incoming_messages_batch_id = 0;
+let incomingMessagesQueue = [];
+let incomingMessagesBatchId = 0;
 
-function process_incoming_messages() {
+function processIncomingMessages() {
     transaction(() => {
-        incoming_messages_batch_id = 0;
-        incoming_messages_queue.forEach(({ topic, message }) => {
+        incomingMessagesBatchId = 0;
+        for (const { topic, message } of incomingMessagesQueue) {
             try {
                 router(topic, message);
             } catch (error) {
-                console.error("Error while handling MQTT message", error);
+                // eslint-disable-next-line no-console
+                console.error('Error while handling MQTT message', error);
             }
-        });
+        }
     });
-    incoming_messages_queue = [];
+    incomingMessagesQueue = [];
 }
 
-client.on('message', function (topic, message) {
-    incoming_messages_queue.push({ topic, message });
-    if (incoming_messages_batch_id === 0) {
-        incoming_messages_batch_id = window.requestAnimationFrame(process_incoming_messages);
+client.on('message', (topic, message) => {
+    incomingMessagesQueue.push({ topic, message });
+    if (incomingMessagesBatchId === 0) {
+        incomingMessagesBatchId = window.requestAnimationFrame(processIncomingMessages);
     }
 });

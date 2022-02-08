@@ -1,18 +1,18 @@
-
-import AircraftStore from "./model/AircraftStore";
-import SectorStore from "./model/SectorStore";
-import AirspaceStore from "./model/AirspaceModel"
+import AircraftStore from './model/AircraftStore';
+import AirspaceStore from './model/AirspaceModel';
+import SectorStore from './model/SectorStore';
 
 export const aircraftStore = AircraftStore.create({
   aircrafts: {},
 });
 
-export const sectorStore = SectorStore.create({
-  configurationId: "",
-  edges: [],
-  sectors: {}
+export const airspaceStore = AirspaceStore.create({
+  airspaces: {},
 });
 
-export const airspaceStore = AirspaceStore.create({
-  airspaces: {}
+export const sectorStore = SectorStore.create({
+  configurationId: '',
+  edges: [],
+  sectors: {},
+  airspaceStore,
 });
