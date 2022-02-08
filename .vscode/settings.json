@@ -1,9 +1,12 @@
 {
-    "files.associations": {
-        "*.js": "javascriptreact"
-    },
-    "editor.formatOnSave": true,
-    "editor.rulers": [
-        100
-    ]
+  "files.associations": {
+    "*.js": "javascriptreact"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "editor.rulers": [
+    100
+  ]
 }
