@@ -1,0 +1,73 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "plugin:import/recommended",
+    "plugin:eslint-comments/recommended",
+    "plugin:you-dont-need-lodash-underscore/compatible",
+    "plugin:react/recommended",
+    "airbnb",
+    "plugin:unicorn/recommended"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "simple-import-sort"
+  ],
+  "rules": {
+    "import/first": "warn",
+    "import/newline-after-import": "warn",
+    "import/no-duplicates": "warn",
+    "simple-import-sort/imports": [
+      "warn",
+      {
+        "groups": [
+          [
+            "^\\u0000"
+          ],
+          [
+            "^@?\\w",
+            "^@?\\w.*\\u0000$"
+          ],
+          [
+            "(?<!\\u0000)$",
+            "(?<=\\u0000)$"
+          ],
+          [
+            "^\\.",
+            "^\\..*\\u0000$"
+          ]
+        ]
+      }
+    ],
+    "simple-import-sort/exports": "warn",
+    "indent": "off",
+    "function-paren-newline": "off",
+    "unicorn/no-useless-undefined": "off",
+    "max-len": [
+      "warn",
+      {
+        "code": 100,
+        "tabWidth": 2,
+        "ignorePattern": "(\/\/ eslint-disable-next-line|\/* eslint-(enable|disable))"
+      }
+    ],
+    "unicorn/filename-case": [
+      "error",
+      {
+        "cases": {
+          "pascalCase": true,
+          "camelCase": true
+        }
+      }
+    ]
+  }
+}
