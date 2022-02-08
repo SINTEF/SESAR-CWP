@@ -1,20 +1,19 @@
-
 import './App.css';
-import * as React from 'react';
-import SectorConfiguration from './SectorConfiguration';
+
 import { render } from '@testing-library/react';
+import React from 'react';
 import { ListGroup } from 'react-bootstrap';
+
 import AircraftListElement from './AircraftListElement';
 import Map from './Map';
+import SectorConfiguration from './SectorConfiguration';
 
-
-
-export default function App(props) {
+export default function App() {
   return (
     <>
       <Map />
       {/* <h3 className ='flights-title' style={{ color: '#ffffff' }}>Flights</h3> */}
-      <div className='aircraft-list'>
+      <div className="aircraft-list">
         <ListGroup as="ul">
           <AircraftListElement />
         </ListGroup>
@@ -22,7 +21,7 @@ export default function App(props) {
       <SectorConfiguration />
 
     </>
-  )
+  );
 }
 
 export function renderToDom(container) {
