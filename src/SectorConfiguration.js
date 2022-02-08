@@ -14,7 +14,7 @@ const SectorConfiguration = ({ sectorConfiguration }) => (
   <Accordion.Item eventKey="0">
     <Accordion.Header>From 12:00 to 12:30</Accordion.Header>
     <Accordion.Body>
-    <CardGroup variant='secondary'>
+    <CardGroup>
   <Card><Button variant="primary">
     <Card.Body variant='secondary'>
       <Card.Title>Sector 7</Card.Title>

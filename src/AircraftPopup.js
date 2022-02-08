@@ -11,6 +11,7 @@ export default observer(function AircraftPopup(props) {
     return null;
   }
 
+
   return (<Popup
     tipSize={5}
     offsetTop={-5}

@@ -7,7 +7,7 @@ import Aircrafts from './Aircrafts';
 import AircraftPopup from './AircraftPopup';
 import SectorPolygon from './SectorPolygons';
 import { targetReport } from './message-handlers';
-import { Overlay, Button } from 'react-bootstrap';
+import { Overlay, Card, Accordion, useAccordionButton } from 'react-bootstrap';
 
 const mapStyle = {
   "version": 8,
@@ -53,6 +53,16 @@ export default function Map(props) {
   //     ]
   //   }
   // }
+  function CustomToggle({children,eventkey}){
+    const smallerButton = useAccordionButton(eventkey)
+    return (
+      <button
+      type="button"
+      style={{backgroundColor:'rgb(34, 34, 34)'}}
+      onClick={smallerButton}
+      ></button>
+    )
+  }
 
   const [show,setShow] = useState(false);
   const target = useRef(null);
@@ -75,7 +85,17 @@ export default function Map(props) {
     <Aircrafts onClick={onAircraftClick} />
     {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
     <SectorPolygon />
-    {/* <Button className="filt-button" variant="secondary" ref={target}
+    <Accordion defaultActiveKey="0">
+      <Card>
+        <Card.Header>
+          <CustomToggle eventKey="0">Click me!</CustomToggle>
+        </Card.Header>
+        <Accordion.Collapse eventKey="0">
+          <Card.Body>Hello! I'm the body</Card.Body>
+        </Accordion.Collapse>
+      </Card>
+      </Accordion>
+    {/* <Button ref={target}
     onClick={() => setShow(!show)}>
     FILT
     </Button>
@@ -84,7 +104,7 @@ export default function Map(props) {
         <div
         {...props}
             style={{
-              backgroundColor: 'rgba(0,0,0)',
+              // backgroundColor: 'rgba(0,0,0)',
               // padding: '2px 10px',
               color: 'white',
               // borderRadius: 3,
