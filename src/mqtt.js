@@ -3,7 +3,14 @@ import mqtt from 'mqtt';
 import rlite from 'rlite-router';
 
 import {
-    airspaces, ignored, newAirspaceConfiguration, newFlight, notFound, targetReport, todo,
+    airspaces,
+    ignored,
+    newAirspaceConfiguration,
+    newFlight,
+    newSector,
+    notFound,
+    targetReport,
+    todo,
 } from './messageHandlers';
 
 const client = mqtt.connect('ws://localhost:9001/mqtt');
@@ -33,7 +40,7 @@ const router = rlite(notFound, {
     'ATM/:clientId/FlightRoutes/:flightUniqueId': todo,
     'ATM/:clientId/StandManoeuvres/:networkId/:objectId': todo,
     'ATM/:clientId/Airspaces/:airspaceId': airspaces,
-    'ATM/:clientId/Sectors/:sectorId': todo,
+    'ATM/:clientId/Sectors/:sectorId': newSector,
     'ATM/:clientId/Airblocks/:airblockId': todo,
     'ATM/:clientId/AirspaceConfigurations/:configurationId': newAirspaceConfiguration,
     'ATM/:clientId/AirspaceAvailability/:airspaceId/:time': todo,
@@ -56,7 +63,8 @@ let incomingMessagesBatchId = 0;
 function processIncomingMessages() {
     transaction(() => {
         incomingMessagesBatchId = 0;
-        for (const { topic, message } of incomingMessagesQueue) {
+        for (const { topic, message }
+            of incomingMessagesQueue) {
             try {
                 router(topic, message);
             } catch (error) {
@@ -73,4 +81,5 @@ client.on('message', (topic, message) => {
     if (incomingMessagesBatchId === 0) {
         incomingMessagesBatchId = window.requestAnimationFrame(processIncomingMessages);
     }
+    // eslint-disable-next-line eol-last
 });

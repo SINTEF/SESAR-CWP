@@ -13,6 +13,12 @@ export default types.model('AirspaceStore', {
 }).actions((self) => ({
     handleNewAirspace(newAirspace) {
         const id = newAirspace.getAirspaceid();
+        const differentiatingSector = id.split('_');
+        if (differentiatingSector.length - 1 === 3) {
+            const topFlightLevel = differentiatingSector[2];
+            const bottomFlightLevel = differentiatingSector[1];
+            console.log(topFlightLevel + bottomFlightLevel);
+        }
         if (self.airspaces.has(id)) {
             // eslint-disable-next-line no-console
             console.trace('TODO updating'); // How to actually update?
@@ -36,4 +42,5 @@ export default types.model('AirspaceStore', {
         }
         return undefined;
     },
+    // eslint-disable-next-line eol-last
 }));

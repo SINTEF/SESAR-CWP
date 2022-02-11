@@ -162,6 +162,7 @@ code {
     padding-bottom: 0;
     margin-bottom: 0;
     width: 20em;
+    height: 12em;
 }
 
 .set-button {
@@ -169,31 +170,20 @@ code {
     color: '#fff';
 }
 
-
-/* .info {
-    background: black;
-} */
-
-
-/* .panel-header {
-    border: 1px solid #cccc;
-    font-weight: normal;
-    border-radius: 5px 5px 0px 0px;
+.range {
+    width: 20px;
+    height: 80px;
+    margin: 0;
+    padding-left: 0;
+    /* transform: rotate(-90deg); */
 }
 
-.panel-header button {
-    border: white;
-    background: rgb(34, 34, 34);
+.range-wrapper {
+    height: 20px;
+    width: 20px;
+    /* transform: rotate(-90deg); */
 }
 
-.panel-header button:focus {
-    outline: 0px auto -webkit-focus-ring-color;
+input[type="range"] {
+    -webkit-appearance: slider-vertical;
 }
-
-.panel-body {
-    border: 1px solid #dddddd;
-    background: rgb(34, 34, 34);
-    color: white;
-    padding: 5px;
-    border-top: none;
-} */

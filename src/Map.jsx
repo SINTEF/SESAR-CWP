@@ -60,8 +60,8 @@ export default function Map() {
   const onPopupClose = () => {
     setPopupInfo(undefined);
   };
-  const highestBound = 10_500;
-  const lowestBound = 2500;
+  const [highestBound, setHighBound] = useState('1000');
+  const [lowestBound, setLowBound] = useState('205');
 
   return (
     <ReactMapGL
@@ -72,9 +72,9 @@ export default function Map() {
       mapLib={maplibregl}
       antialias
     >
-      <Aircrafts onClick={onAircraftClick} />
+      <Aircrafts highestBound={highestBound} lowestBound={lowestBound} onClick={onAircraftClick} />
       {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
-      <SectorPolygon />
+      <SectorPolygon highestBound={highestBound} lowestBound={lowestBound} />
       <Accordion className="filter-panel">
         <Card className="card">
           <Card.Header className="filter-header">
@@ -83,28 +83,32 @@ export default function Map() {
           <Accordion.Collapse eventKey="0">
             <Card.Body className="body-panel">
               <Container>
-                <Col className="align-self-center">
+                <Row className="justify-content-md-center">
                   <p>
                     Altitude Filter
                   </p>
-                </Col>
+                </Row>
                 <Row className="justify-content-md-center">
-                  <div className="col align-self-center">
+                  <Col className="align-self-center">
                     <button type="button" className="set-button"> SET </button>
-                  </div>
-                  <div className="col align-self-start">
-                    <h4>
+                  </Col>
+                  <Col className="align-self-start">
+                    <h6>
                       H:
                       {' '}
-                      {highestBound / 10}
-                    </h4>
+                      {highestBound}
+                    </h6>
 
-                    <h4>
+                    <h6>
                       L:
                       {' '}
-                      {lowestBound / 10}
-                    </h4>
-                  </div>
+                      {lowestBound}
+                    </h6>
+                  </Col>
+                  <Col className="range-wrapper align-self-start">
+                    <input type="range" value={highestBound} onChange={(event) => setHighBound(event.target.value)} className="range" min="300" max="1000" />
+                    <input type="range" value={lowestBound} onChange={(event) => setLowBound(event.target.value)} className="range" min="0" max="300" />
+                  </Col>
                 </Row>
               </Container>
             </Card.Body>

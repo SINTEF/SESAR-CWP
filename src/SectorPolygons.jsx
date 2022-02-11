@@ -4,12 +4,19 @@ import { Layer, Source } from 'react-map-gl';
 
 import outlineLayer from './outlineStyle';
 import sectorLayer from './sectorLayer';
-import { sectorStore } from './state';
+import { configurationStore } from './state';
 
-export default observer(() => {
-  const edgeData = sectorStore.edges;
-  const sectorData = sectorStore.areaOfIncludedAirspaces; // Both sectors and airspaces
+export default observer((/* properties */) => {
+  // const {highestBound,lowestBound} = properties;
+  const edgeData = configurationStore.edges;
+  const sectorData = configurationStore.areaOfIncludedAirspaces; // Both sectors and airspaces
+  // const sectorData = [...sectorStore.areaOfIncludedAirspaces.values()]
+  // .filter(({ lastKnownAltitude }) => (
+  //   lastKnownAltitude > lowestBound * 10 // TODO: so far using times 10, but need to look into this
+  //   && lastKnownAltitude < highestBound * 10
+  // ));
   const sectors = sectorData.map((airspace) => ({
+
     type: 'Feature',
     properties: {
       color: '#fff',

@@ -1,18 +1,19 @@
 import AircraftStore from './model/AircraftStore';
 import AirspaceStore from './model/AirspaceModel';
-import SectorStore from './model/SectorStore';
+import ConfigurationStore from './model/ConfigurationStore';
 
 export const aircraftStore = AircraftStore.create({
-  aircrafts: {},
+    aircrafts: {},
 });
 
 export const airspaceStore = AirspaceStore.create({
-  airspaces: {},
+    airspaces: {},
 });
 
-export const sectorStore = SectorStore.create({
-  configurationId: '',
-  edges: [],
-  sectors: {},
-  airspaceStore,
+export const configurationStore = ConfigurationStore.create({
+    configurationId: '',
+    edges: [],
+    sectors: {},
+    airspaceStore,
+    // eslint-disable-next-line eol-last
 });
