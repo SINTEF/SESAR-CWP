@@ -7,7 +7,6 @@ export default types.model('AircraftStore', {
         aircrafts: types.map(AircraftModel),
     }).views((store) => ({
         get aircraftsWithPosition() {
-            // Here also use to filter aircrafts based on altitude
             const aircrafts = [...store.aircrafts.values()]
                 .filter(({ lastKnownLongitude }) => (
                     lastKnownLongitude !== 0

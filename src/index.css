@@ -186,4 +186,16 @@ code {
 
 input[type="range"] {
     -webkit-appearance: slider-vertical;
+    background: gray !important;
 }
+.range::-webkit-slider-thumb {
+    background: gray !important;
+  }
+  
+  .range::-moz-range-thumb {
+    background: gray !important;
+  }
+  
+  .range::-ms-thumb {
+    background: gray !important;
+  }

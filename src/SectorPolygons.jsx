@@ -6,30 +6,32 @@ import outlineLayer from './outlineStyle';
 import sectorLayer from './sectorLayer';
 import { configurationStore } from './state';
 
-export default observer((/* properties */) => {
-  // const {highestBound,lowestBound} = properties;
+export default observer((properties) => {
+  const { highestBound, lowestBound } = properties;
   const edgeData = configurationStore.edges;
-  const sectorData = configurationStore.areaOfIncludedAirspaces; // Both sectors and airspaces
-  // const sectorData = [...sectorStore.areaOfIncludedAirspaces.values()]
-  // .filter(({ lastKnownAltitude }) => (
-  //   lastKnownAltitude > lowestBound * 10 // TODO: so far using times 10, but need to look into this
-  //   && lastKnownAltitude < highestBound * 10
-  // ));
-  const sectors = sectorData.map((airspace) => ({
-
+  const sectorStore = configurationStore.areaOfIncludedAirspaces;
+  const sectorData = [...sectorStore.values()]
+    .filter((area) => area[1].bottomFlightLevel > lowestBound
+      && area[1].topFlightLevel < highestBound,
+    );
+  const sectors = [];
+  for (const airspace of sectorData) {
+    sectors.push({
     type: 'Feature',
-    properties: {
+      properties: {
       color: '#fff',
       width: 1,
+        t: airspace[0].toString(),
       // 'dasharray':[2,1],
     },
     geometry: {
       type: 'Polygon',
-      coordinates: [airspace.airspaceArea.map((area) => (
+      coordinates: [airspace[1].sectorArea.map((area) => (
         [area.longitude, area.latitude]),
       )],
     },
-  }));
+    });
+  }
   const geoJson = {
     type: 'FeatureCollection',
     features:
@@ -49,26 +51,26 @@ export default observer((/* properties */) => {
           )],
         },
       },
-      {
-        type: 'Feature',
-        properties: {
-          color: '#fff',
-        },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [
-            [
-              [67.137_34, 9.137_45],
-              [66.964_66, 9.8097],
-              [68.032_52, 10.3252],
-              [69.06, 11.98],
-              [68.06, 10.98],
-              [67.06, 12.98],
-              [66.06, 9.98],
-              [67.137_34, 9.137_45],
-            ]],
-        },
-      },
+      // {
+      //   type: 'Feature',
+      //   properties: {
+      //     color: '#fff',
+      //   },
+      //   geometry: {
+      //     type: 'Polygon',
+      //     coordinates: [
+      //       [
+      //         [67.137_34, 9.137_45],
+      //         [66.964_66, 9.8097],
+      //         [68.032_52, 10.3252],
+      //         [69.06, 11.98],
+      //         [68.06, 10.98],
+      //         [67.06, 12.98],
+      //         [66.06, 9.98],
+      //         [67.137_34, 9.137_45],
+      //       ]],
+      //   },
+      // },
       ],
   };
   return (

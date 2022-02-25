@@ -1,5 +1,5 @@
 import AircraftStore from './model/AircraftStore';
-import AirspaceStore from './model/AirspaceModel';
+import AirspaceStore from './model/AirspaceStore';
 import ConfigurationStore from './model/ConfigurationStore';
 
 export const aircraftStore = AircraftStore.create({
