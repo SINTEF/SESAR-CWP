@@ -10,8 +10,8 @@ export default observer((properties) => {
   const data = aircraftStore.aircraftsWithPosition;
 
   const filteredData = [...data.values()].filter(({ lastKnownAltitude }) => (
-    lastKnownAltitude > lowestBound * 10 // TODO: so far using times 10, but need to look into this
-    && lastKnownAltitude < highestBound * 10
+    lastKnownAltitude > lowestBound
+    && lastKnownAltitude < highestBound
   ));
   return filteredData.map((filteredAircrafts) => {
     const {

@@ -1,5 +1,10 @@
 import { types } from 'mobx-state-tree';
 
+function convertToFlightMeters(alt) {
+  const feet = alt * 3.280_84;
+  return feet / 100;
+}
+
 export default types.model('AircraftModel', {
   aircraftId: types.identifier, // We use the aircraftId as identifier
   assignedFlightId: types.string,
@@ -21,7 +26,7 @@ export default types.model('AircraftModel', {
       return;
     }
     self.lastTargetReportTime = timestamp;
-    self.lastKnownAltitude = targetReport.getAltitude();
+    self.lastKnownAltitude = convertToFlightMeters(targetReport.getAltitude());
     self.lastKnownLatitude = targetReport.getLatitude();
     self.lastKnownLongitude = targetReport.getLongitude();
     self.lastKnownBearing = targetReport.getBearing();
