@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 import AirtrafficMessages from './ProtobufAirTrafficSimulator_pb';
-import { aircraftStore, airspaceStore, configurationStore } from './state';
+import {
+    aircraftStore, airspaceStore, configurationStore, fixStore,
+} from './state';
 
 export function notFound(parameters, message, url) {
     // eslint-disable-next-line no-console
@@ -32,9 +34,9 @@ export function airspaces({ airspaceId }, message, url) {
     const protoMessage = AirtrafficMessages.NewAirspaceMessage.deserializeBinary(message);
     airspaceStore.handleNewAirspace(protoMessage);
 }
-export function newSector({ sectorId }, message, url) {
-    const protoMessage = AirtrafficMessages.NewSectorMessage.deserializeBinary(message);
-    console.log(protoMessage);
+export function newPointMessage({ pointId }, message, url) {
+    const protoMessage = AirtrafficMessages.NewPointMessage.deserializeBinary(message);
+    fixStore.handleNewPointMessage(protoMessage);
 }
 // eslint-disable-next-line eol-last
 /* eslint-enable no-unused-vars */

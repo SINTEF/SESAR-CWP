@@ -22,7 +22,7 @@ export default observer((properties) => {
       color: '#fff',
       width: 1,
         t: airspace[0].toString(),
-      // 'dasharray':[2,1],
+        dasharray: [2, 1],
     },
     geometry: {
       type: 'Polygon',
@@ -50,31 +50,11 @@ export default observer((properties) => {
             [edge.longitude, edge.latitude]),
           )],
         },
-      },
-      // {
-      //   type: 'Feature',
-      //   properties: {
-      //     color: '#fff',
-      //   },
-      //   geometry: {
-      //     type: 'Polygon',
-      //     coordinates: [
-      //       [
-      //         [67.137_34, 9.137_45],
-      //         [66.964_66, 9.8097],
-      //         [68.032_52, 10.3252],
-      //         [69.06, 11.98],
-      //         [68.06, 10.98],
-      //         [67.06, 12.98],
-      //         [66.06, 9.98],
-      //         [67.137_34, 9.137_45],
-      //       ]],
-      //   },
-      // },
+        },
       ],
   };
   return (
-    <Source type="geojson" data={geoJson}>
+    <Source id="sector_source" type="geojson" data={geoJson}>
       <Layer id={sectorLayer.id} type={sectorLayer.type} paint={sectorLayer.paint} />
       <Layer id={outlineLayer.id} type={outlineLayer.type} paint={outlineLayer.paint} />
     </Source>

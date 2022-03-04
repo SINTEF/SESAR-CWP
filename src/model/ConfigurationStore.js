@@ -1,6 +1,5 @@
-import { types } from 'mobx-state-tree'; // Initialize the data, access the stores
+import { types } from 'mobx-state-tree';
 
-// import * as airspaceModel from './AirspaceModel';
 import AirspaceStore from './AirspaceStore';
 import CoordinatePair from './CoordinatePair';
 
@@ -12,8 +11,7 @@ export const SectorModel = types.model('SectorModel', { // One sector
     sectorArea: types.optional(types.array(CoordinatePair), []),
 });
 
-// only way of manipulating data in MST is by creating Actions
-export default types.model('ConfigurationStore', { // SectorStore also known as configuration of airspace
+export default types.model('ConfigurationStore', {
         configurationId: types.optional(types.string, ''),
         edges: types.optional(types.array(CoordinatePair), []),
         includedAirspaces: types.map(SectorModel),
@@ -27,7 +25,6 @@ export default types.model('ConfigurationStore', { // SectorStore also known as 
                 longitude: area.getPosition4d().getLongitude(),
             }));
             store.edges = newEdges;
-            // If sector is airspace - devide into different
             for (const includedAirspace of newConfig.getIncludedairspacevolumesList()) {
                 if (store.includedAirspaces.has(includedAirspace.getVolumeid())) {
                     // eslint-disable-next-line no-console

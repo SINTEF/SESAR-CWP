@@ -8,6 +8,7 @@ import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from '
 
 import AircraftPopup from './AircraftPopup';
 import Aircrafts from './Aircrafts';
+import FixesPoint from './FixesPoint';
 import SectorPolygon from './SectorPolygons';
 
 const mapStyle = {
@@ -15,6 +16,7 @@ const mapStyle = {
   name: 'Black',
   metadata: {},
   sources: {},
+  glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
   layers: [{
     id: 'background',
     type: 'background',
@@ -75,6 +77,7 @@ export default function Map() {
       <Aircrafts highestBound={highestBound} lowestBound={lowestBound} onClick={onAircraftClick} />
       {popupInfo && (<AircraftPopup onClose={onPopupClose} aircraftId={popupInfo} />)}
       <SectorPolygon highestBound={highestBound} lowestBound={lowestBound} />
+      <FixesPoint />
       <Accordion className="filter-panel">
         <Card className="card">
           <Card.Header className="filter-header">
