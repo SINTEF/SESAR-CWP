@@ -29,14 +29,14 @@ code {
     border-radius: 4px;
 }
 
-.mapboxgl-popup {
-    max-width: 200px;
-}
-
-.mapboxgl-popup-content {
-    text-align: center;
+/* .mapboxgl-popup-content {
+    text-align: start;
+    width:1px;
+    height:1px;
     font-family: 'Open Sans', sans-serif;
-}
+    margin:0;
+    padding:0;
+} */
 
 .control-panel {
     position: absolute;
@@ -90,31 +90,65 @@ code {
 }
 
 
-/* .filt-button {
-    position: fixed;
-    bottom: 1;
-    left: 0;
-} */
-
-
 /* For popup on flights */
-
 .mapboxgl-popup-close-button {
     color: white;
 }
+.mapboxgl-popup {
+    max-width: none;
+    width:fit-content;
+    height:fit-content;
+    /* width:20px; */
+    font-size: 0.8em;
+    z-index: 0;
+}
+.flight-popup-container{
+padding:-5px;
+margin-top:-4px;
+margin-bottom:-3px;
+border-spacing: 0;
+}
 
-.mapboxgl-popup-content {
-    background: rgb(34, 34, 34);
+.gutter-2{
+margin-top:-5px;
+margin-bottom:-7px;
+margin-right:-10px;
+margin-left:-10px}
+
+.flight-popup .mapboxgl-popup-content {
+    background: rgb(70, 70, 70);
     color: white;
-    /* border-top-color: white; */
+    padding:0;
+    margin:0;
+    width: fit-content;
+    height: 5.1em;
+    width: 11em;
+    z-index: 0;
 }
 
-.mapboxgl-popup-anchor-bottom>.mapboxgl-popup-content {
-    margin-top: 15px;
+.flight-popup .mapboxgl-popup-anchor-top>.mapboxgl-popup-content {
+    /* margin-bottom: 5px; */
 }
 
+.mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
+    border-top-color: rgb(34, 34, 34);
+    display: none;
+}
 .mapboxgl-popup-anchor-bottom>.mapboxgl-popup-tip {
     border-top-color: rgb(34, 34, 34);
+    display: none;
+}
+.level-popup .mapboxgl-popup-content {
+    background: rgb(34, 34, 34);
+    border-color: white;
+    /* color: white; */
+    padding:0;
+    border-color: white;
+}
+
+.level-popup .mapboxgl-popup-anchor-bottom>.mapboxgl-popup-content {
+    margin-top: 0px;
+    border-color:white;
 }
 
 
@@ -163,11 +197,13 @@ code {
     margin-bottom: 0;
     width: 20em;
     height: 12em;
+    z-index: 70;
 }
 
 .set-button {
     background: 'rgb(34, 34, 34)';
     color: '#fff';
+    z-index: 70;
 }
 
 .range {
@@ -198,4 +234,8 @@ input[type="range"] {
   
   .range::-ms-thumb {
     background: gray !important;
+  }
+  .choose-flight-level{
+  border-color: #fff;
+  padding:0
   }

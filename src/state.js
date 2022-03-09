@@ -5,6 +5,7 @@ import FixStore from './model/FixStore';
 
 export const aircraftStore = AircraftStore.create({
     aircrafts: {},
+    aircraftInfo: {},
 });
 
 export const airspaceStore = AirspaceStore.create({

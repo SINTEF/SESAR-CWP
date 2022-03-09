@@ -38,5 +38,10 @@ export function newPointMessage({ pointId }, message, url) {
     const protoMessage = AirtrafficMessages.NewPointMessage.deserializeBinary(message);
     fixStore.handleNewPointMessage(protoMessage);
 }
+export function newAircraftMessage(parameters, message, url) {
+    // console.info('MQTT message received but event handler is not yet implemented', url, message);
+    const protoMessage = AirtrafficMessages.NewAircraftMessage.deserializeBinary(message);
+    aircraftStore.handleNewAircraftMessage(protoMessage);
+}
 // eslint-disable-next-line eol-last
 /* eslint-enable no-unused-vars */

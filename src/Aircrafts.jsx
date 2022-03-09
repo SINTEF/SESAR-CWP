@@ -19,7 +19,10 @@ export default observer((properties) => {
       lastKnownBearing: bearing,
       lastKnownLongitude: longitude,
       lastKnownLatitude: latitude,
+      lastKnownAltitude: altitude,
       assignedFlightId: flightId,
+      callSign,
+      wakeTurbulence,
     } = filteredAircrafts;
 
     return (
@@ -28,7 +31,10 @@ export default observer((properties) => {
         flightId={flightId}
         bearing={bearing}
         longitude={longitude}
+        altitude={altitude}
         latitude={latitude}
+        callSign={callSign}
+        wakeTurbulence={wakeTurbulence}
         onClick={() => onClick(aircraftId)}
       />
     );

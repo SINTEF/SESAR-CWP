@@ -5,6 +5,7 @@ import rlite from 'rlite-router';
 import {
     airspaces,
     ignored,
+    newAircraftMessage,
     newAirspaceConfiguration,
     newFlight,
     newPointMessage,
@@ -33,7 +34,7 @@ const router = rlite(notFound, {
     'ATM/:clientId/FlightMilestonePositions/:flightUniqueId': todo,
     'ATM/:clientId/PlannedFlights/:flightUniqueId': todo,
     'ATM/:clientId/AircraftTypes/:vehicleTypeId': todo,
-    'ATM/:clientId/Aircrafts/:vehicleTypeId': todo,
+    'ATM/:clientId/Aircrafts/:vehicleTypeId': newAircraftMessage,
     'ATM/:clientId/NewFlights/:flightUniqueId': newFlight,
     'ATM/:clientId/FlightStatusCodes/:flightUniqueId': todo,
     'ATM/:clientId/Routes/:networkId/:objectId': todo,
