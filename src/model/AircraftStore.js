@@ -2,11 +2,15 @@ import { types } from 'mobx-state-tree';
 
 import AircraftInfo from './AircraftInfo';
 import AircraftModel from './AircraftModel';
+import CoordinatePair from './CoordinatePair';
+import FlightRoute from './FlightRoute';
+import Trajectory from './Trajectory';
 
 // Only way of manipulating data in MST is by creating Actions
 export default types.model('AircraftStore', {
         aircrafts: types.map(AircraftModel),
     aircraftInfo: types.map(AircraftInfo),
+    flightRoute: types.map(FlightRoute),
     }).views((store) => ({
         get aircraftsWithPosition() {
             const aircrafts = [...store.aircrafts.values()]
@@ -52,9 +56,7 @@ export default types.model('AircraftStore', {
         },
         handleNewAircraftMessage(newAircraftMessage) {
             const id = newAircraftMessage.getAircraftid();
-            // const aircraft = store.aircraftInfo.get(id);
             if (store.aircraftInfo.has(id)) {
-                // eslint-disable-next-line no-console
                 // console.warn('Received new aircraft message for unknown aircraft', id);
             } else {
                 const wake = newAircraftMessage.getWaketurbulencecategory() === 0
@@ -66,5 +68,26 @@ export default types.model('AircraftStore', {
                 }));
             }
         },
-        // eslint-disable-next-line eol-last
+        handleNewFlightRoute(route) {
+            const id = route.getFlightuniqueid();
+            try {
+                const trajectories = route.getRoute().getTrajectoryList()
+                    .map((area) => {
+                        const time = area.getPosition4d().getTime();
+                        const timestamp = time.getSeconds() + time.getNanos() * 1e-9;
+                        const trajectory = Trajectory.create({
+                            trajectoryCoordinate: CoordinatePair.create({
+                                latitude: area.getPosition4d().getLatitude(),
+                                longitude: area.getPosition4d().getLongitude(),
+                            }),
+                            timestamp,
+                        });
+                        return trajectory;
+                    });
+                store.flightRoute.put(FlightRoute.create({
+                    flightId: id,
+                    trajectory: trajectories,
+                }));
+            } catch (error) { console.log(error); }
+        },
     }));

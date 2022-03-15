@@ -7,11 +7,13 @@ import * as React from 'react';
 import AircraftListElement from './AircraftListElement';
 import Map from './Map';
 import SectorConfiguration from './SectorConfiguration';
+import SectorFlightList from './SectorFlightList';
 
 export default function App(/* properties */) {
   return (
     <>
       <Map />
+      <SectorFlightList />
       <AircraftListElement />
       <SectorConfiguration />
 

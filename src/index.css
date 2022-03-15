@@ -63,32 +63,36 @@ code {
     margin: 8px;
     font-size: 10px;
     line-height: 2;
-    /* color: #fff; */
     outline: none;
     text-transform: uppercase;
     height: 250px;
     overflow-y: scroll;
 }
 
-.flights-title {
-    position: absolute;
-    top: 0;
-    left: 5;
-    background: #000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    padding: 20px 24px;
-    font-size: 13px;
-    line-height: 2;
-    color: #fff;
-    outline: none;
-    text-transform: uppercase;
-    height: 250px;
-}
-
 .aircraft-list::-webkit-scrollbar {
     display: none;
 }
-
+/* For Sector Flight List */
+.sector-flight-list{
+    position: absolute;
+    bottom: 0;
+    left: 5;
+    width: 500px;
+    padding: 10px 14px 14px 14px;
+    margin-bottom: 50px;
+    margin-left: 40px;
+    font-size: 10px;
+    line-height: 2;
+    font-size: xx-small;
+    outline: none;
+    text-transform: uppercase;
+    height: 200px;
+    overflow-y: scroll;
+    transform: translate(0px,0px)
+}
+.sector-flight-list::-webkit-scrollbar {
+    display: none;
+}
 
 /* For popup on flights */
 .mapboxgl-popup-close-button {
@@ -138,19 +142,60 @@ margin-left:-10px}
     border-top-color: rgb(34, 34, 34);
     display: none;
 }
+/* For level pop up */
+
 .level-popup .mapboxgl-popup-content {
-    background: rgb(34, 34, 34);
-    border-color: white;
-    /* color: white; */
+    background: rgb(70, 70, 70);
+    color: white;
     padding:0;
-    border-color: white;
+    margin:0;
+    width: 3em;
+    width: 11em;
+    z-index: 0;
+    height: fit-content;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #fff;
+}
+.choose-flight-level{
+/* padding:-5px; */
+margin-top:-4px;
+border-spacing: 0;
+margin-bottom: 1px;
+margin-right: -10px;
+margin-left: -10px;
+
 }
 
 .level-popup .mapboxgl-popup-anchor-bottom>.mapboxgl-popup-content {
     margin-top: 0px;
     border-color:white;
 }
+.level-range{
+    width: 20px;
+    height: 10em;
+}
 
+/* Navbar */
+
+.button-navbar{
+    height: 3.2em;
+    background-color: #555;
+
+}
+.toggle-label-button{
+    font-weight: normal;
+    background: black;
+    height: 3em;
+    margin-bottom: -14px;
+
+}
+.toggle-SFL-button{
+    font-weight: normal;
+    background: black;
+    height: 3em;
+    margin-bottom: -14px;
+}
 
 /* Filter panel and button */
 
@@ -167,6 +212,7 @@ margin-left:-10px}
     /* line-height: 2; */
     color: white;
     outline: none;
+    z-index: 500;
     /* text-transform: uppercase; */
 }
 
@@ -188,6 +234,8 @@ margin-left:-10px}
     margin-top: -8px;
     margin-left: -15px;
     padding: 6px;
+    margin-bottom: -100px;
+    z-index: 100;
 }
 
 .body-panel {
@@ -197,13 +245,11 @@ margin-left:-10px}
     margin-bottom: 0;
     width: 20em;
     height: 12em;
-    z-index: 70;
 }
 
 .set-button {
     background: 'rgb(34, 34, 34)';
     color: '#fff';
-    z-index: 70;
 }
 
 .range {
@@ -219,10 +265,9 @@ margin-left:-10px}
     width: 20px;
     /* transform: rotate(-90deg); */
 }
-
 input[type="range"] {
     -webkit-appearance: slider-vertical;
-    background: gray !important;
+    /* background-color: gray !important; */
 }
 .range::-webkit-slider-thumb {
     background: gray !important;
@@ -234,8 +279,4 @@ input[type="range"] {
   
   .range::-ms-thumb {
     background: gray !important;
-  }
-  .choose-flight-level{
-  border-color: #fff;
-  padding:0
   }

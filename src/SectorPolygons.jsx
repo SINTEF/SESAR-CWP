@@ -8,7 +8,7 @@ import { configurationStore } from './state';
 
 export default observer((properties) => {
   const { highestBound, lowestBound } = properties;
-  const edgeData = configurationStore.edges;
+  const edgeData = configurationStore.edgesOfCurrentConfiguration;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
     .filter((area) => area[1].bottomFlightLevel > lowestBound

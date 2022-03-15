@@ -5,7 +5,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false, // Had to change this because autosave was very messy
   "editor.rulers": [
     100
   ]

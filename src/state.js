@@ -6,6 +6,7 @@ import FixStore from './model/FixStore';
 export const aircraftStore = AircraftStore.create({
     aircrafts: {},
     aircraftInfo: {},
+    flightRoute: {},
 });
 
 export const airspaceStore = AirspaceStore.create({
@@ -13,9 +14,9 @@ export const airspaceStore = AirspaceStore.create({
 });
 
 export const configurationStore = ConfigurationStore.create({
-    configurationId: '',
-    edges: [],
-    sectors: {},
+    currentConfigurationId: '',
+    configurations: {},
+    configurationPlan: {},
     airspaceStore,
     // eslint-disable-next-line eol-last
 });

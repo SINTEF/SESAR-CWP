@@ -15,6 +15,7 @@ export default observer((properties) => {
 
   const [showLevels, setShowLevels] = React.useState(false);
   const [showFlightLabel, setFlightLabel] = React.useState(true);
+  const [flightLevel, setFlightLevel] = React.useState(300);
 
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
@@ -70,18 +71,31 @@ export default observer((properties) => {
           anchor="bottom"
           longitude={longitude}
           latitude={latitude}
-          offset={[50, 100]}
+          offset={[50, 184]}
           closeOnClick={false}
           onClose={() => setShowLevels(false)}
         >
           <Container className="choose-flight-level">
-            <Col className="row justify-content-start">
-              <Col>Fix</Col>
-              <Col />
-            </Col>
-            <Col>
-              Slider
-            </Col>
+            <Row className="justify-content-center">
+              {callSign}
+
+            </Row>
+            <Row className="justify-content-center">
+              <Col>
+                {/* {for (let int i = 0; i < 10; i++){
+              }} */}
+                <Row className="justify-content-center gutter-2">330</Row>
+                <Row className="justify-content-center gutter-2">320</Row>
+                <Row className="justify-content-center gutter-2">310</Row>
+                <Row className="justify-content-center gutter-2">300</Row>
+                <Row className="justify-content-center gutter-2">290</Row>
+                <Row className="justify-content-center gutter-2">280</Row>
+                <Row className="justify-content-center gutter-2">270</Row>
+              </Col>
+              <Col>
+                <input className="level-range" type="range" value={flightLevel} onChange={(event) => setFlightLevel(event.target.value)} step={10} min={210} max={560} size="sm" variant="secondary" />
+              </Col>
+            </Row>
           </Container>
         </Popup>
       )}

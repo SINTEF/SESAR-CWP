@@ -12,11 +12,11 @@ export default observer((/* properties */) => {
   const data = aircraftStore.aircraftsWithPosition;
   const [filter, setFilter] = useState('');
   return (
-    <div className="aircraft-list">
+    <div className="sector-flight-list">
       <Table hover bordered variant="dark">
         <thead>
           <tr>
-            <th colSpan={2}>
+            <th colSpan={3}>
               <input
                 id="filter"
                 name="filter"
@@ -25,22 +25,37 @@ export default observer((/* properties */) => {
                 onChange={(event) => setFilter(event.target.value)}
               />
             </th>
-            <th colSpan={2}>
-              FL Sector : #
+            <th colSpan={6} style={{ fontSize: '12px' }}>
+              SFL FIX: #
             </th>
           </tr>
           <tr>
             <th>
+              FIX
+            </th>
+            <th>
+              ETO
+            </th>
+            <th>
+              OSSR
+            </th>
+            <th>
               C/S
+            </th>
+            <th>
+              NSSR
+            </th>
+            <th>
+              PEL
+            </th>
+            <th>
+              COO
             </th>
             <th>
               PLV
             </th>
             <th>
               OUT
-            </th>
-            <th>
-              Time
             </th>
           </tr>
         </thead>
@@ -49,20 +64,27 @@ export default observer((/* properties */) => {
               .map((aircraftData) => (
                 <tr key={aircraftData.assignedFlightId}>
                   <td>
-                    {/* <li key={aircraft_data.aircraftId}>
-<a href="#" onClick={() => undefined}> */}
-                    <b>
-                      {aircraftData.callSign}
-                    </b>
+                    {aircraftData.callSign}
                   </td>
+                  <td>
+                    {aircraftData.callSign}
+                  </td>
+                  <td />
+                  <td>
+                    {aircraftData.callSign}
+                  </td>
+                  <td>
+                    {aircraftData.callSign}
+                  </td>
+                  <td>
+                    {aircraftData.callSign}
+                  </td>
+                  <td />
                   <td>
                     {Math.ceil(aircraftData.lastKnownAltitude)}
                   </td>
                   <td>
                     {aircraftData.departureAirport}
-                  </td>
-                  <td>
-                    13:30
                   </td>
                 </tr>
               ),
