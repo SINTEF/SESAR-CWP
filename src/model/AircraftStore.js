@@ -70,24 +70,26 @@ export default types.model('AircraftStore', {
     },
     handleNewFlightRoute(route) {
       const id = route.getFlightuniqueid();
-      try {
-        const trajectories = route.getRoute().getTrajectoryList()
-          .map((area) => {
-            const time = area.getPosition4d().getTime();
-            const timestamp = time.getSeconds() + time.getNanos() * 1e-9;
-            const trajectory = Trajectory.create({
-              trajectoryCoordinate: CoordinatePair.create({
-                latitude: area.getPosition4d().getLatitude(),
-                longitude: area.getPosition4d().getLongitude(),
-              }),
-              timestamp,
-            });
-            return trajectory;
+      const trajectories = route.getRoute().getTrajectoryList()
+        .map((area) => {
+          const position4d = area.getPosition4d();
+          if (!position4d) {
+            return undefined;
+          }
+          const time = position4d.getTime();
+          const timestamp = time.getSeconds() + time.getNanos() * 1e-9;
+          const trajectory = Trajectory.create({
+            trajectoryCoordinate: CoordinatePair.create({
+              latitude: area.getPosition4d().getLatitude(),
+              longitude: area.getPosition4d().getLongitude(),
+            }),
+            timestamp,
           });
-        store.flightRoute.put(FlightRoute.create({
-          flightId: id,
-          trajectory: trajectories,
-        }));
-      } catch (error) { console.log(error); }
+          return trajectory;
+        }).filter((trajectory) => trajectory !== undefined);
+      store.flightRoute.put(FlightRoute.create({
+        flightId: id,
+        trajectory: trajectories,
+      }));
     },
   }));
