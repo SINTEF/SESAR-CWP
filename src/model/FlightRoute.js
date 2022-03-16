@@ -5,7 +5,7 @@ import { types } from 'mobx-state-tree';
 import Trajectory from './Trajectory';
 
 export default types.model('FlightRoute', {
-	flightId: types.optional(types.string, ''),
+	flightId: types.identifier,
 	trajectoryId: types.optional(types.string, ''),
 	trajectory: types.array(Trajectory),
 });
