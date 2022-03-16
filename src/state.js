@@ -1,6 +1,7 @@
 import AircraftStore from './model/AircraftStore';
 import AirspaceStore from './model/AirspaceStore';
 import ConfigurationStore from './model/ConfigurationStore';
+import CWPStore from './model/CwpStore';
 import FixStore from './model/FixStore';
 
 export const aircraftStore = AircraftStore.create({
@@ -22,4 +23,11 @@ export const configurationStore = ConfigurationStore.create({
 });
 export const fixStore = FixStore.create({
     fixstore: {},
+});
+
+export const cwpStore = CWPStore.create({
+    altitudeFilter: {
+        lowestBound: 205,
+        highestBound: 400,
+    },
 });

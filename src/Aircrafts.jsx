@@ -2,12 +2,14 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 
 import AircraftMarker from './AircraftMarker';
-import { aircraftStore } from './state';
+import { aircraftStore, cwpStore } from './state';
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer((properties) => {
-  const { onClick, highestBound, lowestBound } = properties;
+  const { onClick } = properties;
   const data = aircraftStore.aircraftsWithPosition;
+
+  const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 
   const filteredData = [...data.values()].filter(({ lastKnownAltitude }) => (
     lastKnownAltitude > lowestBound

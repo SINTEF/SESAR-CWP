@@ -4,13 +4,17 @@ import {
   Table,
 } from 'react-bootstrap';
 
-import { aircraftStore } from './state';
+import { aircraftStore, cwpStore } from './state';
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer((/* properties */) => {
   // const { onClick } = properties;
   const data = aircraftStore.aircraftsWithPosition;
   const [filter, setFilter] = useState('');
+
+  // eslint-disable-next-line unicorn/no-null
+  if (!cwpStore.showSFL) return null;
+
   return (
     <div className="sector-flight-list">
       <Table hover bordered variant="dark">
@@ -61,34 +65,34 @@ export default observer((/* properties */) => {
         </thead>
         <tbody>
           {data.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
-              .map((aircraftData) => (
-                <tr key={aircraftData.assignedFlightId}>
-                  <td>
-                    {aircraftData.callSign}
-                  </td>
-                  <td>
-                    {aircraftData.callSign}
-                  </td>
-                  <td />
-                  <td>
-                    {aircraftData.callSign}
-                  </td>
-                  <td>
-                    {aircraftData.callSign}
-                  </td>
-                  <td>
-                    {aircraftData.callSign}
-                  </td>
-                  <td />
-                  <td>
-                    {Math.ceil(aircraftData.lastKnownAltitude)}
-                  </td>
-                  <td>
-                    {aircraftData.departureAirport}
-                  </td>
-                </tr>
-              ),
-              )}
+            .map((aircraftData) => (
+              <tr key={aircraftData.assignedFlightId}>
+                <td>
+                  {aircraftData.callSign}
+                </td>
+                <td>
+                  {aircraftData.callSign}
+                </td>
+                <td />
+                <td>
+                  {aircraftData.callSign}
+                </td>
+                <td>
+                  {aircraftData.callSign}
+                </td>
+                <td>
+                  {aircraftData.callSign}
+                </td>
+                <td />
+                <td>
+                  {Math.ceil(aircraftData.lastKnownAltitude)}
+                </td>
+                <td>
+                  {aircraftData.departureAirport}
+                </td>
+              </tr>
+            ),
+            )}
         </tbody>
       </Table>
     </div>
