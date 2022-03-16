@@ -1,9 +1,14 @@
+import './AircraftMarker.css';
+
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
- Button, Col, Container, Row,
+  Button, Col, Container, Row,
+
 } from 'react-bootstrap';
 import { Marker, Popup } from 'react-map-gl';
+
+import { cwpStore } from './state';
 
 // eslint-disable-next-line max-len
 const ICON = 'M22 16.21v-1.895L14 8V4a2 2 0 0 0-4 0v4.105L2 14.42v1.789l8-2.81V18l-3 2v2l5-2 5 2v-2l-3-2v-4.685l8 2.895z';
@@ -39,6 +44,8 @@ function FlightLevelChange(direction) {
 }
 
 export default observer((properties) => {
+  const showAllFlightLabels = cwpStore.showFlightLabels;
+
   const {
     // eslint-disable-next-line no-unused-vars
     bearing, longitude, latitude, altitude, onClick, callSign, wakeTurbulence,
@@ -63,7 +70,7 @@ export default observer((properties) => {
       >
         <path d={ICON} />
       </svg>
-      {showFlightLabel && (
+      {showAllFlightLabels && showFlightLabel && (
         <Popup
           className="flight-popup"
           tipSize={2}
@@ -72,8 +79,9 @@ export default observer((properties) => {
           longitude={longitude}
           latitude={latitude}
           closeOnClick={false}
-          onClose={() => setFlightLabel(false)}
+          closeButton={false}
         >
+          <Button size="sm" variant="dark" onClick={() => setFlightLabel(false)}>x</Button>
           <Container className="flight-popup-container">
             <Row>
               <Col className="gutter-2" onClick={() => console.log('Accepting the flight')}>{callSign}</Col>

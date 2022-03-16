@@ -4,10 +4,10 @@ import { Layer, Source } from 'react-map-gl';
 
 import outlineLayer from './outlineStyle';
 import sectorLayer from './sectorLayer';
-import { configurationStore } from './state';
+import { configurationStore, cwpStore } from './state';
 
-export default observer((properties) => {
-  const { highestBound, lowestBound } = properties;
+export default observer((/* properties */) => {
+  const { highestBound, lowestBound } = cwpStore.altitudeFilter;
   const edgeData = configurationStore.edgesOfCurrentConfiguration;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
@@ -17,19 +17,19 @@ export default observer((properties) => {
   const sectors = [];
   for (const airspace of sectorData) {
     sectors.push({
-    type: 'Feature',
+      type: 'Feature',
       properties: {
-      color: '#fff',
-      width: 1,
+        color: '#fff',
+        width: 1,
         t: airspace[0].toString(),
         dasharray: [2, 1],
-    },
-    geometry: {
-      type: 'Polygon',
-      coordinates: [airspace[1].sectorArea.map((area) => (
-        [area.longitude, area.latitude]),
-      )],
-    },
+      },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [airspace[1].sectorArea.map((area) => (
+          [area.longitude, area.latitude]),
+        )],
+      },
     });
   }
   const geoJson = {
@@ -50,7 +50,7 @@ export default observer((properties) => {
             [edge.longitude, edge.latitude]),
           )],
         },
-        },
+      },
       ],
   };
   return (
