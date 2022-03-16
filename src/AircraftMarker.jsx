@@ -1,11 +1,42 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
+import {
+ Button, Col, Container, Row,
+} from 'react-bootstrap';
 import { Marker, Popup } from 'react-map-gl';
 
 // eslint-disable-next-line max-len
 const ICON = 'M22 16.21v-1.895L14 8V4a2 2 0 0 0-4 0v4.105L2 14.42v1.789l8-2.81V18l-3 2v2l5-2 5 2v-2l-3-2v-4.685l8 2.895z';
 const SIZE = 20;
+
+function ListOfLevels(properties) {
+  const sliderValue = properties.value;
+  const settingSlider = properties.onClick;
+  const rows = [];
+   for (let index = 560; index > 200; index -= 10) {
+   if (index === sliderValue) {
+      const element = <Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button-${index}`} className="flight-level-element" variant="secondary" size="sm" active>{index}</Button></Row>;
+      rows.push(element);
+   } else {
+   rows.push(<Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button-${index}`} className="flight-level-element" variant="secondary" size="sm">{index}</Button></Row>,
+);
+}
+   }
+
+  return rows;
+}
+function FlightLevelChange(direction) {
+  const slider = document.querySelector('#level-range');
+  const step = Number.parseInt(slider.getAttribute('step'), 10);
+  const currentSliderValue = Number.parseInt(slider.value, 10);
+  let newStepValue = currentSliderValue + step;
+
+  newStepValue = direction === 'up' ? currentSliderValue + step : currentSliderValue - step;
+  slider.value = newStepValue;
+  const listElement = document.querySelector(`#button-${newStepValue}`);
+  listElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  listElement.setAttribute('active', 'true');
+}
 
 export default observer((properties) => {
   const {
@@ -15,7 +46,7 @@ export default observer((properties) => {
 
   const [showLevels, setShowLevels] = React.useState(false);
   const [showFlightLabel, setFlightLabel] = React.useState(true);
-  const [flightLevel, setFlightLevel] = React.useState(300);
+  const [flightLevel, setFlightLevel] = React.useState(350);
 
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
@@ -80,21 +111,19 @@ export default observer((properties) => {
               {callSign}
 
             </Row>
-            <Row className="justify-content-center">
-              <Col>
-                {/* {for (let int i = 0; i < 10; i++){
-              }} */}
-                <Row className="justify-content-center gutter-2">330</Row>
-                <Row className="justify-content-center gutter-2">320</Row>
-                <Row className="justify-content-center gutter-2">310</Row>
-                <Row className="justify-content-center gutter-2">300</Row>
-                <Row className="justify-content-center gutter-2">290</Row>
-                <Row className="justify-content-center gutter-2">280</Row>
-                <Row className="justify-content-center gutter-2">270</Row>
+            <Row>
+              <Col id="levels-container" className="levels-container">
+                <ListOfLevels value={flightLevel} onClick={setFlightLevel} />
               </Col>
               <Col>
-                <input className="level-range" type="range" value={flightLevel} onChange={(event) => setFlightLevel(event.target.value)} step={10} min={210} max={560} size="sm" variant="secondary" />
+                <Button onClick={() => FlightLevelChange('up')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11165;</Button>
+                <Row><input id="level-range" className="level-range" type="range" value={flightLevel} onChange={(event) => setFlightLevel(event.target.value)} step={10} min={210} max={560} size="sm" variant="secondary" /></Row>
+                <Button onClick={() => FlightLevelChange('down')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11167;</Button>
               </Col>
+            </Row>
+            <Row>
+              <Col className="apply-cancel-wrapper"><Button className="apply-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
+              <Col className="apply-cancel-wrapper"><Button className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
             </Row>
           </Container>
         </Popup>
