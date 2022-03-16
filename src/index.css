@@ -149,8 +149,7 @@ margin-left:-10px}
     color: white;
     padding:0;
     margin:0;
-    width: 3em;
-    width: 11em;
+    width: 9em;
     z-index: 0;
     height: fit-content;
     border-style: solid;
@@ -174,6 +173,41 @@ margin-left: -10px;
 .level-range{
     width: 20px;
     height: 10em;
+}
+.levels-container{
+    scroll-snap-type: y mandatory;
+    height: 13em;
+    overflow-y: scroll;
+}
+.levels-container::-webkit-scrollbar {
+    display: none;
+}
+.flight-level-element{
+font-size: 12px !important;
+}
+.child{
+/* scroll-snap-align: start; */
+font-size: small;
+}
+.arrow-button{
+font-size: 6px !important;
+}
+
+.apply-cancel-wrapper{
+    margin-top:0px;
+    margin-bottom: 0px;
+    /* margin-right:-10px; */
+    margin-left:-10px;
+    width: 2em !important;
+
+}
+.apply-cancel-button{
+/* width: 4em !important; */
+font-size:8.5px !important;
+align-items: center;
+padding: -3px -5px !important;
+border-radius: 5px;
+/* height: 75%; */
 }
 
 /* Navbar */
