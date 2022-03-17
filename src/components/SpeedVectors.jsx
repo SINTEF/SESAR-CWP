@@ -1,32 +1,77 @@
+import SphericalMercator from '@mapbox/sphericalmercator';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
 import { aircraftStore } from '../state';
 
-function buildLineStringFromAircraft(aircraft, minutesInTheFuture) {
-  return {
+const degreesToRad = Math.PI / 180;
+const sphericalMercator = new SphericalMercator();
+
+function buildSpeedVectorLocations(aircraft, minutesInTheFuture) {
+  // Make an array the size of minutesInTheFuture
+  return Array.from({ length: minutesInTheFuture + 1 }, (_, index) => {
+    const lon = aircraft.lastKnownLongitude;
+    const lat = aircraft.lastKnownLatitude;
+
+    if (index === 0) {
+      return [lon, lat];
+    }
+
+    const nbSeconds = index * 60;
+
+    // m/s speed
+    const currentSpeedMS = aircraft.lastKnownSpeed;
+    // degrees
+    const currentBearing = aircraft.lastKnownBearing;
+
+    // Compute the change in meters
+    const addX = Math.sin(currentBearing * degreesToRad) * currentSpeedMS * nbSeconds;
+    const addY = Math.cos(currentBearing * degreesToRad) * currentSpeedMS * nbSeconds;
+
+    // Convert lat/lon to meters
+    let [x, y] = sphericalMercator.forward([lon, lat]);
+
+    // Add the new position
+    x += addX;
+    y += addY;
+
+    // Convert back to lat/lon
+    return sphericalMercator.inverse([x, y]);
+  });
+}
+
+function buildGeoJsonSpeedVector(aircraft, minutesInTheFuture) {
+  const locations = buildSpeedVectorLocations(aircraft, minutesInTheFuture);
+  return [{
     type: 'Feature',
     geometry: {
       type: 'LineString',
-      coordinates: [
-        [aircraft.lastKnownLongitude, aircraft.lastKnownLatitude],
-        [aircraft.lastKnownLongitude + minutesInTheFuture / 2, aircraft.lastKnownLatitude],
-        [aircraft.lastKnownLongitude + minutesInTheFuture, aircraft.lastKnownLatitude + minutesInTheFuture],
-      ],
+      coordinates: locations,
     },
-  };
+  }, {
+    type: 'Feature',
+    geometry: {
+      type: 'MultiPoint',
+      coordinates: locations.slice(1),
+    },
+  }];
 }
 
-const paint = {
-  'line-color': '#00f',
-  'line-width': 3,
+const paintLine = {
+  'line-color': '#b39ddb',
+  'line-width': 1,
+};
+
+const paintCircle = {
+  'circle-color': '#b39ddb',
+  'circle-radius': 2,
 };
 
 export default observer(() => {
   // TODO use a globablly filtered list of aircrafts
   const aircrafts = aircraftStore.aircraftsWithPosition;
-  const speedVectors = aircrafts.map((aircraft) => buildLineStringFromAircraft(aircraft, 3));
+  const speedVectors = aircrafts.flatMap((aircraft) => buildGeoJsonSpeedVector(aircraft, 3));
 
   const geoJson = {
     type: 'FeatureCollection',
@@ -35,7 +80,8 @@ export default observer(() => {
 
   return (
     <Source id="speedvectors_source" type="geojson" data={geoJson}>
-      <Layer id="speedvectors" type="line" paint={paint} />
+      <Layer id="speedvectorsline" type="line" paint={paintLine} />
+      <Layer id="speedvectorspoint" type="circle" paint={paintCircle} />
     </Source>
   );
 });
