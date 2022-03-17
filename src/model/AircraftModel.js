@@ -51,7 +51,7 @@ export default class AircraftModel {
       arrivalAirport: observable,
       departureAirport: observable,
 
-      handleTargetReport: action,
+      handleTargetReport: action.bound,
     });
 
     this.aircraftId = aircraftId;

@@ -6,7 +6,7 @@ export default class FixStore {
   fixes = observable.map();
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   handleNewPointMessage(newPoint) {

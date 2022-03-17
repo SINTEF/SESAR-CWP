@@ -10,7 +10,7 @@ export default class AirspaceStore {
     makeAutoObservable(this, {
       getAreaFromId: false,
       existIn: false,
-    });
+    }, { autoBind: true });
   }
 
   handleNewAirspace(newAirspace) {

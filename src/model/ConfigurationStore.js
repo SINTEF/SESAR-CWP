@@ -16,7 +16,7 @@ export default class ConfigurationStore {
   constructor({
     airspaceStore,
   }) {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
     this.airspaceStore = airspaceStore;
   }
 

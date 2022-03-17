@@ -16,7 +16,7 @@ export default class CWPStore {
   }) {
     makeAutoObservable(this, {
       altitudeFilter: false,
-    });
+    }, { autoBind: true });
     this.altitudeFilter = new AltitudeFilter(altitudeFilter);
   }
 

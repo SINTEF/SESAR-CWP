@@ -15,7 +15,7 @@ export default class AircraftStore {
   flightRoute = observable.map();
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   get aircraftsWithPosition() {

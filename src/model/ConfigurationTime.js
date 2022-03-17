@@ -13,7 +13,7 @@ export default class ConfigurationTime {
     endTime,
   }) {
     makeObservable(this, {
-      configurationId: observable,
+      configurationId: false,
       startTime: observable,
       endTime: observable,
     });
