@@ -67,7 +67,6 @@
       }
     ],
     "simple-import-sort/exports": "warn",
-    "indent": "off",
     "function-paren-newline": "off",
     "unicorn/no-useless-undefined": "off",
     "max-len": [

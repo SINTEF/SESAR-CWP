@@ -1,8 +1,19 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable no-tabs */
-import { types } from 'mobx-state-tree';
+import { makeObservable, observable } from 'mobx';
 
-export default types.model('AircraftInfo', {
-	aircraftId: types.identifier,
-	wakeTurbulence: types.optional(types.string, ''),
-});
+export default class AircraftInfo {
+  aircraftId = undefined;
+
+  wakeTurbulence = undefined;
+
+  constructor({
+    aircraftId,
+    wakeTurbulence,
+  }) {
+    makeObservable(this, {
+      aircraftId: observable,
+      wakeTurbulence: observable,
+    });
+    this.aircraftId = aircraftId;
+    this.wakeTurbulence = wakeTurbulence;
+  }
+}

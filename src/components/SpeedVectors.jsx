@@ -21,7 +21,6 @@ function buildLineStringFromAircraft(aircraft, minutesInTheFuture) {
 const paint = {
   'line-color': '#00f',
   'line-width': 3,
-  'line-join': 'round',
 };
 
 export default observer(() => {

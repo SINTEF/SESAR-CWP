@@ -1,9 +1,24 @@
-import { types } from 'mobx-state-tree';
+// import { makeObservable, observable } from 'mobx';
 
-export default types.model('FixModel', {
-    pointId: types.identifier,
-    latitude: types.optional(types.number, 0),
-    longitude: types.optional(types.number, 0),
-    // altitude: types.optional(types.number, 0), // No Altitude so far
-},
-);
+export default class FixModel {
+  pointId = undefined;
+
+  latitude = 0;
+
+  longitude = 0;
+
+  constructor({
+    pointId,
+    latitude,
+    longitude,
+  }) {
+    /* makeObservable(this, {
+      pointId: false, // ID is not observable
+      latitude: observable,
+      longitude: observable,
+    }); */
+    this.pointId = pointId;
+    this.latitude = latitude;
+    this.longitude = longitude;
+  }
+}

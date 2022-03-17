@@ -1,11 +1,20 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable no-tabs */
-import { types } from 'mobx-state-tree';
+import { makeObservable, observable } from 'mobx';
 
-import Trajectory from './Trajectory';
+export default class FlightRoute {
+  flightId = undefined;
 
-export default types.model('FlightRoute', {
-	flightId: types.identifier,
-	trajectoryId: types.optional(types.string, ''),
-	trajectory: types.array(Trajectory),
-});
+  trajectory = observable.array();
+
+  trajectoryId = undefined;
+
+  constructor(flightRoute) {
+    makeObservable(this, {
+      flightId: false,
+      trajectory: observable,
+      trajectoryId: observable,
+    });
+    this.flightId = flightRoute.flightId;
+    this.trajectory = flightRoute.trajectory;
+    this.trajectoryId = flightRoute.trajectoryId;
+  }
+}

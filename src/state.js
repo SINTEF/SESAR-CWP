@@ -4,30 +4,23 @@ import ConfigurationStore from './model/ConfigurationStore';
 import CWPStore from './model/CwpStore';
 import FixStore from './model/FixStore';
 
-export const aircraftStore = AircraftStore.create({
-    aircrafts: {},
-    aircraftInfo: {},
-    flightRoute: {},
+export const aircraftStore = new AircraftStore();
+export const airspaceStore = new AirspaceStore();
+export const configurationStore = new ConfigurationStore({
+  airspaceStore,
+});
+export const fixStore = new FixStore();
+export const cwpStore = new CWPStore({
+  altitudeFilter: {
+    lowestBound: 205,
+    highestBound: 400,
+  },
 });
 
-export const airspaceStore = AirspaceStore.create({
-    airspaces: {},
-});
-
-export const configurationStore = ConfigurationStore.create({
-    currentConfigurationId: '',
-    configurations: {},
-    configurationPlan: {},
-    airspaceStore,
-    // eslint-disable-next-line eol-last
-});
-export const fixStore = FixStore.create({
-    fixstore: {},
-});
-
-export const cwpStore = CWPStore.create({
-    altitudeFilter: {
-        lowestBound: 205,
-        highestBound: 400,
-    },
-});
+window.state = {
+  aircraftStore,
+  airspaceStore,
+  configurationStore,
+  fixStore,
+  cwpStore,
+};

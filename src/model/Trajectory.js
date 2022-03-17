@@ -1,10 +1,13 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable no-tabs */
-import { types } from 'mobx-state-tree';
+export default class Trajectory {
+  trajectoryCoordinate = undefined;
 
-import CoordinatePair from './CoordinatePair';
+  timestamp = undefined;
 
-export default types.model('Trajectory', {
-	trajectoryCoordinate: CoordinatePair,
-	timestamp: types.Date,
-});
+  constructor({
+    trajectoryCoordinate,
+    timestamp,
+  }) {
+    this.trajectoryCoordinate = trajectoryCoordinate;
+    this.timestamp = timestamp;
+  }
+}
