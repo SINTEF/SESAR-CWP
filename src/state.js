@@ -16,11 +16,3 @@ export const cwpStore = new CWPStore({
     highestBound: 400,
   },
 });
-
-window.state = {
-  aircraftStore,
-  airspaceStore,
-  configurationStore,
-  fixStore,
-  cwpStore,
-};
