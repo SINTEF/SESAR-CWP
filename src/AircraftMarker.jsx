@@ -4,7 +4,6 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
   Button, Col, Container, Row,
-
 } from 'react-bootstrap';
 import { Marker, Popup } from 'react-map-gl';
 
@@ -18,15 +17,15 @@ function ListOfLevels(properties) {
   const sliderValue = properties.value;
   const settingSlider = properties.onClick;
   const rows = [];
-   for (let index = 560; index > 200; index -= 10) {
-   if (index === sliderValue) {
+  for (let index = 560; index > 200; index -= 10) {
+    if (index === sliderValue) {
       const element = <Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button-${index}`} className="flight-level-element" variant="secondary" size="sm" active>{index}</Button></Row>;
       rows.push(element);
-   } else {
-   rows.push(<Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button-${index}`} className="flight-level-element" variant="secondary" size="sm">{index}</Button></Row>,
-);
-}
-   }
+    } else {
+      rows.push(<Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button-${index}`} className="flight-level-element" variant="secondary" size="sm">{index}</Button></Row>,
+      );
+    }
+  }
 
   return rows;
 }

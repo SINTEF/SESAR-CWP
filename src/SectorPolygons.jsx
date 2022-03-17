@@ -35,8 +35,7 @@ export default observer((/* properties */) => {
   const geoJson = {
     type: 'FeatureCollection',
     features:
-      [...sectors,
-      {
+      [...sectors, {
         type: 'Feature',
         properties: {
           color: '#f0f',
