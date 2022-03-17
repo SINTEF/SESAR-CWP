@@ -1,9 +1,19 @@
-import { types } from 'mobx-state-tree';
+import { makeObservable, observable } from 'mobx';
 
-import CoordinatePair from './CoordinatePair';
+export default class AirspaceModel {
+  airspaceId = undefined;
 
-export default types.model('AirspaceModel', {
-    airspaceId: types.identifier,
-    // includedVolumes: types.map(SectorModel),
-    airspaceArea: types.array(CoordinatePair),
-});
+  airspaceArea = undefined;
+
+  constructor({
+    airspaceId,
+    airspaceArea,
+  }) {
+    makeObservable(this, {
+      airspaceId: false, // ID is not observable
+      airspaceArea: observable,
+    });
+    this.airspaceId = airspaceId;
+    this.airspaceArea = airspaceArea;
+  }
+}

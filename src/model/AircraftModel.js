@@ -1,39 +1,81 @@
-import { types } from 'mobx-state-tree';
+import { action, makeObservable, observable } from 'mobx';
 
 function convertToFlightMeters(alt) {
   const feet = alt * 3.280_84;
   return feet / 100;
 }
 
-export default types.model('AircraftModel', {
-  aircraftId: types.identifier, // We use the aircraftId as identifier
-  assignedFlightId: types.string,
-  callSign: types.string,
-  lastKnownLongitude: types.optional(types.number, 0),
-  lastKnownLatitude: types.optional(types.number, 0),
-  lastKnownAltitude: types.optional(types.number, 0),
-  lastKnownBearing: types.optional(types.number, 0),
-  lastKnownSpeed: types.optional(types.number, 0),
-  wakeTurbulence: types.optional(types.string, ''),
-  arrivalAirport: types.optional(types.string, ''),
-  departureAirport: types.optional(types.string, ''),
-}).volatile((/* self */) => ({
-  lastTargetReportTime: 0,
-})).actions((self) => ({
+export default class AircraftModel {
+  aircraftId = undefined;
+
+  assignedFlightId = undefined;
+
+  callSign = undefined;
+
+  lastKnownLongitude = 0;
+
+  lastKnownLatitude = 0;
+
+  lastKnownAltitude = 0;
+
+  lastKnownBearing = 0;
+
+  lastKnownSpeed = 0;
+
+  wakeTurbulence = undefined;
+
+  arrivalAirport = undefined;
+
+  departureAirport = undefined;
+
+  lastTargetReportTime = 0;
+
+  constructor({
+    aircraftId,
+    assignedFlightId,
+    callSign,
+    wakeTurbulence,
+    arrivalAirport,
+    departureAirport,
+  }) {
+    makeObservable(this, {
+      aircraftId: false,
+      assignedFlightId: false,
+      callSign: false,
+      lastKnownLongitude: observable,
+      lastKnownLatitude: observable,
+      lastKnownAltitude: observable,
+      lastKnownBearing: observable,
+      lastKnownSpeed: observable,
+      wakeTurbulence: observable,
+      arrivalAirport: observable,
+      departureAirport: observable,
+
+      handleTargetReport: action,
+    });
+
+    this.aircraftId = aircraftId;
+    this.assignedFlightId = assignedFlightId;
+    this.callSign = callSign;
+    this.wakeTurbulence = wakeTurbulence;
+    this.arrivalAirport = arrivalAirport;
+    this.departureAirport = departureAirport;
+  }
+
   handleTargetReport(targetReport) {
     // Ignore target reports that are older than the previous one
     // This is because MQTT doesn't guarantie the order of the received messages
     // We could use a MQTT broker that is a message queue with an order, like RabbitMQ
     const time = targetReport.getTime();
     const timestamp = time.getSeconds() + time.getNanos() * 1e-9;
-    if (timestamp < self.lastTargetReportTime) {
+    if (timestamp < this.lastTargetReportTime) {
       return;
     }
-    self.lastTargetReportTime = timestamp;
-    self.lastKnownAltitude = convertToFlightMeters(targetReport.getAltitude());
-    self.lastKnownLatitude = targetReport.getLatitude();
-    self.lastKnownLongitude = targetReport.getLongitude();
-    self.lastKnownBearing = targetReport.getBearing();
-    self.lastKnownSpeed = targetReport.getSpeed();
-  },
-}));
+    this.lastTargetReportTime = timestamp;
+    this.lastKnownAltitude = convertToFlightMeters(targetReport.getAltitude());
+    this.lastKnownLatitude = targetReport.getLatitude();
+    this.lastKnownLongitude = targetReport.getLongitude();
+    this.lastKnownBearing = targetReport.getBearing();
+    this.lastKnownSpeed = targetReport.getSpeed();
+  }
+}

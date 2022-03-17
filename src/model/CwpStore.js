@@ -1,20 +1,34 @@
-import { types } from 'mobx-state-tree';
+import { makeAutoObservable } from 'mobx';
 
 import AltitudeFilter from './AltitudeFilter';
 
-export default types.model('CWPStore', {
-  altitudeFilter: AltitudeFilter,
-  showFlightLabels: types.optional(types.boolean, true),
-  showSFL: types.optional(types.boolean, true),
-  showFL: types.optional(types.boolean, true),
-}).actions((store) => ({
+export default class CWPStore {
+  altitudeFilter = undefined;
+
+  showFlightLabels = true;
+
+  showSFL = true;
+
+  showFL = true;
+
+  constructor({
+    altitudeFilter,
+  }) {
+    makeAutoObservable(this, {
+      altitudeFilter: false,
+    });
+    this.altitudeFilter = new AltitudeFilter(altitudeFilter);
+  }
+
   toggleFlightLabels() {
-    store.showFlightLabels = !store.showFlightLabels;
-  },
+    this.showFlightLabels = !this.showFlightLabels;
+  }
+
   toggleSFL() {
-    store.showSFL = !store.showSFL;
-  },
+    this.showSFL = !this.showSFL;
+  }
+
   toggleFL() {
-    store.showFL = !store.showFL;
-  },
-}));
+    this.showFL = !this.showFL;
+  }
+}

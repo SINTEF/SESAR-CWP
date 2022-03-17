@@ -1,11 +1,16 @@
-import { types } from 'mobx-state-tree';
+/** Coordinate pair.
+ * Please notice that this is NOT a mobx observable class.
+ * */
+export default class CoordinatePair {
+  longitude = 0;
 
-export default types.model('CoordinatePair', {
-  longitude: types.optional(types.number, 0),
-  latitude: types.optional(types.number, 0),
-}).actions((store) => ({
-  setCoordinatePair(newLongitude, newLatitude) {
-    store.longitude = newLongitude;
-    store.latitude = newLatitude;
-  },
-}));
+  latitude = 0;
+
+  constructor({
+    longitude,
+    latitude,
+  }) {
+    this.longitude = longitude;
+    this.latitude = latitude;
+  }
+}

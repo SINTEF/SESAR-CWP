@@ -1,13 +1,19 @@
-import { types } from 'mobx-state-tree';
+import { makeObservable, observable } from 'mobx';
 
-export default types.model('AltitudeFilter', {
-  lowestBound: types.number,
-  highestBound: types.number,
-}).actions((store) => ({
-  setLowBound(newLowBound) {
-    store.lowestBound = newLowBound;
-  },
-  setHighBound(newHighBound) {
-    store.highestBound = newHighBound;
-  },
-}));
+export default class AltitudeFilter {
+  lowestBound = undefined;
+
+  highestBound = undefined;
+
+  constructor({
+    lowestBound,
+    highestBound,
+  }) {
+    makeObservable(this, {
+      lowestBound: observable,
+      highestBound: observable,
+    });
+    this.lowestBound = lowestBound;
+    this.highestBound = highestBound;
+  }
+}
