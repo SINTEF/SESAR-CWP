@@ -2,9 +2,9 @@ import { types } from 'mobx-state-tree';
 
 import AircraftInfo from './AircraftInfo';
 import AircraftModel from './AircraftModel';
-import CoordinatePair from './CoordinatePair';
+// import CoordinatePair from './CoordinatePair';
 import FlightRoute from './FlightRoute';
-import Trajectory from './Trajectory';
+// import Trajectory from './Trajectory';
 
 // Only way of manipulating data in MST is by creating Actions
 export default types.model('AircraftStore', {
@@ -68,7 +68,9 @@ export default types.model('AircraftStore', {
         }));
       }
     },
-    handleNewFlightRoute(route) {
+    handleNewFlightRoute(/* route */) {
+
+      /*
       const id = route.getFlightuniqueid();
       const trajectories = route.getRoute().getTrajectoryList()
         .map((area) => {
@@ -90,6 +92,6 @@ export default types.model('AircraftStore', {
       store.flightRoute.put(FlightRoute.create({
         flightId: id,
         trajectory: trajectories,
-      }));
+      })); */
     },
   }));

@@ -3,6 +3,7 @@ import React from 'react';
 import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
+import SpeedVectors from './components/SpeedVectors';
 import FixesPoint from './FixesPoint';
 import SectorPolygon from './SectorPolygons';
 
@@ -21,7 +22,7 @@ const mapStyle = {
 
 const style = {
   width: '100vw',
-  height: '100vh',
+  height: 'calc(100vh - 3.2rem)',
   background: 'black',
 };
 
@@ -43,6 +44,7 @@ export default function Map() {
     >
       <Aircrafts />
       <SectorPolygon />
+      <SpeedVectors />
       <FixesPoint />
       <ScaleControl position="bottom-left" />
       <NavigationControl position="bottom-left" />

@@ -6,3 +6,8 @@
   top: 0;
   right: 0;
 } 
+
+.flight-popup {
+  /** Disable text selection */
+  user-select: none;
+}

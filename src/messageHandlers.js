@@ -13,7 +13,7 @@ export function todo(parameters, message, url) {
     // console.info('MQTT message received but event handler is not yet implemented', url, message);
 }
 
-export function ignored() {}
+export function ignored() { }
 
 export function targetReport({ clientId, vehicleId }, message, url) {
     const protoMessage = AirtrafficMessages.TargetReportMessage.deserializeBinary(message);
@@ -54,13 +54,10 @@ export function flightRoutes(parameters, message) {
 }
 export function newAirspaceVolumeFlightList(parameters, message) {
     const protoMessage = AirtrafficMessages.NewAirspaceVolumeFlightListMessage
-    .deserializeBinary(message);
-    console.log(message);
-    console.log(protoMessage);
+        .deserializeBinary(message);
 }
 export function airspaceAvailability(parameters, message) {
     const protoMessage = AirtrafficMessages.AirspaceAvailabilityMessage.deserializeBinary(message);
-    console.log(protoMessage);
 }
 // A message sent when there is a status update w.r.t a role, this can be either a controller or a (pseudo) pilot.
 // This can be in the event that a flight has been set to tentative, or been accepted by a controller.
