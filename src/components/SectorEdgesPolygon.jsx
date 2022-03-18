@@ -12,11 +12,13 @@ const sectorLinePaint = {
 export default observer((/* properties */) => {
   const { edgesPolygon } = configurationStore;
 
+  const coordinates = edgesPolygon?.length ? [...edgesPolygon, edgesPolygon[0]] : [];
+
   const geoJson = {
     type: 'Feature',
     geometry: {
-      type: 'Polygon',
-      coordinates: [edgesPolygon],
+      type: 'LineString',
+      coordinates,
     },
   };
 

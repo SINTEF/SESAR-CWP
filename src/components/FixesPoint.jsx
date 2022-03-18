@@ -6,7 +6,7 @@ import { Layer, Source } from 'react-map-gl';
 import { configurationStore, fixStore } from '../state';
 
 const fixLayerPaint = {
-  'circle-radius': 4,
+  'circle-radius': 2.5,
   'circle-color': '#fff',
 };
 
@@ -20,8 +20,8 @@ const fixNameLayout = {
   'text-font': [
     'Open Sans Bold',
   ],
-  'text-size': 8,
-  'text-offset': [0, 0.8],
+  'text-size': 7,
+  'text-offset': [0, 0.5],
   'text-anchor': 'top',
 };
 

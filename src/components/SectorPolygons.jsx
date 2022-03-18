@@ -6,7 +6,7 @@ import { configurationStore, cwpStore } from '../state';
 
 const sectorOutlinePaint = {
   'line-color': '#fff',
-  'line-width': 1.5,
+  'line-width': 1,
   'line-dasharray': [2, 2],
 };
 
@@ -14,24 +14,27 @@ export default observer((/* properties */) => {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
-    .filter((area) => area[1].bottomFlightLevel > lowestBound
-      && area[1].topFlightLevel < highestBound,
+    .filter(([, area]) => area.bottomFlightLevel > lowestBound
+      && area.topFlightLevel < highestBound
+      && area.sectorArea?.length > 0,
     );
-  const sectors = [];
-  for (const airspace of sectorData) {
-    sectors.push({
+
+  const sectors = sectorData.map(([title, area]) => {
+    const coordinates = area.sectorArea.map((point) => (
+      [point.longitude, point.latitude]),
+    );
+    return {
       type: 'Feature',
       properties: {
-        t: airspace[0].toString(),
+        t: title.toString(),
       },
       geometry: {
-        type: 'Polygon',
-        coordinates: [airspace[1].sectorArea.map((area) => (
-          [area.longitude, area.latitude]),
-        )],
+        type: 'LineString',
+        coordinates: [...coordinates, coordinates[0]],
       },
-    });
-  }
+    };
+  });
+
   const geoJson = {
     type: 'FeatureCollection',
     features: sectors,
