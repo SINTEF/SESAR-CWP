@@ -13,6 +13,7 @@ import {
   newAirspaceVolumeFlightList,
   newFlight,
   newPointMessage,
+  newSimulatorTime,
   notFound,
   roleConfiguration,
   targetReport,
@@ -59,7 +60,7 @@ const router = rlite(notFound, {
   'ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId': newAirspaceVolumeFlightList,
   'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': todo,
   'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': todo,
-  'ATM/:clientId/status/time': todo,
+  'ATM/:clientId/status/time': newSimulatorTime,
   'ATM/:clientId/status/:status': todo,
 });
 

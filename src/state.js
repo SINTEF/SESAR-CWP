@@ -3,6 +3,7 @@ import AirspaceStore from './model/AirspaceStore';
 import ConfigurationStore from './model/ConfigurationStore';
 import CWPStore from './model/CwpStore';
 import FixStore from './model/FixStore';
+import SimulatorStore from './model/SimulatorStore';
 
 export const aircraftStore = new AircraftStore();
 export const airspaceStore = new AirspaceStore();
@@ -16,3 +17,4 @@ export const cwpStore = new CWPStore({
     highestBound: 400,
   },
 });
+export const simulatorStore = new SimulatorStore();

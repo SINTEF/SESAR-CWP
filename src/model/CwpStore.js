@@ -13,6 +13,8 @@ export default class CWPStore {
 
   aircraftsWithSpeedVectors = observable.set();
 
+  aircraftsWithFlightRoutes = observable.set();
+
   constructor({
     altitudeFilter,
   }) {
@@ -39,6 +41,14 @@ export default class CWPStore {
       this.aircraftsWithSpeedVectors.delete(aircraftId);
     } else {
       this.aircraftsWithSpeedVectors.add(aircraftId);
+    }
+  }
+
+  toggleFlightRouteForAircraft(aircraftId) {
+    if (this.aircraftsWithFlightRoutes.has(aircraftId)) {
+      this.aircraftsWithFlightRoutes.delete(aircraftId);
+    } else {
+      this.aircraftsWithFlightRoutes.add(aircraftId);
     }
   }
 }

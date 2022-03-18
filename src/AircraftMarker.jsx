@@ -110,7 +110,7 @@ export default observer((properties) => {
               <Col className="gutter-2" />
             </Row>
             <Row>
-              <Col className="gutter-2" onClick={() => console.log('Show flight trajectory')}>NS</Col>
+              <Col className="gutter-2" onClick={() => cwpStore.toggleFlightRouteForAircraft(aircraftId)}>NS</Col>
               <Col className="gutter-2">{FLCP}</Col>
               <Col className="gutter-2">FLACC</Col>
             </Row>

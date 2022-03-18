@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import AirtrafficMessages from './ProtobufAirTrafficSimulator_pb';
 import {
-  aircraftStore, airspaceStore, configurationStore, fixStore,
+  aircraftStore, airspaceStore, configurationStore, fixStore, simulatorStore,
 } from './state';
 
 export function notFound(parameters, message, url) {
@@ -28,7 +28,7 @@ export function newFlight({ clientId, flightUniqueId }, message, url) {
 export function newAirspaceConfiguration({ configurationId }, message, url) {
   const protoMessage = AirtrafficMessages.NewAirspaceConfigurationMessage
     .deserializeBinary(message);
-    // console.log(protoMessage);
+  // console.log(protoMessage);
   configurationStore.handleNewAirspaceConfiguration(protoMessage);
 }
 export function airspaces({ airspaceId }, message, url) {
@@ -59,6 +59,12 @@ export function newAirspaceVolumeFlightList(parameters, message) {
 export function airspaceAvailability(parameters, message) {
   const protoMessage = AirtrafficMessages.AirspaceAvailabilityMessage.deserializeBinary(message);
 }
+
+export function newSimulatorTime(parameters, message) {
+  const protoMessage = AirtrafficMessages.SimulatorTime.deserializeBinary(message);
+  simulatorStore.handleNewSimulatorTime(protoMessage);
+}
+
 // A message sent when there is a status update w.r.t a role, this can be either a controller or a (pseudo) pilot.
 // This can be in the event that a flight has been set to tentative, or been accepted by a controller.
 export function roleConfiguration(parameters, message) {
