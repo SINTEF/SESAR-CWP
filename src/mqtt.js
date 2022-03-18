@@ -22,9 +22,16 @@ import {
 
 const client = mqtt.connect('ws://localhost:9001/mqtt');
 
+function sanitizeClientId(clientId) {
+  return clientId.replace(/[^\dA-Za-z]/g, '');
+}
+
+// TODO harcoded for now
+const clientId = sanitizeClientId('1');
+
 client.on('connect', () => {
   // console.debug('Connected to MQTT broker');
-  client.subscribe('ATM/#', (error) => {
+  client.subscribe(`ATM/${clientId}/#`, (error) => {
     if (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to subscribe to MQTT topics', error);
@@ -90,3 +97,76 @@ client.on('message', (topic, message) => {
   }
   // eslint-disable-next-line eol-last
 });
+
+function serializeForSimulator(...parameters) {
+  const stringParameters = parameters.map((parameter) => `${parameter}`);
+
+  for (const parameter of stringParameters) {
+    if (parameter.contains('&')) {
+      throw new Error('Invalid parameter, & is not allowed');
+    }
+  }
+
+  return stringParameters.join('&');
+}
+
+export function startSimulator() {
+  client.publish(`simulator/${clientId}/simCommand`, 'start', { qos: 1 });
+}
+
+export function pauseSimulator() {
+  client.publish(`simulator/${clientId}/simCommand`, 'pause', { qos: 1 });
+}
+
+export function resetSimulator() {
+  client.publish(`simulator/${clientId}/simCommand`, 'reset', { qos: 2 });
+}
+
+export function setSpeedFactor(speedFactor) {
+  client.publish(`simulator/${clientId}/speedFactor`,
+    serializeForSimulator(speedFactor),
+    { qos: 1 },
+  );
+}
+
+export function changeSpeedOfAircraft(pilotId, flightId, newSpeed) {
+  client.publish(`simulator/${clientId}/changeSpeedOfAircraft`,
+    serializeForSimulator(pilotId, flightId, newSpeed),
+    { qos: 1 },
+  );
+}
+
+export function changeFlightLevelOfAircraft(pilotId, flightId, newFlightLevel) {
+  client.publish(`simulator/${clientId}/changeFlightLevelOfAircraft`,
+    serializeForSimulator(pilotId, flightId, newFlightLevel),
+    { qos: 1 },
+  );
+}
+
+export function changeBearingOfAircraft(pilotId, flightId, newBearing) {
+  client.publish(`simulator/${clientId}/changeBearingOfAircraft`,
+    serializeForSimulator(pilotId, flightId, newBearing),
+    { qos: 1 },
+  );
+}
+
+export function changeNextWaypointOfAircraft(pilotId, waypointId, flightId, latitude, longitude) {
+  client.publish(`simulator/${clientId}/changeNextWaypointOfAircraft`,
+    serializeForSimulator(pilotId, waypointId, flightId, latitude, longitude),
+    { qos: 1 },
+  );
+}
+
+export function acceptFlight(fromControllableSector, toControllableSector, flightUniqueId) {
+  client.publish(`simulator/${clientId}/acceptedFlight`,
+    serializeForSimulator(fromControllableSector, toControllableSector, flightUniqueId),
+    { qos: 1 },
+  );
+}
+
+export function tentativeFlight(fromControllableSector, toControllableSector, flightUniqueId) {
+  client.publish(`simulator/${clientId}/tentativeFlight`,
+    serializeForSimulator(fromControllableSector, toControllableSector, flightUniqueId),
+    { qos: 1 },
+  );
+}
