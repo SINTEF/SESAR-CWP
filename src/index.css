@@ -121,7 +121,7 @@ margin-left:-10px}
 
 .flight-popup .mapboxgl-popup-content {
     background: rgb(70, 70, 70);
-    color: white;
+    /* color: white; */
     padding:0;
     margin:0;
     width: fit-content;
@@ -154,7 +154,10 @@ margin-left:-10px}
     height: fit-content;
     border-style: solid;
     border-width: 1px;
-    border-color: #fff;
+    /* border-color: #fff; */
+}
+.level-popup.accepted .mapboxgl-popup-content {
+    border-color: aqua;
 }
 .choose-flight-level{
 /* padding:-5px; */
