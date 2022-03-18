@@ -70,8 +70,11 @@ export default class ConfigurationStore {
     return [...config].filter((area) => this.airspaceStore.existIn(area[0]) !== false);
   }
 
-  get edgesOfCurrentConfiguration() {
+  get edgesPolygon() {
     const edges = this.configurations.get(this.currentConfigurationId)?.edges;
-    return edges ?? [];
+    if (!edges) {
+      return [];
+    }
+    return edges.map((edge) => ([edge.longitude, edge.latitude]));
   }
 }

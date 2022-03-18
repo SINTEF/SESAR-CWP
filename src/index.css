@@ -120,7 +120,8 @@ margin-right:-10px;
 margin-left:-10px}
 
 .flight-popup .mapboxgl-popup-content {
-    background: rgb(70, 70, 70);
+    background: rgba(90, 90, 90, 0.8);
+    border-radius: 1.5px;
     /* color: white; */
     padding:0;
     margin:0;

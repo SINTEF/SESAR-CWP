@@ -10,15 +10,13 @@ const sectorLinePaint = {
 };
 
 export default observer((/* properties */) => {
-  const edgeData = configurationStore.edgesOfCurrentConfiguration;
+  const { edgesPolygon } = configurationStore;
 
   const geoJson = {
     type: 'Feature',
     geometry: {
       type: 'Polygon',
-      coordinates: [edgeData.map((edge) => (
-        [edge.longitude, edge.latitude]),
-      )],
+      coordinates: [edgesPolygon],
     },
   };
 
