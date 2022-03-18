@@ -3,9 +3,9 @@ import React from 'react';
 import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
+import FixesPoint from './components/FixesPoint';
 import Sectors from './components/Sectors';
 import SpeedVectors from './components/SpeedVectors';
-import FixesPoint from './FixesPoint';
 
 const mapStyle = {
   version: 8,

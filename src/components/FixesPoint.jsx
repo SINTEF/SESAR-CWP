@@ -3,9 +3,27 @@ import pointInPolygon from 'point-in-polygon';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import fixLayer from './fixLayer';
-import fixNameLayer from './fixNameLayer';
-import { configurationStore, fixStore } from './state';
+import { configurationStore, fixStore } from '../state';
+
+const fixLayerPaint = {
+  'circle-radius': 4,
+  'circle-color': '#fff',
+};
+
+const fixNamePaint = {
+  'text-color': '#fff',
+};
+
+const fixNameLayout = {
+  'text-field': ['get', 'title'],
+  'text-allow-overlap': true,
+  'text-font': [
+    'Open Sans Bold',
+  ],
+  'text-size': 8,
+  'text-offset': [0, 0.8],
+  'text-anchor': 'top',
+};
 
 export default observer((/* properties */) => {
   // Load required data
@@ -38,12 +56,12 @@ export default observer((/* properties */) => {
 
   return (
     <Source id="fixSources" type="geojson" data={fixJson}>
-      <Layer id={fixLayer.id} type={fixLayer.type} paint={fixLayer.paint} />
+      <Layer id="fixPoints" type="circle" paint={fixLayerPaint} />
       <Layer
-        id={fixNameLayer.id}
-        type={fixNameLayer.type}
-        layout={fixNameLayer.layout}
-        paint={fixNameLayer.paint}
+        id="fixName"
+        type="symbol"
+        layout={fixNameLayout}
+        paint={fixNamePaint}
       />
     </Source>
   );
