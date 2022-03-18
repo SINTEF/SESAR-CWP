@@ -1,5 +1,6 @@
 import './AircraftMarker.css';
 
+import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
@@ -19,27 +20,15 @@ function ListOfLevels(properties) {
   const rows = [];
   for (let index = 560; index > 200; index -= 10) {
     if (index === sliderValue) {
-      const element = <Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button-${index}`} className="flight-level-element" variant="secondary" size="sm" active>{index}</Button></Row>;
-      rows.push(element);
+      rows.push(<Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button${index}`} className="flight-level-element" variant="secondary" size="sm" active>{index}</Button></Row>,
+      );
     } else {
-      rows.push(<Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button-${index}`} className="flight-level-element" variant="secondary" size="sm">{index}</Button></Row>,
+      rows.push(<Row onClick={() => settingSlider(index)} key={index} className="child justify-content-center gutter-2"><Button id={`button${index}`} className="flight-level-element" variant="secondary" size="sm">{index}</Button></Row>,
       );
     }
   }
 
   return rows;
-}
-function FlightLevelChange(direction) {
-  const slider = document.querySelector('#level-range');
-  const step = Number.parseInt(slider.getAttribute('step'), 10);
-  const currentSliderValue = Number.parseInt(slider.value, 10);
-  let newStepValue = currentSliderValue + step;
-
-  newStepValue = direction === 'up' ? currentSliderValue + step : currentSliderValue - step;
-  slider.value = newStepValue;
-  const listElement = document.querySelector(`#button-${newStepValue}`);
-  listElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  listElement.setAttribute('active', 'true');
 }
 
 export default observer((properties) => {
@@ -52,7 +41,29 @@ export default observer((properties) => {
 
   const [showLevels, setShowLevels] = React.useState(false);
   const [showFlightLabel, setFlightLabel] = React.useState(true);
-  const [flightLevel, setFlightLevel] = React.useState(350);
+  const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
+  const [flightColor, setFlightColor] = React.useState('#fff');
+  const [FLCP, setFLCP] = React.useState('');
+
+  const FlightLevelChangeSlide = (value) => {
+    const parentElement = document.querySelector(`#${callSign}rangelist`);
+    const listElement = parentElement.querySelector(`#button${Math.ceil(value / 10) * 10}`);
+    listElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const FlightLevelChange = (direction) => {
+    const slider = document.querySelector(`#level-range${callSign}`);
+    const step = Number.parseInt(slider.getAttribute('step'), 10);
+    const currentSliderValue = Number.parseInt(slider.value, 10);
+    let newStepValue = currentSliderValue + step;
+
+    newStepValue = direction === 'up' ? currentSliderValue + step : currentSliderValue - step;
+    slider.value = newStepValue;
+    setFlightLevel(newStepValue);
+    const parentElement = document.querySelector(`#${callSign}rangelist`);
+    const listElement = parentElement.querySelector(`#button${Math.ceil(newStepValue / 10) * 10}`);
+    listElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
@@ -62,7 +73,7 @@ export default observer((properties) => {
         preserveAspectRatio="xMidYMid meet"
         style={{
           cursor: 'pointer',
-          fill: '#fff', // change depending on limbo or own flights
+          fill: flightColor, // change depending on limbo or own flights
           stroke: 'none',
         }}
         onClick={() => setFlightLabel(true)}
@@ -73,17 +84,20 @@ export default observer((properties) => {
         <Popup
           className="flight-popup"
           tipSize={2}
+          style={{ color: flightColor }}
           offset={[50, 7]}
           anchor="top"
           longitude={longitude}
           latitude={latitude}
           closeOnClick={false}
           closeButton={false}
+          onClose={() => setShowLevels(false)}
+
         >
           <Button size="sm" variant="dark" onClick={() => setFlightLabel(false)}>x</Button>
           <Container className="flight-popup-container">
             <Row>
-              <Col className="gutter-2" onClick={() => console.log('Accepting the flight')}>{callSign}</Col>
+              <Col className="gutter-2" onClick={() => setFlightColor('#0f0')}>{callSign}</Col>
             </Row>
             <Row>
               <Col className="gutter-2" onClick={() => setShowLevels(true)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
@@ -97,7 +111,7 @@ export default observer((properties) => {
             </Row>
             <Row>
               <Col className="gutter-2" onClick={() => console.log('Show flight trajectory')}>NS</Col>
-              <Col className="gutter-2">FLCP</Col>
+              <Col className="gutter-2">{FLCP}</Col>
               <Col className="gutter-2">FLACC</Col>
             </Row>
           </Container>
@@ -105,11 +119,17 @@ export default observer((properties) => {
       )}
       {showLevels && (
         <Popup
-          className="level-popup"
+          // className="level-popup"
           anchor="bottom"
           longitude={longitude}
           latitude={latitude}
-          offset={[50, 184]}
+          offset={[50, 240]}
+          className={classnames({
+            pending: false,
+            accepted: true,
+            other: false,
+            'level-popup': true,
+          })}
           closeOnClick={false}
           onClose={() => setShowLevels(false)}
         >
@@ -120,17 +140,20 @@ export default observer((properties) => {
             </Row>
             <Row>
               <Col id="levels-container" className="levels-container">
-                <ListOfLevels value={flightLevel} onClick={setFlightLevel} />
+                <div id={`${callSign}rangelist`}>
+                  <ListOfLevels id={callSign} value={flightLevel} />
+
+                </div>
               </Col>
               <Col>
                 <Button onClick={() => FlightLevelChange('up')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11165;</Button>
-                <Row><input id="level-range" className="level-range" type="range" value={flightLevel} onChange={(event) => setFlightLevel(event.target.value)} step={10} min={210} max={560} size="sm" variant="secondary" /></Row>
+                <Row><input id={`level-range${callSign}`} className="level-range" type="range" value={flightLevel} onChange={(event) => setFlightLevel(event.target.value)} onMouseUp={(event) => FlightLevelChangeSlide(event.target.value)} step={10} min={210} max={560} size="sm" variant="secondary" /></Row>
                 <Button onClick={() => FlightLevelChange('down')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11167;</Button>
               </Col>
             </Row>
             <Row>
-              <Col className="apply-cancel-wrapper"><Button className="apply-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
-              <Col className="apply-cancel-wrapper"><Button className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
+              <Col className="apply-cancel-wrapper"><Button onClick={() => setShowLevels(false)} className="apply-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
+              <Col className="apply-cancel-wrapper"><Button onClick={() => setFLCP(flightLevel)} className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
             </Row>
           </Container>
         </Popup>
