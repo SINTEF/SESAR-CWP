@@ -12,7 +12,7 @@ export default class AircraftStore {
 
   aircraftInfo = observable.map();
 
-  flightRoute = observable.map();
+  flightRoutes = observable.map();
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -90,7 +90,7 @@ export default class AircraftStore {
         });
         return trajectory;
       }).filter((trajectory) => trajectory !== undefined);
-    this.flightRoute.set(id, new FlightRoute({
+    this.flightRoutes.set(id, new FlightRoute({
       flightId: id,
       trajectory: trajectories,
     }));

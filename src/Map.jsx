@@ -4,6 +4,7 @@ import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from '
 
 import Aircrafts from './Aircrafts';
 import FixesPoint from './components/FixesPoint';
+import FlightRoutes from './components/FlightRoutes';
 import Sectors from './components/Sectors';
 import SpeedVectors from './components/SpeedVectors';
 
@@ -45,6 +46,7 @@ export default function Map() {
       <Aircrafts />
       <Sectors />
       <SpeedVectors />
+      <FlightRoutes />
       <FixesPoint />
       <ScaleControl position="bottom-left" />
       <NavigationControl position="bottom-left" />
