@@ -5,7 +5,7 @@ import SectorPolygons from './SectorPolygons';
 
 export default function Sectors() {
   return [
-    <SectorPolygons />,
-    <SectorEdgesPolygon />,
+    <SectorPolygons key="sector-polygons" />,
+    <SectorEdgesPolygon key="sector-edges-polygon" />,
   ];
 }
