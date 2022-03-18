@@ -8,7 +8,6 @@ import { fixStore } from './state';
 
 export default observer((/* properties */) => {
   const fixData = fixStore.fixes;
-  // eslint-disable-next-line no-underscore-dangle
   const data = [...fixData.values()].map((fix) => ({
     type: 'Feature', geometry: { type: 'Point', coordinates: [fix.longitude, fix.latitude] }, properties: { title: fix.pointId },
   }));
@@ -16,7 +15,6 @@ export default observer((/* properties */) => {
     type: 'FeatureCollection',
     features: [
       ...data,
-      { type: 'Feature', geometry: { type: 'Point', coordinates: [-122.4, 37.8] } },
     ],
   };
   return (
