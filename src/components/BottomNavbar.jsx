@@ -12,7 +12,9 @@ export default observer((/* properties */) => {
     lowestBound, highestBound, setLowBound, setHighBound,
   } = cwpStore.altitudeFilter;
 
-  const { toggleSFL, toggleFL, toggleFlightLabels } = cwpStore;
+  const {
+    toggleSFL, toggleFL, toggleFlightLabels, toggleSectorLabels,
+  } = cwpStore;
 
   return (
     <div className="navbar button-navbar fixed-bottom">
@@ -57,7 +59,8 @@ export default observer((/* properties */) => {
         </Accordion>
         <button type="button" onClick={() => toggleFL()} style={{ backgroundColor: 'rgb(34, 34, 34)', color: '#fff' }} className="toggle-SFL-button">FL</button>
         <button type="button" onClick={() => toggleSFL()} style={{ backgroundColor: 'rgb(34, 34, 34)', color: '#fff' }} className="toggle-SFL-button">SFL</button>
-        <button type="button" onClick={() => toggleFlightLabels()} style={{ backgroundColor: 'rgb(34, 34, 34)', color: '#fff' }} className="toggle-label-button">Toggle Sector Label</button>
+        <button type="button" onClick={() => toggleSectorLabels()} style={{ backgroundColor: 'rgb(34, 34, 34)', color: '#fff' }} className="toggle-label-button">Toggle Sector Labels</button>
+        <button type="button" onClick={() => toggleFlightLabels()} style={{ backgroundColor: 'rgb(34, 34, 34)', color: '#fff' }} className="toggle-label-button">Toggle Flight Labels</button>
       </Navbar>
     </div>
   );

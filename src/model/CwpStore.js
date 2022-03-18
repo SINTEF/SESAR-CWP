@@ -7,6 +7,8 @@ export default class CWPStore {
 
   showFlightLabels = true;
 
+  showSectorLabels = true;
+
   showSFL = true;
 
   showFL = true;
@@ -14,6 +16,8 @@ export default class CWPStore {
   aircraftsWithSpeedVectors = observable.set();
 
   aircraftsWithFlightRoutes = observable.set();
+
+  aircraftsWithPopups = observable.set();
 
   constructor({
     altitudeFilter,
@@ -26,6 +30,10 @@ export default class CWPStore {
 
   toggleFlightLabels() {
     this.showFlightLabels = !this.showFlightLabels;
+  }
+
+  toggleSectorLabels() {
+    this.showSectorLabels = !this.showSectorLabels;
   }
 
   toggleSFL() {
@@ -50,5 +58,19 @@ export default class CWPStore {
     } else {
       this.aircraftsWithFlightRoutes.add(aircraftId);
     }
+  }
+
+  openPopupForAircraft(aircraftId) {
+    // If all labels are hidden and we open a new label,
+    // we consider that we don't want to see the old labels.
+    if (!this.showFlightLabels) {
+      this.showFlightLabels = true;
+      this.aircraftsWithPopups.clear();
+    }
+    this.aircraftsWithPopups.add(aircraftId);
+  }
+
+  closePopupForAircraft(aircraftId) {
+    this.aircraftsWithPopups.delete(aircraftId);
   }
 }

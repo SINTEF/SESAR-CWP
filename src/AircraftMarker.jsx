@@ -40,7 +40,7 @@ export default observer((properties) => {
   } = properties;
 
   const [showLevels, setShowLevels] = React.useState(false);
-  const [showFlightLabel, setFlightLabel] = React.useState(true);
+  const showFlightLabel = cwpStore.aircraftsWithPopups.has(aircraftId);
   const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
   const [flightColor, setFlightColor] = React.useState('#fff');
   const [FLCP, setFLCP] = React.useState('');
@@ -76,7 +76,7 @@ export default observer((properties) => {
           fill: flightColor, // change depending on limbo or own flights
           stroke: 'none',
         }}
-        onClick={() => setFlightLabel(true)}
+        onClick={() => cwpStore.openPopupForAircraft(aircraftId)}
       >
         <path d={ICON} />
       </svg>
@@ -94,7 +94,7 @@ export default observer((properties) => {
           onClose={() => setShowLevels(false)}
 
         >
-          <Button size="sm" variant="dark" onClick={() => setFlightLabel(false)}>x</Button>
+          <Button size="sm" variant="dark" onClick={() => cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
           <Container className="flight-popup-container">
             <Row>
               <Col className="gutter-2" onClick={() => setFlightColor('#0f0')}>{callSign}</Col>
