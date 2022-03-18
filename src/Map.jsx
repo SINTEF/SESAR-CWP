@@ -3,9 +3,9 @@ import React from 'react';
 import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
+import Sectors from './components/Sectors';
 import SpeedVectors from './components/SpeedVectors';
 import FixesPoint from './FixesPoint';
-import SectorPolygon from './SectorPolygons';
 
 const mapStyle = {
   version: 8,
@@ -43,7 +43,7 @@ export default function Map() {
       antialias
     >
       <Aircrafts />
-      <SectorPolygon />
+      <Sectors />
       <SpeedVectors />
       <FixesPoint />
       <ScaleControl position="bottom-left" />
