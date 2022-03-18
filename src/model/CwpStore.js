@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, observable } from 'mobx';
 
 import AltitudeFilter from './AltitudeFilter';
 
@@ -10,6 +10,8 @@ export default class CWPStore {
   showSFL = true;
 
   showFL = true;
+
+  aircraftsWithSpeedVectors = observable.set();
 
   constructor({
     altitudeFilter,
@@ -30,5 +32,13 @@ export default class CWPStore {
 
   toggleFL() {
     this.showFL = !this.showFL;
+  }
+
+  toggleSpeedVectorForAircraft(aircraftId) {
+    if (this.aircraftsWithSpeedVectors.has(aircraftId)) {
+      this.aircraftsWithSpeedVectors.delete(aircraftId);
+    } else {
+      this.aircraftsWithSpeedVectors.add(aircraftId);
+    }
   }
 }

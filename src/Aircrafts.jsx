@@ -29,6 +29,7 @@ export default observer((properties) => {
 
     return (
       <AircraftMarker
+        aircraftId={aircraftId}
         key={flightId}
         flightId={flightId}
         bearing={bearing}
