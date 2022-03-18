@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
-import { aircraftStore } from './state';
+import { aircraftStore, cwpStore } from './state';
 
 export default observer((properties) => {
   const { onClose, aircraftId } = properties;
@@ -41,7 +41,7 @@ export default observer((properties) => {
             <Col className="gutter-2" />
           </Row>
           <Row>
-            <Col className="gutter-2">{info.wakeTurbulence}</Col>
+            <Col className="gutter-2" onClick={() => cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{info.wakeTurbulence}</Col>
             <Col className="gutter-2">FLNS</Col>
             <Col className="gutter-2" />
           </Row>

@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import { aircraftStore } from '../state';
+import { aircraftStore, cwpStore } from '../state';
 
 const degreesToRad = Math.PI / 180;
 const sphericalMercator = new SphericalMercator();
@@ -69,8 +69,15 @@ const paintCircle = {
 };
 
 export default observer(() => {
-  // TODO use a globablly filtered list of aircrafts
-  const aircrafts = aircraftStore.aircraftsWithPosition;
+  const aircraftIds = cwpStore.aircraftsWithSpeedVectors;
+  const { lowestBound, highestBound } = cwpStore.altitudeFilter;
+
+  const aircrafts = [...aircraftIds]
+    .map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
+    .filter((aircraft) => aircraft !== undefined
+      && aircraft.lastKnownAltitude > lowestBound
+      && aircraft.lastKnownAltitude < highestBound);
+
   const speedVectors = aircrafts.flatMap((aircraft) => buildGeoJsonSpeedVector(aircraft, 3));
 
   const geoJson = {

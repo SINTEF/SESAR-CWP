@@ -36,7 +36,7 @@ export default observer((properties) => {
 
   const {
     // eslint-disable-next-line no-unused-vars
-    bearing, longitude, latitude, altitude, onClick, callSign, wakeTurbulence,
+    bearing, longitude, latitude, altitude, onClick, callSign, wakeTurbulence, aircraftId,
   } = properties;
 
   const [showLevels, setShowLevels] = React.useState(false);
@@ -105,7 +105,7 @@ export default observer((properties) => {
               <Col className="gutter-2" />
             </Row>
             <Row>
-              <Col className="gutter-2">{wakeTurbulence}</Col>
+              <Col className="gutter-2" onClick={() => cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{wakeTurbulence}</Col>
               <Col className="gutter-2">FLNS</Col>
               <Col className="gutter-2" />
             </Row>
