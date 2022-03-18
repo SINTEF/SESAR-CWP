@@ -2,13 +2,16 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import outlineLayer from './outlineStyle';
-import sectorLayer from './sectorLayer';
-import { configurationStore, cwpStore } from './state';
+import { configurationStore, cwpStore } from '../state';
+
+const sectorOutlinePaint = {
+  'line-color': '#fff',
+  'line-width': 1.5,
+  'line-dasharray': [2, 2],
+};
 
 export default observer((/* properties */) => {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
-  const edgeData = configurationStore.edgesOfCurrentConfiguration;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
     .filter((area) => area[1].bottomFlightLevel > lowestBound
@@ -19,10 +22,7 @@ export default observer((/* properties */) => {
     sectors.push({
       type: 'Feature',
       properties: {
-        color: '#fff',
-        width: 1,
         t: airspace[0].toString(),
-        dasharray: [2, 1],
       },
       geometry: {
         type: 'Polygon',
@@ -34,28 +34,12 @@ export default observer((/* properties */) => {
   }
   const geoJson = {
     type: 'FeatureCollection',
-    features:
-      [...sectors, {
-        type: 'Feature',
-        properties: {
-          color: '#f0f',
-          width: 3,
-          // 'dasharray':[2,2],
-
-        },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [edgeData.map((edge) => (
-            [edge.longitude, edge.latitude]),
-          )],
-        },
-      },
-      ],
+    features: sectors,
   };
+
   return (
-    <Source id="sector_source" type="geojson" data={geoJson}>
-      <Layer id={sectorLayer.id} type={sectorLayer.type} paint={sectorLayer.paint} />
-      <Layer id={outlineLayer.id} type={outlineLayer.type} paint={outlineLayer.paint} />
+    <Source id="sector_polygons_source" type="geojson" data={geoJson}>
+      <Layer id="sector_polygons" type="line" paint={sectorOutlinePaint} />
     </Source>
   );
 });
