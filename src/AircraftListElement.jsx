@@ -7,7 +7,7 @@ import {
 import { aircraftStore, cwpStore } from './state';
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
-export default observer((/* properties */) => {
+export default observer(function AircraftListElement(/* properties */) {
   // const { onClick } = properties;
   const data = aircraftStore.aircraftsWithPosition;
   const [filter, setFilter] = useState('');

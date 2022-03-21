@@ -25,7 +25,7 @@ const fixNameLayout = {
   'text-anchor': 'top',
 };
 
-export default observer((/* properties */) => {
+export default observer(function FixesPoint(/* properties */) {
   // Load required data
   const fixData = fixStore.fixes;
   const { edgesPolygon } = configurationStore;

@@ -4,10 +4,18 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Navbar } from 'react-bootstrap';
 
-import { cwpStore } from '../state';
+import { configurationStore, cwpStore } from '../state';
 import MqttIndicators from './MqttIndicators';
 
-export default observer((/* properties */) => {
+const ControllerButton = observer(function ControllerButton() {
+  const { currentCWP } = configurationStore;
+  const { toggleControllerSelection } = cwpStore;
+  return (
+    <button type="button" onClick={() => toggleControllerSelection()}>{currentCWP}</button>
+  );
+});
+
+export default observer(function BottomNavBar(/* properties */) {
   const {
     toggleSFL, toggleFL, toggleFlightLabels, toggleSectorLabels,
     toggleFILT,
@@ -21,7 +29,7 @@ export default observer((/* properties */) => {
       <button type="button" onClick={() => toggleSectorLabels()}>Toggle Sector Labels</button>
       <button type="button" onClick={() => toggleFlightLabels()}>Toggle Flight Labels</button>
       <button type="button" onClick={() => toggleFILT()}>FILT</button>
-
+      <ControllerButton />
       <MqttIndicators />
     </Navbar>
   );

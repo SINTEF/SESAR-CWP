@@ -1,44 +1,21 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
-import AircraftMarker from './AircraftMarker';
-import { aircraftStore, cwpStore } from './state';
+import AircraftMarker from './components/AircraftMarker';
+import { aircraftStore } from './state';
 
-// Important for perf: the markers never change, avoid rerender when the map viewport changes
-export default observer((properties) => {
+export default observer(function Aircrafts(properties) {
   const { onClick } = properties;
-  const data = aircraftStore.aircraftsWithPosition;
+  const aircrafts = aircraftStore.aircraftsWithPosition;
 
-  const { lowestBound, highestBound } = cwpStore.altitudeFilter;
-
-  const filteredData = [...data.values()].filter(({ lastKnownAltitude }) => (
-    lastKnownAltitude > lowestBound
-    && lastKnownAltitude < highestBound
-  ));
-  return filteredData.map((filteredAircrafts) => {
-    const {
-      aircraftId,
-      lastKnownBearing: bearing,
-      lastKnownLongitude: longitude,
-      lastKnownLatitude: latitude,
-      lastKnownAltitude: altitude,
-      assignedFlightId: flightId,
-      callSign,
-      wakeTurbulence,
-    } = filteredAircrafts;
+  return aircrafts.map((aircraft) => {
+    const { aircraftId } = aircraft;
 
     return (
       <AircraftMarker
-        aircraftId={aircraftId}
-        key={flightId}
-        flightId={flightId}
-        bearing={bearing}
-        longitude={longitude}
-        altitude={altitude}
-        latitude={latitude}
-        callSign={callSign}
-        wakeTurbulence={wakeTurbulence}
+        aircraft={aircraft}
         onClick={() => onClick(aircraftId)}
+        key={aircraftId}
       />
     );
   });

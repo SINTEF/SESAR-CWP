@@ -9,7 +9,7 @@ const sectorLinePaint = {
   'line-width': 3,
 };
 
-export default observer((/* properties */) => {
+export default observer(function SectorEdgesPolygon(/* properties */) {
   const { edgesPolygon } = configurationStore;
 
   const coordinates = edgesPolygon?.length ? [...edgesPolygon, edgesPolygon[0]] : [];
