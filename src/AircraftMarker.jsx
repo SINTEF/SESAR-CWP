@@ -8,7 +8,7 @@ import {
 } from 'react-bootstrap';
 import { Marker, Popup } from 'react-map-gl';
 
-import { cwpStore } from './state';
+import { aircraftStore, configurationStore, cwpStore } from './state';
 
 // eslint-disable-next-line max-len
 const ICON = 'M22 16.21v-1.895L14 8V4a2 2 0 0 0-4 0v4.105L2 14.42v1.789l8-2.81V18l-3 2v2l5-2 5 2v-2l-3-2v-4.685l8 2.895z';
@@ -44,6 +44,11 @@ export default observer((properties) => {
   const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
   const [flightColor, setFlightColor] = React.useState('#fff');
   const [FLCP, setFLCP] = React.useState('');
+
+  const setController = (color) => {
+    aircraftStore.aircrafts.get(aircraftId).controlledBy = configurationStore.currentCWP;
+    setFlightColor(color);
+  };
 
   const FlightLevelChangeSlide = (value) => {
     const parentElement = document.querySelector(`#${callSign}rangelist`);
@@ -97,7 +102,7 @@ export default observer((properties) => {
           <Button size="sm" variant="dark" onClick={() => cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
           <Container className="flight-popup-container">
             <Row>
-              <Col className="gutter-2" onClick={() => setFlightColor('#0f0')}>{callSign}</Col>
+              <Col className="gutter-2" onClick={() => setController('#0f0')}>{callSign}</Col>
             </Row>
             <Row>
               <Col className="gutter-2" onClick={() => setShowLevels(true)}>{Number.parseFloat((altitude).toFixed(0))}</Col>

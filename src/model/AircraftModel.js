@@ -30,6 +30,8 @@ export default class AircraftModel {
 
   lastTargetReportTime = 0;
 
+  controlledBy = 'OTHER';
+
   constructor({
     aircraftId,
     assignedFlightId,
@@ -37,6 +39,7 @@ export default class AircraftModel {
     wakeTurbulence,
     arrivalAirport,
     departureAirport,
+    controlledBy,
   }) {
     makeObservable(this, {
       aircraftId: false,
@@ -50,6 +53,7 @@ export default class AircraftModel {
       wakeTurbulence: observable,
       arrivalAirport: observable,
       departureAirport: observable,
+      controlledBy: observable,
 
       handleTargetReport: action.bound,
     });
@@ -60,6 +64,7 @@ export default class AircraftModel {
     this.wakeTurbulence = wakeTurbulence;
     this.arrivalAirport = arrivalAirport;
     this.departureAirport = departureAirport;
+    this.controlledBy = controlledBy;
   }
 
   handleTargetReport(targetReport) {

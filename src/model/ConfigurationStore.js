@@ -13,6 +13,8 @@ export default class ConfigurationStore {
 
   airspaceStore = undefined;
 
+  currentCWP = 'OTHER';
+
   constructor({
     airspaceStore,
   }) {
@@ -59,6 +61,10 @@ export default class ConfigurationStore {
 
   setCurrentConfiguration(configMessage) {
     this.currentConfigurationId = configMessage.getCurrentairspaceconfiguration();
+  }
+
+  setCurrentCWP(controllerValue) {
+    this.currentCWP = controllerValue;
   }
 
   get areaOfIncludedAirspaces() {
