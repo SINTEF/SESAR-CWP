@@ -13,6 +13,8 @@ export default class CWPStore {
 
   showFL = true;
 
+  showFILT = false;
+
   aircraftsWithSpeedVectors = observable.set();
 
   aircraftsWithFlightRoutes = observable.set();
@@ -42,6 +44,10 @@ export default class CWPStore {
 
   toggleFL() {
     this.showFL = !this.showFL;
+  }
+
+  toggleFILT() {
+    this.showFILT = !this.showFILT;
   }
 
   toggleSpeedVectorForAircraft(aircraftId) {

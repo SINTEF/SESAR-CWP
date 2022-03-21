@@ -1,0 +1,29 @@
+.mqtt-indicators {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: inherit;
+  justify-self: end;
+  padding: 0.3rem;
+  margin-left: auto;
+}
+
+.mqtt-indicators div {
+  background: #333;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+}
+
+.mqtt-indicators .connected {
+  background: #86ce00;
+}
+
+.mqtt-indicators .receiving {
+  background: #ff5e00;
+}
+
+.mqtt-indicators .sending {
+  background: #3d86e6;
+}

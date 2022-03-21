@@ -39,6 +39,32 @@ client.on('connect', () => {
   });
 });
 
+export function onConnect(callback) {
+  if (client.connected) {
+    callback();
+  }
+  client.on('connect', callback);
+  return () => client.off('connect', callback);
+}
+
+export function onDisconnect(callback) {
+  if (!client.connected) {
+    callback();
+  }
+  client.on('close', callback);
+  return () => client.off('close', callback);
+}
+
+export function onPacketReceive(callback) {
+  client.on('packetreceive', callback);
+  return () => client.off('packetreceive', callback);
+}
+
+export function onPacketSend(callback) {
+  client.on('packetsend', callback);
+  return () => client.off('packetsend', callback);
+}
+
 const router = rlite(notFound, {
   'ATM/:clientId/Initialisation/Completed': todo,
   'ATM/:clientId/TargetReports/:vehicleId': targetReport,
