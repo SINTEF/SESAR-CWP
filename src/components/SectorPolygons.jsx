@@ -10,7 +10,7 @@ const sectorOutlinePaint = {
   'line-dasharray': [2, 2],
 };
 
-export default observer((/* properties */) => {
+export default observer(function SectorPolygons(/* properties */) {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]

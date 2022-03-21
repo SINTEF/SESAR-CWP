@@ -1,52 +1,55 @@
+import { observer } from 'mobx-react-lite';
 import * as React from 'react';
 import {
-  Button, Dropdown, DropdownButton, Modal,
+  Modal, ToggleButton, ToggleButtonGroup,
 } from 'react-bootstrap';
 
-import { configurationStore } from './state';
+import { configurationStore, cwpStore } from './state';
 
 // Need to create a role configuration file for the exercise to access the different roles
+const controllers = [
+  'CWP_NW',
+  'CWP_NE',
+  'CWP_SW',
+  'Master',
+];
 
-export default function ControllerModal(properties) {
-  const { onHide, show } = properties;
-  const [controllerPlaceholder, setControllerPlaceholder] = React.useState('Select Controller');
-  const [controller, setController] = React.useState('OTHER');
-  React.useEffect(() => {
-    configurationStore.setCurrentCWP(controller);
-  }, [controller]);
+export default observer(function ControllerModal() {
+  const { showControllerSelection, toggleControllerSelection } = cwpStore;
+
+  const controller = configurationStore.currentCWP;
   const handleSelect = (targetValue) => {
-    setController(targetValue);
-    setControllerPlaceholder(targetValue);
+    configurationStore.setCurrentCWP(targetValue);
+    toggleControllerSelection();
   };
+
+  // True if the controller has already been selected
+  const secondSelection = controllers.includes(controller);
+
   return (
     <Modal
-      show={show}
-      // size="lg"
+      show={showControllerSelection}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
+      className="controller-modal"
       centered
-      onHide={onHide}
+      onHide={() => toggleControllerSelection()}
+      keyboard={secondSelection}
+      backdrop={secondSelection ? true : 'static'}
     >
-      <Modal.Header closeButton>
+      <Modal.Header closeButton={secondSelection}>
         <Modal.Title id="contained-modal-title-vcenter">
           Choose Controller
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
 
-        <DropdownButton onSelect={handleSelect} title={controllerPlaceholder} variant="secondary" id="controller-dropdown">
-          <Dropdown.Item eventKey="CWP_NW">CWP_NW</Dropdown.Item>
-          <Dropdown.Item eventKey="CWP_NE">CWP_NE</Dropdown.Item>
-          <Dropdown.Item eventKey="CWP_SE">CWP_SE</Dropdown.Item>
-          <Dropdown.Item eventKey="Master">Master</Dropdown.Item>
-        </DropdownButton>
+        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={controller}>
+          {controllers.map(
+            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
+        </ToggleButtonGroup>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Start
-        </Button>
-      </Modal.Footer>
     </Modal>
 
   );
-}
+});

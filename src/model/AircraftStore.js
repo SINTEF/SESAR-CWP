@@ -41,7 +41,6 @@ export default class AircraftStore {
         wakeTurbulence: this.aircraftInfo.get(id).wakeTurbulence,
         arrivalAirport: newFlight.getArrivalairport(),
         departureAirport: newFlight.getDepartureairport(),
-        controlledBy: 'OTHER',
       }));
     }
   }

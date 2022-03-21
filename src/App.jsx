@@ -13,11 +13,9 @@ import SectorConfiguration from './SectorConfiguration';
 import SectorFlightList from './SectorFlightList';
 
 export default function App(/* properties */) {
-  const [controllerShow, setControllerShow] = React.useState(true);
-
   return (
     <>
-      <ControllerModal show={controllerShow} onHide={() => setControllerShow(false)} />
+      <ControllerModal />
       <Map />
       <SectorFlightList />
       <AircraftListElement />

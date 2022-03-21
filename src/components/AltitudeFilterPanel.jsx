@@ -8,7 +8,7 @@ import {
 
 import { cwpStore } from '../state';
 
-export default observer((/* properties */) => {
+export default observer(function AltitudeFilterPanel(/* properties */) {
   const { showFILT, altitudeFilter } = cwpStore;
 
   const {

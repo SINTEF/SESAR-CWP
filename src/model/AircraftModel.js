@@ -39,7 +39,6 @@ export default class AircraftModel {
     wakeTurbulence,
     arrivalAirport,
     departureAirport,
-    controlledBy,
   }) {
     makeObservable(this, {
       aircraftId: false,
@@ -56,6 +55,7 @@ export default class AircraftModel {
       controlledBy: observable,
 
       handleTargetReport: action.bound,
+      setController: action.bound,
     });
 
     this.aircraftId = aircraftId;
@@ -64,7 +64,6 @@ export default class AircraftModel {
     this.wakeTurbulence = wakeTurbulence;
     this.arrivalAirport = arrivalAirport;
     this.departureAirport = departureAirport;
-    this.controlledBy = controlledBy;
   }
 
   handleTargetReport(targetReport) {
@@ -82,5 +81,9 @@ export default class AircraftModel {
     this.lastKnownLongitude = targetReport.getLongitude();
     this.lastKnownBearing = targetReport.getBearing();
     this.lastKnownSpeed = targetReport.getSpeed();
+  }
+
+  setController(controller) {
+    this.controlledBy = controller;
   }
 }

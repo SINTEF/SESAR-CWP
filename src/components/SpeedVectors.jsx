@@ -68,7 +68,7 @@ const paintCircle = {
   'circle-radius': 2,
 };
 
-export default observer(() => {
+export default observer(function SpeedVectors() {
   const aircraftIds = cwpStore.aircraftsWithSpeedVectors;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 

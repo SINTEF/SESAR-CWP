@@ -40,7 +40,7 @@ const paintCircle = {
   'circle-radius': 2,
 };
 
-export default observer(() => {
+export default observer(function FlightRoutes() {
   // Load data from states
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
   const simulatorTimestamp = simulatorStore.timestamp;

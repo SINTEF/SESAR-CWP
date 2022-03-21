@@ -15,11 +15,17 @@ export default class CWPStore {
 
   showFILT = false;
 
+  showControllerSelection = true;
+
   aircraftsWithSpeedVectors = observable.set();
 
   aircraftsWithFlightRoutes = observable.set();
 
-  aircraftsWithPopups = observable.set();
+  aircraftsWithManuallyOpenedPopup = observable.set();
+
+  aircraftsWithManuallyClosedPopup = observable.set();
+
+  aircraftsWithLevelPopup = observable.set();
 
   constructor({
     altitudeFilter,
@@ -28,10 +34,6 @@ export default class CWPStore {
       altitudeFilter: false,
     }, { autoBind: true });
     this.altitudeFilter = new AltitudeFilter(altitudeFilter);
-  }
-
-  toggleFlightLabels() {
-    this.showFlightLabels = !this.showFlightLabels;
   }
 
   toggleSectorLabels() {
@@ -50,6 +52,10 @@ export default class CWPStore {
     this.showFILT = !this.showFILT;
   }
 
+  toggleControllerSelection() {
+    this.showControllerSelection = !this.showControllerSelection;
+  }
+
   toggleSpeedVectorForAircraft(aircraftId) {
     if (this.aircraftsWithSpeedVectors.has(aircraftId)) {
       this.aircraftsWithSpeedVectors.delete(aircraftId);
@@ -66,17 +72,25 @@ export default class CWPStore {
     }
   }
 
+  toggleFlightLabels() {
+    this.showFlightLabels = !this.showFlightLabels;
+  }
+
   openPopupForAircraft(aircraftId) {
-    // If all labels are hidden and we open a new label,
-    // we consider that we don't want to see the old labels.
-    if (!this.showFlightLabels) {
-      this.showFlightLabels = true;
-      this.aircraftsWithPopups.clear();
-    }
-    this.aircraftsWithPopups.add(aircraftId);
+    this.aircraftsWithManuallyOpenedPopup.add(aircraftId);
+    this.aircraftsWithManuallyClosedPopup.delete(aircraftId);
   }
 
   closePopupForAircraft(aircraftId) {
-    this.aircraftsWithPopups.delete(aircraftId);
+    this.aircraftsWithManuallyOpenedPopup.delete(aircraftId);
+    this.aircraftsWithManuallyClosedPopup.add(aircraftId);
+  }
+
+  openLevelPopupForAircraft(aircraftId) {
+    this.aircraftsWithLevelPopup.add(aircraftId);
+  }
+
+  closeLevelPopupForAircraft(aircraftId) {
+    this.aircraftsWithLevelPopup.delete(aircraftId);
   }
 }

@@ -13,7 +13,7 @@ export default class ConfigurationStore {
 
   airspaceStore = undefined;
 
-  currentCWP = 'OTHER';
+  currentCWP = '';
 
   constructor({
     airspaceStore,

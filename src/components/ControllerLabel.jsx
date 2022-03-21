@@ -23,7 +23,7 @@ const cwpLayer = {
     'text-color': ['get', 'description'],
   },
 };
-export default observer((/* properties */) => {
+export default observer(function ControllerLabel(/* properties */) {
   const aircrafts = aircraftStore.aircraftsWithPosition;
 
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;

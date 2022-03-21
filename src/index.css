@@ -29,15 +29,6 @@ code {
     border-radius: 4px;
 }
 
-/* .mapboxgl-popup-content {
-    text-align: start;
-    width:1px;
-    height:1px;
-    font-family: 'Open Sans', sans-serif;
-    margin:0;
-    padding:0;
-} */
-
 .control-panel {
     position: absolute;
     top: 0;
@@ -107,29 +98,33 @@ code {
     z-index: 0;
 }
 .flight-popup-container{
-padding:-5px;
-margin-top:-4px;
-margin-bottom:-3px;
 border-spacing: 0;
 }
 
-.gutter-2{
-margin-top:-5px;
-margin-bottom:-7px;
-margin-right:-10px;
-margin-left:-10px}
+.flight-popup .gutter-2{
+  line-height: 1.4em;
+  margin:0;
+  padding: 0 0.25rem 0 0.25rem;
+}
+
+.flight-popup .mapboxgl-popup-content button.btn {
+  box-shadow: none;
+}
+
+.flight-popup .mapboxgl-popup-content button.btn:active {
+  color: black;
+}
 
 .flight-popup .mapboxgl-popup-content {
-    background: rgba(90, 90, 90, 0.8);
-    border-radius: 1.5px;
-    /* color: white; */
-    padding:0;
-    margin:0;
-    width: fit-content;
-    height: 5.1em;
-    width: 11em;
-    z-index: 0;
+  background: rgba(90, 90, 90, 0.8);
+  border-radius: 1.5px;
+  /* color: white; */
+  padding:0;
+  margin:0;
+  width: 11em;
+  z-index: 0;
 }
+
 
 .flight-popup .mapboxgl-popup-anchor-top>.mapboxgl-popup-content {
     /* margin-bottom: 5px; */
@@ -212,4 +207,12 @@ align-items: center;
 padding: -3px -5px !important;
 border-radius: 5px;
 /* height: 75%; */
+}
+
+.controller-modal .modal-header {
+  border-bottom: none;
+  padding-bottom: 0.5rem;
+}
+.controller-modal .modal-body {
+  padding-bottom: 1.5rem;
 }
