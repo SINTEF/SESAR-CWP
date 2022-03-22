@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Marker } from 'react-map-gl';
 
-import { aircraftStore, configurationStore, cwpStore } from '../state';
+import { configurationStore, cwpStore } from '../state';
 import AircraftLevelPopup from './AircraftLevelPopup';
 import AircraftPopup from './AircraftPopup';
 
@@ -20,10 +20,10 @@ export default observer(function AircraftMarker(properties) {
     lastKnownLatitude: latitude,
     lastKnownBearing: bearing,
     aircraftId,
+    controlledBy,
   } = properties.aircraft;
 
-  const flightColor = aircraftStore.aircrafts.get(aircraftId).controlledBy
-    === configurationStore.currentCWP ? '#0f0' : '#fff';
+  const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
 
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
@@ -34,7 +34,10 @@ export default observer(function AircraftMarker(properties) {
         style={{
           cursor: 'pointer',
           fill: flightColor, // change depending on limbo or own flights
-          stroke: 'none',
+          stroke: 'black',
+          strokeWidth: 2.5,
+          paintOrder: 'stroke fill',
+
         }}
         onClick={() => cwpStore.openPopupForAircraft(aircraftId)}
       >

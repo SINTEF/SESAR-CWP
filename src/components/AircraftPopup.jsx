@@ -9,6 +9,7 @@ import { Popup } from 'react-map-gl';
 import { aircraftStore, configurationStore, cwpStore } from '../state';
 
 export default observer(function AircraftPopup(properties) {
+  const { aircraft } = properties;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 
   const {
@@ -19,9 +20,10 @@ export default observer(function AircraftPopup(properties) {
     callSign,
     wakeTurbulence,
     controlledBy,
-  } = properties.aircraft;
+    nextFix,
+  } = aircraft;
 
-  const flightColor = controlledBy === configurationStore.currentCWP ? '#0f0' : '#fff';
+  const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
 
   const showAllFlightLabels = cwpStore.showFlightLabels;
 
@@ -63,7 +65,9 @@ export default observer(function AircraftPopup(properties) {
         </Row>
         <Row>
           <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-          <Col className="gutter-2">Fix</Col>
+          <Col className="gutter-2" onClick={() => cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
+            {nextFix}
+          </Col>
           <Col className="gutter-2" />
         </Row>
         <Row>

@@ -21,6 +21,8 @@ const cwpLayer = {
   },
   paint: {
     'text-color': ['get', 'description'],
+    'text-halo-color': '#000',
+    'text-halo-width': 2,
   },
 };
 export default observer(function ControllerLabel(/* properties */) {
@@ -34,9 +36,9 @@ export default observer(function ControllerLabel(/* properties */) {
   ));
   const labels = [];
   for (const aircraft of filteredData) {
-    let color = '#fff';
+    let color = '#ffffff';
     if (configurationStore.currentCWP !== 'OTHER' && aircraft.controlledBy === configurationStore.currentCWP) {
-      color = '#0f0';
+      color = '#78e251';
     }
     labels.push({
       type: 'Feature',

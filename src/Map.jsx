@@ -44,12 +44,12 @@ export default function Map() {
       mapLib={maplibregl}
       antialias
     >
-      <Aircrafts />
       <Sectors />
-      <ControllerLabel />
-      <SpeedVectors />
-      <FlightRoutes />
       <FixesPoint />
+      <FlightRoutes />
+      <SpeedVectors />
+      <ControllerLabel />
+      <Aircrafts />
       <ScaleControl position="bottom-left" />
       <NavigationControl position="bottom-left" />
       <FullscreenControl position="bottom-left" containerId="root" />

@@ -65,6 +65,11 @@ export function newSimulatorTime(parameters, message) {
   simulatorStore.handleNewSimulatorTime(protoMessage);
 }
 
+export function newFlightMilestonePositions(parameters, message) {
+  const protoMessage = AirtrafficMessages.FlightMilestonePositionMessage.deserializeBinary(message);
+  aircraftStore.handleFlightNewMilestonePositions(protoMessage);
+}
+
 // A message sent when there is a status update w.r.t a role, this can be either a controller or a (pseudo) pilot.
 // This can be in the event that a flight has been set to tentative, or been accepted by a controller.
 export function roleConfiguration(parameters, message) {

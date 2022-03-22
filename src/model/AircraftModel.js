@@ -1,4 +1,6 @@
-import { action, makeObservable, observable } from 'mobx';
+import {
+  action, computed, makeObservable, observable,
+} from 'mobx';
 
 function convertToFlightMeters(alt) {
   const feet = alt * 3.280_84;
@@ -32,6 +34,10 @@ export default class AircraftModel {
 
   controlledBy = 'OTHER';
 
+  milestoneTargetTimestamp = 0;
+
+  milestoneTargetObjectId = undefined;
+
   constructor({
     aircraftId,
     assignedFlightId,
@@ -44,6 +50,7 @@ export default class AircraftModel {
       aircraftId: false,
       assignedFlightId: false,
       callSign: false,
+      milestoneTargetTimestamp: false,
       lastKnownLongitude: observable,
       lastKnownLatitude: observable,
       lastKnownAltitude: observable,
@@ -53,8 +60,12 @@ export default class AircraftModel {
       arrivalAirport: observable,
       departureAirport: observable,
       controlledBy: observable,
+      milestoneTargetObjectId: observable,
+
+      nextFix: computed,
 
       handleTargetReport: action.bound,
+      handleTargetMilestone: action.bound,
       setController: action.bound,
     });
 
@@ -83,7 +94,20 @@ export default class AircraftModel {
     this.lastKnownSpeed = targetReport.getSpeed();
   }
 
+  handleTargetMilestone(milestone) {
+    const timestamp = milestone.getTimestampsent().getSeconds();
+    if (timestamp < this.milestoneTargetTimestamp) {
+      return;
+    }
+    this.milestoneTargetTimestamp = timestamp;
+    this.milestoneTargetObjectId = milestone.getPosition().getObjectid();
+  }
+
   setController(controller) {
     this.controlledBy = controller;
+  }
+
+  get nextFix() {
+    return this.milestoneTargetObjectId ?? this.arrivalAirport ?? 'UNKNOWN';
   }
 }
