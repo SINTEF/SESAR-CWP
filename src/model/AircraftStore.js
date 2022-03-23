@@ -3,6 +3,7 @@ import { makeAutoObservable, observable } from 'mobx';
 import AirtrafficMessages from '../ProtobufAirTrafficSimulator_pb';
 import AircraftInfo from './AircraftInfo';
 import AircraftModel from './AircraftModel';
+import AircraftType from './AircraftType';
 import CoordinatePair from './CoordinatePair';
 import FlightRoute from './FlightRoute';
 import Trajectory from './Trajectory';
@@ -12,6 +13,8 @@ export default class AircraftStore {
   aircrafts = observable.map();
 
   aircraftInfo = observable.map();
+
+  aircraftTypes = observable.map();
 
   flightRoutes = observable.map();
 
@@ -37,17 +40,20 @@ export default class AircraftStore {
   handleNewFlight(newFlight) {
     const id = newFlight.getAircraftid();
     if (this.aircrafts.has(id)) {
-      throw new Error('Received new flight for an existing flight');
+      const aircraft = this.aircrafts.get(id);
+      aircraft.handleNewFlightUpdate(newFlight);
+    } else {
+      this.aircrafts.set(id, new AircraftModel({
+        aircraftId: id,
+        assignedFlightId: newFlight.getFlightuniqueid(),
+        callSign: newFlight.getCallsign(),
+        arrivalAirport: newFlight.getArrivalairport(),
+        departureAirport: newFlight.getDepartureairport(),
+        aircraftInfo: this.aircraftInfo,
+        aircraftTypes: this.aircraftTypes,
+        simulatorStore: this.simulatorStore,
+      }));
     }
-    this.aircrafts.set(id, new AircraftModel({
-      aircraftId: newFlight.getAircraftid(),
-      assignedFlightId: newFlight.getFlightuniqueid(),
-      callSign: newFlight.getCallsign(),
-      wakeTurbulence: this.aircraftInfo.get(id).wakeTurbulence,
-      arrivalAirport: newFlight.getArrivalairport(),
-      departureAirport: newFlight.getDepartureairport(),
-      simulatorStore: this.simulatorStore,
-    }));
   }
 
   handleTargetReport(targetReport) {
@@ -63,15 +69,15 @@ export default class AircraftStore {
 
   handleNewAircraftMessage(newAircraftMessage) {
     const id = newAircraftMessage.getAircraftid();
+    const wakeTurbulenceCategory = newAircraftMessage.getWaketurbulencecategory();
+
     if (this.aircraftInfo.has(id)) {
-      // console.warn('Received new aircraft message for unknown aircraft', id);
+      this.aircraftInfo.get(id).setWakeTurbulenceCategory(wakeTurbulenceCategory);
     } else {
-      const wake = newAircraftMessage.getWaketurbulencecategory() === 0
-        ? newAircraftMessage.getAircrafttype()
-        : newAircraftMessage.getWaketurbulencecategory();
       this.aircraftInfo.set(id, new AircraftInfo({
-        aircraftId: newAircraftMessage.getAircraftid(),
-        wakeTurbulence: wake,
+        aircraftId: id,
+        aircraftType: newAircraftMessage.getAircrafttype(),
+        wakeTurbulenceCategory,
       }));
     }
   }
@@ -146,5 +152,10 @@ export default class AircraftStore {
 
       aircraft.handleTargetMilestone(milestone);
     }
+  }
+
+  handleNewAircraftTypeMessage(newAircraftTypeMessage) {
+    const aircraftType = AircraftType.fromProto(newAircraftTypeMessage);
+    this.aircraftTypes.set(aircraftType.vehicleTypeId, aircraftType);
   }
 }

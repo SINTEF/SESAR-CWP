@@ -1,19 +1,30 @@
-import { makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 
 export default class AircraftInfo {
   aircraftId = undefined;
 
-  wakeTurbulence = undefined;
+  aircraftType = undefined;
+
+  wakeTurbulenceCategory = undefined;
 
   constructor({
     aircraftId,
-    wakeTurbulence,
+    aircraftType,
+    wakeTurbulenceCategory,
   }) {
     makeObservable(this, {
-      aircraftId: observable,
-      wakeTurbulence: observable,
+      aircraftId: false,
+      aircraftType: false,
+      wakeTurbulenceCategory: observable,
+      setWakeTurbulenceCategory: action,
     });
+
     this.aircraftId = aircraftId;
-    this.wakeTurbulence = wakeTurbulence;
+    this.aircraftType = aircraftType;
+    this.wakeTurbulenceCategory = wakeTurbulenceCategory;
+  }
+
+  setWakeTurbulenceCategory(wakeTurbulenceCategory) {
+    this.wakeTurbulenceCategory = wakeTurbulenceCategory;
   }
 }
