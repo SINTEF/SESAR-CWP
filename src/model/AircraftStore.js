@@ -15,8 +15,15 @@ export default class AircraftStore {
 
   flightRoutes = observable.map();
 
-  constructor() {
-    makeAutoObservable(this, {}, { autoBind: true });
+  simulatorStore = undefined;
+
+  constructor({
+    simulatorStore,
+  }) {
+    makeAutoObservable(this, {
+      simulatorStore: false,
+    }, { autoBind: true });
+    this.simulatorStore = simulatorStore;
   }
 
   get aircraftsWithPosition() {
@@ -33,14 +40,13 @@ export default class AircraftStore {
       throw new Error('Received new flight for an existing flight');
     }
     this.aircrafts.set(id, new AircraftModel({
-
-      // TODO check what these contains because we may have some surprises
       aircraftId: newFlight.getAircraftid(),
       assignedFlightId: newFlight.getFlightuniqueid(),
       callSign: newFlight.getCallsign(),
       wakeTurbulence: this.aircraftInfo.get(id).wakeTurbulence,
       arrivalAirport: newFlight.getArrivalairport(),
       departureAirport: newFlight.getDepartureairport(),
+      simulatorStore: this.simulatorStore,
     }));
   }
 

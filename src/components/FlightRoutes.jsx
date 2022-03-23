@@ -92,7 +92,7 @@ export default observer(function FlightRoutes() {
 
   const features = flightRoutes.flatMap(
     ([aircraft, flightRoute]) => buildGeoJsonFlightRoute(aircraft, flightRoute.trajectory.filter(
-      (trajectory) => trajectory.timestamp > simulatorTimestamp)));
+      (trajectory) => trajectory.timestamp >= simulatorTimestamp)));
 
   const geoJson = {
     type: 'FeatureCollection',

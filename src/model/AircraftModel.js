@@ -38,6 +38,8 @@ export default class AircraftModel {
 
   milestoneTargetObjectId = undefined;
 
+  simulatorStore = undefined;
+
   constructor({
     aircraftId,
     assignedFlightId,
@@ -45,12 +47,14 @@ export default class AircraftModel {
     wakeTurbulence,
     arrivalAirport,
     departureAirport,
+    simulatorStore,
   }) {
     makeObservable(this, {
       aircraftId: false,
       assignedFlightId: false,
       callSign: false,
       milestoneTargetTimestamp: false,
+      simulatorStore: false,
       lastKnownLongitude: observable,
       lastKnownLatitude: observable,
       lastKnownAltitude: observable,
@@ -75,6 +79,7 @@ export default class AircraftModel {
     this.wakeTurbulence = wakeTurbulence;
     this.arrivalAirport = arrivalAirport;
     this.departureAirport = departureAirport;
+    this.simulatorStore = simulatorStore;
   }
 
   handleTargetReport(targetReport) {
@@ -108,6 +113,11 @@ export default class AircraftModel {
   }
 
   get nextFix() {
-    return this.milestoneTargetObjectId ?? this.arrivalAirport ?? 'UNKNOWN';
+    const simulatorTimestamp = this.simulatorStore.timestamp;
+    if (this.milestoneTargetObjectId && this.milestoneTargetTimestamp >= simulatorTimestamp) {
+      return this.milestoneTargetObjectId;
+    }
+
+    return this.arrivalAirport ?? 'UNKNOWN';
   }
 }
