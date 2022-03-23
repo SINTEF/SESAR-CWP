@@ -1,4 +1,6 @@
-import { action, makeObservable, observable } from 'mobx';
+import {
+  action, computed, makeObservable, observable,
+} from 'mobx';
 
 function convertToFlightMeters(alt) {
   const feet = alt * 3.280_84;
@@ -32,6 +34,12 @@ export default class AircraftModel {
 
   controlledBy = 'OTHER';
 
+  milestoneTargetTimestamp = 0;
+
+  milestoneTargetObjectId = undefined;
+
+  simulatorStore = undefined;
+
   constructor({
     aircraftId,
     assignedFlightId,
@@ -39,11 +47,14 @@ export default class AircraftModel {
     wakeTurbulence,
     arrivalAirport,
     departureAirport,
+    simulatorStore,
   }) {
     makeObservable(this, {
       aircraftId: false,
       assignedFlightId: false,
       callSign: false,
+      milestoneTargetTimestamp: false,
+      simulatorStore: false,
       lastKnownLongitude: observable,
       lastKnownLatitude: observable,
       lastKnownAltitude: observable,
@@ -53,8 +64,12 @@ export default class AircraftModel {
       arrivalAirport: observable,
       departureAirport: observable,
       controlledBy: observable,
+      milestoneTargetObjectId: observable,
+
+      nextFix: computed,
 
       handleTargetReport: action.bound,
+      handleTargetMilestone: action.bound,
       setController: action.bound,
     });
 
@@ -64,6 +79,7 @@ export default class AircraftModel {
     this.wakeTurbulence = wakeTurbulence;
     this.arrivalAirport = arrivalAirport;
     this.departureAirport = departureAirport;
+    this.simulatorStore = simulatorStore;
   }
 
   handleTargetReport(targetReport) {
@@ -83,7 +99,25 @@ export default class AircraftModel {
     this.lastKnownSpeed = targetReport.getSpeed();
   }
 
+  handleTargetMilestone(milestone) {
+    const timestamp = milestone.getTimestampsent().getSeconds();
+    if (timestamp < this.milestoneTargetTimestamp) {
+      return;
+    }
+    this.milestoneTargetTimestamp = timestamp;
+    this.milestoneTargetObjectId = milestone.getPosition().getObjectid();
+  }
+
   setController(controller) {
     this.controlledBy = controller;
+  }
+
+  get nextFix() {
+    const simulatorTimestamp = this.simulatorStore.timestamp;
+    if (this.milestoneTargetObjectId && this.milestoneTargetTimestamp >= simulatorTimestamp) {
+      return this.milestoneTargetObjectId;
+    }
+
+    return this.arrivalAirport ?? 'UNKNOWN';
   }
 }
