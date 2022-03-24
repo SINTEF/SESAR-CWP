@@ -17,7 +17,7 @@ const ControllerButton = observer(function ControllerButton() {
 
 export default observer(function BottomNavBar(/* properties */) {
   const {
-    toggleSFL, toggleFL, toggleFlightLabels, toggleSectorLabels,
+    toggleSFL, toggleFL, toggleFlightLabels, toggleFixes, toggleSectorLabels,
     toggleFILT,
   } = cwpStore;
 
@@ -28,6 +28,7 @@ export default observer(function BottomNavBar(/* properties */) {
       <button type="button" onClick={() => toggleSFL()}>SFL</button>
       <button type="button" onClick={() => toggleSectorLabels()}>Toggle Sector Labels</button>
       <button type="button" onClick={() => toggleFlightLabels()}>Toggle Flight Labels</button>
+      <button type="button" onClick={() => toggleFixes()}>Toggle Fixes</button>
       <button type="button" onClick={() => toggleFILT()}>FILT</button>
       <ControllerButton />
       <MqttIndicators />

@@ -15,6 +15,8 @@ export default class CWPStore {
 
   showFILT = false;
 
+  showFixes = true;
+
   showControllerSelection = true;
 
   aircraftsWithSpeedVectors = observable.set();
@@ -34,6 +36,10 @@ export default class CWPStore {
       altitudeFilter: false,
     }, { autoBind: true });
     this.altitudeFilter = new AltitudeFilter(altitudeFilter);
+  }
+
+  toggleFixes() {
+    this.showFixes = !this.showFixes;
   }
 
   toggleSectorLabels() {
