@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable no-unused-vars */
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
@@ -6,7 +8,7 @@ import {
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
-import { cwpStore } from '../state';
+import { configurationStore, cwpStore } from '../state';
 
 function ListOfLevels(properties) {
   const sliderValue = properties.value;
@@ -32,10 +34,13 @@ export default observer(function AircraftLevelPopup(properties) {
     lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
     callSign,
+    controlledBy,
   } = properties.aircraft;
 
   const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
   const [/* FLCP */, setFLCP] = React.useState('');
+
+  const accepted = controlledBy === configurationStore.currentCWP;
 
   const shouldShow = cwpStore.aircraftsWithLevelPopup.has(aircraftId);
 
@@ -74,7 +79,7 @@ export default observer(function AircraftLevelPopup(properties) {
       offset={[50, 240]}
       className={classnames({
         pending: false,
-        accepted: true,
+        accepted,
         other: false,
         'level-popup': true,
       })}

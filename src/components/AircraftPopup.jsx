@@ -42,7 +42,7 @@ export default observer(function AircraftPopup(properties) {
     aircraftStore.aircrafts.get(aircraftId).setController(configurationStore.currentCWP);
   };
 
-  const FLCP = 'prout';
+  const FLCP = '';
 
   return (
     <Popup
@@ -72,13 +72,13 @@ export default observer(function AircraftPopup(properties) {
         </Row>
         <Row>
           <Col className="gutter-2" onClick={() => cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
-          <Col className="gutter-2">FLNS</Col>
+          <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
           <Col className="gutter-2" />
         </Row>
         <Row>
           <Col className="gutter-2" onClick={() => cwpStore.toggleFlightRouteForAircraft(aircraftId)}>NS</Col>
           <Col className="gutter-2">{FLCP}</Col>
-          <Col className="gutter-2">FLACC</Col>
+          <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
         </Row>
       </Container>
     </Popup>

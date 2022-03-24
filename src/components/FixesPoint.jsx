@@ -3,7 +3,7 @@ import pointInPolygon from 'point-in-polygon';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import { configurationStore, fixStore } from '../state';
+import { configurationStore, cwpStore, fixStore } from '../state';
 
 const fixLayerPaint = {
   'circle-radius': 2.5,
@@ -30,6 +30,8 @@ export default observer(function FixesPoint(/* properties */) {
   const fixData = fixStore.fixes;
   const { edgesPolygon } = configurationStore;
 
+  // eslint-disable-next-line unicorn/no-null
+  if (!cwpStore.showFixes) return null;
   // Get all points
   const points = [...fixData.values()]
     // Compute an easy to use location array
