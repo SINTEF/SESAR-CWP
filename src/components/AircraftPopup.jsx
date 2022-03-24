@@ -18,7 +18,7 @@ export default observer(function AircraftPopup(properties) {
     lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
     callSign,
-    wakeTurbulence,
+    speedAndWakeTurbulenceLabel,
     controlledBy,
     nextFix,
   } = aircraft;
@@ -71,7 +71,7 @@ export default observer(function AircraftPopup(properties) {
           <Col className="gutter-2" />
         </Row>
         <Row>
-          <Col className="gutter-2" onClick={() => cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{wakeTurbulence}</Col>
+          <Col className="gutter-2" onClick={() => cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
           <Col className="gutter-2">FLNS</Col>
           <Col className="gutter-2" />
         </Row>

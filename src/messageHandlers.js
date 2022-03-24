@@ -43,6 +43,10 @@ export function newAircraftMessage(parameters, message, url) {
   const protoMessage = AirtrafficMessages.NewAircraftMessage.deserializeBinary(message);
   aircraftStore.handleNewAircraftMessage(protoMessage);
 }
+export function newAircraftTypeMessage(parameters, message, url) {
+  const protoMessage = AirtrafficMessages.NewAircraftTypeMessage.deserializeBinary(message);
+  aircraftStore.handleNewAircraftTypeMessage(protoMessage);
+}
 export function currentAirspaceConfiguration(parameters, message) {
   const protoMessage = AirtrafficMessages.CurrentAirspaceConfigurationMessage
     .deserializeBinary(message);

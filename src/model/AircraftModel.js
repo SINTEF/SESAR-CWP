@@ -2,9 +2,15 @@ import {
   action, computed, makeObservable, observable,
 } from 'mobx';
 
+import AirtrafficMessages from '../ProtobufAirTrafficSimulator_pb';
+
 function convertToFlightMeters(alt) {
   const feet = alt * 3.280_84;
   return feet / 100;
+}
+
+function convertMSToKnots(speed) {
+  return speed * 1.943_844_492_440_6;
 }
 
 export default class AircraftModel {
@@ -24,8 +30,6 @@ export default class AircraftModel {
 
   lastKnownSpeed = 0;
 
-  wakeTurbulence = undefined;
-
   arrivalAirport = undefined;
 
   departureAirport = undefined;
@@ -38,15 +42,20 @@ export default class AircraftModel {
 
   milestoneTargetObjectId = undefined;
 
+  aircraftInfo = undefined;
+
+  aircraftTypes = undefined;
+
   simulatorStore = undefined;
 
   constructor({
     aircraftId,
     assignedFlightId,
     callSign,
-    wakeTurbulence,
     arrivalAirport,
     departureAirport,
+    aircraftInfo,
+    aircraftTypes,
     simulatorStore,
   }) {
     makeObservable(this, {
@@ -54,19 +63,22 @@ export default class AircraftModel {
       assignedFlightId: false,
       callSign: false,
       milestoneTargetTimestamp: false,
+      aircraftInfo: false,
+      aircraftTypes: false,
       simulatorStore: false,
       lastKnownLongitude: observable,
       lastKnownLatitude: observable,
       lastKnownAltitude: observable,
       lastKnownBearing: observable,
       lastKnownSpeed: observable,
-      wakeTurbulence: observable,
       arrivalAirport: observable,
       departureAirport: observable,
       controlledBy: observable,
       milestoneTargetObjectId: observable,
 
       nextFix: computed,
+      wakeTurbulenceCategory: computed,
+      speedAndWakeTurbulenceLabel: computed,
 
       handleTargetReport: action.bound,
       handleTargetMilestone: action.bound,
@@ -76,9 +88,10 @@ export default class AircraftModel {
     this.aircraftId = aircraftId;
     this.assignedFlightId = assignedFlightId;
     this.callSign = callSign;
-    this.wakeTurbulence = wakeTurbulence;
     this.arrivalAirport = arrivalAirport;
     this.departureAirport = departureAirport;
+    this.aircraftInfo = aircraftInfo;
+    this.aircraftTypes = aircraftTypes;
     this.simulatorStore = simulatorStore;
   }
 
@@ -119,5 +132,54 @@ export default class AircraftModel {
     }
 
     return this.arrivalAirport ?? 'UNKNOWN';
+  }
+
+  handleNewFlightUpdate(newFlight) {
+    this.assignedFlightId = newFlight.getFlightuniqueid();
+    this.callSign = newFlight.getCallsign();
+    this.arrivalAirport = newFlight.getArrivalairport();
+    this.departureAirport = newFlight.getDepartureairport();
+  }
+
+  get wakeTurbulenceCategory() {
+    const aircraftInfo = this.aircraftInfo.get(this.aircraftId);
+    if (!aircraftInfo) {
+      return AirtrafficMessages.WakeTurbulenceCategory.WTC_UNKNOWN;
+    }
+
+    const { wakeTurbulenceCategory } = aircraftInfo;
+
+    if (wakeTurbulenceCategory !== AirtrafficMessages.WakeTurbulenceCategory.WTC_UNKNOWN) {
+      return wakeTurbulenceCategory;
+    }
+
+    const { aircraftType } = aircraftInfo;
+    const aircraftTypeInfo = this.aircraftTypes.get(aircraftType);
+    if (!aircraftTypeInfo) {
+      return AirtrafficMessages.WakeTurbulenceCategory.WTC_UNKNOWN;
+    }
+
+    return aircraftTypeInfo.wakeTurbulenceCategory;
+  }
+
+  get speedAndWakeTurbulenceLabel() {
+    const { wakeTurbulenceCategory, lastKnownSpeed } = this;
+    const speed = Math.floor(convertMSToKnots(lastKnownSpeed));
+
+    switch (wakeTurbulenceCategory) {
+      case AirtrafficMessages.WakeTurbulenceCategory.WTC_LIGHT:
+        return `L${speed}`;
+      case AirtrafficMessages.WakeTurbulenceCategory.LOWER_MEDIUM:
+      case AirtrafficMessages.WakeTurbulenceCategory.UPPER_MEDIUM:
+        return `M${speed}`;
+      case AirtrafficMessages.WakeTurbulenceCategory.LOWER_HEAVY:
+      case AirtrafficMessages.WakeTurbulenceCategory.UPPER_HEAVY:
+      case AirtrafficMessages.WakeTurbulenceCategory.JUMBO:
+      case AirtrafficMessages.WakeTurbulenceCategory.WTC_ALL:
+        return `H${speed}`;
+      case AirtrafficMessages.WakeTurbulenceCategory.WTC_UNKNOWN:
+      default:
+        return `${speed}`;
+    }
   }
 }
