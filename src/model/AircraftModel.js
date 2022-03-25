@@ -42,6 +42,8 @@ export default class AircraftModel {
 
   milestoneTargetObjectId = undefined;
 
+  assignedFlightLevel = undefined;
+
   aircraftInfo = undefined;
 
   aircraftTypes = undefined;
@@ -75,6 +77,7 @@ export default class AircraftModel {
       departureAirport: observable,
       controlledBy: observable,
       milestoneTargetObjectId: observable,
+      assignedFlightLevel: observable,
 
       nextFix: computed,
       wakeTurbulenceCategory: computed,
@@ -83,6 +86,7 @@ export default class AircraftModel {
       handleTargetReport: action.bound,
       handleTargetMilestone: action.bound,
       setController: action.bound,
+      setAssignedFlightLevel: action.bound,
     });
 
     this.aircraftId = aircraftId;
@@ -181,5 +185,9 @@ export default class AircraftModel {
       default:
         return `${speed}`;
     }
+  }
+
+  setAssignedFlightLevel(assignedFlightLevel) {
+    this.assignedFlightLevel = assignedFlightLevel;
   }
 }

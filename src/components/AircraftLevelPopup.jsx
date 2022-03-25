@@ -35,10 +35,10 @@ export default observer(function AircraftLevelPopup(properties) {
     lastKnownAltitude: altitude,
     callSign,
     controlledBy,
+    setAssignedFlightLevel,
   } = properties.aircraft;
 
   const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
-  const [/* FLCP */, setFLCP] = React.useState('');
 
   const accepted = controlledBy === configurationStore.currentCWP;
 
@@ -70,6 +70,11 @@ export default observer(function AircraftLevelPopup(properties) {
   };
 
   const close = () => cwpStore.closeLevelPopupForAircraft(aircraftId);
+  const setFLCP = () => {
+    setAssignedFlightLevel(flightLevel);
+    close();
+  };
+
   return (
     <Popup
       // className="level-popup"
@@ -94,8 +99,7 @@ export default observer(function AircraftLevelPopup(properties) {
         <Row>
           <Col id="levels-container" className="levels-container">
             <div id={`${callSign}rangelist`}>
-              <ListOfLevels id={callSign} value={flightLevel} />
-
+              <ListOfLevels id={callSign} value={flightLevel} onClick={setFlightLevel} />
             </div>
           </Col>
           <Col>
@@ -105,8 +109,8 @@ export default observer(function AircraftLevelPopup(properties) {
           </Col>
         </Row>
         <Row>
-          <Col className="apply-cancel-wrapper"><Button onClick={() => close()} className="apply-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
-          <Col className="apply-cancel-wrapper"><Button onClick={() => setFLCP(flightLevel)} className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
+          <Col className="apply-cancel-wrapper"><Button onClick={close} className="apply-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
+          <Col className="apply-cancel-wrapper"><Button onClick={setFLCP} className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
         </Row>
       </Container>
     </Popup>

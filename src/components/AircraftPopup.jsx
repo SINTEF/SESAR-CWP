@@ -21,6 +21,7 @@ export default observer(function AircraftPopup(properties) {
     speedAndWakeTurbulenceLabel,
     controlledBy,
     nextFix,
+    assignedFlightLevel,
   } = aircraft;
 
   const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
@@ -41,8 +42,6 @@ export default observer(function AircraftPopup(properties) {
     // TODO do something with MQTT
     aircraftStore.aircrafts.get(aircraftId).setController(configurationStore.currentCWP);
   };
-
-  const FLCP = '';
 
   return (
     <Popup
@@ -77,7 +76,7 @@ export default observer(function AircraftPopup(properties) {
         </Row>
         <Row>
           <Col className="gutter-2" onClick={() => cwpStore.toggleFlightRouteForAircraft(aircraftId)}>NS</Col>
-          <Col className="gutter-2">{FLCP}</Col>
+          <Col className="gutter-2">{assignedFlightLevel}</Col>
           <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
         </Row>
       </Container>
