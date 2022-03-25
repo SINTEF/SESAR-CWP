@@ -7,6 +7,7 @@ import * as React from 'react';
 import AircraftListElement from './AircraftListElement';
 import AltitudeFilterPanel from './components/AltitudeFilterPanel';
 import BottomNavbar from './components/BottomNavbar';
+import Time from './components/Time';
 import ControllerModal from './ControllerModal';
 import Map from './Map';
 import SectorConfiguration from './SectorConfiguration';
@@ -21,6 +22,7 @@ export default function App(/* properties */) {
       <AircraftListElement />
       <SectorConfiguration />
       <AltitudeFilterPanel />
+      <Time />
       <BottomNavbar />
     </>
   );
