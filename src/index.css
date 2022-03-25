@@ -208,6 +208,65 @@ padding: -3px -5px !important;
 border-radius: 5px;
 /* height: 75%; */
 }
+/* For Next Sector Popup */
+.next-sector-popup .mapboxgl-popup-content button.btn {
+  box-shadow: none;
+}
+
+.next-sector-popup .mapboxgl-popup-content button.btn:active {
+  color: black;
+}
+
+.next-sector-popup .mapboxgl-popup-content {
+  background: transparent;
+  border-radius: 1.5px;
+  /* color: white; */
+  padding:0;
+  margin:0;
+  height: 3em;
+  width: 16em;
+  z-index: 0;
+}
+.submit-cancel-button{
+    width: 5.1em !important;
+    height: 3em !important;
+    font-size:8.0px !important;
+    align-items: center;
+    padding: 0 !important;
+    border-radius: 0px !important;
+    color: #000 !important;
+    background-color: #fff !important;
+
+
+}
+.submit-cancel-wrapper{
+    margin-top:0px;
+    margin-bottom: 0px;
+    margin-right:-10px;
+    margin-left:-10px;
+    width: 13.5em !important;
+    
+}
+.dropdown-button{
+    width: 6em !important;
+    height: 3em !important;
+    font-size:8.0px !important;
+    line-height: 0em !important;
+    margin:0;
+    padding: 0 !important;
+    color: #000 !important;
+    background-color: #fff !important;
+    position: relative;
+    border-radius: 0px !important;
+
+    /* left: -1px; */
+
+}
+.next-sector-popup .gutter-2{
+  line-height: 1.4em;
+  margin:0;
+  padding: 0 0 0 0;
+  }
 
 .controller-modal .modal-header {
   border-bottom: none;

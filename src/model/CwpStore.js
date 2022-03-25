@@ -29,6 +29,8 @@ export default class CWPStore {
 
   aircraftsWithLevelPopup = observable.set();
 
+  aircraftsWithSectorPopup = observable.set();
+
   constructor({
     altitudeFilter,
   }) {
@@ -98,5 +100,13 @@ export default class CWPStore {
 
   closeLevelPopupForAircraft(aircraftId) {
     this.aircraftsWithLevelPopup.delete(aircraftId);
+  }
+
+  openNextSectorPopupForAircraft(aircraftId) {
+    this.aircraftsWithSectorPopup.add(aircraftId);
+  }
+
+  closeNextSectorPopupForAircraft(aircraftId) {
+    this.aircraftsWithSectorPopup.delete(aircraftId);
   }
 }
