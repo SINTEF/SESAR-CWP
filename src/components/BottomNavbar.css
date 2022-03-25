@@ -1,5 +1,5 @@
 .navbar.button-navbar{
-    height: 3.2em;
+    height: 1.9em;
     padding: 0;
     background-color: #555;
     display: flex;
@@ -10,5 +10,6 @@
   /* Fill the height */
   height: inherit;
   color: white;
-  background-color: rgb(34,34,34);
+  font-size: x-small;
+  background-color: rgb(170, 170, 170);
 }

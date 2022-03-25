@@ -4,7 +4,9 @@ import {
   Table,
 } from 'react-bootstrap';
 
-import { aircraftStore, cwpStore } from './state';
+import { aircraftStore, configurationStore, cwpStore } from './state';
+
+const flightColor = (value) => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
@@ -51,7 +53,10 @@ export default observer(function AircraftListElement(/* properties */) {
         <tbody>
           {data.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
             .map((aircraftData) => (
-              <tr key={aircraftData.assignedFlightId}>
+              <tr
+                style={{ color: flightColor(aircraftData.controlledBy) }}
+                key={aircraftData.assignedFlightId}
+              >
                 <td>
                   {/* <li key={aircraft_data.aircraftId}>
 <a href="#" onClick={() => undefined}> */}

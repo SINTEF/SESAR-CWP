@@ -24,7 +24,7 @@ const mapStyle = {
 
 const style = {
   width: '100vw',
-  height: 'calc(100vh - 3.2rem)',
+  height: 'calc(100vh - 1.9rem)',
   background: 'black',
 };
 
