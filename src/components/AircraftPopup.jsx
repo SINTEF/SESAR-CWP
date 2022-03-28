@@ -20,6 +20,7 @@ export default observer(function AircraftPopup(properties) {
     callSign,
     speedAndWakeTurbulenceLabel,
     controlledBy,
+    nextSectorController,
     nextFix,
     assignedFlightLevel,
   } = aircraft;
@@ -75,7 +76,7 @@ export default observer(function AircraftPopup(properties) {
           <Col className="gutter-2" />
         </Row>
         <Row>
-          <Col className="gutter-2" onClick={() => cwpStore.toggleFlightRouteForAircraft(aircraftId)}>NS</Col>
+          <Col className="gutter-2" onClick={() => cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
           <Col className="gutter-2">{assignedFlightLevel}</Col>
           <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
         </Row>

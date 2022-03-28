@@ -38,6 +38,8 @@ export default class AircraftModel {
 
   controlledBy = 'OTHER';
 
+  nextSectorController = 'NS';
+
   milestoneTargetTimestamp = 0;
 
   milestoneTargetObjectId = undefined;
@@ -76,6 +78,7 @@ export default class AircraftModel {
       arrivalAirport: observable,
       departureAirport: observable,
       controlledBy: observable,
+      nextSectorController: observable,
       milestoneTargetObjectId: observable,
       assignedFlightLevel: observable,
 
@@ -87,6 +90,7 @@ export default class AircraftModel {
       handleTargetMilestone: action.bound,
       setController: action.bound,
       setAssignedFlightLevel: action.bound,
+      setNextSectorController: action.bound,
     });
 
     this.aircraftId = aircraftId;
@@ -189,5 +193,9 @@ export default class AircraftModel {
 
   setAssignedFlightLevel(assignedFlightLevel) {
     this.assignedFlightLevel = assignedFlightLevel;
+  }
+
+  setNextSectorController(nextSectorController) {
+    this.nextSectorController = nextSectorController;
   }
 }
