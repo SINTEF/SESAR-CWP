@@ -16,7 +16,7 @@ export const configurationStore = new ConfigurationStore({
 export const fixStore = new FixStore();
 export const cwpStore = new CWPStore({
   altitudeFilter: {
-    lowestBound: 205,
-    highestBound: 400,
+    lowestBound: 325,
+    highestBound: 555,
   },
 });

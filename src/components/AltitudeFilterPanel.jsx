@@ -33,19 +33,19 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
           <Col className="align-self-start">
             <h6>
               H:
+              <input className="input-filter" type="text" value={highestBound} onChange={(event) => setHighBound(Number.parseInt(event.target.value, 10))} />
               {' '}
-              {highestBound}
             </h6>
-
             <h6>
               L:
+              <input className="input-filter" type="text" value={lowestBound} onChange={(event) => setLowBound(Number.parseInt(event.target.value, 10))} />
+
               {' '}
-              {lowestBound}
             </h6>
           </Col>
           <Col className="range-wrapper align-self-start">
-            <input type="range" value={highestBound} onChange={(event) => setHighBound(Number.parseInt(event.target.value, 10))} className="range" min="300" max="1000" />
-            <input type="range" value={lowestBound} onChange={(event) => setLowBound(Number.parseInt(event.target.value, 10))} className="range" min="0" max="300" />
+            <input type="range" value={highestBound} onChange={(event) => setHighBound(Number.parseInt(event.target.value, 10))} className="range" min="500" max="1000" />
+            <input type="range" value={lowestBound} onChange={(event) => setLowBound(Number.parseInt(event.target.value, 10))} className="range" min="0" max="500" />
           </Col>
         </Row>
       </Card.Body>
