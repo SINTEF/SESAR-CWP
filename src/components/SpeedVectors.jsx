@@ -71,14 +71,15 @@ const paintCircle = {
 export default observer(function SpeedVectors() {
   const aircraftIds = cwpStore.aircraftsWithSpeedVectors;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
+  const { speedVectorMinutes } = cwpStore;
 
   const aircrafts = [...aircraftIds]
     .map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
     .filter((aircraft) => aircraft !== undefined
       && aircraft.lastKnownAltitude > lowestBound
       && aircraft.lastKnownAltitude < highestBound);
-
-  const speedVectors = aircrafts.flatMap((aircraft) => buildGeoJsonSpeedVector(aircraft, 3));
+  const speedVectors = aircrafts
+    .flatMap((aircraft) => buildGeoJsonSpeedVector(aircraft, speedVectorMinutes));
 
   const geoJson = {
     type: 'FeatureCollection',

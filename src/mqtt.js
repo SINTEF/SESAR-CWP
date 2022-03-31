@@ -130,7 +130,8 @@ function serializeForSimulator(...parameters) {
   const stringParameters = parameters.map((parameter) => `${parameter}`);
 
   for (const parameter of stringParameters) {
-    if (parameter.contains('&')) {
+    // contains could be deprecated
+    if (parameter.includes('&')) {
       throw new Error('Invalid parameter, & is not allowed');
     }
   }

@@ -5,6 +5,8 @@ import AltitudeFilter from './AltitudeFilter';
 export default class CWPStore {
   altitudeFilter = undefined;
 
+  speedVectorMinutes = 3;
+
   showFlightLabels = true;
 
   showSectorLabels = true;
@@ -108,5 +110,9 @@ export default class CWPStore {
 
   closeNextSectorPopupForAircraft(aircraftId) {
     this.aircraftsWithSectorPopup.delete(aircraftId);
+  }
+
+  setSpeedVectorMinutes(value) {
+    this.speedVectorMinutes = value;
   }
 }

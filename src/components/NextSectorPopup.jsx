@@ -7,6 +7,7 @@ import {
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
+import { tentativeFlight } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
 
 export default observer(function AircraftLevelPopup(properties) {
@@ -36,6 +37,7 @@ export default observer(function AircraftLevelPopup(properties) {
   };
   const submit = () => {
     setNextSectorController(controllerPlaceholder);
+    tentativeFlight(controlledBy, controllerPlaceholder, aircraftId);
     close();
   };
 

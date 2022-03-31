@@ -12,4 +12,20 @@
   color: white;
   font-size: x-small;
   background-color: rgb(170, 170, 170);
+  
+}
+.navbar.button-navbar button:disabled{
+  /* Fill the height */
+  box-shadow: none !important;
+  height: inherit;
+  color: white;
+  font-size: x-small;
+  background-color: rgb(83, 83, 83);
+  border-bottom: 2px solid rgb(33, 33, 33);
+}
+
+#speed-vector-range {
+    -webkit-appearance: slider-horizontal !important;
+    width: 5em;
+    /* background-color: gray !important; */
 }
