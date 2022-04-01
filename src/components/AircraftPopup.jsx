@@ -23,6 +23,7 @@ export default observer(function AircraftPopup(properties) {
     nextSectorController,
     nextFix,
     assignedFlightLevel,
+    setAssignedFlightLevel,
   } = aircraft;
 
   const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
@@ -37,6 +38,9 @@ export default observer(function AircraftPopup(properties) {
   if (!shouldShow) {
     // eslint-disable-next-line unicorn/no-null
     return null;
+  }
+  if (assignedFlightLevel === Math.ceil(altitude / 10) * 10) {
+    setAssignedFlightLevel(' ');
   }
 
   const setController = () => {

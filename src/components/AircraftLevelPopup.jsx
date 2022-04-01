@@ -8,6 +8,7 @@ import {
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
+import { changeFlightLevelOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
 
 function ListOfLevels(properties) {
@@ -72,6 +73,7 @@ export default observer(function AircraftLevelPopup(properties) {
   const close = () => cwpStore.closeLevelPopupForAircraft(aircraftId);
   const setFLCP = () => {
     setAssignedFlightLevel(flightLevel);
+    changeFlightLevelOfAircraft(controlledBy, aircraftId, flightLevel);
     close();
   };
 
@@ -81,7 +83,7 @@ export default observer(function AircraftLevelPopup(properties) {
       anchor="bottom"
       longitude={longitude}
       latitude={latitude}
-      offset={[50, 240]}
+      offset={[50, 245]}
       className={classnames({
         pending: false,
         accepted,
