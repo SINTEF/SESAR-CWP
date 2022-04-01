@@ -159,42 +159,42 @@ export function setSpeedFactor(speedFactor) {
 }
 
 export function changeSpeedOfAircraft(pilotId, flightId, newSpeed) {
-  client.publish(`simulator/${clientId}/changeSpeedOfAircraft`,
+  client.publish(`simulator/${clientId}/changeSpeedOfAircraft/`,
     serializeForSimulator(pilotId, flightId, newSpeed),
     { qos: 1 },
   );
 }
 
 export function changeFlightLevelOfAircraft(pilotId, flightId, newFlightLevel) {
-  client.publish(`simulator/${clientId}/changeFlightLevelOfAircraft`,
+  client.publish(`simulator/${clientId}/changeFlightLevelOfAircraft/`,
     serializeForSimulator(pilotId, flightId, newFlightLevel),
     { qos: 1 },
   );
 }
 
 export function changeBearingOfAircraft(pilotId, flightId, newBearing) {
-  client.publish(`simulator/${clientId}/changeBearingOfAircraft`,
+  client.publish(`simulator/${clientId}/changeBearingOfAircraft/`,
     serializeForSimulator(pilotId, flightId, newBearing),
     { qos: 1 },
   );
 }
 
 export function changeNextWaypointOfAircraft(pilotId, waypointId, flightId, latitude, longitude) {
-  client.publish(`simulator/${clientId}/changeNextWaypointOfAircraft`,
+  client.publish(`simulator/${clientId}/changeNextWaypointOfAircraft/`,
     serializeForSimulator(pilotId, waypointId, flightId, latitude, longitude),
     { qos: 1 },
   );
 }
 
 export function acceptFlight(fromControllableSector, toControllableSector, flightUniqueId) {
-  client.publish(`simulator/${clientId}/acceptedFlight`,
+  client.publish(`simulator/${clientId}/acceptedFlight/`,
     serializeForSimulator(fromControllableSector, toControllableSector, flightUniqueId),
     { qos: 1 },
   );
 }
 
 export function tentativeFlight(fromControllableSector, toControllableSector, flightUniqueId) {
-  client.publish(`simulator/${clientId}/tentativeFlight`,
+  client.publish(`simulator/${clientId}/tentativeFlight/`,
     serializeForSimulator(fromControllableSector, toControllableSector, flightUniqueId),
     { qos: 1 },
   );

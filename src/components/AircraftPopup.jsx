@@ -6,6 +6,7 @@ import {
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
+import { acceptFlight } from '../mqtt';
 import { aircraftStore, configurationStore, cwpStore } from '../state';
 
 export default observer(function AircraftPopup(properties) {
@@ -14,6 +15,7 @@ export default observer(function AircraftPopup(properties) {
 
   const {
     aircraftId,
+    assignedFlightId,
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
@@ -39,13 +41,14 @@ export default observer(function AircraftPopup(properties) {
     // eslint-disable-next-line unicorn/no-null
     return null;
   }
-  if (assignedFlightLevel === Math.ceil(altitude / 10) * 10) {
+  if (assignedFlightLevel === Number.parseFloat((altitude).toFixed(0))) {
     setAssignedFlightLevel(' ');
   }
 
   const setController = () => {
     // TODO do something with MQTT
     aircraftStore.aircrafts.get(aircraftId).setController(configurationStore.currentCWP);
+    acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId);
   };
 
   return (

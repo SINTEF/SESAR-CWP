@@ -10,8 +10,8 @@ import { configurationStore, cwpStore } from './state';
 const controllers = [
   'CWP_NW',
   'CWP_NE',
-  'CWP_SW',
-  'Master',
+  'CWP_S',
+  'All',
 ];
 
 export default observer(function ControllerModal() {

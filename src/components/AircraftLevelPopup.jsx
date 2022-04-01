@@ -31,6 +31,7 @@ function ListOfLevels(properties) {
 export default observer(function AircraftLevelPopup(properties) {
   const {
     aircraftId,
+    assignedFlightId,
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
@@ -73,7 +74,7 @@ export default observer(function AircraftLevelPopup(properties) {
   const close = () => cwpStore.closeLevelPopupForAircraft(aircraftId);
   const setFLCP = () => {
     setAssignedFlightLevel(flightLevel);
-    changeFlightLevelOfAircraft(controlledBy, aircraftId, flightLevel);
+    changeFlightLevelOfAircraft(controlledBy, assignedFlightId, Number.parseInt(flightLevel, 10));
     close();
   };
 

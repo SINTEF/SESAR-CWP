@@ -13,6 +13,7 @@ import { configurationStore, cwpStore } from '../state';
 export default observer(function AircraftLevelPopup(properties) {
   const {
     aircraftId,
+    assignedFlightId,
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
@@ -22,10 +23,8 @@ export default observer(function AircraftLevelPopup(properties) {
     setNextSectorController,
   } = properties.aircraft;
 
-  // Not using controllBy, because value is CWP and not only C as in dropdown
-  const [controllerPlaceholder, setControllerPlaceholder] = React.useState('C-NW');
+  const [controllerPlaceholder, setControllerPlaceholder] = React.useState(controlledBy);
   const shouldShow = cwpStore.aircraftsWithSectorPopup.has(aircraftId);
-
   if (!shouldShow) {
     // eslint-disable-next-line unicorn/no-null
     return null;
@@ -37,7 +36,9 @@ export default observer(function AircraftLevelPopup(properties) {
   };
   const submit = () => {
     setNextSectorController(controllerPlaceholder);
-    tentativeFlight(controlledBy, controllerPlaceholder, aircraftId);
+    if (configurationStore.currentCWP === 'All') {
+      tentativeFlight('All', controllerPlaceholder, assignedFlightId);
+    } else { tentativeFlight(controlledBy, controllerPlaceholder, assignedFlightId); }
     close();
   };
 
@@ -61,9 +62,10 @@ export default observer(function AircraftLevelPopup(properties) {
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                <Dropdown.Item className="apply-cancel-button" eventKey="C-NW">C-NW</Dropdown.Item>
-                <Dropdown.Item className="apply-cancel-button" eventKey="C-NE">C-NE</Dropdown.Item>
-                <Dropdown.Item className="apply-cancel-button" eventKey="C-SE">C-SE</Dropdown.Item>
+                {/* Needs to be set by configuration-file */}
+                <Dropdown.Item className="apply-cancel-button" eventKey="CWP_NW">CWP_NW</Dropdown.Item>
+                <Dropdown.Item className="apply-cancel-button" eventKey="CWP_NE">CWP_NE</Dropdown.Item>
+                <Dropdown.Item className="apply-cancel-button" eventKey="CWP_S">CWP_S</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </Col>
