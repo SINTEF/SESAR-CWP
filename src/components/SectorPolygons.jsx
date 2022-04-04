@@ -6,7 +6,7 @@ import { Layer, Source } from 'react-map-gl';
 import { configurationStore, cwpStore } from '../state';
 
 const sectorOutlinePaint = {
-  'line-color': ['get', 'description'],
+  'line-color': ['get', 'color'],
   'line-width': 1,
   'line-dasharray': [2, 2],
 };
