@@ -6,7 +6,7 @@ import { Layer, Source } from 'react-map-gl';
 import { configurationStore, cwpStore } from '../state';
 
 const sectorOutlinePaint = {
-  'line-color': '#fff',
+  'line-color': ['get', 'color'],
   'line-width': 1,
   'line-dasharray': [2, 2],
 };
@@ -19,8 +19,8 @@ export default observer(function SectorPolygons(/* properties */) {
   const { showSectorLabels } = cwpStore;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
-    .filter(([, area]) => area.bottomFlightLevel >= lowestBound
-      && area.topFlightLevel <= highestBound
+    .filter(([, area]) => (area.bottomFlightLevel >= lowestBound
+      || area.topFlightLevel <= highestBound)
       && area.sectorArea?.length > 0,
     );
   const sectorNamesText = {
@@ -32,6 +32,14 @@ export default observer(function SectorPolygons(/* properties */) {
     ],
     'text-size': 14,
   };
+  const getSectorColor = (bottom, top) => {
+    if (top > highestBound) {
+      return '#ff4f00';
+    } if (bottom < lowestBound) {
+      return '#48A14D';
+    }
+    return '#fff';
+  };
   // eslint-disable-next-line no-unused-vars
   const sectors = sectorData.map(([title, area]) => {
     const coordinates = area.sectorArea.map((point) => (
@@ -41,6 +49,7 @@ export default observer(function SectorPolygons(/* properties */) {
       type: 'Feature',
       properties: {
         t: `CWP-${area.bottomFlightLevel}-${area.topFlightLevel}`,
+        color: getSectorColor(area.bottomFlightLevel, area.topFlightLevel),
       },
       geometry: {
         type: 'LineString',
