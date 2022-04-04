@@ -49,7 +49,7 @@ export default observer(function SectorPolygons(/* properties */) {
       type: 'Feature',
       properties: {
         t: `CWP-${area.bottomFlightLevel}-${area.topFlightLevel}`,
-        description: getSectorColor(area.bottomFlightLevel, area.topFlightLevel),
+        color: getSectorColor(area.bottomFlightLevel, area.topFlightLevel),
       },
       geometry: {
         type: 'LineString',
