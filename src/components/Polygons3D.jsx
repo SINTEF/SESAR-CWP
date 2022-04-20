@@ -18,7 +18,7 @@ const sectorNamesPaint = {
 
 const sectorPaint = {
   'fill-color': ['get', 'color'],
-  'fill-opacity': 0.5,
+  'fill-opacity': 0.4,
 };
 
 const sectorFillPaint = {
@@ -27,7 +27,13 @@ const sectorFillPaint = {
   'fill-extrusion-base': ['get', 'base_height'],
   'fill-extrusion-opacity': 0.8,
 };
-const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#bb0', '#f80', '#f63', '#fff', '#f59', '#0bb', '#94a', '#bb0', '#f80', '#f63'];
+const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#0bb', '#94a', '#b00', '#f80', '#f63'];
+
+function ConvertFlightLevelToMeters(altitude) {
+  const feet = altitude * 100;
+  const meters = feet * 0.3048;
+  return meters;
+}
 
 export default observer(function SectorPolygons(/* properties */) {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
@@ -45,14 +51,7 @@ export default observer(function SectorPolygons(/* properties */) {
     ],
     'text-size': 14,
   };
-  const getSectorColor = (bottom, top) => {
-    if (top > highestBound) {
-      return '#ff4f00';
-    } if (bottom < lowestBound) {
-      return '#48A14D';
-    }
-    return '#fff';
-  };
+
   let counter = 0;
   const sectors = sectorData.map(([title, area]) => {
     const coordinates = area.sectorArea.map((point) => (
@@ -62,10 +61,10 @@ export default observer(function SectorPolygons(/* properties */) {
     return {
       type: 'Feature',
       properties: {
-        t: `CWP-${area.bottomFlightLevel}-${area.topFlightLevel}`,
+        t: `${title}-${area.bottomFlightLevel}-${area.topFlightLevel}`,
         color: fillColors[counter],
-        height: area.topFlightLevel * 1000 - area.bottomFlightLevel * 1000,
-        base_height: 0,
+        height: ConvertFlightLevelToMeters(area.topFlightLevel - 205) * 20,
+        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel - 205) * 20,
       },
       geometry: {
         type: 'Polygon',
@@ -73,6 +72,7 @@ export default observer(function SectorPolygons(/* properties */) {
       },
     };
   });
+
   // const centroidPoints = [];
   // for (const feature of sectors) {
   //   console.log(feature);
