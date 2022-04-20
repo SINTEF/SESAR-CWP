@@ -1,13 +1,8 @@
 import * as maplibregl from 'maplibre-gl';
 import React from 'react';
-import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from 'react-map-gl';
+import ReactMapGL, { NavigationControl, ScaleControl } from 'react-map-gl';
 
-import Aircrafts from './Aircrafts';
-import ControllerLabel from './components/ControllerLabel';
-import FixesPoint from './components/FixesPoint';
-import FlightRoutes from './components/FlightRoutes';
-import Sectors from './components/Sectors';
-import SpeedVectors from './components/SpeedVectors';
+import Polygons3D from './components/Polygons3D';
 
 const mapStyle = {
   version: 8,
@@ -20,7 +15,6 @@ const mapStyle = {
     type: 'background',
     paint: {},
   }],
-  antialias: true,
 };
 
 const style = {
@@ -34,6 +28,7 @@ export default function Map() {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
+    pitch: 40,
   };
 
   return (
@@ -45,15 +40,10 @@ export default function Map() {
       mapLib={maplibregl}
       antialias
     >
-      <Sectors />
-      <FixesPoint />
-      <FlightRoutes />
-      <SpeedVectors />
-      <ControllerLabel />
-      <Aircrafts />
+      <Polygons3D />
+
       <ScaleControl position="bottom-left" />
       <NavigationControl position="bottom-left" />
-      <FullscreenControl position="bottom-left" containerId="root" />
     </ReactMapGL>
   );
 }
