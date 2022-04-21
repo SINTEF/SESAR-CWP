@@ -16,8 +16,14 @@ import SectorConfiguration from './SectorConfiguration';
 import SectorFlightList from './SectorFlightList';
 import Sectors3DView from './Sectors3DView';
 import SectorSideView from './SectorSideView';
+import { currentRoleConfiguration } from './state';
 
 export default function App(/* properties */) {
+  // Dummy data - we will get it directly from the new simulator
+  currentRoleConfiguration.setControlledSector('CWP_NW', 'LIMM_RUN16_COBOS_10S9_SECTOR_12');
+  currentRoleConfiguration.setControlledSector('CWP_NE', 'LIMM_RUN16_COBOS_10S10_SECTOR_11');
+  currentRoleConfiguration.setControlledSector('CWP_S', 'LIMM_RUN16_COBOS_10S9_SECTOR_14');
+
   return (
     <>
       {' '}

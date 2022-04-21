@@ -6,7 +6,7 @@ import { configurationStore } from '../state';
 
 const sectorLinePaint = {
   'line-color': '#f0f',
-  'line-width': 3,
+  'line-width': 2,
 };
 
 export default observer(function SectorEdgesPolygon(/* properties */) {
