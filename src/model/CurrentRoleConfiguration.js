@@ -13,6 +13,14 @@ export default class CurrentRoleConfiguration {
     return controlledSector;
   }
 
+  getRoleName(controlledSector) {
+    let roleName = '';
+    if (this.roleConfigurations.has(controlledSector)) {
+      roleName = this.roleConfigurations.get(controlledSector).roleName;
+    }
+    return roleName;
+  }
+
   setControlledSector(cwpRoleName, sector) {
     if (this.roleConfigurations.has(cwpRoleName)) {
       this.roleConfigurations.get(cwpRoleName).setControlledSector(sector);

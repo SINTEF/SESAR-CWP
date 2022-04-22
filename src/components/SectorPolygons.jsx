@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import { configurationStore, cwpStore } from '../state';
+import { configurationStore, currentRoleConfiguration, cwpStore } from '../state';
 
 const sectorOutlinePaint = {
   'line-color': ['get', 'color'],
@@ -19,8 +19,9 @@ export default observer(function SectorPolygons(/* properties */) {
   const { showSectorLabels } = cwpStore;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
-    .filter(([, area]) => (area.bottomFlightLevel >= lowestBound
-      || area.topFlightLevel <= highestBound)
+    .filter(([, area]) => ((
+      area.bottomFlightLevel >= lowestBound && area.bottomFlightLevel <= highestBound)
+      || (area.topFlightLevel <= highestBound && area.topFlightLevel >= lowestBound))
       && area.sectorArea?.length > 0,
     );
   const sectorNamesText = {
@@ -40,15 +41,25 @@ export default observer(function SectorPolygons(/* properties */) {
     }
     return '#fff';
   };
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const setSectorName = (bottomFL, topFL, sectorId) => {
+    for (const key of currentRoleConfiguration.roleConfigurations.keys()) {
+      const sector = currentRoleConfiguration.roleConfigurations.get(key);
+      if (sector.controlledSector === sectorId) {
+        return `${sector.cwpRoleName}-${bottomFL}-${topFL}`;
+      }
+    }
+    return `S-${bottomFL}-${topFL}`;
+  };
   // eslint-disable-next-line no-unused-vars
-  const sectors = sectorData.map(([title, area]) => {
+  const sectors = sectorData.map(([key, area]) => {
     const coordinates = area.sectorArea.map((point) => (
       [point.longitude, point.latitude]),
     );
     return {
       type: 'Feature',
       properties: {
-        t: `CWP-${area.bottomFlightLevel}-${area.topFlightLevel}`,
+        t: setSectorName(area.bottomFlightLevel, area.topFlightLevel, key),
         color: getSectorColor(area.bottomFlightLevel, area.topFlightLevel),
       },
       geometry: {
