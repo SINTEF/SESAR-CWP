@@ -62,6 +62,7 @@ export function newAirspaceVolumeFlightList(parameters, message) {
 }
 export function airspaceAvailability(parameters, message) {
   const protoMessage = AirtrafficMessages.AirspaceAvailabilityMessage.deserializeBinary(message);
+  configurationStore.handleAvailabilityMessage(protoMessage);
 }
 
 export function newSimulatorTime(parameters, message) {

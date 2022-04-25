@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import { configurationStore, currentRoleConfiguration } from '../state';
+import { configurationStore, roleConfigurationStore } from '../state';
 
 const sectorOutlinePaint = {
   'line-color': '#fff',
@@ -10,7 +10,8 @@ const sectorOutlinePaint = {
 };
 
 export default observer(function SectorPolygons(/* properties */) {
-  const sectorId = currentRoleConfiguration.getControlledSector(configurationStore.currentCWP);
+  const sectorId = roleConfigurationStore
+    .getControlledSector(configurationStore.currentCWP, configurationStore.currentConfigurationId);
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
     .filter(([key]) => key === sectorId);

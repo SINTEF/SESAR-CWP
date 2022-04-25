@@ -8,43 +8,72 @@ import {
   XAxis, YAxis,
 } from 'recharts';
 
-import { configurationStore, currentRoleConfiguration } from './state';
+import { configurationStore, roleConfigurationStore, simulatorStore } from './state';
 
-export default observer(function Sectors3DView() {
+export default observer(function SectorSideView() {
   const colorCurrent = '#ffffff';
   const colorNext = 'rgba(135,206,235)';
-  const controllingCWP = configurationStore.currentCWP;
-  const controllingSector = currentRoleConfiguration.roleConfigurations
-    .get(controllingCWP);
-  if (!controllingSector) {
+  const simulatorTime = simulatorStore.timestamp;
+  const {
+    currentConfigurationId, currentCWP, sortedConfigurationPlan, areaOfIncludedAirspaces,
+  } = configurationStore;
+
+  const sortedList = sortedConfigurationPlan;
+  if (sortedList.length === 0) {
     return null;
   }
-  const timeToChange = 5;
-  const flightLevels = configurationStore.areaOfIncludedAirspaces;
-  const airspace = [...flightLevels.values()]
-    .find(([key]) => key === controllingSector.controlledSector);
-  if (!airspace) {
+  const listConfiguration = sortedList.findIndex((p) => p.startTime > simulatorTime);
+
+  let timeToChange = 15;
+  let timeDifferanse = 0;
+
+  const cwpCurrentSector = roleConfigurationStore
+    .getControlledSector(currentCWP, currentConfigurationId);
+  if (cwpCurrentSector === '') {
     return null;
   }
-  const bottomFL = airspace[1].bottomFlightLevel;
-  const topFL = airspace[1].topFlightLevel;
+
+  const flightLevels = areaOfIncludedAirspaces;
+  const airspaceCurrent = [...flightLevels.values()]
+    .find(([key]) => key === cwpCurrentSector);
+  if (!airspaceCurrent) {
+    return null;
+  }
+  const bottomFLCurrent = airspaceCurrent[1].bottomFlightLevel;
+  const topFLCurrent = airspaceCurrent[1].topFlightLevel;
+  let bottomFLNext = bottomFLCurrent;
+  let topFLNext = topFLCurrent;
+  if (listConfiguration !== -1) {
+    timeDifferanse = sortedList[listConfiguration].startTime - simulatorTime;
+    const cwpNextSector = roleConfigurationStore
+      .getControlledSector(currentCWP, sortedList[listConfiguration].configurationId);
+    const airspaceNext = [...flightLevels.values()]
+      .find(([key]) => key === cwpNextSector);
+    if (airspaceNext !== undefined) {
+      bottomFLNext = airspaceNext[1].bottomFlightLevel;
+      topFLNext = airspaceNext[1].topFlightLevel;
+    }
+  }
+  if (timeDifferanse <= 900 && timeDifferanse > 0) {
+    timeToChange = timeDifferanse / 60;
+  }
 
   const flightData = [];
-  for (let index = 0; index < timeToChange + 1; index += 1) {
+  for (let index = 0; index < Math.ceil(timeToChange); index += 1) {
     const time = index;
-    const flightLevel = [topFL,
-      bottomFL];
+    const flightLevel = [topFLCurrent,
+      bottomFLCurrent];
     const d = {
       time,
       flightLevel,
     };
     flightData.push(d);
   }
-  for (let next = timeToChange; next < 16; next += 1) {
+  for (let next = Math.ceil(timeToChange); next < 16; next += 1) {
     const time = next;
     // A bug within Recharts when using LinearGradient and Area - can't be a completly straight line
     // Can consider using Lines instead, but then dots appeared when using responsive Container
-    const flightLevel = [topFL + 0.001, bottomFL + 0.001];
+    const flightLevel = [topFLNext + 0.001, bottomFLNext + 0.001];
     const d = {
       time,
       flightLevel,
@@ -64,18 +93,16 @@ export default observer(function Sectors3DView() {
         <defs>
           <linearGradient id="gradient" x1="0" y1="0" x2="100%" y2="0">
             <stop offset="0%" stopColor={colorCurrent} />
-            <stop offset={`${(timeToChange / 16) * 100}%`} stopColor={colorCurrent} />
-            <stop offset={`${(timeToChange / 16) * 100}%`} stopColor={colorNext} />
+            <stop offset={`${((Math.ceil(timeToChange) / 15) * 100)}%`} stopColor={colorCurrent} />
+            <stop offset={`${((Math.ceil(timeToChange) / 15) * 100)}%`} stopColor={colorNext} />
             <stop offset="100%" stopColor={colorNext} />
           </linearGradient>
         </defs>
         <Area type="monotone" dataKey="flightLevel" stroke="url(#gradient)" dot={false} fill="transparent" />
         <XAxis dataKey="time" />
         <YAxis domain={[200, 560]} tickCount="20" />
-        <ReferenceLine x={timeToChange} stroke="rgba(168,101,201)" />
+        <ReferenceLine x={timeDifferanse === 0 ? null : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
       </AreaChart>
-      {/* <Line type="monotone" dataKey="bottomflightLevel" stroke="#ffffff" /> */}
-
     </ResponsiveContainer>
   );
 });

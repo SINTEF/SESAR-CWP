@@ -6,7 +6,17 @@ import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Draggable from 'react-draggable';
 
+// eslint-disable-next-line no-unused-vars
+import { configurationStore, simulatorStore } from './state';
+
 function SectorConfiguration() {
+  // const simulatorTime = simulatorStore.timestamp;
+  // const onlyAbove = [configurationStore.configurationPlan]
+  //   .filter(([, time]) => time.startTime > simulatorTime);
+  // const sortedList = onlyAbove.sort();
+  // const nextConfigurationIndex = sortedList[0];
+  // console.log(nextConfigurationIndex);
+
   return (
     <Draggable>
       <div className="control-panel">
