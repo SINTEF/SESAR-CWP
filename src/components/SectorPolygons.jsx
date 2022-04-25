@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import { configurationStore, currentRoleConfiguration, cwpStore } from '../state';
+import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 
 const sectorOutlinePaint = {
   'line-color': ['get', 'color'],
@@ -43,8 +43,8 @@ export default observer(function SectorPolygons(/* properties */) {
   };
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const setSectorName = (bottomFL, topFL, sectorId) => {
-    for (const key of currentRoleConfiguration.roleConfigurations.keys()) {
-      const sector = currentRoleConfiguration.roleConfigurations.get(key);
+    for (const key of roleConfigurationStore.roleConfigurations.keys()) {
+      const sector = roleConfigurationStore.roleConfigurations.get(key);
       if (sector.controlledSector === sectorId) {
         return `${sector.cwpRoleName}-${bottomFL}-${topFL}`;
       }

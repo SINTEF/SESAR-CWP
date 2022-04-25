@@ -21,4 +21,11 @@ export default class ConfigurationTime {
     this.startTime = startTime;
     this.endTime = endTime;
   }
+
+  handleAvailabilityMessage(newAvailabilitymessage) {
+    const timeStart = newAvailabilitymessage.getStarttime();
+    const timeEnd = newAvailabilitymessage.getEndtime();
+    this.startTime = timeStart.getSeconds() + timeStart.getNanos() * 1e-9;
+    this.endTime = timeEnd.getSeconds() + timeEnd.getNanos() * 1e-9;
+  }
 }

@@ -1,6 +1,7 @@
 import { makeAutoObservable, observable } from 'mobx';
 
 import ConfigurationModel from './ConfigurationModel';
+import ConfigurationTime from './ConfigurationTime';
 import CoordinatePair from './CoordinatePair';
 import SectorModel from './SectorModel';
 
@@ -69,6 +70,22 @@ export default class ConfigurationStore {
     this.currentCWP = controllerValue;
   }
 
+  handleAvailabilityMessage(newAvailabilitymessage) {
+    const configId = newAvailabilitymessage.getAirspaceid();
+    const timeStart = newAvailabilitymessage.getStarttime();
+    const timeEnd = newAvailabilitymessage.getEndtime();
+
+    if (this.configurationPlan.has(configId)) {
+      this.configurationPlan.get(configId).handleAvailabilityMessage(newAvailabilitymessage);
+    } else {
+      this.configurationPlan.set(configId, new ConfigurationTime({
+        configurationId: configId,
+        startTime: timeStart.getSeconds() + timeStart.getNanos() * 1e-9,
+        endTime: timeEnd.getSeconds() + timeEnd.getNanos() * 1e-9,
+      }));
+    }
+  }
+
   get areaOfIncludedAirspaces() {
     const config = this.configurations.get(this.currentConfigurationId)?.includedAirspaces;
     if (!config) {
@@ -84,5 +101,10 @@ export default class ConfigurationStore {
       return [];
     }
     return edges.map((edge) => ([edge.longitude, edge.latitude]));
+  }
+
+  get sortedConfigurationPlan() {
+    const sortedList = [...this.configurationPlan.values()].sort();
+    return sortedList;
   }
 }
