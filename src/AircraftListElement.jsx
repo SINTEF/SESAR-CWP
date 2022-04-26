@@ -4,7 +4,9 @@ import {
   Table,
 } from 'react-bootstrap';
 
-import { aircraftStore, configurationStore, cwpStore } from './state';
+import {
+  aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
+} from './state';
 
 const flightColor = (value) => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 
@@ -12,6 +14,8 @@ const flightColor = (value) => (value === configurationStore.currentCWP ? '#78e2
 export default observer(function AircraftListElement(/* properties */) {
   // const { onClick } = properties;
   const data = aircraftStore.aircraftsWithPosition;
+  const { currentCWP, currentConfigurationId } = configurationStore;
+  const currentSector = roleConfigurationStore.getControlledSector(currentCWP, currentConfigurationId);
   const [filter, setFilter] = useState('');
 
   // eslint-disable-next-line unicorn/no-null
@@ -32,7 +36,9 @@ export default observer(function AircraftListElement(/* properties */) {
               />
             </th>
             <th colSpan={2}>
-              FL Sector : #
+              FL Sector :
+              {' '}
+              {currentSector.slice(-14)}
             </th>
           </tr>
           <tr>
