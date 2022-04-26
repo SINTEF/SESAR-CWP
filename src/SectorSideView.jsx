@@ -15,7 +15,8 @@ export default observer(function SectorSideView() {
   const colorNext = 'rgba(135,206,235)';
   const simulatorTime = simulatorStore.timestamp;
   const {
-    currentConfigurationId, currentCWP, sortedConfigurationPlan, areaOfIncludedAirspaces,
+    currentConfigurationId, currentCWP, sortedConfigurationPlan,
+    areaOfIncludedAirspaces, getAreaOfIncludedAirpaces,
   } = configurationStore;
 
   const sortedList = sortedConfigurationPlan;
@@ -33,8 +34,7 @@ export default observer(function SectorSideView() {
     return null;
   }
 
-  const flightLevels = areaOfIncludedAirspaces;
-  const airspaceCurrent = [...flightLevels.values()]
+  const airspaceCurrent = [...areaOfIncludedAirspaces.values()]
     .find(([key]) => key === cwpCurrentSector);
   if (!airspaceCurrent) {
     return null;
@@ -43,11 +43,14 @@ export default observer(function SectorSideView() {
   const topFLCurrent = airspaceCurrent[1].topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
-  if (listConfiguration !== -1) {
+  if (listConfiguration !== -1
+    && sortedList[listConfiguration].configurationId !== currentConfigurationId) {
     timeDifferanse = sortedList[listConfiguration].startTime - simulatorTime;
     const cwpNextSector = roleConfigurationStore
       .getControlledSector(currentCWP, sortedList[listConfiguration].configurationId);
-    const airspaceNext = [...flightLevels.values()]
+    const nextflightLevels = getAreaOfIncludedAirpaces(sortedList[listConfiguration]
+      .configurationId);
+    const airspaceNext = [...nextflightLevels.values()]
       .find(([key]) => key === cwpNextSector);
     if (airspaceNext !== undefined) {
       bottomFLNext = airspaceNext[1].bottomFlightLevel;
@@ -66,17 +69,29 @@ export default observer(function SectorSideView() {
     const d = {
       time,
       flightLevel,
+      flightLevelNext: null,
     };
     flightData.push(d);
   }
-  for (let next = Math.ceil(timeToChange); next < 16; next += 1) {
+
+  const transitionData = {
+
+    time: Math.ceil(timeToChange),
+    flightLevel: [topFLCurrent,
+      bottomFLCurrent],
+    flightLevelNext: [topFLNext + 0.001, bottomFLNext + 0.001],
+
+  };
+  flightData.push(transitionData);
+  for (let next = Math.ceil(timeToChange) + 1; next < 16; next += 1) {
     const time = next;
     // A bug within Recharts when using LinearGradient and Area - can't be a completly straight line
     // Can consider using Lines instead, but then dots appeared when using responsive Container
-    const flightLevel = [topFLNext + 0.001, bottomFLNext + 0.001];
+    const flightLevelNext = [topFLNext + 0.001, bottomFLNext + 0.001];
     const d = {
       time,
-      flightLevel,
+      flightLevelNext,
+      flightLevel: null,
     };
     flightData.push(d);
   }
@@ -98,9 +113,12 @@ export default observer(function SectorSideView() {
             <stop offset="100%" stopColor={colorNext} />
           </linearGradient>
         </defs>
-        <Area type="monotone" dataKey="flightLevel" stroke="url(#gradient)" dot={false} fill="transparent" />
+        <Area type="monotone" dataKey="flightLevel" stroke={colorCurrent} dot={false} fill="transparent" />
+        <Area type="monotone" dataKey="flightLevelNext" stroke={colorNext} dot={false} fill="transparent" />
+
         <XAxis dataKey="time" />
         <YAxis domain={[200, 560]} tickCount="20" />
+
         <ReferenceLine x={timeDifferanse === 0 ? null : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
       </AreaChart>
     </ResponsiveContainer>

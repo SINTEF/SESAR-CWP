@@ -17,7 +17,8 @@ const sectorNamesPaint = {
 export default observer(function SectorPolygons(/* properties */) {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
   const { showSectorLabels } = cwpStore;
-  const sectorStore = configurationStore.areaOfIncludedAirspaces;
+  const { areaOfIncludedAirspaces, currentConfigurationId } = configurationStore;
+  const sectorStore = areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
     .filter(([, area]) => ((
       area.bottomFlightLevel >= lowestBound && area.bottomFlightLevel <= highestBound)
@@ -44,9 +45,10 @@ export default observer(function SectorPolygons(/* properties */) {
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const setSectorName = (bottomFL, topFL, sectorId) => {
     for (const key of roleConfigurationStore.roleConfigurations.keys()) {
-      const sector = roleConfigurationStore.roleConfigurations.get(key);
-      if (sector.controlledSector === sectorId) {
-        return `${sector.cwpRoleName}-${bottomFL}-${topFL}`;
+      const sector = roleConfigurationStore
+        .getControlledSector(key, currentConfigurationId);
+      if (sector === sectorId) {
+        return `${key}-${bottomFL}-${topFL}`;
       }
     }
     return `S-${bottomFL}-${topFL}`;
