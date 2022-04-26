@@ -1,7 +1,6 @@
 import { observable } from 'mobx';
 
 import RoleConfigurationModel from './RoleConfigurationModel';
-// import SectorToConfiguration from './SectorToConfiguration';
 
 export default class RoleConfigurationStore {
   roleConfigurations = observable.map();

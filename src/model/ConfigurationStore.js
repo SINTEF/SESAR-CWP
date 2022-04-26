@@ -107,4 +107,13 @@ export default class ConfigurationStore {
     const sortedList = [...this.configurationPlan.values()].sort();
     return sortedList;
   }
+
+  getAreaOfIncludedAirpaces(configuration) {
+    const config = this.configurations.get(configuration)?.includedAirspaces;
+    if (!config) {
+      return [];
+    }
+
+    return [...config].filter((area) => this.airspaceStore.existIn(area[0]) !== false);
+  }
 }

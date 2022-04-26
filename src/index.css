@@ -37,6 +37,19 @@ div#root{
     margin: 12px;
     border-radius: 4px;
 }
+/* Accordion for sector configurations */
+.sector-title{
+    font-size: 10px !important;
+}
+.sector-body{
+    font-size: 8px !important;
+}
+/* #table-of-config{
+width: 300px;
+display: flex;
+flex-wrap: wrap;
+
+} */
 
 .control-panel {
     position: absolute;
