@@ -2,6 +2,7 @@ import './AircraftMarker.css';
 
 import { observer } from 'mobx-react-lite';
 import React from 'react';
+import Draggable from 'react-draggable';
 import { Marker } from 'react-map-gl';
 
 import { configurationStore, cwpStore } from '../state';
@@ -44,7 +45,7 @@ export default observer(function AircraftMarker(properties) {
       >
         {SVG_ICON_PATH}
       </svg>
-      <AircraftPopup aircraft={properties.aircraft} />
+      <Draggable><AircraftPopup aircraft={properties.aircraft} /></Draggable>
       <AircraftLevelPopup aircraft={properties.aircraft} />
       <NextSectorPopup aircraft={properties.aircraft} />
     </Marker>
