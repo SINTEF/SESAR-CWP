@@ -18,8 +18,8 @@
 .draggable-popup-line {
   position: absolute;
   z-index: 1;
-  height: 2px;
-  background: red;
+  height: 1.5px;
+  background: rgba(255,255,255,0.5);
   width: 200px;
   transform-origin: 0 0;
 }
