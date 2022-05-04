@@ -5,6 +5,8 @@ import React, { Component } from 'react';
 import { DraggableCore } from 'react-draggable';
 import { Popup } from 'react-map-gl';
 
+import { startDragging, stopDragging } from '../draggableState';
+
 export default class DraggablePopup extends Component {
   constructor(properties) {
     super(properties);
@@ -30,6 +32,7 @@ export default class DraggablePopup extends Component {
       startX: clientX - offsetX,
       startY: clientY - offsetY,
     });
+    startDragging();
   }
 
   onDrag(event/* , data */) {
@@ -41,6 +44,11 @@ export default class DraggablePopup extends Component {
       offsetX: diffX,
       offsetY: diffY,
     });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  onStop(/* event , data */) {
+    stopDragging();
   }
 
   render() {
@@ -93,7 +101,7 @@ export default class DraggablePopup extends Component {
           <DraggableCore
             onStart={this.onDragStart}
             onDrag={this.onDrag}
-            onStop={this.onDrag}
+            onStop={this.onStop}
           >
             {children}
           </DraggableCore>

@@ -1,10 +1,10 @@
-// Not in use right now
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
   Button, Col, Container, Row,
 } from 'react-bootstrap';
 
+import { isDragging } from '../draggableState';
 import { acceptFlight } from '../mqtt';
 import { aircraftStore, configurationStore, cwpStore } from '../state';
 import DraggablePopup from './DraggablePopup';
@@ -90,27 +90,27 @@ export default observer(function AircraftPopup(properties) {
       onClose={() => cwpStore.closeLevelPopupForAircraft(aircraftId)}
     >
       <div>
-        <Button size="sm" variant="dark" onClick={() => cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
+        <Button size="sm" variant="dark" onClick={() => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
         <Container className="flight-popup-container">
           <Row>
-            <Col className="gutter-2" onClick={() => setController()}>{callSign}</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && setController()}>{callSign}</Col>
           </Row>
           <Row>
-            <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-            <Col className="gutter-2" onClick={() => cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
               {nextFix}
             </Col>
             <Col className="gutter-2" />
           </Row>
           <Row>
-            <Col className="gutter-2" onClick={() => cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
-            <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
             <Col className="gutter-2" />
           </Row>
           <Row>
-            <Col className="gutter-2" onClick={() => cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
             <Col className="gutter-2">{assignedFlightLevel}</Col>
-            <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
           </Row>
         </Container>
       </div>
