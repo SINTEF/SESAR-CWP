@@ -133,15 +133,15 @@ border-spacing: 0;
   padding: 0 0.25rem 0 0.25rem;
 }
 
-.flight-popup .mapboxgl-popup-content button.btn {
+.flight-popup button.btn {
   box-shadow: none;
 }
 
-.flight-popup .mapboxgl-popup-content button.btn:active {
+.flight-popup button.btn:active {
   color: black;
 }
 
-.flight-popup .mapboxgl-popup-content {
+.flight-popup {
   background: rgba(90, 90, 90, 0.5);
   border-radius: 1.5px;
   /* color: white; */

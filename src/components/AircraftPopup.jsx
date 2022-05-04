@@ -79,7 +79,7 @@ export default observer(function AircraftPopup(properties) {
       className="flight-popup"
       tipSize={2}
       style={{ color: flightColor }}
-      offset={{ x: 50, y: 7 }}
+      offset={{ x: 0, y: 0 }}
       anchor="top"
       draggable
       longitude={longitude}
