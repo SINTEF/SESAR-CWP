@@ -60,6 +60,7 @@ export default class DraggablePopup extends Component {
     // Compute the length of the line from the offset,
     // use pytagore
     const planeIconRadius = 10;
+    const planeIconIntersectRadius = 15;
 
     const coreWidth = 110;
     const coreHeight = 55;
@@ -84,7 +85,27 @@ export default class DraggablePopup extends Component {
     const width = Math.sqrt(adjustedLineX * adjustedLineX
       + adjustedLineY * adjustedLineY);
     const angle = Math.atan2(adjustedLineY, adjustedLineX);
-    const displayLine = width > 40;
+
+    // we have two boxes, one is coreWidth x coreHeight, the other is
+    // planeIconIntersectRadius x planeIconIntersectRadius
+    // We check if they intersects using old school maths
+    const planeIconTopLeftX = -planeIconIntersectRadius;
+    const planeIconTopLeftY = -planeIconIntersectRadius;
+    const planeIconBottomRightX = planeIconIntersectRadius;
+    const planeIconBottomRightY = planeIconIntersectRadius;
+
+    const coreTopLeftX = offsetX;
+    const coreTopLeftY = offsetY;
+    const coreBottomRightX = offsetX + coreWidth;
+    const coreBottomRightY = offsetY + coreHeight;
+
+    const planeIconAndCoreIntersects = (
+      (planeIconTopLeftX < coreBottomRightX) && (planeIconBottomRightX > coreTopLeftX)
+      && (planeIconTopLeftY < coreBottomRightY) && (planeIconBottomRightY > coreTopLeftY)
+      && (planeIconTopLeftX < coreBottomRightX) && (planeIconBottomRightX > coreTopLeftX)
+    );
+
+    const displayLine = !planeIconAndCoreIntersects;
 
     return (
       // eslint-disable-next-line react/jsx-props-no-spreading
