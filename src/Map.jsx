@@ -44,6 +44,7 @@ export default function Map() {
       attributionControl={false}
       mapLib={maplibregl}
       antialias
+      renderWorldCopies={false}
     >
       <Sectors />
       <FixesPoint />
