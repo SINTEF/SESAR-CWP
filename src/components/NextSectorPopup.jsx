@@ -10,7 +10,7 @@ import { Popup } from 'react-map-gl';
 import { tentativeFlight } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
 
-export default observer(function AircraftLevelPopup(properties) {
+export default observer(function NextSectorPopup(properties) {
   const {
     aircraftId,
     assignedFlightId,

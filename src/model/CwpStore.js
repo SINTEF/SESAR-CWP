@@ -33,6 +33,10 @@ export default class CWPStore {
 
   aircraftsWithSectorPopup = observable.set();
 
+  activeMeasurements = observable.set();
+
+  currentActive = '';
+
   constructor({
     altitudeFilter,
   }) {
@@ -114,5 +118,21 @@ export default class CWPStore {
 
   setSpeedVectorMinutes(value) {
     this.speedVectorMinutes = value;
+  }
+
+  toggleDistanceMeasurement(distanceId) {
+    if (this.activeMeasurements.has(distanceId)) {
+      this.activeMeasurements.delete(distanceId);
+    } else {
+      this.activeMeasurements.add(distanceId);
+    }
+  }
+
+  setCurrentActiveMeasuring(distanceId) {
+    this.currentActive = distanceId;
+  }
+
+  getCurrentActiveMeasuring() {
+    return this.currentActive;
   }
 }
