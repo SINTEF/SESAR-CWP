@@ -5,6 +5,7 @@ import 'allotment/dist/style.css';
 import { render } from '@testing-library/react';
 import { Allotment } from 'allotment';
 import * as React from 'react';
+import { throttle } from 'throttle-debounce';
 
 import AircraftListElement from './AircraftListElement';
 import AltitudeFilterPanel from './components/AltitudeFilterPanel';
@@ -17,6 +18,12 @@ import SectorFlightList from './SectorFlightList';
 import Sectors3DView from './Sectors3DView';
 import SectorSideView from './SectorSideView';
 import { roleConfigurationStore } from './state';
+
+const onLayoutChange = throttle(166, () => {
+  // Dispatch a resize event to the whole application
+  // Mapbox/Maplibre listen to it
+  window.dispatchEvent(new Event('resize'));
+});
 
 export default function App(/* properties */) {
   // Dummy data - we will get it directly from the new simulator
@@ -36,7 +43,7 @@ export default function App(/* properties */) {
   return (
     <>
       {' '}
-      <Allotment>
+      <Allotment onChange={onLayoutChange}>
         <Allotment.Pane>
           <ControllerModal />
           <Map />
@@ -48,7 +55,7 @@ export default function App(/* properties */) {
           <BottomNavbar />
         </Allotment.Pane>
         <Allotment.Pane>
-          <Allotment>
+          <Allotment onChange={onLayoutChange}>
             <SectorSideView />
             <Sectors3DView />
           </Allotment>

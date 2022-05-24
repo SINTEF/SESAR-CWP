@@ -185,7 +185,8 @@ export default class AircraftModel {
       case AirtrafficMessages.WakeTurbulenceCategory.JUMBO:
       case AirtrafficMessages.WakeTurbulenceCategory.WTC_ALL:
         return `H${speed}`;
-      // case AirtrafficMessages.WakeTurbulenceCategory.WTC_UNKNOWN: Gave error: useless case
+      case AirtrafficMessages.WakeTurbulenceCategory.WTC_UNKNOWN:
+        return `${speed}`;
       default:
         return `${speed}`;
     }

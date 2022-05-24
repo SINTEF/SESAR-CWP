@@ -1,14 +1,13 @@
-// Not in use right now
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
   Button, Col, Container, Row,
 } from 'react-bootstrap';
-import { DraggableCore } from 'react-draggable';
-import { Popup } from 'react-map-gl';
 
+import { isDragging } from '../draggableState';
 import { acceptFlight } from '../mqtt';
 import { aircraftStore, configurationStore, cwpStore } from '../state';
+import DraggablePopup from './DraggablePopup';
 
 export default observer(function AircraftPopup(properties) {
   const { aircraft } = properties;
@@ -28,11 +27,6 @@ export default observer(function AircraftPopup(properties) {
     assignedFlightLevel,
     setAssignedFlightLevel,
   } = aircraft;
-
-  const [offsetX, setOffsetX] = React.useState(50);
-  const [offsetY, setOffsetY] = React.useState(7);
-  const [firstX, setFirstX] = React.useState(0);
-  const [firstY, setFirstY] = React.useState(0);
 
   const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
 
@@ -80,29 +74,12 @@ export default observer(function AircraftPopup(properties) {
   //   logEvents(_events => ({ ..._events, onDragEnd: event.lngLat }));
   // }, []);
 
-  const onDragStart = (event) => {
-    const { clientX, clientY } = event;
-    setFirstX(clientX);
-    setFirstY(clientY);
-  };
-
-  const onDrag = (event) => {
-    const { clientX, clientY } = event;
-    const diffX = clientX - firstX;
-    const diffY = clientY - firstY;
-    console.log(event, {
-      firstX, firstY, diffX, diffY,
-    });
-    setOffsetX(diffX + 50);
-    setOffsetY(diffY + 7);
-  };
-
   return (
-    <Popup
+    <DraggablePopup
       className="flight-popup"
       tipSize={2}
       style={{ color: flightColor }}
-      offset={[offsetX, offsetY]}
+      offset={{ x: 0, y: 0 }}
       anchor="top"
       draggable
       longitude={longitude}
@@ -112,35 +89,31 @@ export default observer(function AircraftPopup(properties) {
       focusAfterOpen={false}
       onClose={() => cwpStore.closeLevelPopupForAircraft(aircraftId)}
     >
-      <DraggableCore onStart={onDragStart} onDrag={onDrag}>
-        <div>
-          <Button size="sm" variant="dark" onClick={() => cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
-          <Container className="flight-popup-container">
-            <Row>
-              <Col className="gutter-2" onClick={() => setController()}>{callSign}</Col>
-            </Row>
-            <Row>
-              <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-              <Col className="gutter-2" onClick={() => cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
-                {nextFix}
-              </Col>
-              <Col className="gutter-2" />
-            </Row>
-            <Row>
-              <Col className="gutter-2" onClick={() => cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
-              <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
-              <Col className="gutter-2" />
-            </Row>
-            <Row>
-              <Col className="gutter-2" onClick={() => cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
-              <Col className="gutter-2">{assignedFlightLevel}</Col>
-              <Col className="gutter-2" onClick={() => cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
-            </Row>
-          </Container>
-
-        </div>
-      </DraggableCore>
-    </Popup>
-
+      <div>
+        <Button size="sm" variant="dark" onClick={() => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
+        <Container className="flight-popup-container">
+          <Row>
+            <Col className="gutter-2" onClick={() => !isDragging() && setController()}>{callSign}</Col>
+          </Row>
+          <Row>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
+              {nextFix}
+            </Col>
+            <Col className="gutter-2" />
+          </Row>
+          <Row>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
+            <Col className="gutter-2" />
+          </Row>
+          <Row>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
+            <Col className="gutter-2">{assignedFlightLevel}</Col>
+            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
+          </Row>
+        </Container>
+      </div>
+    </DraggablePopup>
   );
 });
