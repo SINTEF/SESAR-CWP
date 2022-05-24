@@ -37,6 +37,10 @@ export default class CWPStore {
 
   currentActive = '';
 
+  showLines = false;
+
+  currentColoringString = '';
+
   constructor({
     altitudeFilter,
   }) {
@@ -138,5 +142,17 @@ export default class CWPStore {
 
   getCurrentActiveMeasuring() {
     return this.currentActive;
+  }
+
+  setShowLine(boolean) {
+    this.showLines = boolean;
+  }
+
+  getShowLine() {
+    return this.showLines;
+  }
+
+  setCurrentColoringString(color) {
+    this.currentColoringString = color;
   }
 }

@@ -9,7 +9,6 @@ import { distanceLineStore } from '../state';
 
 export default observer(function DistanceMarker() {
   const { allMarkerElements } = distanceLineStore;
-
   return (
     <>
       {[...allMarkerElements].map(([key, data]) => (

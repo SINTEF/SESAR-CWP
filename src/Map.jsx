@@ -1,17 +1,15 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable no-unused-vars */
-import * as turf from '@turf/turf';
 import * as maplibregl from 'maplibre-gl';
-import { observable, ObservableMap } from 'mobx';
+import { observable } from 'mobx';
 import React from 'react';
 import ReactMapGL, {
-  FullscreenControl, Layer, Marker, NavigationControl, ScaleControl, Source,
+  FullscreenControl, NavigationControl, ScaleControl,
 } from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
 import ControllerLabel from './components/ControllerLabel';
+import Distance from './components/Distance';
 import DistanceMarkers from './components/DistanceMarkers';
-import DistanceMeasurements from './components/DistanceMeasurements';
+// import DistanceMeasurements from './components/DistanceMeasurements';
 import FixesPoint from './components/FixesPoint';
 import FlightRoutes from './components/FlightRoutes';
 import Sectors from './components/Sectors';
@@ -37,54 +35,25 @@ const style = {
   height: 'calc(100vh - 1.9rem)',
   background: 'black',
 };
-function getLength(coordinates) {
-  const line = turf.lineString(coordinates);
-  const lineLength = turf.length(line, { units: 'radians' });
-  const lengthToNautical = turf.radiansToDistance(lineLength, 'nauticalmiles');
-  return lengthToNautical.toFixed(3);
-}
 
 export default function Map() {
-  const { getCurrentActiveMeasuring, setCurrentActiveMeasuring, addDistanceMeasurement } = cwpStore;
-  const { addFeature, addMarker } = distanceLineStore;
+  const {
+    getCurrentActiveMeasuring, setCurrentActiveMeasuring, setCurrentColoringString, setShowLine,
+  } = cwpStore;
+  const { addMarker } = distanceLineStore;
 
   const initialViewState = {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
   };
-  const [markerElement, setMarkerElement] = React.useState([]);
   const measurementDistanceMarker = observable.map();
-
-  function addString(markers, colorFromActive) {
-    if (markers.length % 2 !== 0) {
-      return;
-    }
-    const coordinates = [];
-    for (let index = 1; index < 3; index += 1) {
-      const long = markers[markers.length - index][1].coordinates[0];
-      const lat = markers[markers.length - index][1].coordinates[1];
-      coordinates.push([long, lat]);
-    }
-    const singleFeature = {
-      type: 'Feature',
-      properties: {
-        color: colorFromActive,
-        length: getLength(coordinates),
-      },
-      geometry: {
-        type: 'LineString',
-        coordinates,
-      },
-    };
-    addFeature(singleFeature);
-    addDistanceMeasurement(colorFromActive);
-  }
 
   const [counter, setCounter] = React.useState(0);
 
   const handleClick = (event) => {
     const currentActive = getCurrentActiveMeasuring();
+    setCurrentColoringString(currentActive);
     if (currentActive !== '') {
       if (counter === 2) {
         setCurrentActiveMeasuring('');
@@ -99,9 +68,10 @@ export default function Map() {
         });
       setCounter(counter + 1);
       addMarker(...measurementDistanceMarker);
-      addString([...markerElement, ...measurementDistanceMarker], currentActive);
-      setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]),
-      );
+      setShowLine(true);
+      // console.log([...allMarkerElements, ...measurementDistanceMarker]);
+      // addString([...allMarkerElements, ...measurementDistanceMarker], currentActive);
+      // setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]));
     }
   };
 
@@ -116,7 +86,8 @@ export default function Map() {
       onClick={handleClick}
     >
       <DistanceMarkers />
-      <DistanceMeasurements />
+      <Distance />
+      {/* <DistanceMeasurements /> */}
       <Sectors />
       <FixesPoint />
       <FlightRoutes />

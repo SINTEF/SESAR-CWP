@@ -14,10 +14,6 @@ export default observer(function DistanceMeasurements() {
     features: currentFeatures,
   };
 
-  const circlePaint = {
-    'circle-radius': 20,
-    'circle-color': ['get', 'currentActive'],
-  };
   const linePaint = {
     'line-color': ['get', 'color'],
     'line-width': 2.5,
@@ -46,7 +42,6 @@ export default observer(function DistanceMeasurements() {
   return (
     <div id="distance">
       <Source id="distance-measurement-source" type="geojson" data={geoJSONDistance}>
-        <Layer id="measure-points" type="circle" paint={circlePaint} />
         <Layer id="measure-lines" type="line" paint={linePaint} layout={lineLayout} />
         <Layer id="measure-length" type="symbol" paint={measureNamePaint} layout={measureNameLayout} />
       </Source>
