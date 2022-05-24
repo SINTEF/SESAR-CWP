@@ -1,0 +1,25 @@
+
+.draggable-popup {
+  max-width: inherit;
+}
+
+.draggable-popup .maplibregl-popup-content {
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  position: relative;
+}
+
+.draggable-popup-core {
+  position: absolute;
+  z-index: 2;
+}
+
+.draggable-popup-line {
+  position: absolute;
+  z-index: 1;
+  height: 1.5px;
+  background: rgba(255,255,255,0.5);
+  width: 200px;
+  transform-origin: 0 0;
+}

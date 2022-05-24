@@ -84,6 +84,7 @@ export default function Map() {
       mapLib={maplibregl}
       antialias
       onClick={handleClick}
+      renderWorldCopies={false}
     >
       <DistanceMarkers />
       <Distance />
