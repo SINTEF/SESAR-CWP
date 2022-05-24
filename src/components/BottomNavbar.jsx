@@ -7,7 +7,7 @@ import {
 } from 'react-bootstrap';
 
 // import MapRef from 'react-map-gl';
-import { configurationStore, cwpStore } from '../state';
+import { configurationStore, cwpStore, distanceLineStore } from '../state';
 import MqttIndicators from './MqttIndicators';
 
 const ControllerButton = observer(function ControllerButton() {
@@ -24,6 +24,10 @@ export default observer(function BottomNavBar(/* properties */) {
     toggleFILT, speedVectorMinutes, setSpeedVectorMinutes,
     activeMeasurements, setCurrentActiveMeasuring,
   } = cwpStore;
+  const {
+    currentFeatures, removeFeature, allMarkerElements, removeMarker,
+  } = distanceLineStore;
+  const [currentlyActive, setCurrentlyActive] = React.useState('');
 
   const [speedMinutesPlaceholder, setspeedMinutesPlaceholder] = React.useState(speedVectorMinutes);
 
@@ -46,8 +50,23 @@ export default observer(function BottomNavBar(/* properties */) {
   const AddNewDistance = (color) => {
     if (!activeMeasurements.has(color)) {
       setCurrentActiveMeasuring(color);
-    } else {
-      activeMeasurements.add(color);
+    }
+    setCurrentlyActive(color);
+  };
+
+  const removeDistance = () => {
+    console.log(currentlyActive);
+    for (const [index, currentFeature] of currentFeatures.entries()) {
+      if (currentFeature.properties.color === currentlyActive) {
+        removeFeature(index);
+      }
+    }
+    for (const [index, markerElement] of allMarkerElements.entries()) {
+      const idSplit = markerElement[0].split(':');
+      const markerId = idSplit[1];
+      if (markerId === currentlyActive) {
+        removeMarker(index);
+      }
     }
   };
 
@@ -81,7 +100,7 @@ export default observer(function BottomNavBar(/* properties */) {
         <Dropdown.Item eventKey="3" style={{ color: '#ed70d1' }} onClick={() => AddNewDistance('#ed70d1')}>R&amp;B3</Dropdown.Item>
         <Dropdown.Item eventKey="4" style={{ color: '#fdcb09' }} onClick={() => AddNewDistance('#fdcb09')}>R&amp;B4</Dropdown.Item>
         <Dropdown.Divider />
-        <Dropdown.Item eventKey="5">CNL</Dropdown.Item>
+        <Dropdown.Item eventKey="5" onClick={() => removeDistance()}>CNL</Dropdown.Item>
       </DropdownButton>
 
       <ControllerButton />

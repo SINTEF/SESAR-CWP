@@ -1,19 +1,22 @@
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable no-unused-vars */
+import * as turf from '@turf/turf';
 import * as maplibregl from 'maplibre-gl';
+import { observable, ObservableMap } from 'mobx';
 import React from 'react';
 import ReactMapGL, {
-  FullscreenControl, Layer, NavigationControl, ScaleControl, Source,
+  FullscreenControl, Layer, Marker, NavigationControl, ScaleControl, Source,
 } from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
 import ControllerLabel from './components/ControllerLabel';
+import DistanceMarkers from './components/DistanceMarkers';
 import DistanceMeasurements from './components/DistanceMeasurements';
 import FixesPoint from './components/FixesPoint';
 import FlightRoutes from './components/FlightRoutes';
 import Sectors from './components/Sectors';
 import SpeedVectors from './components/SpeedVectors';
-import { cwpStore } from './state';
+import { cwpStore, distanceLineStore } from './state';
 
 const mapStyle = {
   version: 8,
@@ -34,95 +37,74 @@ const style = {
   height: 'calc(100vh - 1.9rem)',
   background: 'black',
 };
+function getLength(coordinates) {
+  const line = turf.lineString(coordinates);
+  const lineLength = turf.length(line, { units: 'radians' });
+  const lengthToNautical = turf.radiansToDistance(lineLength, 'nauticalmiles');
+  return lengthToNautical.toFixed(3);
+}
 
 export default function Map() {
-  const { getCurrentActiveMeasuring } = cwpStore;
+  const { getCurrentActiveMeasuring, setCurrentActiveMeasuring, addDistanceMeasurement } = cwpStore;
+  const { addFeature, addMarker } = distanceLineStore;
+
   const initialViewState = {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
   };
-  // const [geoJSONDistance, setgeoJSONDistance] = React.useState(
-  //   {
-  //     type: 'FeatureCollection',
-  //     features: [{
-  //       type: 'Feature',
-  //       geometry: {
-  //         coordinates: [8.336, 45.9057],
-  //         type: 'Point',
-  //       },
-  //       properties: {
-  //         id: String(Date.now()),
-  //         currentActive: '#f00',
-  //       },
-  //     }],
-  //   });
+  const [markerElement, setMarkerElement] = React.useState([]);
+  const measurementDistanceMarker = observable.map();
 
-  const geoJSONDistance = {
-    type: 'FeatureCollection',
-    features: [{
+  function addString(markers, colorFromActive) {
+    if (markers.length % 2 !== 0) {
+      return;
+    }
+    const coordinates = [];
+    for (let index = 1; index < 3; index += 1) {
+      const long = markers[markers.length - index][1].coordinates[0];
+      const lat = markers[markers.length - index][1].coordinates[1];
+      coordinates.push([long, lat]);
+    }
+    const singleFeature = {
       type: 'Feature',
-      geometry: {
-        coordinates: [8.336, 45.9057],
-        type: 'Point',
-      },
       properties: {
-        id: String(Date.now()),
-        currentActive: '#f00',
+        color: colorFromActive,
+        length: getLength(coordinates),
       },
-    }],
-  };
-  const linestring = {
-    type: 'Feature',
-    geometry: {
-      type: 'LineString',
-      coordinates: [],
-    },
-  };
-  const circlePaint = {
-    'circle-radius': 20,
-    'circle-color': ['get', 'currentActive'],
-  };
-  const linePaint = {
-    'line-color': '#ffffff',
-    'line-width': 2.5,
-  };
+      geometry: {
+        type: 'LineString',
+        coordinates,
+      },
+    };
+    addFeature(singleFeature);
+    addDistanceMeasurement(colorFromActive);
+  }
 
-  const lineLayout = {
-    'line-cap': 'round',
-    'line-join': 'round',
-  };
+  const [counter, setCounter] = React.useState(0);
 
   const handleClick = (event) => {
     const currentActive = getCurrentActiveMeasuring();
     if (currentActive !== '') {
-      const features = event.target.queryRenderedFeatures(event.point, {
-        layers: ['measure-points'],
-      });
-      console.log(features);
-      // console.log(features);
-      const point = {
-        type: 'Feature',
-        geometry: {
-          coordinates: [Number(event.lngLat.lng.toFixed(3)), Number(event.lngLat.lat.toFixed(3))],
-          type: 'Point',
-        },
-        properties: {
-          id: String(Date.now()),
-          currentActive,
-        },
-
-      };
-      geoJSONDistance.features.push(point);
-      if (geoJSONDistance.features.length > 1) {
-        linestring.geometry.coordinates = geoJSONDistance.features.map(
-          (circle) => circle.geometry.coordinates);
-        geoJSONDistance.features.push(linestring);
+      if (counter === 2) {
+        setCurrentActiveMeasuring('');
+        setCounter(0);
+        return;
       }
+      const coordinates = event.lngLat;
+      measurementDistanceMarker.set(`${counter.toString()}:${currentActive}`,
+        {
+          coordinates: [coordinates.lng, coordinates.lat],
+          color: currentActive,
+        });
+      setCounter(counter + 1);
+      addMarker(...measurementDistanceMarker);
+      addString([...markerElement, ...measurementDistanceMarker], currentActive);
+      setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]),
+      );
     }
-    console.log(geoJSONDistance);
-    // setgeoJSONDistance(geoJSONDistance);
   };
+
   return (
     <ReactMapGL
       style={style}
@@ -133,12 +115,8 @@ export default function Map() {
       antialias
       onClick={handleClick}
     >
-      <Source id="distance-measurement-source" type="geojson" data={geoJSONDistance}>
-        <Layer id="measure-points" type="circle" paint={circlePaint} />
-        <Layer id="measure-lines" type="line" paint={linePaint} />
-        {/* <Layer /> */}
-      </Source>
-      <DistanceMeasurements geoJSONDistance={geoJSONDistance} />
+      <DistanceMarkers />
+      <DistanceMeasurements />
       <Sectors />
       <FixesPoint />
       <FlightRoutes />

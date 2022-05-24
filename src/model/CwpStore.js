@@ -128,6 +128,10 @@ export default class CWPStore {
     }
   }
 
+  addDistanceMeasurement(distanceId) {
+    this.activeMeasurements.add(distanceId);
+  }
+
   setCurrentActiveMeasuring(distanceId) {
     this.currentActive = distanceId;
   }
