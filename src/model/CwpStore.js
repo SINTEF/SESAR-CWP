@@ -33,6 +33,14 @@ export default class CWPStore {
 
   aircraftsWithSectorPopup = observable.set();
 
+  activeMeasurements = observable.set();
+
+  currentActive = '';
+
+  showLines = false;
+
+  currentColoringString = '';
+
   constructor({
     altitudeFilter,
   }) {
@@ -114,5 +122,37 @@ export default class CWPStore {
 
   setSpeedVectorMinutes(value) {
     this.speedVectorMinutes = value;
+  }
+
+  toggleDistanceMeasurement(distanceId) {
+    if (this.activeMeasurements.has(distanceId)) {
+      this.activeMeasurements.delete(distanceId);
+    } else {
+      this.activeMeasurements.add(distanceId);
+    }
+  }
+
+  addDistanceMeasurement(distanceId) {
+    this.activeMeasurements.add(distanceId);
+  }
+
+  setCurrentActiveMeasuring(distanceId) {
+    this.currentActive = distanceId;
+  }
+
+  getCurrentActiveMeasuring() {
+    return this.currentActive;
+  }
+
+  setShowLine(boolean) {
+    this.showLines = boolean;
+  }
+
+  getShowLine() {
+    return this.showLines;
+  }
+
+  setCurrentColoringString(color) {
+    this.currentColoringString = color;
   }
 }

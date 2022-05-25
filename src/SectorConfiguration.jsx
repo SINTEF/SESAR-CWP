@@ -57,7 +57,7 @@ export default observer(function SectorConfiguration() {
       <div className="control-panel">
         <Accordion id="accordion" defaultActiveKey={['0']} alwaysOpen>
           {listOfTimes.sort().map((value, index) => (
-            <Accordion.Item eventKey={index}>
+            <Accordion.Item key={value[0]} eventKey={index}>
               <Accordion.Header className="accordion-header">
                 From
                 {' '}

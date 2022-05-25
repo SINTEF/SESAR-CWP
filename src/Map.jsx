@@ -1,13 +1,20 @@
 import * as maplibregl from 'maplibre-gl';
+import { observable } from 'mobx';
 import React from 'react';
-import ReactMapGL, { FullscreenControl, NavigationControl, ScaleControl } from 'react-map-gl';
+import ReactMapGL, {
+  FullscreenControl, NavigationControl, ScaleControl,
+} from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
 import ControllerLabel from './components/ControllerLabel';
+import Distance from './components/Distance';
+import DistanceMarkers from './components/DistanceMarkers';
+// import DistanceMeasurements from './components/DistanceMeasurements';
 import FixesPoint from './components/FixesPoint';
 import FlightRoutes from './components/FlightRoutes';
 import Sectors from './components/Sectors';
 import SpeedVectors from './components/SpeedVectors';
+import { cwpStore, distanceLineStore } from './state';
 
 const mapStyle = {
   version: 8,
@@ -30,10 +37,42 @@ const style = {
 };
 
 export default function Map() {
+  const {
+    getCurrentActiveMeasuring, setCurrentActiveMeasuring, setCurrentColoringString, setShowLine,
+  } = cwpStore;
+  const { addMarker } = distanceLineStore;
+
   const initialViewState = {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
+  };
+  const measurementDistanceMarker = observable.map();
+
+  const [counter, setCounter] = React.useState(0);
+
+  const handleClick = (event) => {
+    const currentActive = getCurrentActiveMeasuring();
+    setCurrentColoringString(currentActive);
+    if (currentActive !== '') {
+      if (counter === 2) {
+        setCurrentActiveMeasuring('');
+        setCounter(0);
+        return;
+      }
+      const coordinates = event.lngLat;
+      measurementDistanceMarker.set(`${counter.toString()}:${currentActive}`,
+        {
+          coordinates: [coordinates.lng, coordinates.lat],
+          color: currentActive,
+        });
+      setCounter(counter + 1);
+      addMarker(...measurementDistanceMarker);
+      setShowLine(true);
+      // console.log([...allMarkerElements, ...measurementDistanceMarker]);
+      // addString([...allMarkerElements, ...measurementDistanceMarker], currentActive);
+      // setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]));
+    }
   };
 
   return (
@@ -44,8 +83,12 @@ export default function Map() {
       attributionControl={false}
       mapLib={maplibregl}
       antialias
+      onClick={handleClick}
       renderWorldCopies={false}
     >
+      <DistanceMarkers />
+      <Distance />
+      {/* <DistanceMeasurements /> */}
       <Sectors />
       <FixesPoint />
       <FlightRoutes />

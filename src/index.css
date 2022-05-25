@@ -44,6 +44,15 @@ div#root{
 .sector-body{
     font-size: 8px !important;
 }
+.span3{
+width:30%; 
+/* height:75px;  */
+/* border:solid 1px black; */
+display:inline-block;
+/* margin-bottom:5px;
+padding:5px; */
+}
+
 #table-of-config{
     width: 300px;
     position: relative;
