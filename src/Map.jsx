@@ -1,12 +1,16 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable no-unused-vars */
+import * as turf from '@turf/turf';
 import * as maplibregl from 'maplibre-gl';
-import { observable } from 'mobx';
+import { observable, ObservableMap } from 'mobx';
 import React from 'react';
 import ReactMapGL, {
-  FullscreenControl, NavigationControl, ScaleControl,
+  FullscreenControl, Layer, Marker, NavigationControl, ScaleControl, Source,
 } from 'react-map-gl';
 
 import Aircrafts from './Aircrafts';
 import ControllerLabel from './components/ControllerLabel';
+
 import Distance from './components/Distance';
 import DistanceMarkers from './components/DistanceMarkers';
 // import DistanceMeasurements from './components/DistanceMeasurements';
@@ -35,6 +39,12 @@ const style = {
   height: 'calc(100vh - 1.9rem)',
   background: 'black',
 };
+function getLength(coordinates) {
+  const line = turf.lineString(coordinates);
+  const lineLength = turf.length(line, { units: 'radians' });
+  const lengthToNautical = turf.radiansToDistance(lineLength, 'nauticalmiles');
+  return lengthToNautical.toFixed(3);
+}
 
 export default function Map() {
   const {
@@ -47,6 +57,7 @@ export default function Map() {
     latitude: 45.11,
     zoom: 6.3,
   };
+
   const measurementDistanceMarker = observable.map();
 
   const [counter, setCounter] = React.useState(0);
@@ -68,6 +79,9 @@ export default function Map() {
         });
       setCounter(counter + 1);
       addMarker(...measurementDistanceMarker);
+      addString([...markerElement, ...measurementDistanceMarker], currentActive);
+      setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]),
+      );
       setShowLine(true);
     }
   };
@@ -85,7 +99,6 @@ export default function Map() {
     >
       <DistanceMarkers />
       <Distance />
-      {/* <DistanceMeasurements /> */}
       <Sectors />
       <FixesPoint />
       <FlightRoutes />
