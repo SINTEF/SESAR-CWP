@@ -10,8 +10,10 @@ import ReactMapGL, {
 
 import Aircrafts from './Aircrafts';
 import ControllerLabel from './components/ControllerLabel';
+
+import Distance from './components/Distance';
 import DistanceMarkers from './components/DistanceMarkers';
-import DistanceMeasurements from './components/DistanceMeasurements';
+// import DistanceMeasurements from './components/DistanceMeasurements';
 import FixesPoint from './components/FixesPoint';
 import FlightRoutes from './components/FlightRoutes';
 import Sectors from './components/Sectors';
@@ -45,46 +47,24 @@ function getLength(coordinates) {
 }
 
 export default function Map() {
-  const { getCurrentActiveMeasuring, setCurrentActiveMeasuring, addDistanceMeasurement } = cwpStore;
-  const { addFeature, addMarker } = distanceLineStore;
+  const {
+    getCurrentActiveMeasuring, setCurrentActiveMeasuring, setCurrentColoringString, setShowLine,
+  } = cwpStore;
+  const { addMarker } = distanceLineStore;
 
   const initialViewState = {
     longitude: 9.27,
     latitude: 45.11,
     zoom: 6.3,
   };
-  const [markerElement, setMarkerElement] = React.useState([]);
-  const measurementDistanceMarker = observable.map();
 
-  function addString(markers, colorFromActive) {
-    if (markers.length % 2 !== 0) {
-      return;
-    }
-    const coordinates = [];
-    for (let index = 1; index < 3; index += 1) {
-      const long = markers[markers.length - index][1].coordinates[0];
-      const lat = markers[markers.length - index][1].coordinates[1];
-      coordinates.push([long, lat]);
-    }
-    const singleFeature = {
-      type: 'Feature',
-      properties: {
-        color: colorFromActive,
-        length: getLength(coordinates),
-      },
-      geometry: {
-        type: 'LineString',
-        coordinates,
-      },
-    };
-    addFeature(singleFeature);
-    addDistanceMeasurement(colorFromActive);
-  }
+  const measurementDistanceMarker = observable.map();
 
   const [counter, setCounter] = React.useState(0);
 
   const handleClick = (event) => {
     const currentActive = getCurrentActiveMeasuring();
+    setCurrentColoringString(currentActive);
     if (currentActive !== '') {
       if (counter === 2) {
         setCurrentActiveMeasuring('');
@@ -102,6 +82,7 @@ export default function Map() {
       addString([...markerElement, ...measurementDistanceMarker], currentActive);
       setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]),
       );
+      setShowLine(true);
     }
   };
 
@@ -117,7 +98,7 @@ export default function Map() {
       renderWorldCopies={false}
     >
       <DistanceMarkers />
-      <DistanceMeasurements />
+      <Distance />
       <Sectors />
       <FixesPoint />
       <FlightRoutes />

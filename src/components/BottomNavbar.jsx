@@ -22,7 +22,7 @@ export default observer(function BottomNavBar(/* properties */) {
   const {
     toggleSFL, toggleFL, toggleFlightLabels, toggleFixes, toggleSectorLabels,
     toggleFILT, speedVectorMinutes, setSpeedVectorMinutes,
-    activeMeasurements, setCurrentActiveMeasuring,
+    activeMeasurements, setCurrentActiveMeasuring, addDistanceMeasurement,
   } = cwpStore;
   const {
     currentFeatures, removeFeature, allMarkerElements, removeMarker,
@@ -52,10 +52,10 @@ export default observer(function BottomNavBar(/* properties */) {
       setCurrentActiveMeasuring(color);
     }
     setCurrentlyActive(color);
+    addDistanceMeasurement(color);
   };
 
   const removeDistance = () => {
-    console.log(currentlyActive);
     for (const [index, currentFeature] of currentFeatures.entries()) {
       if (currentFeature.properties.color === currentlyActive) {
         removeFeature(index);
