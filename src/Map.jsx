@@ -10,7 +10,6 @@ import ReactMapGL, {
 
 import Aircrafts from './Aircrafts';
 import ControllerLabel from './components/ControllerLabel';
-
 import Distance from './components/Distance';
 import DistanceMarkers from './components/DistanceMarkers';
 // import DistanceMeasurements from './components/DistanceMeasurements';
@@ -79,9 +78,9 @@ export default function Map() {
         });
       setCounter(counter + 1);
       addMarker(...measurementDistanceMarker);
-      addString([...markerElement, ...measurementDistanceMarker], currentActive);
-      setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]),
-      );
+      // addString([...markerElement, ...measurementDistanceMarker], currentActive);
+      // setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]),
+      // );
       setShowLine(true);
     }
   };
