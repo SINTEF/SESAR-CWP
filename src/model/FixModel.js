@@ -1,5 +1,7 @@
 // import { makeObservable, observable } from 'mobx';
 
+import { makeObservable, observable } from 'mobx';
+
 export default class FixModel {
   pointId = undefined;
 
@@ -7,16 +9,19 @@ export default class FixModel {
 
   longitude = 0;
 
+  sectorFlightList = observable.map();
+
   constructor({
     pointId,
     latitude,
     longitude,
   }) {
-    /* makeObservable(this, {
-      pointId: false, // ID is not observable
-      latitude: observable,
-      longitude: observable,
-    }); */
+    makeObservable(this, {
+      pointId: false,
+      latitude: false,
+      longitude: false,
+      sectorFlightList: observable,
+    });
     this.pointId = pointId;
     this.latitude = latitude;
     this.longitude = longitude;

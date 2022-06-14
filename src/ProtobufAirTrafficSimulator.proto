@@ -4,6 +4,8 @@ import "google/protobuf/duration.proto";
 
 package ProtobufAirTrafficSimulator;
 
+// Changing the file
+// protoc --js_out=library=ProtobufAirTrafficSimulator_pb.js,binary:. ProtobufAirTrafficSimulator.proto
 
 // ###################################################################################
 // * Enumerations, begin.                                                            |
@@ -317,7 +319,7 @@ message Position {
 
 message AirspaceVolumeReference {
   string volumeId               = 1; // The id of the volume it is referring to.
-  int32 bottomFlightLevel       = 2; // The bottom flight level, if not given then <see cref="FlightLevel.MinValue"/> is used.
+  int32 bottomFlightLevel       = 2; // The bottom flight levelø, if not given then <see cref="FlightLevel.MinValue"/> is used.
   int32 topFlightLevel          = 3; // The top flight level, if not given <see cref="FlightLevel.MaxValue"/> is used.
 }
 
@@ -333,6 +335,7 @@ message TesselatedSectorSurface {
 // repeated twice to specify both the entry time and the exit time. Positions (waypoints, runways)
 // that can be identified through an unique id should be represented as an PositionObject while other
 // positions needed to specify trajectory in sufficient detail will be represented as a Position4D.
+
 message Trajectory {
   string id                     = 1;  // An optional id that make it possible to refer to this trajectory by name.
   repeated Position trajectory  = 2;  // The complete list of positions.
@@ -544,12 +547,23 @@ message NewAirspaceConfigurationMessage {
   ObjectType objectType                                    = 7;  // The airspace configuration object type.
 }
 
+message IntervalTime {
+  google.protobuf.Timestamp starttime = 1;
+  google.protobuf.Timestamp endttime = 2;
+}
+
 // A message that tells the period when an airspace is available.
 message AirspaceAvailabilityMessage {
   string xmlElementName                 = 1;  // Inherited from EventMessage, The XML name of the event.
   string airspaceId                     = 2;  // The airspace id. In most cases this will refer to an airspace configuration.
   google.protobuf.Timestamp startTime   = 3;  // The start of the time interval, inherited from TimeIntervalMessage.
   google.protobuf.Timestamp endTime     = 4;  // The end of the time interval, inherited from TimeIntervalMessage.
+}
+
+message AvailabilityIntervalsMessage {
+  string xmlElementName                 = 1;  // Inherited from EventMessage, The XML name of the event.
+  string airspaceId                     = 2;  // The airspace id. In most cases this will refer to an airspace configuration.
+  repeated IntervalTime intervalList    = 3;
 }
 
 // Creates a message about a new segment. If a segment with the same id exists, then the existing segment should be updated according to this message.

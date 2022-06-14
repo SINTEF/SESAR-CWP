@@ -23,4 +23,15 @@ export default class FixStore {
       }));
     }
   }
+
+  // Not yet implemented with new simulator - missing waypoints
+  handleNewMilestoneMessage(message) {
+    const fixName = message.getPosition().getObjectid();
+    const selectedFix = this.fixes.get(fixName);
+    const aircraftId = message.getFlightuniqueid();
+    if (selectedFix.sectorFlightList.has(aircraftId)) {
+      const selectedAircraft = selectedFix.sectorFlightList.get(aircraftId);
+      console.log(selectedAircraft);
+    }
+  }
 }

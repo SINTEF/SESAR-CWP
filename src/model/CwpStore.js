@@ -40,7 +40,11 @@ export default class CWPStore {
   showLines = false;
 
   currentColoringString = '';
-  
+
+  showClickedSector = false;
+
+  clickedSectorId = '';
+
   constructor({
     altitudeFilter,
   }) {
@@ -154,5 +158,13 @@ export default class CWPStore {
 
   setCurrentColoringString(color) {
     this.currentColoringString = color;
+  }
+
+  toggleClickedSector() {
+    this.showClickedSector = !this.showClickedSector;
+  }
+
+  setClickedSectorId(sectorId) {
+    this.clickedSectorId = sectorId;
   }
 }
