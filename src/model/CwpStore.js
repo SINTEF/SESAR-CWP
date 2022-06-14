@@ -40,7 +40,7 @@ export default class CWPStore {
   showLines = false;
 
   currentColoringString = '';
-
+  
   constructor({
     altitudeFilter,
   }) {
