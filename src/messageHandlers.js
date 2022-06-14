@@ -72,6 +72,7 @@ export function newSimulatorTime(parameters, message) {
 
 export function newFlightMilestonePositions(parameters, message) {
   const protoMessage = AirtrafficMessages.FlightMilestonePositionMessage.deserializeBinary(message);
+  // fixStore.handleNewMilestoneMessage(protoMessage);
   aircraftStore.handleFlightNewMilestonePositions(protoMessage);
 }
 

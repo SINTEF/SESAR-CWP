@@ -25,7 +25,6 @@ export default class AirspaceStore {
           latitude: area.getPosition4d().getLatitude(),
           longitude: area.getPosition4d().getLongitude(),
         }));
-        // this.airspaceArea = airspaceArea;
         this.airspaces.set(id, new AirspaceModel({
           airspaceId: id,
           airspaceArea,

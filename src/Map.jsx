@@ -69,9 +69,6 @@ export default function Map() {
       setCounter(counter + 1);
       addMarker(...measurementDistanceMarker);
       setShowLine(true);
-      // console.log([...allMarkerElements, ...measurementDistanceMarker]);
-      // addString([...allMarkerElements, ...measurementDistanceMarker], currentActive);
-      // setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]));
     }
   };
 

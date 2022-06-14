@@ -3,7 +3,9 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
-import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
+import {
+  airspaceStore, configurationStore, cwpStore, roleConfigurationStore,
+} from '../state';
 
 const sectorOutlinePaint = {
   'line-color': ['get', 'color'],
@@ -13,10 +15,14 @@ const sectorOutlinePaint = {
 const sectorNamesPaint = {
   'text-color': '#99ff99',
 };
+const sectorHighlightPaint = {
+  'fill-color': '#fff',
+  'fill-opacity': 0.4,
+};
 
 export default observer(function SectorPolygons(/* properties */) {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
-  const { showSectorLabels } = cwpStore;
+  const { showSectorLabels, showClickedSector, clickedSectorId } = cwpStore;
   const { areaOfIncludedAirspaces, currentConfigurationId } = configurationStore;
   const sectorStore = areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
@@ -85,6 +91,18 @@ export default observer(function SectorPolygons(/* properties */) {
     type: 'FeatureCollection',
     features: sectors,
   };
+  const sectorHighlightJSON = {
+    type: 'FeatureCollection',
+    features: [{
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [airspaceStore.getAreaFromId(clickedSectorId)?.airspaceArea.map((point) => (
+          [point.longitude, point.latitude])),
+        ],
+      },
+    }],
+  };
 
   return (
     <>
@@ -94,6 +112,11 @@ export default observer(function SectorPolygons(/* properties */) {
       <Source id="sector_polygon_names" type="geojson" data={centroidPointsCollection}>
         <Layer id="name-style" type="symbol" layout={sectorNamesText} paint={sectorNamesPaint} />
       </Source>
+      {showClickedSector ? (
+        <Source id="sector_polygons_highlight" type="geojson" data={sectorHighlightJSON}>
+          <Layer id="sector_highlight" type="fill" paint={sectorHighlightPaint} />
+        </Source>
+      ) : ''}
     </>
   );
 });

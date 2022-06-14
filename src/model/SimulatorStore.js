@@ -16,12 +16,13 @@ export default class SimulatorStore {
   handleNewSimulatorTime(simulatorTime) {
     const time = simulatorTime.getTime();
     this.timestamp = time.getSeconds() + time.getNanos() * 1e-9;
-    this.speedFactor = simulatorTime.getSpeedfactor();
-
-    window.clearInterval(this.timeIntervalId);
-    this.timeIntervalId = window.setInterval(() => {
-      this.setTimestamp(this.timestamp + 1 / this.speedFactor);
-    }, 1000 / this.speedFactor);
+    if (simulatorTime.length > 1) { // To get the paused state
+      this.speedFactor = simulatorTime.getSpeedfactor();
+      window.clearInterval(this.timeIntervalId);
+      this.timeIntervalId = window.setInterval(() => {
+        this.setTimestamp(this.timestamp + 1 / this.speedFactor);
+      }, 1000 / this.speedFactor);
+    }
   }
 
   setTimestamp(timestamp) {
