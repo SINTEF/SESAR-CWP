@@ -28,7 +28,6 @@ export function newFlight({ clientId, flightUniqueId }, message, url) {
 export function newAirspaceConfiguration({ configurationId }, message, url) {
   const protoMessage = AirtrafficMessages.NewAirspaceConfigurationMessage
     .deserializeBinary(message);
-  // console.log(protoMessage);
   configurationStore.handleNewAirspaceConfiguration(protoMessage);
 }
 export function airspaces({ airspaceId }, message, url) {
@@ -74,6 +73,9 @@ export function newFlightMilestonePositions(parameters, message) {
   const protoMessage = AirtrafficMessages.FlightMilestonePositionMessage.deserializeBinary(message);
   // fixStore.handleNewMilestoneMessage(protoMessage);
   aircraftStore.handleFlightNewMilestonePositions(protoMessage);
+}
+export function newAvailabilityIntervalsMessage(parameters, message) {
+  const protoMessage = AirtrafficMessages.AvailabilityIntervalsMessage.deserializeBinary(message);
 }
 
 // A message sent when there is a status update w.r.t a role, this can be either a controller or a (pseudo) pilot.

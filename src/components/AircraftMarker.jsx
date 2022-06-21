@@ -7,6 +7,8 @@ import { Marker } from 'react-map-gl';
 import { configurationStore, cwpStore } from '../state';
 import AircraftLevelPopup from './AircraftLevelPopup';
 import AircraftPopup from './AircraftPopup';
+import AircraftPopupPseudo from './AircraftPopupPseudo';
+import ChangeBearingPopup from './ChangeBearingPopup';
 import NextSectorPopup from './NextSectorPopup';
 
 // eslint-disable-next-line max-len
@@ -25,7 +27,6 @@ export default observer(function AircraftMarker(properties) {
   } = properties.aircraft;
 
   const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
-
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
       <svg
@@ -44,9 +45,10 @@ export default observer(function AircraftMarker(properties) {
       >
         {SVG_ICON_PATH}
       </svg>
-      <AircraftPopup aircraft={properties.aircraft} />
       <AircraftLevelPopup aircraft={properties.aircraft} />
+      {configurationStore.currentCWP === 'All' ? <AircraftPopupPseudo aircraft={properties.aircraft} /> : <AircraftPopup aircraft={properties.aircraft} />}
       <NextSectorPopup aircraft={properties.aircraft} />
+      <ChangeBearingPopup aircraft={properties.aircraft} />
     </Marker>
   );
 });
