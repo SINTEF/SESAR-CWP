@@ -12,6 +12,7 @@ import {
   newAircraftTypeMessage,
   newAirspaceConfiguration,
   newAirspaceVolumeFlightList,
+  newAvailabilityIntervalsMessage,
   newFlight,
   newFlightMilestonePositions,
   newPointMessage,
@@ -70,6 +71,7 @@ export function onPacketSend(callback) {
 const router = rlite(notFound, {
   'ATM/:clientId/Initialisation/Completed': todo,
   'ATM/:clientId/TargetReports/:vehicleId': targetReport,
+  'ATM/:clientId/AvailabilityIntervalsMessage/:objectId/:time': newAvailabilityIntervalsMessage,
   'ATM/:clientId/AllTargetReports/:time': ignored,
   'ATM/:clientId/FlightMilestoneTimes/:flightUniqueId': todo,
   'ATM/:clientId/FlightMilestonePositions/:flightUniqueId': newFlightMilestonePositions,

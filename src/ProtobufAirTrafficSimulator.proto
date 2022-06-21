@@ -5,7 +5,7 @@ import "google/protobuf/duration.proto";
 package ProtobufAirTrafficSimulator;
 
 // Changing the file
-// protoc --js_out=library=ProtobufAirTrafficSimulator_pb.js,binary:. ProtobufAirTrafficSimulator.proto
+// protoc --js_out=import_style=commonjs,binary:. ProtobufAirTrafficSimulator.proto
 
 // ###################################################################################
 // * Enumerations, begin.                                                            |
@@ -547,7 +547,7 @@ message NewAirspaceConfigurationMessage {
   ObjectType objectType                                    = 7;  // The airspace configuration object type.
 }
 
-message IntervalTime {
+message TimeInterval {
   google.protobuf.Timestamp starttime = 1;
   google.protobuf.Timestamp endttime = 2;
 }
@@ -562,8 +562,8 @@ message AirspaceAvailabilityMessage {
 
 message AvailabilityIntervalsMessage {
   string xmlElementName                 = 1;  // Inherited from EventMessage, The XML name of the event.
-  string airspaceId                     = 2;  // The airspace id. In most cases this will refer to an airspace configuration.
-  repeated IntervalTime intervalList    = 3;
+  string objectId                     = 2;  // The airspace id. In most cases this will refer to an airspace configuration.
+  repeated TimeInterval timeIntervals    = 3;
 }
 
 // Creates a message about a new segment. If a segment with the same id exists, then the existing segment should be updated according to this message.
