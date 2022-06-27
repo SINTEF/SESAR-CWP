@@ -51,6 +51,18 @@ export default observer(function AircraftPopupPseudo(properties) {
     aircraftStore.aircrafts.get(aircraftId).setController(configurationStore.currentCWP);
     acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId);
   };
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const handleSpeedClick = (event) => {
+    if (event.button === 1) {
+      cwpStore.openChangeSpeedForAircraft(aircraftId);
+    }
+  };
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const middleClickNextWaypoint = (event) => {
+    if (event.button === 1) {
+      cwpStore.openChangeNextFixForAircraft(aircraftId);
+    }
+  };
   return (
     <DraggablePopup
       className="flight-popup flight-popup-pseudo"
@@ -79,13 +91,13 @@ export default observer(function AircraftPopupPseudo(properties) {
           </Row>
           <Row>
             <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
+            <Col className="gutter-2" onMouseDown={middleClickNextWaypoint} onClick={() => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
               {nextFix}
             </Col>
             <Col className="gutter-2" />
           </Row>
           <Row>
-            <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
+            <Col className="gutter-2" onMouseDown={handleSpeedClick} onClick={() => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
             <Col className="gutter-2" onClick={() => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
             <Col className="gutter-2" />
           </Row>

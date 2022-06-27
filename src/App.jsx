@@ -13,7 +13,7 @@ import BottomNavbar from './components/BottomNavbar';
 import Time from './components/Time';
 import ControllerModal from './ControllerModal';
 import Map from './Map';
-import SectorConfiguration from './SectorConfiguration';
+// import SectorConfiguration from './SectorConfiguration';
 import SectorFlightList from './SectorFlightList';
 import Sectors3DView from './Sectors3DView';
 import SectorSideView from './SectorSideView';
@@ -49,7 +49,7 @@ export default function App(/* properties */) {
           <Map />
           <SectorFlightList />
           <AircraftListElement />
-          <SectorConfiguration />
+          {/* <SectorConfiguration /> */}
           <AltitudeFilterPanel />
           <Time />
           <BottomNavbar />

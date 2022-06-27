@@ -35,6 +35,10 @@ export default class CWPStore {
 
   aircraftsWithBearingPopup = observable.set();
 
+  aircraftsWithNextFixPopup = observable.set();
+
+  aircraftWithSpeedChangePopup = observable.set();
+
   activeMeasurements = observable.set();
 
   currentActive = '';
@@ -132,6 +136,22 @@ export default class CWPStore {
 
   closeChangeBearingForAircraft(aircraftId) {
     this.aircraftsWithBearingPopup.delete(aircraftId);
+  }
+
+  openChangeNextFixForAircraft(aircraftId) {
+    this.aircraftsWithNextFixPopup.add(aircraftId);
+  }
+
+  closeChangeNextFixForAircraft(aircraftId) {
+    this.aircraftsWithNextFixPopup.delete(aircraftId);
+  }
+
+  openChangeSpeedForAircraft(aircraftId) {
+    this.aircraftWithSpeedChangePopup.add(aircraftId);
+  }
+
+  closeChangeSpeedForAircraft(aircraftId) {
+    this.aircraftWithSpeedChangePopup.delete(aircraftId);
   }
 
   setSpeedVectorMinutes(value) {
