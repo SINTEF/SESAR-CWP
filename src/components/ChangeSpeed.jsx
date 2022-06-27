@@ -7,10 +7,10 @@ import {
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
-import { changeBearingOfAircraft, tentativeFlight } from '../mqtt';
+import { changeSpeedOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
 
-export default observer(function ChangeBearingPopup(properties) {
+export default observer(function ChangeNextFixPopup(properties) {
   const {
     aircraftId,
     assignedFlightId,
@@ -23,19 +23,20 @@ export default observer(function ChangeBearingPopup(properties) {
     setNextSectorController,
   } = properties.aircraft;
 
-  const shouldShow = cwpStore.aircraftsWithBearingPopup.has(aircraftId);
+  const shouldShow = cwpStore.aircraftWithSpeedChangePopup.has(aircraftId);
   if (!shouldShow) {
     // eslint-disable-next-line unicorn/no-null
     return null;
   }
-  const close = () => cwpStore.closeChangeBearingForAircraft(aircraftId);
+  const close = () => cwpStore.closeChangeSpeedForAircraft(aircraftId);
 
   const submit = () => {
-    const newBearing = Number.parseInt(document.querySelector('#new-changed-bearing').value, 10);
-    console.log(newBearing);
+    const newSpeed = Number.parseInt(document.querySelector('#new-changed-speed').value, 10);
     if (configurationStore.currentCWP === 'All') {
-      changeBearingOfAircraft('All', assignedFlightId, newBearing);
-    } else { changeBearingOfAircraft(controlledBy, assignedFlightId, newBearing); }
+      changeSpeedOfAircraft('All', assignedFlightId, newSpeed);
+    } else {
+      changeSpeedOfAircraft(controlledBy, assignedFlightId, newSpeed);
+    }
     close();
   };
 
@@ -54,8 +55,8 @@ export default observer(function ChangeBearingPopup(properties) {
         <Row className="submit-cancel-wrapper">
           <Col className="gutter-2">
             <span>
-              New Bearing:
-              <input id="new-changed-bearing" className="input-filter" />
+              New Speed:
+              <input id="new-changed-speed" className="input-filter" />
             </span>
           </Col>
         </Row>

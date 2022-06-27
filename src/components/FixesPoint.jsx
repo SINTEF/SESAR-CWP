@@ -1,8 +1,9 @@
 import { observer } from 'mobx-react-lite';
-import pointInPolygon from 'point-in-polygon';
+// import pointInPolygon from 'point-in-polygon';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 
+// eslint-disable-next-line no-unused-vars
 import { configurationStore, cwpStore, fixStore } from '../state';
 
 const fixLayerPaint = {
@@ -28,16 +29,16 @@ const fixNameLayout = {
 export default observer(function FixesPoint(/* properties */) {
   // Load required data
   const fixData = fixStore.fixes;
-  const { edgesPolygon } = configurationStore;
+  // const { edgesPolygon } = configurationStore;
 
   // eslint-disable-next-line unicorn/no-null
   if (!cwpStore.showFixes) return null;
   // Get all points
   const points = [...fixData.values()]
     // Compute an easy to use location array
-    .map((fix) => ([fix, [fix.longitude, fix.latitude]]))
+    .map((fix) => ([fix, [fix.longitude, fix.latitude]]));
     // Filter the points out of the edge sector, if we have an edge sector
-    .filter(([, point]) => !edgesPolygon?.length || pointInPolygon(point, edgesPolygon));
+    // .filter(([, point]) => !edgesPolygon?.length || pointInPolygon(point, edgesPolygon));
 
   // Build the GeoJSON
   const features = points.map(([fix, coordinates]) => ({

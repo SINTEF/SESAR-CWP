@@ -7,10 +7,10 @@ import {
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
-import { changeBearingOfAircraft, tentativeFlight } from '../mqtt';
-import { configurationStore, cwpStore } from '../state';
+import { changeNextWaypointOfAircraft } from '../mqtt';
+import { configurationStore, cwpStore, fixStore } from '../state';
 
-export default observer(function ChangeBearingPopup(properties) {
+export default observer(function ChangeNextFixPopup(properties) {
   const {
     aircraftId,
     assignedFlightId,
@@ -23,19 +23,23 @@ export default observer(function ChangeBearingPopup(properties) {
     setNextSectorController,
   } = properties.aircraft;
 
-  const shouldShow = cwpStore.aircraftsWithBearingPopup.has(aircraftId);
+  const shouldShow = cwpStore.aircraftsWithNextFixPopup.has(aircraftId);
   if (!shouldShow) {
     // eslint-disable-next-line unicorn/no-null
     return null;
   }
-  const close = () => cwpStore.closeChangeBearingForAircraft(aircraftId);
+  const close = () => cwpStore.closeChangeNextFixForAircraft(aircraftId);
 
   const submit = () => {
-    const newBearing = Number.parseInt(document.querySelector('#new-changed-bearing').value, 10);
-    console.log(newBearing);
+    const newNextFix = document.querySelector('#new-changed-fix').value.toUpperCase();
+    const latOfFix = fixStore.fixes.get(newNextFix).latitude;
+    const longOfFix = fixStore.fixes.get(newNextFix).longitude;
     if (configurationStore.currentCWP === 'All') {
-      changeBearingOfAircraft('All', assignedFlightId, newBearing);
-    } else { changeBearingOfAircraft(controlledBy, assignedFlightId, newBearing); }
+      changeNextWaypointOfAircraft('All', newNextFix, assignedFlightId, Number.parseFloat(latOfFix), Number.parseFloat(longOfFix));
+      // changeNextWaypointOfAircraft('All', newNextFix, assignedFlightId);
+    } else {
+      changeNextWaypointOfAircraft(controlledBy, newNextFix, assignedFlightId, latOfFix, longOfFix);
+    }
     close();
   };
 
@@ -54,8 +58,8 @@ export default observer(function ChangeBearingPopup(properties) {
         <Row className="submit-cancel-wrapper">
           <Col className="gutter-2">
             <span>
-              New Bearing:
-              <input id="new-changed-bearing" className="input-filter" />
+              Next Fix:
+              <input id="new-changed-fix" className="input-filter" />
             </span>
           </Col>
         </Row>

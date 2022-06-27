@@ -9,6 +9,8 @@ import AircraftLevelPopup from './AircraftLevelPopup';
 import AircraftPopup from './AircraftPopup';
 import AircraftPopupPseudo from './AircraftPopupPseudo';
 import ChangeBearingPopup from './ChangeBearingPopup';
+import ChangeNextFixPopup from './ChangeNextFixPopup';
+import ChangeSpeed from './ChangeSpeed';
 import NextSectorPopup from './NextSectorPopup';
 
 // eslint-disable-next-line max-len
@@ -25,7 +27,6 @@ export default observer(function AircraftMarker(properties) {
     aircraftId,
     controlledBy,
   } = properties.aircraft;
-
   const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
@@ -47,7 +48,9 @@ export default observer(function AircraftMarker(properties) {
       </svg>
       <AircraftLevelPopup aircraft={properties.aircraft} />
       {configurationStore.currentCWP === 'All' ? <AircraftPopupPseudo aircraft={properties.aircraft} /> : <AircraftPopup aircraft={properties.aircraft} />}
+      <ChangeNextFixPopup aircraft={properties.aircraft} />
       <NextSectorPopup aircraft={properties.aircraft} />
+      <ChangeSpeed aircraft={properties.aircraft} />
       <ChangeBearingPopup aircraft={properties.aircraft} />
     </Marker>
   );

@@ -73,7 +73,7 @@ export default observer(function SectorFlightList(/* properties */) {
                   {aircraftData.callSign}
                 </td>
                 <td>
-                  {aircraftData.callSign}
+                  {aircraftData.assignedFlightId}
                 </td>
                 <td />
                 <td>

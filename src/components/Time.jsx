@@ -15,7 +15,7 @@ export default observer(function Time() {
   const date = new Date(simulatorTime * 1000);
 
   // Get the tame in the hh:mm:ss format
-  const time = date.toLocaleTimeString('en', {
+  const time = date.toUTCString('en', {
     hour12: false,
     hour: '2-digit',
     minute: '2-digit',
