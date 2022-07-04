@@ -47,7 +47,6 @@ export default observer(function AircraftLevelPopup(properties) {
   const shouldShow = cwpStore.aircraftsWithLevelPopup.has(aircraftId);
 
   if (!shouldShow) {
-    // eslint-disable-next-line unicorn/no-null
     return null;
   }
 

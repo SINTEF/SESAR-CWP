@@ -38,7 +38,6 @@ export default observer(function AircraftPopup(properties) {
       && !cwpStore.aircraftsWithManuallyClosedPopup.has(aircraftId));
 
   if (!shouldShow) {
-    // eslint-disable-next-line unicorn/no-null
     return null;
   }
   if (assignedFlightLevel === Number.parseFloat((altitude).toFixed(0))) {

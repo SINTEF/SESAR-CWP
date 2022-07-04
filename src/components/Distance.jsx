@@ -15,7 +15,7 @@ function getLength(coordinates) {
 }
 
 export default observer(function Distance() {
-  const { addFeature, allMarkerElements } = distanceLineStore;
+  const { addFeature, markerElements } = distanceLineStore;
   const {
     getCurrentActiveMeasuring, addDistanceMeasurement,
     showLines, setShowLine, currentColoringString,
@@ -24,11 +24,11 @@ export default observer(function Distance() {
   const { currentFeatures } = distanceLineStore;
 
   React.useEffect(() => {
-    if (showLines && allMarkerElements.length % 2 === 0 && currentActiveColor !== '') {
+    if (showLines && markerElements.length % 2 === 0 && currentActiveColor !== '') {
       const coordinates = [];
       for (let index = 1; index < 3; index += 1) {
-        const long = allMarkerElements[allMarkerElements.length - index][1].coordinates[0];
-        const lat = allMarkerElements[allMarkerElements.length - index][1].coordinates[1];
+        const long = markerElements[markerElements.length - index][1].coordinates[0];
+        const lat = markerElements[markerElements.length - index][1].coordinates[1];
         coordinates.push([long, lat]);
       }
       const singleFeature = {
@@ -46,7 +46,7 @@ export default observer(function Distance() {
       addDistanceMeasurement(currentColoringString);
       setShowLine(false);
     }
-  }, [showLines, setShowLine, allMarkerElements]);
+  }, [showLines, setShowLine, markerElements]);
   // const { geoJSONDistance } = properties;
 
   return (

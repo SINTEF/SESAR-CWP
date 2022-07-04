@@ -15,7 +15,6 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
     lowestBound, highestBound, setLowBound, setHighBound,
   } = altitudeFilter;
 
-  // eslint-disable-next-line unicorn/no-null
   if (!showFILT) return null;
 
   return (

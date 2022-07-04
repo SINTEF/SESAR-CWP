@@ -31,14 +31,13 @@ export default observer(function FixesPoint(/* properties */) {
   const fixData = fixStore.fixes;
   // const { edgesPolygon } = configurationStore;
 
-  // eslint-disable-next-line unicorn/no-null
   if (!cwpStore.showFixes) return null;
   // Get all points
   const points = [...fixData.values()]
     // Compute an easy to use location array
     .map((fix) => ([fix, [fix.longitude, fix.latitude]]));
-    // Filter the points out of the edge sector, if we have an edge sector
-    // .filter(([, point]) => !edgesPolygon?.length || pointInPolygon(point, edgesPolygon));
+  // Filter the points out of the edge sector, if we have an edge sector
+  // .filter(([, point]) => !edgesPolygon?.length || pointInPolygon(point, edgesPolygon));
 
   // Build the GeoJSON
   const features = points.map(([fix, coordinates]) => ({

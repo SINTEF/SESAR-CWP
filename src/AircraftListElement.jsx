@@ -18,7 +18,6 @@ export default observer(function AircraftListElement(/* properties */) {
   const currentSector = roleConfigurationStore.getControlledSector(currentCWP, currentConfigurationId);
   const [filter, setFilter] = useState('');
 
-  // eslint-disable-next-line unicorn/no-null
   if (!cwpStore.showFL) return null;
 
   return (

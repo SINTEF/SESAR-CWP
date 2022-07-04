@@ -14,7 +14,6 @@ export default observer(function SectorFlightList(/* properties */) {
   const data = aircraftStore.aircraftsWithPosition;
   const [filter, setFilter] = useState('');
 
-  // eslint-disable-next-line unicorn/no-null
   if (!cwpStore.showSFL) return null;
 
   return (

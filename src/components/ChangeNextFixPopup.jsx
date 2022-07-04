@@ -25,7 +25,6 @@ export default observer(function ChangeNextFixPopup(properties) {
 
   const shouldShow = cwpStore.aircraftsWithNextFixPopup.has(aircraftId);
   if (!shouldShow) {
-    // eslint-disable-next-line unicorn/no-null
     return null;
   }
   const close = () => cwpStore.closeChangeNextFixForAircraft(aircraftId);

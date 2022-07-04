@@ -25,7 +25,7 @@ export default observer(function BottomNavBar(/* properties */) {
     activeMeasurements, setCurrentActiveMeasuring, addDistanceMeasurement,
   } = cwpStore;
   const {
-    currentFeatures, removeFeature, allMarkerElements, removeMarker,
+    currentFeatures, removeFeature, markerElements, removeMarker,
   } = distanceLineStore;
   const [currentlyActive, setCurrentlyActive] = React.useState('');
 
@@ -61,7 +61,7 @@ export default observer(function BottomNavBar(/* properties */) {
         removeFeature(index);
       }
     }
-    for (const [index, markerElement] of allMarkerElements.entries()) {
+    for (const [index, markerElement] of markerElements.entries()) {
       const idSplit = markerElement[0].split(':');
       const markerId = idSplit[1];
       if (markerId === currentlyActive) {

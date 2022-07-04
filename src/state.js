@@ -16,10 +16,7 @@ export const configurationStore = new ConfigurationStore({
   airspaceStore,
 });
 export const fixStore = new FixStore();
-export const distanceLineStore = new DistanceLine({
-  features: [],
-  markerElements: [],
-});
+export const distanceLineStore = new DistanceLine();
 export const roleConfigurationStore = new RoleConfigurationStore();
 export const cwpStore = new CWPStore({
   altitudeFilter: {

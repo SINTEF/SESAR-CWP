@@ -1,5 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable unicorn/no-null */
 import { observer } from 'mobx-react-lite';
 import * as React from 'react';
 import {

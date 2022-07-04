@@ -25,7 +25,6 @@ export default observer(function ChangeBearingPopup(properties) {
 
   const shouldShow = cwpStore.aircraftsWithBearingPopup.has(aircraftId);
   if (!shouldShow) {
-    // eslint-disable-next-line unicorn/no-null
     return null;
   }
   const close = () => cwpStore.closeChangeBearingForAircraft(aircraftId);
