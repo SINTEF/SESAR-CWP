@@ -1,8 +1,10 @@
-import PropTypes from 'prop-types';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 
-export default function CustomToggle({ children, eventKey }) {
+export default function CustomToggle(
+  { children, eventKey }: { children: React.ReactNode; eventKey: string },
+): React.ReactElement {
   const smallerButton = useAccordionButton(eventKey);
   return (
     <button
@@ -14,7 +16,3 @@ export default function CustomToggle({ children, eventKey }) {
     </button>
   );
 }
-CustomToggle.propTypes = {
-  children: PropTypes.string.isRequired,
-  eventKey: PropTypes.string.isRequired,
-};

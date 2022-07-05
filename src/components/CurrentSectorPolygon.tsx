@@ -1,10 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
+import type { LinePaint } from 'mapbox-gl';
 
 import { configurationStore, roleConfigurationStore } from '../state';
 
-const sectorOutlinePaint = {
+const sectorOutlinePaint: LinePaint = {
   'line-color': '#fff',
   'line-width': 2.5,
 };
@@ -15,13 +16,14 @@ export default observer(function SectorPolygons(/* properties */) {
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
     .filter(([key]) => key === sectorId);
-  // eslint-disable-next-line no-unused-vars
-  const sectors = sectorData.map(([title, area]) => {
+
+  const sectors: GeoJSON.Feature[] = sectorData.map(([/* title */, area]) => {
     const coordinates = area.sectorArea.map((point) => (
       [point.longitude, point.latitude]),
     );
     return {
       type: 'Feature',
+      properties: {},
       geometry: {
         type: 'LineString',
         coordinates: [...coordinates, coordinates[0]],
@@ -29,7 +31,7 @@ export default observer(function SectorPolygons(/* properties */) {
     };
   });
 
-  const geoJson = {
+  const geoJson: GeoJSON.FeatureCollection = {
     type: 'FeatureCollection',
     features: sectors,
   };

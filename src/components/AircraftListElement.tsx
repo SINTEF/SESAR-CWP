@@ -6,16 +6,16 @@ import {
 
 import {
   aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
-} from './state';
+} from '../state';
 
-const flightColor = (value) => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
+const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
-  // const { onClick } = properties;
   const data = aircraftStore.aircraftsWithPosition;
   const { currentCWP, currentConfigurationId } = configurationStore;
-  const currentSector = roleConfigurationStore.getControlledSector(currentCWP, currentConfigurationId);
+  const currentSector = roleConfigurationStore
+    .getControlledSector(currentCWP, currentConfigurationId);
   const [filter, setFilter] = useState('');
 
   if (!cwpStore.showFL) return null;
@@ -31,7 +31,7 @@ export default observer(function AircraftListElement(/* properties */) {
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
-                onChange={(event) => setFilter(event.target.value)}
+                onChange={(event): void => setFilter(event.target.value)}
               />
             </th>
             <th colSpan={2}>

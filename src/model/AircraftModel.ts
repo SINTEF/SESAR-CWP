@@ -52,7 +52,7 @@ export default class AircraftModel {
 
   milestoneTargetObjectId: string | undefined;
 
-  assignedFlightLevel: number | undefined;
+  assignedFlightLevel: string | undefined;
 
   aircraftInfo: ObservableMap<string, AircraftInfo>;
 
@@ -225,7 +225,7 @@ export default class AircraftModel {
     }
   }
 
-  setAssignedFlightLevel(assignedFlightLevel: number): void {
+  setAssignedFlightLevel(assignedFlightLevel: string): void {
     this.assignedFlightLevel = assignedFlightLevel;
   }
 

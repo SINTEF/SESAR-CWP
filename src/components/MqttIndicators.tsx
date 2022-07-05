@@ -12,7 +12,7 @@ import {
   onConnect, onDisconnect, onPacketReceive, onPacketSend,
 } from '../mqtt';
 
-export default class MqttIndicators extends Component<never, {
+export default class MqttIndicators extends Component<unknown, {
   connected: boolean,
   sending: boolean,
   receiving: boolean,

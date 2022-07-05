@@ -6,7 +6,7 @@ export interface MarkerElement {
 }
 
 export default class DistanceLine {
-  features: unknown[] = [];
+  features: GeoJSON.Feature[] = [];
 
   markerElements: MarkerElement[] = [];
 
@@ -24,12 +24,12 @@ export default class DistanceLine {
     );
   }
 
-  addFeature(feature: unknown): void {
+  addFeature(feature: GeoJSON.Feature): void {
     this.features.push(feature);
   }
 
   removeFeature(index: number): void {
-    this.features.splice(index);
+    this.features.splice(index, 1);
   }
 
   addMarker(marker: MarkerElement): void {

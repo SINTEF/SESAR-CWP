@@ -11,6 +11,7 @@ import { cwpStore } from '../state';
 export default observer(function AltitudeFilterPanel(/* properties */) {
   const { showFILT, altitudeFilter } = cwpStore;
 
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     lowestBound, highestBound, setLowBound, setHighBound,
   } = altitudeFilter;
@@ -32,19 +33,23 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
           <Col className="align-self-start">
             <h6>
               H:
-              <input className="input-filter" type="text" value={highestBound} onChange={(event) => setHighBound(Number.parseInt(event.target.value, 10))} />
+              <input className="input-filter" type="text" value={highestBound}
+                onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
               {' '}
             </h6>
             <h6>
               L:
-              <input className="input-filter" type="text" value={lowestBound} onChange={(event) => setLowBound(Number.parseInt(event.target.value, 10))} />
+              <input className="input-filter" type="text" value={lowestBound}
+                onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
 
               {' '}
             </h6>
           </Col>
           <Col className="range-wrapper align-self-start">
-            <input type="range" value={highestBound} onChange={(event) => setHighBound(Number.parseInt(event.target.value, 10))} className="range" min="500" max="1000" />
-            <input type="range" value={lowestBound} onChange={(event) => setLowBound(Number.parseInt(event.target.value, 10))} className="range" min="0" max="500" />
+            <input type="range" value={highestBound} className="range" min="500" max="1000"
+              onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
+            <input type="range" value={lowestBound} className="range" min="0" max="500"
+              onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
           </Col>
         </Row>
       </Card.Body>

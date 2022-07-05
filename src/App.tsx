@@ -7,25 +7,25 @@ import { Allotment } from 'allotment';
 import * as React from 'react';
 import { throttle } from 'throttle-debounce';
 
-import AircraftListElement from './AircraftListElement';
+import AircraftListElement from './components/AircraftListElement';
 import AltitudeFilterPanel from './components/AltitudeFilterPanel';
 import BottomNavbar from './components/BottomNavbar';
-import Time from './components/Time';
-import ControllerModal from './ControllerModal';
-import Map from './Map';
+import ControllerModal from './components/ControllerModal';
+import Map from './components/Map';
 // import SectorConfiguration from './SectorConfiguration';
-import SectorFlightList from './SectorFlightList';
-import Sectors3DView from './Sectors3DView';
-import SectorSideView from './SectorSideView';
+import SectorFlightList from './components/SectorFlightList';
+import Sectors3DView from './components/Sectors3DView';
+import SectorSideView from './components/SectorSideView';
+import Time from './components/Time';
 import { roleConfigurationStore } from './state';
 
-const onLayoutChange = throttle(166, () => {
+const onLayoutChange = throttle(166, (): void => {
   // Dispatch a resize event to the whole application
   // Mapbox/Maplibre listen to it
   window.dispatchEvent(new Event('resize'));
 });
 
-export default function App(/* properties */) {
+export default function App(/* properties */): JSX.Element {
   // Dummy data - we will get it directly from the new simulator
   // For debug choose dataset 2
   roleConfigurationStore.setControlledSector('CWP_NW', 'CONF10D', 'LIMM_RUN16_COBOS_10S9_SECTOR_12');
@@ -66,6 +66,6 @@ export default function App(/* properties */) {
   );
 }
 
-export function renderToDom(container) {
-  render(<App />, container);
+export function renderToDom(container: HTMLElement): void {
+  render(<App />, { container });
 }

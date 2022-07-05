@@ -1,14 +1,30 @@
 import './DraggablePopup.css';
 
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React from 'react';
 import { DraggableCore } from 'react-draggable';
 import { Popup } from 'react-map-gl';
+import type { DraggableEvent } from 'react-draggable';
+import type { PopupProps } from 'react-map-gl';
 
 import { startDragging, stopDragging } from '../draggableState';
 
-export default class DraggablePopup extends Component {
-  constructor(properties) {
+export type DraggablePopupProperties = {
+  offset: {
+    x: number,
+    y: number,
+  },
+} & PopupProps;
+
+export type DraggablePopupState = {
+  offsetX: number,
+  offsetY: number,
+  startX: number,
+  startY: number,
+};
+
+export default class DraggablePopup extends
+  React.Component<DraggablePopupProperties, DraggablePopupState> {
+  constructor(properties: DraggablePopupProperties) {
     super(properties);
 
     const { offset } = properties;
@@ -20,12 +36,12 @@ export default class DraggablePopup extends Component {
       startX: 0,
       startY: 0,
     };
-
-    this.onDragStart = this.onDragStart.bind(this);
-    this.onDrag = this.onDrag.bind(this);
   }
 
-  onDragStart(event/* , data */) {
+  onDragStart(event: DraggableEvent): void {
+    if (!('clientX' in event && 'clientX' in event)) {
+      return;
+    }
     const { clientX, clientY } = event;
     const { offsetX, offsetY } = this.state;
     this.setState({
@@ -35,7 +51,10 @@ export default class DraggablePopup extends Component {
     startDragging();
   }
 
-  onDrag(event/* , data */) {
+  onDrag(event: DraggableEvent): void {
+    if (!('clientX' in event && 'clientX' in event)) {
+      return;
+    }
     const { clientX, clientY } = event;
     const { startX, startY } = this.state;
     const diffX = clientX - startX;
@@ -46,12 +65,11 @@ export default class DraggablePopup extends Component {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  onStop(/* event , data */) {
+  static onStop(/* event , data */): void {
     stopDragging();
   }
 
-  render() {
+  render(): JSX.Element {
     const {
       className, children, offset, ...otherProperties
     } = this.props;
@@ -108,7 +126,6 @@ export default class DraggablePopup extends Component {
     const displayLine = !planeIconAndCoreIntersects;
 
     return (
-      // eslint-disable-next-line react/jsx-props-no-spreading
       <Popup {...otherProperties} className="draggable-popup">
         <div
           className={`draggable-popup-core ${className ?? ''}`}
@@ -120,9 +137,9 @@ export default class DraggablePopup extends Component {
           }}
         >
           <DraggableCore
-            onStart={this.onDragStart}
-            onDrag={this.onDrag}
-            onStop={this.onStop}
+            onStart={(event): void => this.onDragStart(event)}
+            onDrag={(event): void => this.onDrag(event)}
+            onStop={(): void => DraggablePopup.onStop()}
           >
             {children}
           </DraggableCore>
@@ -141,13 +158,3 @@ export default class DraggablePopup extends Component {
     );
   }
 }
-
-DraggablePopup.propTypes = {
-  children: PropTypes.node.isRequired,
-  // eslint-disable-next-line react/require-default-props
-  className: PropTypes.string,
-  offset: PropTypes.shape({
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-  }).isRequired,
-};

@@ -1,17 +1,18 @@
 import { observer } from 'mobx-react-lite';
-import * as React from 'react';
+import React from 'react';
 import {
   Area, AreaChart, ReferenceLine,
   ResponsiveContainer,
   XAxis, YAxis,
 } from 'recharts';
 
-import { configurationStore, roleConfigurationStore, simulatorStore } from './state';
+import { configurationStore, roleConfigurationStore, simulatorStore } from '../state';
 
 export default observer(function SectorSideView() {
   const colorCurrent = '#ffffff';
   const colorNext = 'rgba(135,206,235)';
   const simulatorTime = simulatorStore.timestamp;
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     currentConfigurationId, currentCWP, sortedConfigurationPlan,
     areaOfIncludedAirspaces, getAreaOfIncludedAirpaces,
@@ -115,9 +116,9 @@ export default observer(function SectorSideView() {
         <Area type="monotone" dataKey="flightLevelNext" stroke={colorNext} dot={false} fill="transparent" />
 
         <XAxis dataKey="time" />
-        <YAxis domain={[200, 560]} tickCount="20" />
+        <YAxis domain={[200, 560]} tickCount={20} />
 
-        <ReferenceLine x={timeDifferanse === 0 ? null : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
+        <ReferenceLine x={timeDifferanse === 0 ? undefined : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
       </AreaChart>
     </ResponsiveContainer>
   );

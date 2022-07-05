@@ -1,21 +1,20 @@
 import { observer } from 'mobx-react-lite';
-// import pointInPolygon from 'point-in-polygon';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
+import type { CirclePaint, SymbolLayout, SymbolPaint } from 'mapbox-gl';
 
-// eslint-disable-next-line no-unused-vars
-import { configurationStore, cwpStore, fixStore } from '../state';
+import { cwpStore, fixStore } from '../state';
 
-const fixLayerPaint = {
+const fixLayerPaint: CirclePaint = {
   'circle-radius': 2.5,
   'circle-color': '#fff',
 };
 
-const fixNamePaint = {
+const fixNamePaint: SymbolPaint = {
   'text-color': '#fff',
 };
 
-const fixNameLayout = {
+const fixNameLayout: SymbolLayout = {
   'text-field': ['get', 'title'],
   'text-allow-overlap': true,
   'text-font': [
@@ -35,12 +34,12 @@ export default observer(function FixesPoint(/* properties */) {
   // Get all points
   const points = [...fixData.values()]
     // Compute an easy to use location array
-    .map((fix) => ([fix, [fix.longitude, fix.latitude]]));
+    .map((fix) => ({ fix, coordinates: [fix.longitude, fix.latitude] }));
   // Filter the points out of the edge sector, if we have an edge sector
   // .filter(([, point]) => !edgesPolygon?.length || pointInPolygon(point, edgesPolygon));
 
   // Build the GeoJSON
-  const features = points.map(([fix, coordinates]) => ({
+  const features: GeoJSON.Feature[] = points.map(({ fix, coordinates }) => ({
     type: 'Feature',
     geometry: {
       type: 'Point',
@@ -51,7 +50,7 @@ export default observer(function FixesPoint(/* properties */) {
     },
   }));
 
-  const fixJson = {
+  const fixJson: GeoJSON.FeatureCollection = {
     type: 'FeatureCollection',
     features,
   };

@@ -1,40 +1,38 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable no-unused-vars */
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
-  Button, Col, Container, Dropdown, DropdownButton, Row,
+  Button, Col, Container, Row,
 } from 'react-bootstrap';
 import { Popup } from 'react-map-gl';
 
-import { changeBearingOfAircraft, tentativeFlight } from '../mqtt';
+import { changeBearingOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
+import type AircraftModel from '../model/AircraftModel';
 
-export default observer(function ChangeBearingPopup(properties) {
+export default observer(function ChangeBearingPopup(properties: { aircraft: AircraftModel }) {
   const {
     aircraftId,
     assignedFlightId,
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
-    lastKnownAltitude: altitude,
-    callSign,
     controlledBy,
-    setAssignedFlightLevel,
-    setNextSectorController,
   } = properties.aircraft;
+
+  // TODO #95: Replace use of Ref/ID by a classic react value/onChange
+  const newChangedBearingInputReference = React.useRef<HTMLInputElement>(null);
 
   const shouldShow = cwpStore.aircraftsWithBearingPopup.has(aircraftId);
   if (!shouldShow) {
     return null;
   }
-  const close = () => cwpStore.closeChangeBearingForAircraft(aircraftId);
+  const close = (): void => cwpStore.closeChangeBearingForAircraft(aircraftId);
 
-  const submit = () => {
-    const newBearing = Number.parseInt(document.querySelector('#new-changed-bearing').value, 10);
-    console.log(newBearing);
-    if (configurationStore.currentCWP === 'All') {
-      changeBearingOfAircraft('All', assignedFlightId, newBearing);
-    } else { changeBearingOfAircraft(controlledBy, assignedFlightId, newBearing); }
+  const submit = (): void => {
+    const newBearing = Number.parseInt(
+      newChangedBearingInputReference.current?.value ?? '',
+      10);
+    const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
+    changeBearingOfAircraft(pilotId, assignedFlightId, newBearing);
     close();
   };
 
@@ -54,7 +52,8 @@ export default observer(function ChangeBearingPopup(properties) {
           <Col className="gutter-2">
             <span>
               New Bearing:
-              <input id="new-changed-bearing" className="input-filter" />
+              <input ref={newChangedBearingInputReference} className="input-filter"
+                type="number" min="0" max="360" />
             </span>
           </Col>
         </Row>

@@ -4,7 +4,7 @@ import {
   Modal, ToggleButton, ToggleButtonGroup,
 } from 'react-bootstrap';
 
-import { configurationStore, cwpStore } from './state';
+import { configurationStore, cwpStore } from '../state';
 
 // Need to create a role configuration file for the exercise to access the different roles
 const controllers = [
@@ -15,10 +15,11 @@ const controllers = [
 ];
 
 export default observer(function ControllerModal() {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { showControllerSelection, toggleControllerSelection } = cwpStore;
 
   const controller = configurationStore.currentCWP;
-  const handleSelect = (targetValue) => {
+  const handleSelect = (targetValue: string): void => {
     configurationStore.setCurrentCWP(targetValue);
     toggleControllerSelection();
   };
@@ -33,7 +34,7 @@ export default observer(function ControllerModal() {
       aria-labelledby="contained-modal-title-vcenter"
       className="controller-modal"
       centered
-      onHide={() => toggleControllerSelection()}
+      onHide={(): void => toggleControllerSelection()}
       keyboard={secondSelection}
       backdrop={secondSelection ? true : 'static'}
     >

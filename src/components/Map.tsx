@@ -1,25 +1,23 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable no-unused-vars */
-import * as turf from '@turf/turf';
 import * as maplibregl from 'maplibre-gl';
-import { observable, ObservableMap } from 'mobx';
+import { observable } from 'mobx';
 import React from 'react';
 import ReactMapGL, {
-  FullscreenControl, Layer, Marker, NavigationControl, ScaleControl, Source,
+  FullscreenControl, NavigationControl, ScaleControl,
 } from 'react-map-gl';
+import type { MapLayerMouseEvent, Style } from 'mapbox-gl';
 
+import { cwpStore, distanceLineStore } from '../state';
 import Aircrafts from './Aircrafts';
-import ControllerLabel from './components/ControllerLabel';
-import Distance from './components/Distance';
-import DistanceMarkers from './components/DistanceMarkers';
-// import DistanceMeasurements from './components/DistanceMeasurements';
-import FixesPoint from './components/FixesPoint';
-import FlightRoutes from './components/FlightRoutes';
-import Sectors from './components/Sectors';
-import SpeedVectors from './components/SpeedVectors';
-import { cwpStore, distanceLineStore } from './state';
+import ControllerLabel from './ControllerLabel';
+import Distance from './Distance';
+import DistanceMarkers from './DistanceMarkers';
+import FixesPoint from './FixesPoint';
+import FlightRoutes from './FlightRoutes';
+import Sectors from './Sectors';
+import SpeedVectors from './SpeedVectors';
+import type { MarkerElement } from '../model/DistanceLine';
 
-const mapStyle = {
+const mapStyle: Style = {
   version: 8,
   name: 'Black',
   metadata: {},
@@ -30,25 +28,23 @@ const mapStyle = {
     type: 'background',
     paint: {},
   }],
-  antialias: true,
+  // antialias: true,
 };
 
-const style = {
+const style: React.CSSProperties = {
   width: '100%',
   height: 'calc(100vh - 1.9rem)',
   background: 'black',
 };
-function getLength(coordinates) {
-  const line = turf.lineString(coordinates);
-  const lineLength = turf.length(line, { units: 'radians' });
-  const lengthToNautical = turf.radiansToDistance(lineLength, 'nauticalmiles');
-  return lengthToNautical.toFixed(3);
-}
 
-export default function Map() {
+export default function Map(): JSX.Element {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     getCurrentActiveMeasuring, setCurrentActiveMeasuring, setCurrentColoringString, setShowLine,
   } = cwpStore;
+
+  // TODO #96: Remove distance logic to cleanup
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { addMarker } = distanceLineStore;
 
   const initialViewState = {
@@ -61,7 +57,7 @@ export default function Map() {
 
   const [counter, setCounter] = React.useState(0);
 
-  const handleClick = (event) => {
+  const handleClick = (event: MapLayerMouseEvent): void => {
     const currentActive = getCurrentActiveMeasuring();
     setCurrentColoringString(currentActive);
     if (currentActive !== '') {
@@ -71,16 +67,14 @@ export default function Map() {
         return;
       }
       const coordinates = event.lngLat;
-      measurementDistanceMarker.set(`${counter.toString()}:${currentActive}`,
-        {
-          coordinates: [coordinates.lng, coordinates.lat],
-          color: currentActive,
-        });
+      const marker: MarkerElement = {
+        coordinates: [coordinates.lng, coordinates.lat],
+        color: currentActive,
+      };
+
+      measurementDistanceMarker.set(`${counter.toString()}:${currentActive}`, marker);
       setCounter(counter + 1);
-      addMarker(...measurementDistanceMarker);
-      // addString([...markerElement, ...measurementDistanceMarker], currentActive);
-      // setMarkerElement((markers) => ([...markers, ...measurementDistanceMarker]),
-      // );
+      addMarker(marker);
       setShowLine(true);
     }
   };

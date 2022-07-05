@@ -4,9 +4,9 @@ import {
   Table,
 } from 'react-bootstrap';
 
-import { aircraftStore, configurationStore, cwpStore } from './state';
+import { aircraftStore, configurationStore, cwpStore } from '../state';
 
-const flightColor = (value) => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
+const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function SectorFlightList(/* properties */) {
@@ -27,7 +27,7 @@ export default observer(function SectorFlightList(/* properties */) {
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
-                onChange={(event) => setFilter(event.target.value)}
+                onChange={(event): void => setFilter(event.target.value)}
               />
             </th>
             <th colSpan={6} style={{ fontSize: '12px' }}>
