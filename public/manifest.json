@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "SESAR-CWP",
+  "name": "SESAR Controller Working Position",
   "icons": [
     {
       "src": "favicon.ico",
