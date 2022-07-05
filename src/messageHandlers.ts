@@ -105,7 +105,7 @@ export function newAvailabilityIntervalsMessage(parameters: unknown, message: Bu
 // or a (pseudo) pilot. This can be in the event that a flight has been set to tentative,
 // or been accepted by a controller.
 export function roleConfiguration(parameters: unknown, message: Buffer): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const protoMessage = RoleConfigurationMessage.fromBinary(message);
-  // eslint-disable-next-line no-console
-  console.warn('TODO', protoMessage);
+  // TODO #95: Implement RoleConfigurationMessage
 }

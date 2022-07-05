@@ -2,7 +2,6 @@ import 'bootswatch/dist/darkly/bootstrap.min.css';
 import './App.css';
 import 'allotment/dist/style.css';
 
-import { render } from '@testing-library/react';
 import { Allotment } from 'allotment';
 import * as React from 'react';
 import { throttle } from 'throttle-debounce';
@@ -64,8 +63,4 @@ export default function App(/* properties */): JSX.Element {
     </>
 
   );
-}
-
-export function renderToDom(container: HTMLElement): void {
-  render(<App />, { container });
 }
