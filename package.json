@@ -54,6 +54,7 @@
     "@rollup/plugin-commonjs": "^22.0.1",
     "@types/mapbox__sphericalmercator": "^1.2.0",
     "@types/node": "^18.0.1",
+    "@types/react-dom": "^18.0.6",
     "@types/throttle-debounce": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
