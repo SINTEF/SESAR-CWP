@@ -2,6 +2,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 import './mqtt';
+import './voice/voice';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

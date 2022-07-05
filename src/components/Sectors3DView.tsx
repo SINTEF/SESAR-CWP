@@ -42,6 +42,7 @@ export default function Sectors3DView(): JSX.Element {
       mapLib={maplibregl}
       antialias
       maxPitch={75}
+      renderWorldCopies={false}
     >
       <Polygons3D />
 
