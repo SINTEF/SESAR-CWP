@@ -7,7 +7,7 @@ import {
 } from 'react-bootstrap';
 
 import { configurationStore, cwpStore, distanceLineStore } from '../state';
-import VoiceExample from '../voice/voice';
+import MicrophoneButton from './MicrophoneButton';
 import MqttIndicators from './MqttIndicators';
 
 const ControllerButton = observer(function ControllerButton() {
@@ -18,15 +18,6 @@ const ControllerButton = observer(function ControllerButton() {
     <button type="button" onClick={(): void => toggleControllerSelection()}>{currentCWP}</button>
   );
 });
-
-const hello = (): void => {
-  console.log('hello start');
-  VoiceExample().then((): void => {
-    console.log('hello done');
-  }).catch((error): void => {
-    console.error(error);
-  });
-};
 
 export default observer(function BottomNavBar(/* properties */) {
   /* eslint-disable @typescript-eslint/unbound-method */
@@ -95,9 +86,8 @@ export default observer(function BottomNavBar(/* properties */) {
   };
 
   return (
-    <Navbar fixed="bottom" className="navbar button-navbar">
-
-      <button type="button" onClick={(): void => hello()}>🎙</button>
+    <Navbar className="navbar button-navbar">
+      <MicrophoneButton />
       <button type="button" onClick={(): void => toggleFL()}>FL</button>
       <button type="button" onClick={(): void => toggleSFL()}>SFL</button>
       <button type="button" onClick={(): void => toggleSectorLabels()}>Toggle Sector Labels</button>

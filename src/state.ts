@@ -6,6 +6,7 @@ import DistanceLine from './model/DistanceLine';
 import FixStore from './model/FixStore';
 import RoleConfigurationStore from './model/RoleConfigurationStore';
 import SimulatorStore from './model/SimulatorStore';
+import VoiceStore from './model/VoiceStore';
 
 export const simulatorStore = new SimulatorStore();
 export const aircraftStore = new AircraftStore({
@@ -24,3 +25,4 @@ export const cwpStore = new CWPStore({
     highestBound: 555,
   },
 });
+export const voiceStore = new VoiceStore();

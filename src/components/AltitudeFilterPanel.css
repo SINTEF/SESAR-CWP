@@ -1,4 +1,3 @@
-
 .altitude-filter-panel {
   position: absolute;
   bottom: 1.9rem;
@@ -11,54 +10,58 @@
 }
 
 .altitude-filter-panel.card {
-    flex-direction: column-reverse;
-    background: transparent !important;
+  flex-direction: column-reverse;
+  background: transparent !important;
 }
 
 .altitude-filter-panel .body-panel {
-    border: 1px solid white;
-    background: rgb(85, 85, 85);
-    padding-bottom: 0;
-    margin-bottom: 0;
-    width: 20em;
-    height: 12em;
+  border: 1px solid white;
+  background: rgb(85, 85, 85);
+  padding-bottom: 0;
+  margin-bottom: 0;
+  width: 20em;
+  height: 12em;
 }
 
 .set-button {
-    background: 'rgb(34, 34, 34)';
-    color: '#fff';
+  background: 'rgb(34, 34, 34)';
+  color: '#fff';
 }
-.input-filter{
-background:transparent;
-border:none;
-color: white;
-width: 2.5em !important;
+
+.input-filter {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 2.5em !important;
 }
+
 .range {
-    width: 20px;
-    height: 80px;
-    margin: 0;
-    padding-left: 0;
-    /* transform: rotate(-90deg); */
+  width: 20px;
+  height: 80px;
+  margin: 0;
+  padding-left: 0;
+  /* transform: rotate(-90deg); */
 }
 
 .range-wrapper {
-    height: 20px;
-    width: 20px;
-    /* transform: rotate(-90deg); */
+  height: 20px;
+  width: 20px;
+  /* transform: rotate(-90deg); */
 }
-input[type="range"] {
-    -webkit-appearance: slider-vertical;
-    /* background-color: gray !important; */
+
+.altitude-filter-panel input[type="range"] {
+  -webkit-appearance: slider-vertical;
+  /* background-color: gray !important; */
 }
+
 .range::-webkit-slider-thumb {
-    background: gray !important;
-  }
-  
-  .range::-moz-range-thumb {
-    background: gray !important;
-  }
-  
-  .range::-ms-thumb {
-    background: gray !important;
-  }
+  background: gray !important;
+}
+
+.range::-moz-range-thumb {
+  background: gray !important;
+}
+
+.range::-ms-thumb {
+  background: gray !important;
+}

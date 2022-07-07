@@ -109,6 +109,10 @@ export default class CWPStore {
     this.showFlightLabels = !this.showFlightLabels;
   }
 
+  setFlightLabels(boolean: boolean): void {
+    this.showFlightLabels = boolean;
+  }
+
   openPopupForAircraft(aircraftId: string): void {
     this.aircraftsWithManuallyOpenedPopup.add(aircraftId);
     this.aircraftsWithManuallyClosedPopup.delete(aircraftId);

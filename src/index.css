@@ -15,14 +15,22 @@ code {
     height: 400px;
     background-color: black;
 }
-html,body{
+
+html,
+body {
     width: 100%;
     height: 100%;
 }
 
-div#root{
-    width:100%;
-    height:100%;
+div#root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#root>main {
+    flex-grow: 1;
 }
 
 .sidebar {
@@ -37,28 +45,33 @@ div#root{
     margin: 12px;
     border-radius: 4px;
 }
+
 /* Accordion for sector configurations */
-.sector-title{
+.sector-title {
     font-size: 10px !important;
 }
-.sector-body{
+
+.sector-body {
     font-size: 8px !important;
 }
+
 .span3 {
-/* height:75px;  */
-/* border:solid 1px black; */
-display: inline-table;
-/* margin-bottom:5px;
+    /* height:75px;  */
+    /* border:solid 1px black; */
+    display: inline-table;
+    /* margin-bottom:5px;
 padding:5px; */
 }
 
-#table-of-config{
+#table-of-config {
     width: 300px;
     position: relative;
     left: -5px;
 
 }
-#table-of-config  tr, #table-of-config td {
+
+#table-of-config tr,
+#table-of-config td {
     padding: 1px !important;
     margin: 1px !important;
 }
@@ -71,7 +84,7 @@ padding:5px; */
     background: #000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     padding: 12px 24px;
-        margin: 20px;
+    margin: 20px;
     font-size: 13px;
     line-height: 2;
     color: #000;
@@ -97,8 +110,9 @@ padding:5px; */
 .aircraft-list::-webkit-scrollbar {
     display: none;
 }
+
 /* For Sector Flight List */
-.sector-flight-list{
+.sector-flight-list {
     position: absolute;
     bottom: 0;
     left: 5;
@@ -113,8 +127,9 @@ padding:5px; */
     text-transform: uppercase;
     height: 200px;
     overflow-y: scroll;
-    transform: translate(0px,0px)
+    transform: translate(0px, 0px)
 }
+
 .sector-flight-list::-webkit-scrollbar {
     display: none;
 }
@@ -123,40 +138,42 @@ padding:5px; */
 .mapboxgl-popup-close-button {
     color: white;
 }
+
 .mapboxgl-popup {
     max-width: none;
-    width:fit-content;
-    height:fit-content;
+    width: fit-content;
+    height: fit-content;
     /* width:20px; */
     font-size: 0.8em;
     z-index: 0;
 }
-.flight-popup-container{
-border-spacing: 0;
+
+.flight-popup-container {
+    border-spacing: 0;
 }
 
-.flight-popup .gutter-2{
-  line-height: 1.4em;
-  margin:0;
-  padding: 0 0.25rem 0 0.25rem;
+.flight-popup .gutter-2 {
+    line-height: 1.4em;
+    margin: 0;
+    padding: 0 0.25rem 0 0.25rem;
 }
 
 .flight-popup button.btn {
-  box-shadow: none;
+    box-shadow: none;
 }
 
 .flight-popup button.btn:active {
-  color: black;
+    color: black;
 }
 
 .flight-popup {
-  background: rgba(90, 90, 90, 0.5);
-  border-radius: 1.5px;
-  /* color: white; */
-  padding:0;
-  margin:0;
-  width: 11em;
-  z-index: 0;
+    background: rgba(90, 90, 90, 0.5);
+    border-radius: 1.5px;
+    /* color: white; */
+    padding: 0;
+    margin: 0;
+    width: 11em;
+    z-index: 0;
 }
 
 
@@ -168,17 +185,19 @@ border-spacing: 0;
     border-top-color: rgb(34, 34, 34);
     display: none;
 }
+
 .mapboxgl-popup-anchor-bottom>.mapboxgl-popup-tip {
     border-top-color: rgb(34, 34, 34);
     display: none;
 }
+
 /* For level pop up */
 
 .level-popup .mapboxgl-popup-content {
     background: rgb(70, 70, 70);
     color: white;
-    padding:0;
-    margin:0;
+    padding: 0;
+    margin: 0;
     width: 9em;
     z-index: 0;
     height: fit-content;
@@ -186,81 +205,92 @@ border-spacing: 0;
     border-width: 1px;
     /* border-color: #fff; */
 }
+
 .level-popup.accepted .mapboxgl-popup-content {
-    border-color: rgb(120,226,81);
+    border-color: rgb(120, 226, 81);
 }
-.choose-flight-level{
-/* padding:-5px; */
-margin-top:-4px;
-border-spacing: 0;
-margin-bottom: 1px;
-margin-right: -10px;
-margin-left: -10px;
+
+.choose-flight-level {
+    /* padding:-5px; */
+    margin-top: -4px;
+    border-spacing: 0;
+    margin-bottom: 1px;
+    margin-right: -10px;
+    margin-left: -10px;
 
 }
 
 .level-popup .mapboxgl-popup-anchor-bottom>.mapboxgl-popup-content {
     margin-top: 0px;
-    border-color:white;
+    border-color: white;
 }
-.level-range{
+
+.level-range {
     width: 20px;
     height: 10em;
 }
-.levels-container{
+
+.levels-container {
     scroll-snap-type: y mandatory;
     height: 13em;
     overflow-y: scroll;
 }
+
 .levels-container::-webkit-scrollbar {
     display: none;
 }
-.flight-level-element{
-font-size: 12px !important;
-}
-.child{
-/* scroll-snap-align: start; */
-font-size: small;
-}
-.arrow-button{
-font-size: 6px !important;
+
+.flight-level-element {
+    font-size: 12px !important;
 }
 
-.apply-cancel-wrapper{
-    margin-top:0px;
+.child {
+    /* scroll-snap-align: start; */
+    font-size: small;
+}
+
+.arrow-button {
+    font-size: 6px !important;
+}
+
+.apply-cancel-wrapper {
+    margin-top: 0px;
     margin-bottom: 0px;
     /* margin-right:-10px; */
-    margin-left:-10px;
+    margin-left: -10px;
     width: 2em !important;
 
 }
-.apply-cancel-button{
-/* width: 4em !important; */
-font-size:8.5px !important;
-align-items: center;
-padding: -3px -5px !important;
-border-radius: 5px;
-/* height: 75%; */
+
+.apply-cancel-button {
+    /* width: 4em !important; */
+    font-size: 8.5px !important;
+    align-items: center;
+    padding: -3px -5px !important;
+    border-radius: 5px;
+    /* height: 75%; */
 }
+
 /* For Next Sector Popup */
 .next-sector-popup .mapboxgl-popup-content button.btn {
-  box-shadow: none;
+    box-shadow: none;
 }
 
 .next-sector-popup .mapboxgl-popup-content button.btn:active {
-  color: black;
+    color: black;
 }
 
 .next-sector-popup .mapboxgl-popup-content {
-  background: transparent;
-  border-radius: 1.5px;
-  /* color: white; */
-  padding:0;
-  margin:0;
-  height: 3em;
-  width: 16em;
-  z-index: 0;
+    background: transparent;
+    border-radius: 1.5px;
+    /* color: white; */
+    padding: 0;
+    margin: 0;
+    height: 3em;
+    width: 16em;
+    z-index: 0;
 }
+
 .change-bearing .mapboxgl-popup-content {
     background: rgba(90, 90, 90, 0.5);
     border-radius: 1.5px;
@@ -276,10 +306,11 @@ border-radius: 5px;
     margin: 0;
     padding: 0 0 0 0;
 }
-.submit-cancel-button{
+
+.submit-cancel-button {
     width: 5.1em !important;
     height: 3em !important;
-    font-size:8.0px !important;
+    font-size: 8.0px !important;
     align-items: center;
     padding: 0 !important;
     border-radius: 0px !important;
@@ -288,20 +319,22 @@ border-radius: 5px;
 
 
 }
-.submit-cancel-wrapper{
-    margin-top:0px;
+
+.submit-cancel-wrapper {
+    margin-top: 0px;
     margin-bottom: 0px;
-    margin-right:-10px;
-    margin-left:-10px;
+    margin-right: -10px;
+    margin-left: -10px;
     width: 13.5em !important;
-    
+
 }
-.dropdown-button{
+
+.dropdown-button {
     width: 6em !important;
     height: 3em !important;
-    font-size:8.0px !important;
+    font-size: 8.0px !important;
     line-height: 0em !important;
-    margin:0;
+    margin: 0;
     padding: 0 !important;
     color: #000 !important;
     background-color: #fff !important;
@@ -311,19 +344,22 @@ border-radius: 5px;
     /* left: -1px; */
 
 }
-.next-sector-popup .gutter-2{
-  line-height: 1.4em;
-  margin:0;
-  padding: 0 0 0 0;
-  }
+
+.next-sector-popup .gutter-2 {
+    line-height: 1.4em;
+    margin: 0;
+    padding: 0 0 0 0;
+}
 
 .controller-modal .modal-header {
-  border-bottom: none;
-  padding-bottom: 0.5rem;
+    border-bottom: none;
+    padding-bottom: 0.5rem;
 }
+
 .controller-modal .modal-body {
-  padding-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
 }
+
 /* Pseudo popup */
 
 .flight-popup-pseudo {
