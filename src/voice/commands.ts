@@ -19,6 +19,20 @@ export default function HandleCommand(input: string): void {
         cwpStore.setFlightLabels(onOff);
       }
       break;
+    case 'speed-vectors':
+      if (commandArguments.length === 0) {
+        const currentSpeedVectorMinutes = cwpStore.speedVectorMinutes;
+        cwpStore.setSpeedVectorMinutes(currentSpeedVectorMinutes === 0 ? 3 : 0);
+      } else {
+        const length = Number.parseInt(commandArguments[0], 10);
+        if (Number.isNaN(length)) {
+          const onOff = convertHumanStringToBoolean(commandArguments[0]);
+          cwpStore.setSpeedVectorMinutes(onOff ? 3 : 0);
+          return;
+        }
+        cwpStore.setSpeedVectorMinutes(Math.max(0, Math.min(15, length)));
+      }
+      break;
     default:
       console.log('command:', command);
   }
