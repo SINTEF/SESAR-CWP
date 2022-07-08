@@ -82,8 +82,8 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
 
   // recognizer.sessionStarted = onSessionStarted;
 
-  // The 'sessionStopped' event signals that the current interaction with the speech service has ended and
-  // audio has stopped flowing.
+  // The 'sessionStopped' event signals that the current interaction with the speech
+  // service has ended and audio has stopped flowing.
   // recognizer.sessionStopped = onSessionStopped;
 
   recognizer.recognizing = (
@@ -100,12 +100,11 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
     const shortFinalText = text?.trim() ?? '';
     if (shortFinalText !== '') {
       voiceStore.setProcessingCommand(true);
-      console.log('final result:', shortFinalText);
       TextToCommand(shortFinalText).then((command) => {
-        console.log('command:', command);
         HandleCommand(command);
       }).catch((error) => {
-        console.error('error:', error);
+        // eslint-disable-next-line no-console
+        console.error('voice error', error);
       }).finally(() => {
         voiceStore.setProcessingCommand(false);
       });

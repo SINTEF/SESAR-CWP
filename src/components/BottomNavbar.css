@@ -13,7 +13,16 @@
   color: white;
   font-size: x-small;
   background-color: rgb(170, 170, 170);
+  border-radius: 0;
+  border-width: 2px;
+  border-style: outset;
+  /** 90's style */
+}
 
+.navbar.button-navbar button:focus,
+.navbar.button-navbar button.btn:focus {
+  box-shadow: none;
+  border-color: #333;
 }
 
 .navbar.button-navbar button:disabled {
@@ -31,4 +40,10 @@
   -webkit-appearance: slider-horizontal !important;
   width: 5em;
   /* background-color: gray !important; */
+}
+
+#distance-measurement-drop-down {
+  background-color: inherit;
+  color: inherit;
+  height: 1.9rem;
 }

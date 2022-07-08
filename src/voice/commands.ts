@@ -34,6 +34,7 @@ export default function HandleCommand(input: string): void {
       }
       break;
     default:
-      console.log('command:', command);
+      // eslint-disable-next-line no-console
+      console.info('unimplemented or invalid voice command:', command);
   }
 }

@@ -18,34 +18,50 @@ const lineLayout: LineLayout = {
 };
 const measureNamePaint: SymbolPaint = {
   'text-color': ['get', 'color'],
+  'text-halo-color': '#000',
+  'text-halo-width': 2,
 };
 
-const measureNameLayout: SymbolLayout = {
-  'symbol-placement': 'line-center',
+const measureLinesLayout: SymbolLayout = {
+  'symbol-placement': 'line',
   'text-field': ['get', 'length'],
-  'text-allow-overlap': true,
+  'text-allow-overlap': false,
+  'text-max-angle': 90,
   'text-font': [
     'Open Sans Bold',
   ],
-  'text-size': 20,
+  'text-size': 9,
+  'text-offset': [0, -1],
+  'text-anchor': 'center',
+};
+
+const measurePointsLayout: SymbolLayout = {
+  'symbol-placement': 'point',
+  'text-field': ['get', 'length'],
+  'text-allow-overlap': true,
+  // 'icon-ignore-placement': true,
+  // 'text-keep-upright': true,
+  'text-max-angle': 90,
+  'text-font': [
+    'Open Sans Bold',
+  ],
+  'text-size': 12,
   'text-offset': [0, -1],
   'text-anchor': 'center',
 };
 
 export default observer(function DistanceMeasurements() {
-  const { features } = distanceLineStore;
-  const geoJSONDistance: GeoJSON.FeatureCollection = {
-    type: 'FeatureCollection',
-    features,
-  };
+  const { measureLines, measurePoints } = distanceLineStore;
 
   return (
-    <div id="distance">
-      <Source id="distance-measurement-source" type="geojson" data={geoJSONDistance}>
+    <>
+      <Source id="distance-measurement-lines-source" type="geojson" data={measureLines}>
         <Layer id="measure-lines" type="line" paint={linePaint} layout={lineLayout} />
-        <Layer id="measure-length" type="symbol" paint={measureNamePaint} layout={measureNameLayout} />
+        <Layer id="measure-length" type="symbol" paint={measureNamePaint} layout={measureLinesLayout} />
       </Source>
-    </div>
-
+      <Source id="distance-measurement-points-source" type="geojson" data={measurePoints}>
+        <Layer id="measure-length-last" type="symbol" paint={measureNamePaint} layout={measurePointsLayout} />
+      </Source>
+    </>
   );
 });

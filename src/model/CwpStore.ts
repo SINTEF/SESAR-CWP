@@ -41,11 +41,9 @@ export default class CWPStore {
 
   activeMeasurements: Set<string> = new Set();
 
-  currentActive = '';
+  currentDistanceColor = '';
 
   showLines = false;
-
-  currentColoringString = '';
 
   showClickedSector = false;
 
@@ -179,12 +177,12 @@ export default class CWPStore {
     this.activeMeasurements.add(distanceId);
   }
 
-  setCurrentActiveMeasuring(distanceId: string): void {
-    this.currentActive = distanceId;
+  setCurrentDistanceColor(color: string): void {
+    this.currentDistanceColor = color;
   }
 
-  getCurrentActiveMeasuring(): string {
-    return this.currentActive;
+  unsetCurrentDistanceColor(): void {
+    this.currentDistanceColor = '';
   }
 
   setShowLine(boolean: boolean): void {
@@ -193,10 +191,6 @@ export default class CWPStore {
 
   getShowLine(): boolean {
     return this.showLines;
-  }
-
-  setCurrentColoringString(color: string): void {
-    this.currentColoringString = color;
   }
 
   toggleClickedSector(): void {
