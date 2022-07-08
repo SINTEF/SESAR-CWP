@@ -7,6 +7,8 @@ import got from 'got';
 import { Configuration as OpenAIConfiguration, OpenAIApi } from 'openai';
 import pMemoize from 'p-memoize';
 
+import promptText from './prompt.js';
+
 dotenv.config();
 
 const {
@@ -79,7 +81,7 @@ async function textToCommand(text: string): Promise<string> {
 
   const response = await openai.createCompletion({
     model: 'text-davinci-002',
-    prompt: `An air traffic controller can use his computer through voice commands. Convert this text to a programmatic command. A command can take some optional parameters.\n\nThe commands are:\n\n - show-flight: Move the map to a specific flight, the current one the one identified by the optional call sign argument.\n - acknwoledge-flight: Acknowledge the controller responsability on a flight, the current one or the optional call sign argument.\n - speed-vectors: Toggle (on/off) the speed vectors, showing where the flights are going to be in the future based on their current speed and bearing.\n - flight-labels: Toggle (on/off) the flight labels, containing information about the planes on the map radar view.\n - invalid-command: The default command when it is invalid.\n\nExample: Show me the speed vectors.\nOutput: speed-vectors on\n\nExample: Hide the flight labels.\nOutput: flight-labels off\n\nExample: Where is the flight SAS283 ?\nOutput: show-flight SAS283\n\n${prompt}`,
+    prompt: `${promptText}\n\n${prompt}`,
     temperature: 0,
     max_tokens: 100,
     top_p: 1,
