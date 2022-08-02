@@ -60,6 +60,8 @@ export default class AircraftModel {
 
   simulatorStore: SimulatorStore;
 
+  // flightColor = '#ffffff'; Not made it work nicely with magenta
+
   constructor({
     aircraftId,
     assignedFlightId,
@@ -98,6 +100,7 @@ export default class AircraftModel {
       nextSectorController: observable,
       milestoneTargetObjectId: observable,
       assignedFlightLevel: observable,
+      // flightColor: observable,
 
       nextFix: computed,
       wakeTurbulenceCategory: computed,
@@ -108,6 +111,7 @@ export default class AircraftModel {
       setController: action.bound,
       setAssignedFlightLevel: action.bound,
       setNextSectorController: action.bound,
+      // setFlightColor: action.bound,
     });
 
     this.aircraftId = aircraftId;
@@ -161,6 +165,10 @@ export default class AircraftModel {
   setController(controller: string): void {
     this.controlledBy = controller;
   }
+
+  // setFlightColor(flightColor: string): void {
+  //   this.flightColor = flightColor;
+  // }
 
   get nextFix(): string {
     const simulatorTimestamp = this.simulatorStore.timestamp;

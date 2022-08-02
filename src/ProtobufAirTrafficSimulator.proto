@@ -510,6 +510,8 @@ message NewAirspaceMessage {
   repeated Position area                                    = 4; // A polygon area defining the 2D part of the volume.
   string description                                        = 5; // A description.
   ObjectType objectType                                     = 6; // The airspace object type.
+  int32 bottomFlightLevel                                   = 7; // The bottom flight levelø, if not given then <see cref="FlightLevel.MinValue"/> is used.
+  int32 topFlightLevel                                      = 8; // The top flight level, if not given <see cref="FlightLevel.MaxValue"/> is used.
 }
 
 // Creates a new sector message. A sector is volume in air or on the
