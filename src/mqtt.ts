@@ -192,7 +192,7 @@ export function changeBearingOfAircraft(
 
 export function changeNextWaypointOfAircraft(
   pilotId: string, waypointId: string, flightId: string, latitude: number,
-  longitude: number, viaLat: number, viaLong: number, viaWaypointId: string,
+  longitude: number, viaLat: number | string, viaLong: number | string, viaWaypointId: string,
 ): void {
   client.publish(`simulator/${clientId}/changeNextWaypointOfAircraft/`,
     serializeForSimulator(pilotId, waypointId, flightId, latitude, longitude, viaLat, viaLong, viaWaypointId),

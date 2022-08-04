@@ -30,7 +30,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   const submit = (): void => {
     const arrayOfWaypoints = newChangedFixInputReference.current?.value?.split(',');
     const newNextFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[1].toLocaleUpperCase() ?? '' : arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '';
-    const nextViaFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '' : arrayOfWaypoints?.[1].toLocaleUpperCase() ?? '';
+    const nextViaFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '' : '';
     const latOfFix = fixStore.fixes.get(newNextFix)?.latitude;
     const longOfFix = fixStore.fixes.get(newNextFix)?.longitude;
     const viaLat = fixStore.fixes.get(nextViaFix)?.latitude;
@@ -40,6 +40,11 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
       const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
       changeNextWaypointOfAircraft(
         pilotId, newNextFix, assignedFlightId, latOfFix, longOfFix, viaLat, viaLong, nextViaFix,
+      );
+    } else if (latOfFix !== undefined && longOfFix !== undefined) {
+      const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
+      changeNextWaypointOfAircraft(
+        pilotId, newNextFix, assignedFlightId, latOfFix, longOfFix, '', '', '',
       );
     }
     close();

@@ -49,6 +49,8 @@ export default class CWPStore {
 
   clickedSectorId = '';
 
+  highlightedAircraftId = '';
+
   constructor({
     altitudeFilter,
   }: {
@@ -199,5 +201,12 @@ export default class CWPStore {
 
   setClickedSectorId(sectorId: string): void {
     this.clickedSectorId = sectorId;
+  }
+
+  setHighlightedAircraftId(aircraftId: string): void {
+    this.highlightedAircraftId = aircraftId;
+    setTimeout(() => {
+      this.setHighlightedAircraftId('');
+    }, 10_000); // How long to highlight aircraft?
   }
 }
