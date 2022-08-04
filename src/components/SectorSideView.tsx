@@ -22,8 +22,15 @@ export default observer(function SectorSideView() {
   if (sortedList.length === 0) {
     return null;
   }
-  const listConfiguration = sortedList.findIndex((p) => p.startTime > simulatorTime);
-
+  const listConfiguration = [];
+  for (const element of sortedList) {
+    for (const intervals of element.timeIntervals) {
+      const startTimeInterval = intervals.startTime;
+      // if (startTimeInterval > simulatorTime) {
+      listConfiguration.push([element.configurationId, startTimeInterval]);
+      // }
+    }
+  }
   let timeToChange = 15;
   let timeDifferanse = 0;
 
@@ -42,13 +49,20 @@ export default observer(function SectorSideView() {
   const topFLCurrent = airspaceCurrent[1].topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
-  if (listConfiguration !== -1
-    && sortedList[listConfiguration].configurationId !== currentConfigurationId) {
-    timeDifferanse = sortedList[listConfiguration].startTime - simulatorTime;
+  // if (listConfiguration !== -1
+  //   && sortedList[listConfiguration].configurationId !== currentConfigurationId) {
+  //   timeDifferanse = sortedList[listConfiguration].startTime - simulatorTime;
+  //   const cwpNextSector = roleConfigurationStore
+  //     .getControlledSector(currentCWP, sortedList[listConfiguration].configurationId);
+  //   const nextflightLevels = getAreaOfIncludedAirpaces(sortedList[listConfiguration]
+  //     .configurationId);
+  if (listConfiguration.length > 0
+    && listConfiguration[0][0] !== currentConfigurationId) {
+    const startTime = listConfiguration[0][1];
+    timeDifferanse = Number(startTime) - simulatorTime;
     const cwpNextSector = roleConfigurationStore
-      .getControlledSector(currentCWP, sortedList[listConfiguration].configurationId);
-    const nextflightLevels = getAreaOfIncludedAirpaces(sortedList[listConfiguration]
-      .configurationId);
+      .getControlledSector(currentCWP, listConfiguration[0][0].toString());
+    const nextflightLevels = getAreaOfIncludedAirpaces(listConfiguration[0][0].toString());
     const airspaceNext = [...nextflightLevels.values()]
       .find(([key]) => key === cwpNextSector);
     if (airspaceNext !== undefined) {

@@ -17,28 +17,28 @@ export default class AirspaceStore {
 
   handleNewAirspace(newAirspace: NewAirspaceMessage): void {
     const id = newAirspace.airspaceId;
-    const differentiatingSector = id.split('_');
-    if (differentiatingSector.length - 1 === 5) { // Getting only the sectors to look at
-      if (this.airspaces.has(id)) {
-        // eslint-disable-next-line no-console
-        console.trace('TODO updating'); // How to actually update?
-      } else {
-        const airspaceArea = newAirspace.area.map((area) => {
-          if (area.position.oneofKind !== 'position4D') {
-            throw new Error('Insupported position type');
-          }
-          return new CoordinatePair({
-            latitude: area.position.position4D.latitude,
-            longitude: area.position.position4D.longitude,
-          });
-        },
-        );
-        this.airspaces.set(id, new AirspaceModel({
-          airspaceId: id,
-          airspaceArea,
-        }));
-      }
+    // const differentiatingSector = id.split('_');
+    // if (differentiatingSector.length - 1 === 5) { // Getting only the sectors to look at
+    if (this.airspaces.has(id)) {
+      // eslint-disable-next-line no-console
+      console.trace('TODO updating'); // How to actually update?
+    } else {
+      const airspaceArea = newAirspace.area.map((area) => {
+        if (area.position.oneofKind !== 'position4D') {
+          throw new Error('Insupported position type');
+        }
+        return new CoordinatePair({
+          latitude: area.position.position4D.latitude,
+          longitude: area.position.position4D.longitude,
+        });
+      },
+      );
+      this.airspaces.set(id, new AirspaceModel({
+        airspaceId: id,
+        airspaceArea,
+      }));
     }
+    // }
   }
 
   getAreaFromId(airspaceId: string): AirspaceModel | undefined {

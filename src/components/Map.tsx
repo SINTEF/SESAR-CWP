@@ -13,6 +13,7 @@ import DistanceMarkers from './DistanceMarkers';
 import DistanceMeasurements from './DistanceMeasurements';
 import FixesPoint from './FixesPoint';
 import FlightRoutes from './FlightRoutes';
+import HighlightedAircraft from './HighlightedAircraft';
 import Sectors from './Sectors';
 import SpeedVectors from './SpeedVectors';
 
@@ -75,6 +76,7 @@ export default function Map(): JSX.Element {
       <SpeedVectors />
       <ControllerLabel />
       <Aircrafts />
+      <HighlightedAircraft />
       <ScaleControl position="bottom-left" />
       <NavigationControl position="bottom-left" />
       <FullscreenControl position="bottom-left" containerId="root" />

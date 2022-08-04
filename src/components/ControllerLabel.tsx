@@ -38,7 +38,6 @@ export default observer(function ControllerLabel(/* properties */) {
     let flightColor = '#ffffff';
     const listOfTentatives = roleConfigurationStore.roleConfigurations
       .get(configurationStore.currentCWP)?.tentativeAircrafts;
-    console.log(listOfTentatives);
     if (aircraft.controlledBy === configurationStore.currentCWP) {
       flightColor = '#78e251';
     }

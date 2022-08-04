@@ -6,7 +6,10 @@ import ConfigurationTime from './ConfigurationTime';
 import convertTimestamp from './convertTimestamp';
 import CoordinatePair from './CoordinatePair';
 import SectorModel from './SectorModel';
-import type { AirspaceAvailabilityMessage, CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage } from '../proto/ProtobufAirTrafficSimulator';
+import TimeConfigurations from './TimeConfigurations';
+import type {
+  AirspaceAvailabilityMessage, AvailabilityIntervalsMessage, CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
+} from '../proto/ProtobufAirTrafficSimulator';
 import type AirspaceStore from './AirspaceStore';
 
 export default class ConfigurationStore {
@@ -76,6 +79,7 @@ export default class ConfigurationStore {
   }
 
   setCurrentConfiguration(configMessage: CurrentAirspaceConfigurationMessage): void {
+    console.log(configMessage.currentAirspaceConfiguration);
     this.currentConfigurationId = configMessage.currentAirspaceConfiguration;
   }
 
@@ -95,11 +99,42 @@ export default class ConfigurationStore {
     if (this.configurationPlan.has(airspaceId)) {
       this.configurationPlan.get(airspaceId)?.handleAvailabilityMessage(newAvailabilitymessage);
     } else {
-      this.configurationPlan.set(airspaceId, new ConfigurationTime({
-        configurationId: airspaceId,
+      const interval = [new TimeConfigurations({
         startTime: convertTimestamp(startTime),
         endTime: convertTimestamp(endTime),
+      })];
+      this.configurationPlan.set(airspaceId, new ConfigurationTime({
+        configurationId: airspaceId,
+        timeIntervals: interval,
       }));
+    }
+  }
+
+  handleAvailabilityIntervalsMessage(newAvailabilitymessage: AvailabilityIntervalsMessage): void {
+    const { objectId, timeIntervals } = newAvailabilitymessage;
+    const timeIntervalsArray: TimeConfigurations[] = [];
+    for (const timeInterval of timeIntervals) {
+      if (!timeInterval.starttime) {
+        throw new Error('Missing start time');
+      }
+      if (!timeInterval.endttime) {
+        throw new Error('Missing end time');
+      }
+
+      if (this.configurationPlan.has(objectId)) {
+        this.configurationPlan
+          .get(objectId)?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
+      } else {
+        const interval = new TimeConfigurations({
+          startTime: convertTimestamp(timeInterval.starttime),
+          endTime: convertTimestamp(timeInterval.endttime),
+        });
+        timeIntervalsArray.push(interval);
+        this.configurationPlan.set(objectId, new ConfigurationTime({
+          configurationId: objectId,
+          timeIntervals: timeIntervalsArray,
+        }));
+      }
     }
   }
 
