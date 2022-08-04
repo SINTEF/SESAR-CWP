@@ -7,7 +7,9 @@ import {
 
 import { isDragging } from '../draggableState';
 import { acceptFlight } from '../mqtt';
-import { aircraftStore, configurationStore, cwpStore } from '../state';
+import {
+  aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
+} from '../state';
 import DraggablePopup from './DraggablePopup';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -31,8 +33,15 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
     setAssignedFlightLevel,
   } = aircraft;
 
-  const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
-
+  let flightColor = '#ffffff';
+  const listOfTentatives = roleConfigurationStore.roleConfigurations
+    .get(configurationStore.currentCWP)?.tentativeAircrafts;
+  if (controlledBy === configurationStore.currentCWP) {
+    flightColor = '#78e251';
+  }
+  if (listOfTentatives?.includes(aircraftId)) {
+    flightColor = '#ff00ff';
+  }
   const showAllFlightLabels = cwpStore.showFlightLabels;
 
   const shouldShow = cwpStore.aircraftsWithManuallyOpenedPopup.has(aircraftId)
@@ -49,6 +58,12 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
 
   const setController = (): void => {
     // TODO #97: Implement setController shared across browsers, usinq MQTT
+    const listOfTentativeFlights = roleConfigurationStore
+      .roleConfigurations.get(configurationStore.currentCWP)?.tentativeAircrafts;
+    if (listOfTentativeFlights?.includes(aircraftId)) {
+      roleConfigurationStore.roleConfigurations
+        .get(configurationStore.currentCWP)?.removeTentativeAircraft(aircraftId);
+    }
     aircraftStore.aircrafts.get(aircraftId)?.setController(configurationStore.currentCWP);
     acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId);
   };
