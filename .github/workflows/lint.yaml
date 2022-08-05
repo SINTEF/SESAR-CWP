@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  lint-web:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,3 +24,17 @@ jobs:
       - run: npm run lint
     # TODO enable when we have tests
     #- run: npm test
+  lint-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "npm"
+          cache-dependency-path: "./server/package-lock.json"
+      - run: npm ci
+        working-directory: server
+      - run: npm run lint
+        working-directory: server

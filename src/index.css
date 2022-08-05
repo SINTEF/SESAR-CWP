@@ -79,11 +79,12 @@ padding:5px; */
 .control-panel {
     position: absolute;
     top: 40px;
+    z-index: 1;
     right: 0;
     width: 500px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    padding: 12px 24px;
-    margin: 20px;
+    padding: 0;
+    margin: 0;
     font-size: 13px;
     line-height: 2;
     color: #000;
