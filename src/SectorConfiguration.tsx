@@ -30,8 +30,8 @@ export default observer(function SectorConfiguration() {
   if (sortedList.length === 0) {
     return null;
   }
-  const listOfTimes = [];
-  const listConfiguration = [];
+  const listOfTimes: [string, string][] = [];
+  const listConfiguration: [string, number, number][] = [];
   for (const element of sortedList) {
     for (const intervals of element.timeIntervals) {
       const startTimeInterval = intervals.startTime;
@@ -54,14 +54,14 @@ export default observer(function SectorConfiguration() {
   let nextConfigStartTime: number | undefined;
   let timeToNextConfig: number = Number.MAX_VALUE;
   if (nextConfigId !== undefined && nextConfigId[0] !== currentConfigurationId) {
-    setSavedConfig(String(nextConfigId[0]));
-    nextConfigStartTime = (Number(nextConfigId[1]));
+    setSavedConfig(nextConfigId[0]);
+    nextConfigStartTime = nextConfigId[1];
     timeToNextConfig = nextConfigStartTime - simulatorTime;
     listOfTimes.push([
-      ChangeToLocaleTime(Number(nextConfigId[1])),
-      ChangeToLocaleTime(Number(nextConfigId[2])),
+      ChangeToLocaleTime(nextConfigId[1]),
+      ChangeToLocaleTime(nextConfigId[2]),
     ]);
-    sectorsForNext = getAreaOfIncludedAirpaces(String(nextConfigId[0]));
+    sectorsForNext = getAreaOfIncludedAirpaces(nextConfigId[0]);
   }
   const sectorsForCurrent = areaOfIncludedAirspaces;
   const sectorArray = [sectorsForCurrent, sectorsForNext];
@@ -75,24 +75,24 @@ export default observer(function SectorConfiguration() {
 
   if (timeToNextConfig === 600 || timeToNextConfig === 300) {
     for (let index = 0; index < 3; index += 1) {
-      setSavedConfig(toggleConfiguration(String(nextConfigId[0])));
+      setSavedConfig(toggleConfiguration(nextConfigId[0]));
       setTimeout(() => {
-        setSavedConfig(toggleConfiguration(String(savedConfig)));
+        setSavedConfig(toggleConfiguration(savedConfig));
       }, 3000);
     }
   }
 
   if (timeToNextConfig === 50 || timeToNextConfig === 120) {
     for (let index = 0; index < 5; index += 1) {
-      setSavedConfig(toggleConfiguration(String(nextConfigId[0])));
+      setSavedConfig(toggleConfiguration(nextConfigId[0]));
       setTimeout(() => {
-        setSavedConfig(toggleConfiguration(String(savedConfig)));
+        setSavedConfig(toggleConfiguration(savedConfig));
       }, 3000);
     }
   }
 
   const toggleSectorChange = (): void => {
-    setSavedConfig(toggleConfiguration(String(savedConfig)));
+    setSavedConfig(toggleConfiguration(savedConfig));
   };
 
   return (

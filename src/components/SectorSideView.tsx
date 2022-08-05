@@ -22,7 +22,7 @@ export default observer(function SectorSideView() {
   if (sortedList.length === 0) {
     return null;
   }
-  const listConfiguration = [];
+  const listConfiguration: [string, number][] = [];
   for (const element of sortedList) {
     for (const intervals of element.timeIntervals) {
       const startTimeInterval = intervals.startTime;
@@ -59,10 +59,10 @@ export default observer(function SectorSideView() {
   if (listConfiguration.length > 0
     && listConfiguration[0][0] !== currentConfigurationId) {
     const startTime = listConfiguration[0][1];
-    timeDifferanse = Number(startTime) - simulatorTime;
+    timeDifferanse = startTime - simulatorTime;
     const cwpNextSector = roleConfigurationStore
-      .getControlledSector(currentCWP, listConfiguration[0][0].toString());
-    const nextflightLevels = getAreaOfIncludedAirpaces(listConfiguration[0][0].toString());
+      .getControlledSector(currentCWP, listConfiguration[0][0]);
+    const nextflightLevels = getAreaOfIncludedAirpaces(listConfiguration[0][0]);
     const airspaceNext = [...nextflightLevels.values()]
       .find(([key]) => key === cwpNextSector);
     if (airspaceNext !== undefined) {
