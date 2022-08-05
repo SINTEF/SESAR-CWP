@@ -51,7 +51,7 @@ export default class CWPStore {
 
   highlightedAircraftId = '';
 
-  sectorChangeCountdown = true;
+  sectorChangeCountdown = false;
 
   constructor({
     altitudeFilter,

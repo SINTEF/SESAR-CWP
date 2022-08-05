@@ -78,7 +78,7 @@ padding:5px; */
 
 .control-panel {
     position: absolute;
-    top: 0;
+    top: 40px;
     right: 0;
     width: 500px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -393,9 +393,9 @@ padding:5px; */
     justify-content: center;
     align-self: center;
     top: 0;
-    right: 10;
+        right: 110px;
     width: 12em;
-    background: rgba(90, 90, 90, 0.5);
+    background: rgba(90, 90, 90, 0.8);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     font-size: 11px;
     line-height: 2;
