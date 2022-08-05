@@ -22,11 +22,6 @@
     "@typescript-eslint",
     "simple-import-sort"
   ],
-  "settings": {
-    "react": {
-      "version": "detect"
-    }
-  },
   "rules": {
     "import/extensions": "off",
     "linebreak-style": 0,
@@ -96,10 +91,6 @@
     ],
     "unicorn/empty-brace-spaces": [
       "off"
-    ],
-    "react/jsx-indent": [
-      "warn",
-      2
     ],
     "no-param-reassign": [
       "error",
