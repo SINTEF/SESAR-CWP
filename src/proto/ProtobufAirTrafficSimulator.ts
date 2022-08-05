@@ -728,6 +728,14 @@ export interface NewAirspaceMessage {
      * @generated from protobuf field: ProtobufAirTrafficSimulator.ObjectType objectType = 6;
      */
     objectType: ObjectType; // The airspace object type.
+    /**
+     * @generated from protobuf field: int32 bottomFlightLevel = 7;
+     */
+    bottomFlightLevel: number; // The bottom flight levelø, if not given then <see cref="FlightLevel.MinValue"/> is used.
+    /**
+     * @generated from protobuf field: int32 topFlightLevel = 8;
+     */
+    topFlightLevel: number; // The top flight level, if not given <see cref="FlightLevel.MaxValue"/> is used.
 }
 /**
  * Creates a new sector message. A sector is volume in air or on the
@@ -3613,11 +3621,13 @@ class NewAirspaceMessage$Type extends MessageType<NewAirspaceMessage> {
             { no: 3, name: "includedAirspaceVolumes", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => AirspaceVolumeReference },
             { no: 4, name: "area", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => Position },
             { no: 5, name: "description", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 6, name: "objectType", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.ObjectType", ObjectType] }
+            { no: 6, name: "objectType", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.ObjectType", ObjectType] },
+            { no: 7, name: "bottomFlightLevel", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 8, name: "topFlightLevel", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
         ]);
     }
     create(value?: PartialMessage<NewAirspaceMessage>): NewAirspaceMessage {
-        const message = { xmlElementName: "", airspaceId: "", includedAirspaceVolumes: [], area: [], description: "", objectType: 0 };
+        const message = { xmlElementName: "", airspaceId: "", includedAirspaceVolumes: [], area: [], description: "", objectType: 0, bottomFlightLevel: 0, topFlightLevel: 0 };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<NewAirspaceMessage>(this, message, value);
@@ -3645,6 +3655,12 @@ class NewAirspaceMessage$Type extends MessageType<NewAirspaceMessage> {
                     break;
                 case /* ProtobufAirTrafficSimulator.ObjectType objectType */ 6:
                     message.objectType = reader.int32();
+                    break;
+                case /* int32 bottomFlightLevel */ 7:
+                    message.bottomFlightLevel = reader.int32();
+                    break;
+                case /* int32 topFlightLevel */ 8:
+                    message.topFlightLevel = reader.int32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -3676,6 +3692,12 @@ class NewAirspaceMessage$Type extends MessageType<NewAirspaceMessage> {
         /* ProtobufAirTrafficSimulator.ObjectType objectType = 6; */
         if (message.objectType !== 0)
             writer.tag(6, WireType.Varint).int32(message.objectType);
+        /* int32 bottomFlightLevel = 7; */
+        if (message.bottomFlightLevel !== 0)
+            writer.tag(7, WireType.Varint).int32(message.bottomFlightLevel);
+        /* int32 topFlightLevel = 8; */
+        if (message.topFlightLevel !== 0)
+            writer.tag(8, WireType.Varint).int32(message.topFlightLevel);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

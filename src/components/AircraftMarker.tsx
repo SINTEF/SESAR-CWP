@@ -4,7 +4,9 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Marker } from 'react-map-gl';
 
-import { configurationStore, cwpStore } from '../state';
+import {
+  configurationStore, cwpStore, roleConfigurationStore,
+} from '../state';
 import AircraftLevelPopup from './AircraftLevelPopup';
 import AircraftPopup from './AircraftPopup';
 import AircraftPopupPseudo from './AircraftPopupPseudo';
@@ -28,7 +30,17 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
     aircraftId,
     controlledBy,
   } = properties.aircraft;
-  const flightColor = controlledBy === configurationStore.currentCWP ? '#78e251' : '#ffffff';
+
+  let flightColor = '#ffffff';
+
+  const listOfTentativeFlights = roleConfigurationStore
+    .roleConfigurations.get(configurationStore.currentCWP)?.tentativeAircrafts;
+  if (listOfTentativeFlights?.includes(aircraftId)) {
+    flightColor = '#ff00ff';
+  }
+  if (controlledBy === configurationStore.currentCWP) {
+    flightColor = '#78e251';
+  }
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
       <svg

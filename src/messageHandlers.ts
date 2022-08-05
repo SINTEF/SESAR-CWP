@@ -1,4 +1,6 @@
 import {
+  AddAcceptedFlightMessage,
+  AddTentativeFlightMessage,
   AirspaceAvailabilityMessage,
   AvailabilityIntervalsMessage,
   CurrentAirspaceConfigurationMessage,
@@ -20,6 +22,7 @@ import {
   airspaceStore,
   configurationStore,
   fixStore,
+  roleConfigurationStore,
   simulatorStore,
 } from './state';
 
@@ -97,15 +100,22 @@ export function newFlightMilestonePositions(parameters: unknown, message: Buffer
 }
 export function newAvailabilityIntervalsMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = AvailabilityIntervalsMessage.fromBinary(message);
+  configurationStore.handleAvailabilityIntervalsMessage(protoMessage);
   // eslint-disable-next-line no-console
   console.warn('TODO', protoMessage);
 }
-
-// A message sent when there is a status update w.r.t a role, this can be either a controller
-// or a (pseudo) pilot. This can be in the event that a flight has been set to tentative,
-// or been accepted by a controller.
+export function acceptedFlightMessage(parameters: unknown, message: Buffer): void {
+  const protoMessage = AddAcceptedFlightMessage.fromBinary(message);
+  console.log(protoMessage);
+  // aircraftStore.handleAcceptedFlightMessage(protoMessage);
+}
+export function tentativeFlightMessage(parameters: unknown, message: Buffer): void {
+  const protoMessage = AddTentativeFlightMessage.fromBinary(message);
+  console.log(protoMessage);
+  // aircraftStore.handleTentativeFlightMessage(protoMessage);
+}
 export function roleConfiguration(parameters: unknown, message: Buffer): void {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const protoMessage = RoleConfigurationMessage.fromBinary(message);
-  // TODO #95: Implement RoleConfigurationMessage
+  roleConfigurationStore.handleNewRoleConfigutationMessage(protoMessage);
 }

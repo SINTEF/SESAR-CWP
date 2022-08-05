@@ -2,6 +2,7 @@ import { observable } from 'mobx';
 import type { ObservableMap } from 'mobx';
 
 import RoleConfigurationModel from './RoleConfigurationModel';
+import type { RoleConfigurationMessage } from '../proto/ProtobufAirTrafficSimulator';
 
 export default class RoleConfigurationStore {
   roleConfigurations: ObservableMap<string, RoleConfigurationModel> = observable.map();
@@ -27,5 +28,17 @@ export default class RoleConfigurationStore {
       this.roleConfigurations.set(cwpRoleName, configuration);
     }
     configuration.setControlledSector(config, sector);
+  }
+
+  handleNewRoleConfigutationMessage(newConfig: RoleConfigurationMessage): void {
+    const { roleName } = newConfig;
+    const cwpRole = this.roleConfigurations.get(roleName);
+    if (!cwpRole) {
+      this.roleConfigurations.set(roleName, new RoleConfigurationModel({
+        cwpRoleName: roleName,
+      }));
+    }
+    const { tentativeFlights } = newConfig;
+    cwpRole?.addTentativeAircraft(tentativeFlights);
   }
 }

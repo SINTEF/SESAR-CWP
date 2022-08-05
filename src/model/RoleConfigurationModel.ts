@@ -8,6 +8,8 @@ export default class RoleConfigurationModel {
 
   sectorToConfiguration: ObservableMap<string, SectorToConfiguration> = observable.map();
 
+  tentativeAircrafts: Array<string> = [];
+
   constructor({
     cwpRoleName,
   }: {
@@ -16,6 +18,7 @@ export default class RoleConfigurationModel {
     makeObservable(this, {
       cwpRoleName: false,
       sectorToConfiguration: observable,
+      tentativeAircrafts: observable,
     });
     this.cwpRoleName = cwpRoleName;
   }
@@ -25,5 +28,13 @@ export default class RoleConfigurationModel {
       configurationId,
       controlledSector: sector,
     }));
+  }
+
+  addTentativeAircraft(aircraftIds: string[]): void {
+    this.tentativeAircrafts = [...aircraftIds];
+  }
+
+  removeTentativeAircraft(aircraftId: string): void {
+    this.tentativeAircrafts = this.tentativeAircrafts.filter((id) => id !== aircraftId);
   }
 }

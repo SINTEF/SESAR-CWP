@@ -30,24 +30,32 @@ export default observer(function SectorConfiguration() {
     return null;
   }
   const listOfTimes = [];
-  const listConfiguration = sortedList.findIndex((p) => p.startTime > simulatorTime);
-  const nextConfigId = sortedList[listConfiguration];
+  const listConfiguration = [];
+  for (const element of sortedList) {
+    for (const intervals of element.timeIntervals) {
+      const startTimeInterval = intervals.startTime;
+      if (startTimeInterval > simulatorTime) {
+        listConfiguration.push([element.configurationId, startTimeInterval, intervals.endTime]);
+      }
+    }
+  }
+  const nextConfigId = listConfiguration[0];
   const currentConfigTime = configurationPlan.get(currentConfigurationId);
   if (!currentConfigTime) {
     return null;
   }
   listOfTimes.push([
-    ChangeToLocaleTime(currentConfigTime.startTime),
-    ChangeToLocaleTime(currentConfigTime.endTime),
+    ChangeToLocaleTime(currentConfigTime.timeIntervals[0].startTime),
+    ChangeToLocaleTime(currentConfigTime.timeIntervals[0].endTime),
   ]);
 
   let sectorsForNext: [string, SectorModel][] = [];
-  if (nextConfigId !== undefined && nextConfigId.configurationId !== currentConfigurationId) {
+  if (nextConfigId !== undefined && nextConfigId[0] !== currentConfigurationId) {
     listOfTimes.push([
-      ChangeToLocaleTime(nextConfigId.startTime),
-      ChangeToLocaleTime(nextConfigId.endTime),
+      ChangeToLocaleTime(Number(nextConfigId[1])),
+      ChangeToLocaleTime(Number(nextConfigId[2])),
     ]);
-    sectorsForNext = getAreaOfIncludedAirpaces(nextConfigId.configurationId);
+    sectorsForNext = getAreaOfIncludedAirpaces(String(nextConfigId[0]));
   }
   const sectorsForCurrent = areaOfIncludedAirspaces;
   const sectorArray = [sectorsForCurrent, sectorsForNext];

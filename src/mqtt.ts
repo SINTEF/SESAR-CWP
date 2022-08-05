@@ -3,6 +3,7 @@ import mqtt from 'mqtt';
 import rlite from 'rlite-router';
 
 import {
+  acceptedFlightMessage,
   airspaceAvailability,
   airspaces,
   currentAirspaceConfiguration,
@@ -20,6 +21,7 @@ import {
   notFound,
   roleConfiguration,
   targetReport,
+  tentativeFlightMessage,
   todo,
 } from './messageHandlers';
 
@@ -98,8 +100,8 @@ const router = rlite<Buffer>(notFound, {
   'ATM/:clientId/CurrentAirspaceConfiguration': currentAirspaceConfiguration,
   'ATM/:clientId/TesselatedAirspaceVolume/:airspaceVolumeId': todo,
   'ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId': newAirspaceVolumeFlightList,
-  'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': todo,
-  'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': todo,
+  'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': acceptedFlightMessage,
+  'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': tentativeFlightMessage,
   'ATM/:clientId/status/time': newSimulatorTime,
   'ATM/:clientId/status/:status': todo,
 });
@@ -189,10 +191,11 @@ export function changeBearingOfAircraft(
 }
 
 export function changeNextWaypointOfAircraft(
-  pilotId: string, waypointId: string, flightId: string, latitude: number, longitude: number,
+  pilotId: string, waypointId: string, flightId: string, latitude: number,
+  longitude: number, viaLat: number | string, viaLong: number | string, viaWaypointId: string,
 ): void {
   client.publish(`simulator/${clientId}/changeNextWaypointOfAircraft/`,
-    serializeForSimulator(pilotId, waypointId, flightId, latitude, longitude),
+    serializeForSimulator(pilotId, waypointId, flightId, latitude, longitude, viaLat, viaLong, viaWaypointId),
     { qos: 1 },
   );
 }

@@ -11,7 +11,6 @@ const sectorLinePaint = {
 
 export default observer(function SectorEdgesPolygon(/* properties */) {
   const { edgesPolygon } = configurationStore;
-
   const coordinates = edgesPolygon?.length ? [...edgesPolygon, edgesPolygon[0]] : [];
 
   const geoJson: GeoJSON.Feature = {
