@@ -81,7 +81,6 @@ padding:5px; */
     top: 0;
     right: 0;
     width: 500px;
-    background: #000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     padding: 12px 24px;
     margin: 20px;
@@ -297,7 +296,7 @@ padding:5px; */
     padding: 0;
     margin: 1px;
     height: 3em;
-    width: 8.5em;
+    width: 10.5em;
     z-index: 0;
 }
 
@@ -308,7 +307,7 @@ padding:5px; */
 }
 
 .submit-cancel-button {
-    width: 5.1em !important;
+    width: 6.3em !important;
     height: 3em !important;
     font-size: 8.0px !important;
     align-items: center;
@@ -325,7 +324,7 @@ padding:5px; */
     margin-bottom: 0px;
     margin-right: -10px;
     margin-left: -10px;
-    width: 13.5em !important;
+    width: 15em !important;
 
 }
 
@@ -369,4 +368,47 @@ padding:5px; */
 
 .choose-next-controller {
     background-color: rgba(90, 90, 90, 0.5);
+}
+.input-filter-popup {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 6.2em !important;
+}
+
+.input-filter-bearing {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 4.4em !important;
+}
+
+/* Sector configuration time toggle container */
+
+.toggle-countdown-container {
+    display: flex;
+    direction: column;
+    flex-wrap: wrap;
+    position: absolute;
+    justify-content: center;
+    align-self: center;
+    top: 0;
+    right: 10;
+    width: 12em;
+    background: rgba(90, 90, 90, 0.5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-size: 11px;
+    line-height: 2;
+    color: #000;
+    outline: none;
+    z-index: 500;
+}
+
+.time-to-change {
+    color: #0ff;
+    text-align: center;
+}
+
+.toggle-sectors-button {
+    width: 100%
 }

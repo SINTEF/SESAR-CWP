@@ -56,7 +56,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
       anchor="bottom"
       longitude={longitude}
       latitude={latitude}
-      offset={[45, 100]}
+      offset={[53, 100]}
       closeOnClick={false}
       onClose={close}
       closeButton={false}
@@ -66,7 +66,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
           <Col className="gutter-2">
             <span>
               Next Fix:
-              <input ref={newChangedFixInputReference} className="input-filter" />
+              <input ref={newChangedFixInputReference} className="input-filter-popup" />
             </span>
           </Col>
         </Row>

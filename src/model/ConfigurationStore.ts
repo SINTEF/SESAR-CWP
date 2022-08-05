@@ -83,6 +83,16 @@ export default class ConfigurationStore {
     this.currentConfigurationId = configMessage.currentAirspaceConfiguration;
   }
 
+  setCurrentConfigFromString(configuration: string): void {
+    this.currentConfigurationId = configuration;
+  }
+
+  toggleConfiguration(nextConfig: string): string {
+    const previousConfig = this.currentConfigurationId;
+    this.setCurrentConfigFromString(nextConfig);
+    return previousConfig;
+  }
+
   setCurrentCWP(controllerValue: string): void {
     this.currentCWP = controllerValue;
   }
@@ -122,8 +132,7 @@ export default class ConfigurationStore {
       }
 
       if (this.configurationPlan.has(objectId)) {
-        this.configurationPlan
-          .get(objectId)?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
+        this.configurationPlan.get(objectId)?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
       } else {
         const interval = new TimeConfigurations({
           startTime: convertTimestamp(timeInterval.starttime),

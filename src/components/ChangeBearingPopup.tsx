@@ -42,7 +42,7 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
       anchor="bottom"
       longitude={longitude}
       latitude={latitude}
-      offset={[45, 100]}
+      offset={[53, 100]}
       closeOnClick={false}
       onClose={close}
       closeButton={false}
@@ -52,7 +52,7 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
           <Col className="gutter-2">
             <span>
               New Bearing:
-              <input ref={newChangedBearingInputReference} className="input-filter"
+              <input ref={newChangedBearingInputReference} className="input-filter-bearing"
                 type="number" min="0" max="360" />
             </span>
           </Col>

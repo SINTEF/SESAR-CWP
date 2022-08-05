@@ -51,6 +51,8 @@ export default class CWPStore {
 
   highlightedAircraftId = '';
 
+  sectorChangeCountdown = true;
+
   constructor({
     altitudeFilter,
   }: {
@@ -208,5 +210,9 @@ export default class CWPStore {
     setTimeout(() => {
       this.setHighlightedAircraftId('');
     }, 10_000); // How long to highlight aircraft?
+  }
+
+  showSectorChangeCountdown(value: boolean): void {
+    this.sectorChangeCountdown = value;
   }
 }
