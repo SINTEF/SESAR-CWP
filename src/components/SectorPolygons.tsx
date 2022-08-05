@@ -28,6 +28,17 @@ const sectorHighlightPaint: FillPaint = {
   'fill-opacity': 0.4,
 };
 
+const sectorNameslayout: SymbolLayout = {
+  'text-field': ['get', 'title'],
+  'text-allow-overlap': true,
+  'text-radial-offset': 0.3,
+  'text-variable-anchor': ['center', 'left', 'right', 'top', 'bottom', 'top-left', 'top-right', 'bottom-left', 'bottom-right'],
+  'text-font': [
+    'Open Sans Bold',
+  ],
+  'text-size': 14,
+};
+
 export default observer(function SectorPolygons(/* properties */) {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
   const { showSectorLabels, showClickedSector, clickedSectorId } = cwpStore;
@@ -40,13 +51,8 @@ export default observer(function SectorPolygons(/* properties */) {
       && area.sectorArea?.length > 0,
     );
   const sectorNamesText: SymbolLayout = {
+    ...sectorNameslayout,
     visibility: showSectorLabels ? 'visible' : 'none',
-    'text-field': ['get', 'title'],
-    'text-allow-overlap': true,
-    'text-font': [
-      'Open Sans Bold',
-    ],
-    'text-size': 14,
   };
   const getSectorColor = (bottom: number, top: number): string => {
     if (top > highestBound) {
