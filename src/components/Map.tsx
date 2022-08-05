@@ -78,7 +78,7 @@ export default function Map(): JSX.Element {
       <Aircrafts />
       <HighlightedAircraft />
       <ScaleControl position="bottom-left" />
-      <NavigationControl position="bottom-left" />
+      <NavigationControl position="bottom-left" visualizePitch={true} />
       <FullscreenControl position="bottom-left" containerId="root" />
     </ReactMapGL>
   );

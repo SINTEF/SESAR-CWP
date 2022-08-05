@@ -47,7 +47,7 @@ export default function Sectors3DView(): JSX.Element {
       <Polygons3D />
 
       <ScaleControl position="bottom-left" />
-      <NavigationControl position="bottom-left" />
+      <NavigationControl position="bottom-left" visualizePitch={true} />
     </ReactMapGL>
   );
 }

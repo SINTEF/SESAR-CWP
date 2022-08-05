@@ -22,6 +22,8 @@ const sectorOutlineBackgroundPaint: LinePaint = {
 };
 const sectorNamesPaint: SymbolPaint = {
   'text-color': '#99ff99',
+  'text-halo-color': '#000',
+  'text-halo-width': 2,
 };
 const sectorHighlightPaint: FillPaint = {
   'fill-color': '#fff',
@@ -114,7 +116,7 @@ export default observer(function SectorPolygons(/* properties */) {
 
     return (
       <Source id={idSource} type="geojson" data={data} key={id} >
-        <Layer id={idOutline} type="line" paint={sectorOutlinePaint} beforeId="sector_edges_polygon" />
+        <Layer id={idOutline} type="line" paint={sectorOutlinePaint} beforeId="sector_polygon_names_layer" />
         <Layer id={idBackground} type="line" paint={sectorOutlineBackgroundPaint} beforeId={idOutline} />
       </Source>
     );
@@ -142,7 +144,7 @@ export default observer(function SectorPolygons(/* properties */) {
     <>
       {sourceAndALayersForSectors}
       <Source id="sector_polygon_names" type="geojson" data={centroidPointsCollection}>
-        <Layer id="name-style" type="symbol" layout={sectorNamesText} paint={sectorNamesPaint} />
+        <Layer id="sector_polygon_names_layer" type="symbol" layout={sectorNamesText} paint={sectorNamesPaint} beforeId="sector_edges_polygon" />
       </Source>
       {showClickedSector ? (
         <Source id="sector_polygons_highlight" type="geojson" data={sectorHighlightJSON}>
