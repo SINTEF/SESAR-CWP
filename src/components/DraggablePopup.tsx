@@ -13,6 +13,7 @@ export type DraggablePopupProperties = {
     x: number,
     y: number,
   },
+  color?: string,
 } & PopupProps;
 
 export type DraggablePopupState = {
@@ -71,7 +72,7 @@ export default class DraggablePopup extends
 
   render(): JSX.Element {
     const {
-      className, children, offset, ...otherProperties
+      className, children, offset, color, ...otherProperties
     } = this.props;
     const { offsetX, offsetY } = this.state;
 
@@ -152,6 +153,7 @@ export default class DraggablePopup extends
             left: `${popupIsOnLeft ? -planeIconRadius : planeIconRadius}px`,
             width: `${width}px`,
             transform: `rotate(${angle}rad)`,
+            background: color,
           }}
         />
       </Popup>

@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import {
   Button, Col, Container, Row,
@@ -72,6 +71,7 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
     <DraggablePopup
       className="flight-popup"
       style={{ color: flightColor }}
+      color={flightColor === '#ffffff' ? undefined : flightColor}
       offset={{ x: 0, y: 0 }}
       anchor="top"
       longitude={longitude}
