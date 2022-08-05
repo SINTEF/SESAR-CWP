@@ -18,6 +18,10 @@ export default observer(function AircraftListElement(/* properties */) {
     .getControlledSector(currentCWP, currentConfigurationId);
   const [filter, setFilter] = useState('');
 
+  const handleFlightClicked = (event: string): void => {
+    cwpStore.setHighlightedAircraftId(event);
+  };
+
   if (!cwpStore.showFL) return null;
 
   return (
@@ -61,7 +65,9 @@ export default observer(function AircraftListElement(/* properties */) {
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
                 key={aircraftData.assignedFlightId}
-              >
+                id={aircraftData.assignedFlightId}
+                onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
+
                 <td>
                   {/* <li key={aircraft_data.aircraftId}>
 <a href="#" onClick={() => undefined}> */}

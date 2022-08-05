@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 import {
@@ -9,8 +8,7 @@ import { aircraftStore, configurationStore, cwpStore } from '../state';
 
 const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 
-const handleFlightClicked = (event: string) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+const handleFlightClicked = (event: string): void => {
   cwpStore.setHighlightedAircraftId(event);
 };
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
@@ -74,7 +72,8 @@ export default observer(function SectorFlightList(/* properties */) {
             .map((aircraftData) => (
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
-                id={aircraftData.assignedFlightId} key={aircraftData.assignedFlightId}
+                id={aircraftData.assignedFlightId}
+                key={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
                 <td>
                   {aircraftData.callSign}

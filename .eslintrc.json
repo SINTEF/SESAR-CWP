@@ -118,6 +118,13 @@
         ]
       }
     ],
+    "prefer-destructuring": [
+      "error",
+      {
+        "object": true,
+        "array": false
+      }
+    ],
     "prefer-arrow-callback": [
       "error",
       {

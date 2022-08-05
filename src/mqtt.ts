@@ -195,7 +195,9 @@ export function changeNextWaypointOfAircraft(
   longitude: number, viaLat: number | string, viaLong: number | string, viaWaypointId: string,
 ): void {
   client.publish(`simulator/${clientId}/changeNextWaypointOfAircraft/`,
-    serializeForSimulator(pilotId, waypointId, flightId, latitude, longitude, viaLat, viaLong, viaWaypointId),
+    serializeForSimulator(
+      pilotId, waypointId, flightId, latitude, longitude, viaLat, viaLong, viaWaypointId,
+    ),
     { qos: 1 },
   );
 }
