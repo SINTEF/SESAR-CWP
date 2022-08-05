@@ -8,7 +8,8 @@ import CoordinatePair from './CoordinatePair';
 import SectorModel from './SectorModel';
 import TimeConfigurations from './TimeConfigurations';
 import type {
-  AirspaceAvailabilityMessage, AvailabilityIntervalsMessage, CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
+  AirspaceAvailabilityMessage, AvailabilityIntervalsMessage,
+  CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
 import type AirspaceStore from './AirspaceStore';
 
@@ -79,7 +80,6 @@ export default class ConfigurationStore {
   }
 
   setCurrentConfiguration(configMessage: CurrentAirspaceConfigurationMessage): void {
-    console.log(configMessage.currentAirspaceConfiguration);
     this.currentConfigurationId = configMessage.currentAirspaceConfiguration;
   }
 
@@ -132,7 +132,8 @@ export default class ConfigurationStore {
       }
 
       if (this.configurationPlan.has(objectId)) {
-        this.configurationPlan.get(objectId)?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
+        this.configurationPlan.get(objectId)
+          ?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
       } else {
         const interval = new TimeConfigurations({
           startTime: convertTimestamp(timeInterval.starttime),

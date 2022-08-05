@@ -106,11 +106,13 @@ export function newAvailabilityIntervalsMessage(parameters: unknown, message: Bu
 }
 export function acceptedFlightMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = AddAcceptedFlightMessage.fromBinary(message);
+  // eslint-disable-next-line no-console
   console.log(protoMessage);
   // aircraftStore.handleAcceptedFlightMessage(protoMessage);
 }
 export function tentativeFlightMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = AddTentativeFlightMessage.fromBinary(message);
+  // eslint-disable-next-line no-console
   console.log(protoMessage);
   // aircraftStore.handleTentativeFlightMessage(protoMessage);
 }

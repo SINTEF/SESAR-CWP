@@ -120,7 +120,7 @@ export default class AircraftStore {
       if (previousPositionObject && previousPositionObject.time) {
         const previousTimestamp = convertTimestamp(previousPositionObject.time);
         if (timestamp === previousTimestamp) {
-          objectId = previousPositionObject.objectId;
+          ({ objectId } = previousPositionObject);
         }
       }
 
