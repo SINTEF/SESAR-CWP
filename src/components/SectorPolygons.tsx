@@ -13,8 +13,12 @@ import {
 
 const sectorOutlinePaint: LinePaint = {
   'line-color': ['get', 'color'],
-  'line-width': 1,
+  'line-width': 1.5,
   'line-dasharray': [2, 2],
+};
+const sectorOutlineBackgroundPaint: LinePaint = {
+  'line-color': '#000',
+  'line-width': 3,
 };
 const sectorNamesPaint: SymbolPaint = {
   'text-color': '#99ff99',
@@ -62,7 +66,7 @@ export default observer(function SectorPolygons(/* properties */) {
     }
     return `S-${bottomFL}-${topFL}`;
   };
-  const sectors: Feature<Geometry, { t: string, color: string }>[] = sectorData.map(
+  const sectors: Feature<Geometry, { t: string, color: string, key: string }>[] = sectorData.map(
     ([key, area]) => {
       const coordinates = area.sectorArea.map((point) => (
         [point.longitude, point.latitude]),
@@ -70,6 +74,7 @@ export default observer(function SectorPolygons(/* properties */) {
       return {
         type: 'Feature',
         properties: {
+          key,
           t: setSectorName(area.bottomFlightLevel, area.topFlightLevel, key),
           color: getSectorColor(area.bottomFlightLevel, area.topFlightLevel),
         },
@@ -90,10 +95,24 @@ export default observer(function SectorPolygons(/* properties */) {
     features: centroidPoints,
   };
 
-  const geoJson: GeoJSON.FeatureCollection = {
-    type: 'FeatureCollection',
-    features: sectors as GeoJSON.Feature[],
-  };
+  const sourceAndALayersForSectors = sectors.map((sector) => {
+    const data = {
+      type: 'FeatureCollection',
+      features: [sector],
+    } as GeoJSON.FeatureCollection;
+
+    const id = sector.properties.key;
+    const idSource = `sector_polygons_${id}_source`;
+    const idOutline = `sector_polygons_${id}_outline`;
+    const idBackground = `sector_polygons_${id}_background`;
+
+    return (
+      <Source id={idSource} type="geojson" data={data} key={id} >
+        <Layer id={idOutline} type="line" paint={sectorOutlinePaint} beforeId="sector_edges_polygon" />
+        <Layer id={idBackground} type="line" paint={sectorOutlineBackgroundPaint} beforeId={idOutline} />
+      </Source>
+    );
+  });
 
   const sectorHighlightJSON: GeoJSON.FeatureCollection = {
     type: 'FeatureCollection',
@@ -115,9 +134,7 @@ export default observer(function SectorPolygons(/* properties */) {
 
   return (
     <>
-      <Source id="sector_polygons_source" type="geojson" data={geoJson}>
-        <Layer id="sector_polygons" type="line" paint={sectorOutlinePaint} />
-      </Source>
+      {sourceAndALayersForSectors}
       <Source id="sector_polygon_names" type="geojson" data={centroidPointsCollection}>
         <Layer id="name-style" type="symbol" layout={sectorNamesText} paint={sectorNamesPaint} />
       </Source>
