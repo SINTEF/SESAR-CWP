@@ -5,6 +5,7 @@ import ReactMapGL, {
   FullscreenControl, NavigationControl, ScaleControl,
 } from 'react-map-gl';
 import type { MapLayerMouseEvent, Style } from 'mapbox-gl';
+import type { ViewState } from 'react-map-gl';
 
 import { cwpStore, distanceLineStore } from '../state';
 import Aircrafts from './Aircrafts';
@@ -50,17 +51,23 @@ const handleMapClick = (event: MapLayerMouseEvent): void => {
   }
 };
 
-export default function Map(): JSX.Element {
-  const initialViewState = {
-    longitude: 9.27,
-    latitude: 45.11,
-    zoom: 6.3,
-  };
+const initialViewState: Partial<ViewState> = {
+  longitude: 9.27,
+  latitude: 45.11,
+  zoom: 6.3,
+};
 
+// Rough bounds of the area
+const maxBounds: mapboxgl.LngLatBoundsLike = [
+  4, 11, 15, 70,
+];
+
+export default function Map(): JSX.Element {
   return (
     <ReactMapGL
       style={style}
       initialViewState={initialViewState}
+      maxBounds={maxBounds}
       mapStyle={mapStyle}
       attributionControl={false}
       mapLib={maplibregl}
