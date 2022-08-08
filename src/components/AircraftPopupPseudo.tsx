@@ -4,6 +4,7 @@ import React from 'react';
 import {
   Button, Col, Container, Row,
 } from 'react-bootstrap';
+import { useMap } from 'react-map-gl';
 
 import { isDragging } from '../draggableState';
 import { acceptFlight } from '../mqtt';
@@ -64,6 +65,17 @@ export default observer(function AircraftPopupPseudo(properties: { aircraft: Air
       cwpStore.openChangeNextFixForAircraft(aircraftId);
     }
   };
+
+  const { current } = useMap();
+  function onWheel<T>(event: T): void {
+    const map = current?.getMap();
+    // @ts-expect-error - .wheel is an undocumented function that takes wheel events
+    (map?.scrollZoom.wheel as (event: T) => void)({
+      ...event,
+      preventDefault: () => { },
+    });
+  }
+
   return (
     <DraggablePopup
       className="flight-popup flight-popup-pseudo"
@@ -77,7 +89,7 @@ export default observer(function AircraftPopupPseudo(properties: { aircraft: Air
       focusAfterOpen={false}
       onClose={(): void => cwpStore.closeLevelPopupForAircraft(aircraftId)}
     >
-      <div>
+      <div onWheel={onWheel}>
         <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
         <Container className="flight-popup-container">
           <Row>
