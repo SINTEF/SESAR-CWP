@@ -3,6 +3,7 @@ import * as maplibregl from 'maplibre-gl';
 import React from 'react';
 import ReactMapGL, { NavigationControl, ScaleControl } from 'react-map-gl';
 import type { Style } from 'mapbox-gl';
+import type { ViewState } from 'react-map-gl';
 
 import Polygons3D from './Polygons3D';
 
@@ -25,18 +26,24 @@ const style: React.CSSProperties = {
   background: 'black',
 };
 
-export default function Sectors3DView(): JSX.Element {
-  const initialViewState = {
-    longitude: 9.27,
-    latitude: 45.11,
-    zoom: 6.3,
-    pitch: 40,
-  };
+const initialViewState: Partial<ViewState> = {
+  longitude: 9.27,
+  latitude: 45.11,
+  zoom: 6.3,
+  pitch: 40,
+};
 
+// Rough bounds of the area
+const maxBounds: mapboxgl.LngLatBoundsLike = [
+  4, 11, 15, 70,
+];
+
+export default function Sectors3DView(): JSX.Element {
   return (
     <ReactMapGL
       style={style}
       initialViewState={initialViewState}
+      maxBounds={maxBounds}
       mapStyle={mapStyle}
       attributionControl={false}
       mapLib={maplibregl}
