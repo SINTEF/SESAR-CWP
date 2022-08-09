@@ -7,8 +7,8 @@ import SectorPolygons from './SectorPolygons';
 
 export default function Sectors(): JSX.Element {
   return <>
-    <SectorPolygons key="sector-polygons" />,
     <SectorEdgesPolygon key="sector-edges-polygon" />,
+    <SectorPolygons key="sector-polygons" />,
     <CurrentSectorPolygon key="current-sector-polygon" />,
     <SectorConfiguration key="sector-configuration" />
   </>;

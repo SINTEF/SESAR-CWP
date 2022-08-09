@@ -42,6 +42,8 @@ export default observer(function AircraftPopupPseudo(properties: { aircraft: Air
       && showAllFlightLabels
       && !cwpStore.aircraftsWithManuallyClosedPopup.has(aircraftId));
 
+  const { current } = useMap();
+
   if (!shouldShow) {
     return null;
   }
@@ -66,7 +68,6 @@ export default observer(function AircraftPopupPseudo(properties: { aircraft: Air
     }
   };
 
-  const { current } = useMap();
   function onWheel<T>(event: T): void {
     const map = current?.getMap();
     // @ts-expect-error - .wheel is an undocumented function that takes wheel events
