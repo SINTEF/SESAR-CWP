@@ -28,9 +28,10 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   const close = (): void => cwpStore.closeChangeNextFixForAircraft(aircraftId);
 
   const submit = (): void => {
+  // add for strip white space
     const arrayOfWaypoints = newChangedFixInputReference.current?.value?.split(',');
-    const newNextFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[1].toLocaleUpperCase() ?? '' : arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '';
-    const nextViaFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '' : '';
+    const newNextFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[1].trim().toLocaleUpperCase() ?? '' : arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '';
+    const nextViaFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[0].trim().toLocaleUpperCase() ?? '' : '';
     const latOfFix = fixStore.fixes.get(newNextFix)?.latitude;
     const longOfFix = fixStore.fixes.get(newNextFix)?.longitude;
     const viaLat = fixStore.fixes.get(nextViaFix)?.latitude;

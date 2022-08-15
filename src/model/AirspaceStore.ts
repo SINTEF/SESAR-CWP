@@ -1,12 +1,13 @@
 import { makeAutoObservable, observable } from 'mobx';
 import type { ObservableMap } from 'mobx';
 
-import AirspaceModel from './AirspaceModel';
 import CoordinatePair from './CoordinatePair';
+import SectorModel from './SectorModel';
 import type { NewAirspaceMessage } from '../proto/ProtobufAirTrafficSimulator';
+// import type AirspaceModel from './AirspaceModel';
 
 export default class AirspaceStore {
-  airspaces: ObservableMap<string, AirspaceModel> = observable.map();
+  airspaces: ObservableMap<string, SectorModel> = observable.map();
 
   constructor() {
     makeAutoObservable(this, {
@@ -17,8 +18,6 @@ export default class AirspaceStore {
 
   handleNewAirspace(newAirspace: NewAirspaceMessage): void {
     const id = newAirspace.airspaceId;
-    // const differentiatingSector = id.split('_');
-    // if (differentiatingSector.length - 1 === 5) { // Getting only the sectors to look at
     if (this.airspaces.has(id)) {
       // eslint-disable-next-line no-console
       console.trace('TODO updating'); // How to actually update?
@@ -33,15 +32,17 @@ export default class AirspaceStore {
         });
       },
       );
-      this.airspaces.set(id, new AirspaceModel({
-        airspaceId: id,
-        airspaceArea,
+      this.airspaces.set(id, new SectorModel({
+        sectorId: id,
+        sectorArea: airspaceArea,
+        bottomFlightLevel: newAirspace.bottomFlightLevel,
+        topFlightLevel: newAirspace.topFlightLevel,
       }));
     }
     // }
   }
 
-  getAreaFromId(airspaceId: string): AirspaceModel | undefined {
+  getAreaFromId(airspaceId: string): SectorModel | undefined {
     return this.airspaces.get(airspaceId);
   }
 

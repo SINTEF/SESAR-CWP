@@ -11,12 +11,12 @@ import AltitudeFilterPanel from './components/AltitudeFilterPanel';
 import BottomNavbar from './components/BottomNavbar';
 import ControllerModal from './components/ControllerModal';
 import Map from './components/Map';
-// import SectorConfiguration from './SectorConfiguration';
 import SectorFlightList from './components/SectorFlightList';
 import Sectors3DView from './components/Sectors3DView';
 import SectorSideView from './components/SectorSideView';
 import Time from './components/Time';
 import VoiceCommandFeedback from './components/VoiceCommandFeedback';
+import SectorConfiguration from './SectorConfiguration';
 import { roleConfigurationStore } from './state';
 
 const onLayoutChange = throttle(166, (): void => {
@@ -49,7 +49,7 @@ export default function App(/* properties */): JSX.Element {
             <Map />
             <SectorFlightList />
             <AircraftListElement />
-            {/* <SectorConfiguration /> */}
+            <SectorConfiguration />
             <AltitudeFilterPanel />
             <Time />
           </Allotment.Pane>
