@@ -75,7 +75,6 @@ export default observer(function SectorPolygons(/* properties */) {
     }
     return `S-${bottomFL}-${topFL}`;
   };
-  console.log(sectorData);
   const sectors: Feature<Geometry, { t: string, color: string, key: string }>[] = sectorData.map(
     ([key, area]) => {
       const coordinates = area.sectorArea.map((point) => (

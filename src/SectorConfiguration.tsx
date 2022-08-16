@@ -28,6 +28,7 @@ function ChangeCountdownTime(time: number): string {
   });
   return localeTime;
 }
+
 export default observer(function SectorConfiguration() {
   const simulatorTime = simulatorStore.timestamp;
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -47,6 +48,21 @@ export default observer(function SectorConfiguration() {
   const nextConfigId = listConfiguration?.[1];
   const currentConfigTime = listConfiguration?.[0];
 
+  const toggleSectorInterval = (number_: number): void => {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index === number_) {
+        clearInterval(interval);
+      } else {
+        setTimeout(() => {
+          toggleConfiguration(nextConfigId[0]);
+        }, 2000);
+        index += 1;
+        toggleConfiguration(currentConfigTime[0]);
+      }
+    }, 3000);
+  };
+
   React.useEffect(() => {
     if (sortedList.length > 0) {
       const listOfIntervals: [string, number, number][] = [];
@@ -65,25 +81,21 @@ export default observer(function SectorConfiguration() {
     }
   }, [simulatorTime]);
 
-  // console.log(timeToNextConfig);
+  const toggleSectorChange = (): void => {
+    const setConfig = currentConfigurationId === currentConfigTime[0]
+      ? nextConfigId[0] : currentConfigTime[0];
+    toggleConfiguration(setConfig);
+  };
+
   React.useEffect(() => {
-    if ((timeToNextConfig === 600 || timeToNextConfig === 300)) {
-      let counter = 0;
-      while (counter < 2) {
-        toggleConfiguration(nextConfigId[0]);
-        setTimeout(() => {
-          toggleConfiguration(currentConfigTime[0]);
-        }, 3000);
-        counter += 1;
-      }
+    if ((timeToNextConfig === 603 || timeToNextConfig === 303)) {
+      toggleSectorInterval(3);
     }
-    if (timeToNextConfig === 50 || timeToNextConfig === 200) {
-      for (let index = 0; index < 5; index += 1) {
-        toggleConfiguration(nextConfigId[0]);
-        setTimeout(() => {
-          toggleConfiguration(currentConfigTime[0]);
-        }, 5000);
-      }
+    if (timeToNextConfig === 20 || timeToNextConfig === 123) {
+      toggleSectorInterval(5);
+    }
+    if (timeToNextConfig === 0) {
+      toggleSectorChange();
     }
   }, [simulatorTime]);
 
@@ -117,12 +129,6 @@ export default observer(function SectorConfiguration() {
   if (timeToNextConfig <= 601 && !cwpStore.sectorChangeCountdown) {
     cwpStore.showSectorChangeCountdown(true);
   }
-
-  const toggleSectorChange = (): void => {
-    const setConfig = currentConfigurationId === currentConfigTime[0]
-      ? nextConfigId[0] : currentConfigTime[0];
-    toggleConfiguration(setConfig);
-  };
 
   return (
     <>
