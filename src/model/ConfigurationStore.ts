@@ -37,6 +37,9 @@ export default class ConfigurationStore {
 
   handleNewAirspaceConfiguration(newConfig: NewAirspaceConfigurationMessage): void {
     const configId = newConfig.configurationId;
+    if (this.configurations.has(configId)) {
+      console.log('TODO updating');
+    }
     const newEdges = newConfig.area.map((area) => {
       if (area.position.oneofKind !== 'position4D') {
         throw new Error('Insupported position type');
