@@ -102,7 +102,7 @@ export default observer(function SectorConfiguration() {
   if (nextConfigId !== undefined) {
     nextConfigStartTime = nextConfigId[1];
     timeToNextConfig = Math.floor(nextConfigStartTime - simulatorTime);
-    console.log(timeToNextConfig);
+    // console.log(timeToNextConfig);
     listOfTimes.push([
       ChangeToLocaleTime(nextConfigId[1]),
       ChangeToLocaleTime(nextConfigId[2]),

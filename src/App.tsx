@@ -49,7 +49,6 @@ export default function App(/* properties */): JSX.Element {
             <Map />
             <SectorFlightList />
             <AircraftListElement />
-            <SectorConfiguration />
             <AltitudeFilterPanel />
             <Time />
           </Allotment.Pane>
@@ -61,6 +60,7 @@ export default function App(/* properties */): JSX.Element {
           </Allotment.Pane>
         </Allotment>
       </main>
+      <SectorConfiguration key="sector-configuration" />
       <BottomNavbar />
       <VoiceCommandFeedback />
     </>
