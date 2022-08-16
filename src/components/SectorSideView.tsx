@@ -17,20 +17,27 @@ export default observer(function SectorSideView() {
     currentConfigurationId, currentCWP, sortedConfigurationPlan,
     areaOfIncludedAirspaces, getAreaOfIncludedAirpaces,
   } = configurationStore;
-
   const sortedList = sortedConfigurationPlan;
-  if (sortedList.length === 0) {
-    return null;
-  }
-  const listConfiguration: [string, number][] = [];
-  for (const element of sortedList) {
-    for (const intervals of element.timeIntervals) {
-      const startTimeInterval = intervals.startTime;
-      // if (startTimeInterval > simulatorTime) {
-      listConfiguration.push([element.configurationId, startTimeInterval]);
-      // }
+
+  const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
+
+  React.useEffect(() => {
+    if (sortedList.length > 0) {
+      const listOfIntervals: [string, number, number][] = [];
+      for (const element of sortedList) {
+        for (const intervals of element.timeIntervals) {
+          const startTimeInterval = intervals.startTime;
+          const endTimeInterval = intervals.endTime;
+          if ((startTimeInterval >= simulatorTime || endTimeInterval >= simulatorTime)
+            && !listConfiguration
+              .includes([element.configurationId, startTimeInterval, endTimeInterval])) {
+            listOfIntervals.push([element.configurationId, startTimeInterval, endTimeInterval]);
+          }
+        }
+      }
+      setListConfiguration(listOfIntervals);
     }
-  }
+  }, [simulatorTime]);
   let timeToChange = 15;
   let timeDifferanse = 0;
 
@@ -49,20 +56,13 @@ export default observer(function SectorSideView() {
   const topFLCurrent = airspaceCurrent[1].topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
-  // if (listConfiguration !== -1
-  //   && sortedList[listConfiguration].configurationId !== currentConfigurationId) {
-  //   timeDifferanse = sortedList[listConfiguration].startTime - simulatorTime;
-  //   const cwpNextSector = roleConfigurationStore
-  //     .getControlledSector(currentCWP, sortedList[listConfiguration].configurationId);
-  //   const nextflightLevels = getAreaOfIncludedAirpaces(sortedList[listConfiguration]
-  //     .configurationId);
-  if (listConfiguration.length > 0
-    && listConfiguration[0][0] !== currentConfigurationId) {
-    const startTime = listConfiguration[0][1];
+  const nextConfig = listConfiguration?.[1];
+  if (listConfiguration.length > 0 && nextConfig) {
+    const startTime = nextConfig[1];
     timeDifferanse = startTime - simulatorTime;
     const cwpNextSector = roleConfigurationStore
-      .getControlledSector(currentCWP, listConfiguration[0][0]);
-    const nextflightLevels = getAreaOfIncludedAirpaces(listConfiguration[0][0]);
+      .getControlledSector(currentCWP, nextConfig[0]);
+    const nextflightLevels = getAreaOfIncludedAirpaces(nextConfig[0]);
     const airspaceNext = [...nextflightLevels.values()]
       .find(([key]) => key === cwpNextSector);
     if (airspaceNext !== undefined) {
@@ -73,7 +73,6 @@ export default observer(function SectorSideView() {
   if (timeDifferanse <= 900 && timeDifferanse > 0) {
     timeToChange = timeDifferanse / 60;
   }
-
   const flightData = [];
   for (let index = 0; index < Math.ceil(timeToChange); index += 1) {
     const time = index;

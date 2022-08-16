@@ -52,6 +52,7 @@ export default observer(function SectorPolygons(/* properties */) {
       || (area.topFlightLevel <= highestBound && area.topFlightLevel >= lowestBound))
       && area.sectorArea?.length > 0,
     );
+
   const sectorNamesText: SymbolLayout = {
     ...sectorNameslayout,
     visibility: showSectorLabels ? 'visible' : 'none',
@@ -74,6 +75,7 @@ export default observer(function SectorPolygons(/* properties */) {
     }
     return `S-${bottomFL}-${topFL}`;
   };
+  console.log(sectorData);
   const sectors: Feature<Geometry, { t: string, color: string, key: string }>[] = sectorData.map(
     ([key, area]) => {
       const coordinates = area.sectorArea.map((point) => (
@@ -134,7 +136,7 @@ export default observer(function SectorPolygons(/* properties */) {
       properties: {},
       geometry: {
         type: 'Polygon',
-        coordinates: [highlightedSectorArea.airspaceArea.map((point) => (
+        coordinates: [highlightedSectorArea.sectorArea.map((point) => (
           [point.longitude, point.latitude]))],
       },
     });

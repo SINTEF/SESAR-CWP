@@ -9,7 +9,8 @@ import type SectorModel from './model/SectorModel';
 
 function ChangeToLocaleTime(time: number): string {
   const date = new Date(time * 1000);
-  const localeTime = date.toLocaleTimeString('en', {
+  const localeTime = date.toLocaleTimeString('en-GB', {
+    timeZone: 'UTC',
     hour12: false,
     hour: '2-digit',
     minute: '2-digit',
@@ -17,82 +18,110 @@ function ChangeToLocaleTime(time: number): string {
   return localeTime;
 }
 
+function ChangeCountdownTime(time: number): string {
+  const date = new Date(time * 1000);
+  const localeTime = date.toLocaleTimeString('en-GB', {
+    timeZone: 'UTC',
+    hour12: false,
+    minute: '2-digit',
+    second: '2-digit',
+  });
+  return localeTime;
+}
 export default observer(function SectorConfiguration() {
   const simulatorTime = simulatorStore.timestamp;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    currentConfigurationId, configurationPlan, sortedConfigurationPlan,
-    areaOfIncludedAirspaces, getAreaOfIncludedAirpaces, toggleConfiguration,
+    currentConfigurationId, sortedConfigurationPlan, getAreaOfIncludedAirpaces, toggleConfiguration,
   } = configurationStore;
   const sortedList = sortedConfigurationPlan;
-  const [savedConfig, setSavedConfig] = React.useState(currentConfigurationId);
-
-  if (sortedList.length === 0) {
-    return null;
-  }
-  const listOfTimes: [string, string][] = [];
-  const listConfiguration: [string, number, number][] = [];
-  for (const element of sortedList) {
-    for (const intervals of element.timeIntervals) {
-      const startTimeInterval = intervals.startTime;
-      if (startTimeInterval > simulatorTime) {
-        listConfiguration.push([element.configurationId, startTimeInterval, intervals.endTime]);
-      }
-    }
-  }
-  const nextConfigId = listConfiguration[0];
-  const currentConfigTime = configurationPlan.get(currentConfigurationId);
-  if (!currentConfigTime) {
-    return null;
-  }
-  listOfTimes.push([
-    ChangeToLocaleTime(currentConfigTime.timeIntervals[0].startTime),
-    ChangeToLocaleTime(currentConfigTime.timeIntervals[0].endTime),
-  ]);
-
   let sectorsForNext: [string, SectorModel][] = [];
+  let sectorsForCurrent: [string, SectorModel][] = [];
   let nextConfigStartTime: number | undefined;
   let timeToNextConfig: number = Number.MAX_VALUE;
-  if (nextConfigId !== undefined && nextConfigId[0] !== currentConfigurationId) {
-    setSavedConfig(nextConfigId[0]);
+
+  const listOfTimes: [string, string][] = [];
+  // const listConfiguration: [string, number, number][] = [];
+  const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
+
+  const nextConfigId = listConfiguration?.[1];
+  const currentConfigTime = listConfiguration?.[0];
+
+  React.useEffect(() => {
+    if (sortedList.length > 0) {
+      const listOfIntervals: [string, number, number][] = [];
+      for (const element of sortedList) {
+        for (const intervals of element.timeIntervals) {
+          const startTimeInterval = intervals.startTime;
+          const endTimeInterval = intervals.endTime;
+          if ((startTimeInterval >= simulatorTime || endTimeInterval >= simulatorTime)
+            && !listConfiguration
+              .includes([element.configurationId, startTimeInterval, endTimeInterval])) {
+            listOfIntervals.push([element.configurationId, startTimeInterval, endTimeInterval]);
+          }
+        }
+      }
+      setListConfiguration(listOfIntervals);
+    }
+  }, [simulatorTime]);
+
+  // console.log(timeToNextConfig);
+  React.useEffect(() => {
+    if ((timeToNextConfig === 600 || timeToNextConfig === 300)) {
+      let counter = 0;
+      while (counter < 2) {
+        toggleConfiguration(nextConfigId[0]);
+        setTimeout(() => {
+          toggleConfiguration(currentConfigTime[0]);
+        }, 3000);
+        counter += 1;
+      }
+    }
+    if (timeToNextConfig === 50 || timeToNextConfig === 200) {
+      for (let index = 0; index < 5; index += 1) {
+        toggleConfiguration(nextConfigId[0]);
+        setTimeout(() => {
+          toggleConfiguration(currentConfigTime[0]);
+        }, 5000);
+      }
+    }
+  }, [simulatorTime]);
+
+  // Getting current configuration information
+
+  if (currentConfigTime !== undefined) {
+    sectorsForCurrent = getAreaOfIncludedAirpaces(currentConfigTime[0]); // bad state?
+
+    listOfTimes.push([
+      ChangeToLocaleTime(currentConfigTime[1]),
+      ChangeToLocaleTime(currentConfigTime[2]),
+    ]);
+  }
+
+  // Getting next configuration information
+  if (nextConfigId !== undefined) {
     nextConfigStartTime = nextConfigId[1];
-    timeToNextConfig = nextConfigStartTime - simulatorTime;
+    timeToNextConfig = Math.floor(nextConfigStartTime - simulatorTime);
+    // console.log(timeToNextConfig);
     listOfTimes.push([
       ChangeToLocaleTime(nextConfigId[1]),
       ChangeToLocaleTime(nextConfigId[2]),
     ]);
     sectorsForNext = getAreaOfIncludedAirpaces(nextConfigId[0]);
   }
-  const sectorsForCurrent = areaOfIncludedAirspaces;
   const sectorArray = [sectorsForCurrent, sectorsForNext];
 
-  if (timeToNextConfig <= 600) {
-    cwpStore.showSectorChangeCountdown(true);
-  }
-  if (timeToNextConfig === 0) {
+  if (timeToNextConfig > 601 && cwpStore.sectorChangeCountdown) {
     cwpStore.showSectorChangeCountdown(false);
   }
-
-  if (timeToNextConfig === 600 || timeToNextConfig === 300) {
-    for (let index = 0; index < 3; index += 1) {
-      setSavedConfig(toggleConfiguration(nextConfigId[0]));
-      setTimeout(() => {
-        setSavedConfig(toggleConfiguration(savedConfig));
-      }, 3000);
-    }
-  }
-
-  if (timeToNextConfig === 50 || timeToNextConfig === 120) {
-    for (let index = 0; index < 5; index += 1) {
-      setSavedConfig(toggleConfiguration(nextConfigId[0]));
-      setTimeout(() => {
-        setSavedConfig(toggleConfiguration(savedConfig));
-      }, 3000);
-    }
+  if (timeToNextConfig <= 601 && !cwpStore.sectorChangeCountdown) {
+    cwpStore.showSectorChangeCountdown(true);
   }
 
   const toggleSectorChange = (): void => {
-    setSavedConfig(toggleConfiguration(savedConfig));
+    const setConfig = currentConfigurationId === currentConfigTime[0]
+      ? nextConfigId[0] : currentConfigTime[0];
+    toggleConfiguration(setConfig);
   };
 
   return (
@@ -124,7 +153,7 @@ export default observer(function SectorConfiguration() {
           <div className='time-to-change'>
             Sector change countdown:
             {' '}
-            {ChangeToLocaleTime(timeToNextConfig)}
+            {ChangeCountdownTime(timeToNextConfig)}
           </div>
           <button onClick={toggleSectorChange} className='toggle-sectors-button'>Toggle Sector Change</button>
         </div>

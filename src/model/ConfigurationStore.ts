@@ -37,6 +37,9 @@ export default class ConfigurationStore {
 
   handleNewAirspaceConfiguration(newConfig: NewAirspaceConfigurationMessage): void {
     const configId = newConfig.configurationId;
+    if (this.configurations.has(configId)) {
+      console.log('TODO updating');
+    }
     const newEdges = newConfig.area.map((area) => {
       if (area.position.oneofKind !== 'position4D') {
         throw new Error('Insupported position type');
@@ -61,7 +64,7 @@ export default class ConfigurationStore {
       } else {
         const sectorArea = this.airspaceStore
           .getAreaFromId(includedAirspace.volumeId)
-          ?.airspaceArea?.map((area) => new CoordinatePair({
+          ?.sectorArea?.map((area) => new CoordinatePair({
             latitude: area.latitude,
             longitude: area.longitude,
           })) ?? [];
@@ -170,12 +173,30 @@ export default class ConfigurationStore {
   }
 
   get sortedConfigurationPlan(): ConfigurationTime[] {
-    const sortedList = [...this.configurationPlan.values()]; // .sort();
+    const listOfConfigurations = [...this.configurationPlan.values()]; // .sort();
     // TODO #93: implement the sorting algorithm
     // .sort() uses the string representation of the objects to sort by default,
     // in this case, [object Object] for every object in the map.
     // It wasn't sorting anything.
     // One must add a function to .sort() to sort correctly.
-    return sortedList;
+    const sortedList = [];
+    for (const element of listOfConfigurations) {
+      const innerIntervalSort = [...element.timeIntervals]
+        .sort((a, b) => a.startTime - b.startTime);
+
+      this.setIntervals(element.configurationId, innerIntervalSort);
+      sortedList.push(element);
+    }
+    const finalSort = sortedList
+      .sort((a, b) => a.timeIntervals[0].startTime - b.timeIntervals[0].startTime);
+
+    return finalSort;
+  }
+
+  setIntervals(configuration: string, timeIntervals: TimeConfigurations[]): void {
+    this.configurationPlan.set(configuration, new ConfigurationTime({
+      configurationId: configuration,
+      timeIntervals,
+    }));
   }
 }

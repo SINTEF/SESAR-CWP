@@ -89,8 +89,8 @@ const router = rlite<Buffer>(notFound, {
   'ATM/:clientId/FlightRoutes/:flightUniqueId': flightRoutes,
   'ATM/:clientId/StandManoeuvres/:networkId/:objectId': todo,
   'ATM/:clientId/Airspaces/:airspaceId': airspaces,
-  'ATM/:clientId/Sectors/:sectorId': todo,
-  'ATM/:clientId/Airblocks/:airblockId': todo,
+  'ATM/:clientId/Sectors/:sectorId': todo, // no longer needed
+  'ATM/:clientId/Airblocks/:airblockId': todo, // no longer needed
   'ATM/:clientId/AirspaceConfigurations/:configurationId': newAirspaceConfiguration,
   'ATM/:clientId/AirspaceAvailability/:airspaceId/:time': airspaceAvailability,
   'ATM/:clientId/Segments/:segmentId': todo,
