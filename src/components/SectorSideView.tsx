@@ -14,8 +14,8 @@ export default observer(function SectorSideView() {
   const simulatorTime = simulatorStore.timestamp;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    currentConfigurationId, currentCWP, sortedConfigurationPlan,
-    areaOfIncludedAirspaces, getAreaOfIncludedAirpaces,
+    currentCWP, sortedConfigurationPlan,
+    getAreaOfIncludedAirpaces,
   } = configurationStore;
   const sortedList = sortedConfigurationPlan;
 
@@ -41,19 +41,24 @@ export default observer(function SectorSideView() {
   let timeToChange = 15;
   let timeDifferanse = 0;
 
+  const currentConfig = listConfiguration?.[0];
   const cwpCurrentSector = roleConfigurationStore
-    .getControlledSector(currentCWP, currentConfigurationId);
+    .getControlledSector(currentCWP, currentConfig?.[0]);
   if (cwpCurrentSector === '') {
     return null;
   }
 
-  const airspaceCurrent = [...areaOfIncludedAirspaces.values()]
+  // If we want it to change when toggling
+  // const airspaceCurrent = [...areaOfIncludedAirspaces.values()]
+  //   .find(([key]) => key === cwpCurrentSector);
+  const includedAirspaces = getAreaOfIncludedAirpaces(currentConfig?.[0]);
+  const airspaceCurrent = [...includedAirspaces.values()]
     .find(([key]) => key === cwpCurrentSector);
   if (!airspaceCurrent) {
     return null;
   }
-  const bottomFLCurrent = airspaceCurrent[1].bottomFlightLevel;
-  const topFLCurrent = airspaceCurrent[1].topFlightLevel;
+  const bottomFLCurrent: number = airspaceCurrent[1].bottomFlightLevel;
+  const topFLCurrent = airspaceCurrent?.[1].topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
   const nextConfig = listConfiguration?.[1];

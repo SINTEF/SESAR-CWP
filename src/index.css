@@ -56,15 +56,22 @@ div#root {
 }
 
 .span3 {
-    /* height:75px;  */
-    /* border:solid 1px black; */
+
     display: inline-table;
-    /* margin-bottom:5px;
-padding:5px; */
+    margin: 0px;
+        flex-wrap: nowrap;
+}
+.sector-box{
+display: grid;
+width: 500px;
+height:min-content;
+grid-template-rows: repeat(4, min-content);
+gap: 0px;
 }
 
+
 #table-of-config {
-    width: 300px;
+    width: 450px;
     position: relative;
     left: -5px;
 

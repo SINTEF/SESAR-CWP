@@ -16,7 +16,7 @@ const sectorFillPaint: FillExtrusionPaint = {
   'fill-extrusion-base': ['get', 'base_height'],
   'fill-extrusion-opacity': 0.8,
 };
-const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#0bb', '#94a', '#b00', '#f80', '#f63'];
+const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#DDD555', '#01539d', '#e9b4d0', '#8c9441', '#c82169'];
 
 function ConvertFlightLevelToMeters(altitude: number): number {
   const feet = altitude * 100;
@@ -26,8 +26,12 @@ function ConvertFlightLevelToMeters(altitude: number): number {
 
 export default observer(function SectorPolygons(/* properties */) {
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
-  const sectorData = [...sectorStore.values()]
+  const sectorDatas = [...sectorStore.values()]
     .filter(([, area]) => area.sectorArea?.length > 0);
+
+  const sectorData = sectorDatas
+    .sort((element1, element2) => element2[1].bottomFlightLevel - element1[1].bottomFlightLevel
+      || element2[1].topFlightLevel - element1[1].topFlightLevel);
 
   let counter = 0;
   const sectors: GeoJSON.Feature[] = sectorData.map(([title, area]) => {
@@ -54,6 +58,7 @@ export default observer(function SectorPolygons(/* properties */) {
     type: 'FeatureCollection',
     features: sectors,
   };
+  // console.log(geoJson);
 
   return (
     <>

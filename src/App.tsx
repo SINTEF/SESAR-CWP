@@ -28,13 +28,13 @@ const onLayoutChange = throttle(166, (): void => {
 export default function App(/* properties */): JSX.Element {
   // Dummy data - we will get it directly from the new simulator
   // For debug choose dataset 2
-  roleConfigurationStore.setControlledSector('CWP_NW', 'CONF10D', 'LIMM_RUN16_COBOS_10S9_SECTOR_12');
-  roleConfigurationStore.setControlledSector('CWP_NE', 'CONF10D', 'LIMM_RUN16_COBOS_10S10_SECTOR_11');
-  roleConfigurationStore.setControlledSector('CWP_S', 'CONF10D', 'LIMM_RUN16_COBOS_10S9_SECTOR_14');
+  roleConfigurationStore.setControlledSector('CWP_NW', 'CONF12E', 'LIMM_RUN16_COBOS_12S8_SECTOR_17');
+  roleConfigurationStore.setControlledSector('CWP_NE', 'CONF12E', 'LIMM_RUN16_COBOS_11S9_SECTOR_17');
+  roleConfigurationStore.setControlledSector('CWP_S', 'CONF12E', 'LIMM_RUN16_COBOS_11S10_SECTOR_16');
 
-  roleConfigurationStore.setControlledSector('CWP_NW', 'CONF7E', 'LIMM_RUN16_COBOS_7S6_SECTOR_8');
-  roleConfigurationStore.setControlledSector('CWP_NE', 'CONF7E', 'LIMM_RUN16_COBOS_12S9_SECTOR_13');
-  roleConfigurationStore.setControlledSector('CWP_S', 'CONF7E', 'LIMM_RUN16_COBOS_7S7_SECTOR_6');
+  roleConfigurationStore.setControlledSector('CWP_NW', 'CONF12D', 'LIMM_RUN16_COBOS_11S5_SECTOR_15');
+  roleConfigurationStore.setControlledSector('CWP_NE', 'CONF12D', 'LIMM_RUN16_COBOS_11S6_SECTOR_15');
+  roleConfigurationStore.setControlledSector('CWP_S', 'CONF12D', 'LIMM_RUN16_COBOS_10S9_SECTOR_15');
 
   roleConfigurationStore.setControlledSector('CWP_NW', 'CONF11N', 'LIMM_RUN16_COBOS_11S10_SECTOR_20');
   roleConfigurationStore.setControlledSector('CWP_NE', 'CONF11N', 'LIMM_RUN16_COBOS_12S9_SECTOR_17');
