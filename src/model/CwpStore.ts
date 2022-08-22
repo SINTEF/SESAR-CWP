@@ -53,6 +53,8 @@ export default class CWPStore {
 
   sectorChangeCountdown = false;
 
+  pseudoPilot = false;
+
   constructor({
     altitudeFilter,
   }: {
@@ -214,5 +216,9 @@ export default class CWPStore {
 
   showSectorChangeCountdown(value: boolean): void {
     this.sectorChangeCountdown = value;
+  }
+
+  setPseudoPilot(value: boolean): void {
+    this.pseudoPilot = value;
   }
 }

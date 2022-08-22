@@ -60,7 +60,7 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
         {SVG_ICON_PATH}
       </svg>
       <AircraftLevelPopup aircraft={properties.aircraft} />
-      {configurationStore.currentCWP === 'All' ? <AircraftPopupPseudo aircraft={properties.aircraft} /> : <AircraftPopup aircraft={properties.aircraft} />}
+      {configurationStore.currentCWP === 'All' || cwpStore.pseudoPilot ? <AircraftPopupPseudo aircraft={properties.aircraft} /> : <AircraftPopup aircraft={properties.aircraft} />}
       <ChangeNextFixPopup aircraft={properties.aircraft} />
       <NextSectorPopup aircraft={properties.aircraft} />
       <ChangeSpeed aircraft={properties.aircraft} />

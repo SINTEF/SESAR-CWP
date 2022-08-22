@@ -54,7 +54,6 @@ export default observer(function SectorSideView() {
   const includedAirspaces = getAreaOfIncludedAirpaces(currentConfig?.[0]);
   const airspaceCurrent = [...includedAirspaces.values()]
     .find(([key]) => key === cwpCurrentSector);
-  console.log(airspaceCurrent);
   if (!airspaceCurrent) {
     return null;
   }

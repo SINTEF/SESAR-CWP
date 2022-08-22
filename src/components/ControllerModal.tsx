@@ -11,21 +11,35 @@ const controllers = [
   'CWP_NW',
   'CWP_NE',
   'CWP_S',
-  'All',
+  'Master',
 ];
 
 export default observer(function ControllerModal() {
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { showControllerSelection, toggleControllerSelection } = cwpStore;
-
+  const { showControllerSelection, toggleControllerSelection, setPseudoPilot } = cwpStore;
+  const [pseudoPilots, setPseudoPilotsList] = React.useState<string[]>([]);
+  const [selectedCWP, setSelectedCWP] = React.useState<string>('');
   const controller = configurationStore.currentCWP;
   const handleSelect = (targetValue: string): void => {
-    configurationStore.setCurrentCWP(targetValue);
+    const valueSplit = targetValue.split(' ');
+    const cwp = valueSplit[0];
+    setSelectedCWP(targetValue);
+    const pseudo = valueSplit[1];
+    if (pseudo === 'PseudoPilot') {
+      setPseudoPilot(true);
+    } else {
+      setPseudoPilot(false);
+    }
+    configurationStore.setCurrentCWP(cwp);
     toggleControllerSelection();
   };
+  React.useEffect(() => {
+    const listPseudoPilots = controllers.filter((control) => control !== 'Master').map((control) => `${control} PseudoPilot`);
+    setPseudoPilotsList(listPseudoPilots);
+  }, [controllers]); // Temporary controllers, before we get the names
 
   // True if the controller has already been selected
-  const secondSelection = controllers.includes(controller);
+  const secondSelection = controllers.includes(controller) || controller === 'All';
 
   return (
     <Modal
@@ -45,8 +59,13 @@ export default observer(function ControllerModal() {
       </Modal.Header>
       <Modal.Body>
 
-        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={controller}>
+        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
           {controllers.map(
+            (name) => (<ToggleButton value={name === 'Master' ? 'All' : name} id={name === 'Master' ? 'All' : name} key={name === 'Master' ? 'All' : name}>{name}</ToggleButton>))}
+        </ToggleButtonGroup>
+        {'\n'}
+        <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
+          {pseudoPilots.map(
             (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
         </ToggleButtonGroup>
       </Modal.Body>
