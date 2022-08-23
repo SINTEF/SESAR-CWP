@@ -52,7 +52,17 @@ export default class AircraftModel {
 
   milestoneTargetObjectId: string | undefined;
 
-  assignedFlightLevel: string | undefined;
+  assignedFlightLevel = 'FL.S';
+
+  assignedBearing: number | undefined;
+
+  assignedSpeed: number | undefined;
+
+  nextSectorFL = 'NSFL';
+
+  nextACCFL = 'COO';
+
+  localAssignedFlightLevel = '';
 
   aircraftInfo: ObservableMap<string, AircraftInfo>;
 
@@ -100,6 +110,11 @@ export default class AircraftModel {
       nextSectorController: observable,
       milestoneTargetObjectId: observable,
       assignedFlightLevel: observable,
+      assignedBearing: observable,
+      assignedSpeed: observable,
+      localAssignedFlightLevel: observable,
+      nextSectorFL: observable,
+      nextACCFL: observable,
       // flightColor: observable,
 
       nextFix: computed,
@@ -111,6 +126,11 @@ export default class AircraftModel {
       setController: action.bound,
       setAssignedFlightLevel: action.bound,
       setNextSectorController: action.bound,
+      setAssignedBearing: action.bound,
+      setAssignedSpeed: action.bound,
+      setLocalAssignedFlightLevel: action.bound,
+      setNextSectorFL: action.bound,
+      setNextACCFL: action.bound,
       // setFlightColor: action.bound,
     });
 
@@ -237,7 +257,27 @@ export default class AircraftModel {
     this.assignedFlightLevel = assignedFlightLevel;
   }
 
+  setAssignedBearing(assignedBearing: number): void {
+    this.assignedBearing = assignedBearing;
+  }
+
+  setAssignedSpeed(assignedSpeed: number): void {
+    this.assignedSpeed = assignedSpeed;
+  }
+
+  setLocalAssignedFlightLevel(localAssignedFlightLevel: string): void {
+    this.localAssignedFlightLevel = localAssignedFlightLevel;
+  }
+
   setNextSectorController(nextSectorController: string): void {
     this.nextSectorController = nextSectorController;
+  }
+
+  setNextSectorFL(nextSectorFL: string): void {
+    this.nextSectorFL = nextSectorFL;
+  }
+
+  setNextACCFL(nextACCFL: string): void {
+    this.nextACCFL = nextACCFL;
   }
 }
