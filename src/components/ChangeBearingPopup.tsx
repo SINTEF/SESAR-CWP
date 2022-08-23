@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
@@ -16,6 +17,7 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
     controlledBy,
+    setAssignedBearing,
   } = properties.aircraft;
 
   // TODO #95: Replace use of Ref/ID by a classic react value/onChange
@@ -31,6 +33,8 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
     const newBearing = Number.parseInt(
       newChangedBearingInputReference.current?.value ?? '',
       10);
+    console.log(newBearing);
+    setAssignedBearing(newBearing);
     const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
     changeBearingOfAircraft(pilotId, assignedFlightId, newBearing);
     close();

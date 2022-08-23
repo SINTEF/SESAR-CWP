@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
@@ -16,6 +17,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
     controlledBy,
+    setAssignedSpeed,
   } = properties.aircraft;
 
   // TODO #95: Replace use of Ref/ID by a classic react value/onChange
@@ -31,7 +33,10 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     const newSpeed = Number.parseInt(
       newChangedSpeedInputReference.current?.value ?? '',
       10);
-
+    if (Number.isNaN(newSpeed)) {
+      return;
+    }
+    setAssignedSpeed(newSpeed);
     if (configurationStore.currentCWP === 'All') {
       changeSpeedOfAircraft('All', assignedFlightId, newSpeed);
     } else {
@@ -46,7 +51,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
       anchor="bottom"
       longitude={longitude}
       latitude={latitude}
-      offset={[45, 100]}
+      offset={[53, 100]}
       closeOnClick={false}
       onClose={close}
       closeButton={false}
@@ -56,7 +61,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
           <Col className="gutter-2">
             <span>
               New Speed:
-              <input ref={newChangedSpeedInputReference} className="input-filter"
+              <input ref={newChangedSpeedInputReference} className="input-filter-popup"
                 type="number" min="0" />
             </span>
           </Col>

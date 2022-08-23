@@ -47,6 +47,9 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
     callSign,
     controlledBy,
     setAssignedFlightLevel,
+    setLocalAssignedFlightLevel,
+    setNextSectorFL,
+    setNextACCFL,
   } = properties.aircraft;
 
   const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
@@ -89,8 +92,18 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
   const close = (): void => cwpStore.closeLevelPopupForAircraft(aircraftId);
   const setFLCP = (): void => {
     const stringFlightLevel = flightLevel.toString();
-    setAssignedFlightLevel(stringFlightLevel);
-    changeFlightLevelOfAircraft(controlledBy, assignedFlightId, stringFlightLevel);
+    if (cwpStore.nextSectorFlActivated) {
+      cwpStore.showNSFL(false);
+      setNextSectorFL(stringFlightLevel);
+    } else if (cwpStore.flightLevelNextAccActivated) {
+      cwpStore.showFlACC(false);
+      setNextACCFL(stringFlightLevel);
+    } else if (!cwpStore.pseudoPilot) {
+      setLocalAssignedFlightLevel(stringFlightLevel);
+    } else {
+      setAssignedFlightLevel(stringFlightLevel);
+      changeFlightLevelOfAircraft(controlledBy, assignedFlightId, stringFlightLevel);
+    }
     close();
   };
 
@@ -99,7 +112,7 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
       anchor="bottom"
       longitude={longitude}
       latitude={latitude}
-      offset={[50, 245]}
+      offset={[53, 246]}
       className={classnames({
         pending: false,
         accepted,
