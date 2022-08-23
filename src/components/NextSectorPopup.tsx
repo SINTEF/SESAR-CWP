@@ -48,13 +48,13 @@ export default observer(function NextSectorPopup(properties: {
       anchor="bottom"
       longitude={longitude}
       latitude={latitude}
-      offset={[75, 95]}
+      offset={[75, 98]}
       closeOnClick={false}
       onClose={close}
       closeButton={false}
     >
       <Container className="choose-next-controller">
-        <Row className="justify-content-center submit-cancel-wrapper">
+        <Row className="submit-cancel-wrapper">
           <Col className="gutter-2">
             <Dropdown onSelect={handleSelect}>
               <Dropdown.Toggle className="btn btn-light dropdown-button">
@@ -63,9 +63,9 @@ export default observer(function NextSectorPopup(properties: {
 
               <Dropdown.Menu>
                 {/* Needs to be set by configuration-file */}
-                <Dropdown.Item className="apply-cancel-button" eventKey="CWP_NW">CWP_NW</Dropdown.Item>
-                <Dropdown.Item className="apply-cancel-button" eventKey="CWP_NE">CWP_NE</Dropdown.Item>
-                <Dropdown.Item className="apply-cancel-button" eventKey="CWP_S">CWP_S</Dropdown.Item>
+                <Dropdown.Item eventKey="CWP_NW">CWP_NW</Dropdown.Item>
+                <Dropdown.Item eventKey="CWP_NE">CWP_NE</Dropdown.Item>
+                <Dropdown.Item eventKey="CWP_S">CWP_S</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </Col>

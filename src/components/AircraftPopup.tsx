@@ -30,8 +30,8 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
     controlledBy,
     nextSectorController,
     nextFix,
-    assignedFlightLevel,
-    setAssignedFlightLevel,
+    localAssignedFlightLevel,
+    setLocalAssignedFlightLevel,
   } = aircraft;
 
   let flightColor = '#ffffff';
@@ -55,8 +55,8 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
   if (!shouldShow) {
     return null;
   }
-  if (assignedFlightLevel === altitude.toFixed(0)) {
-    setAssignedFlightLevel(' ');
+  if (localAssignedFlightLevel === altitude.toFixed(0)) {
+    setLocalAssignedFlightLevel(' ');
   }
 
   const setController = (): void => {
@@ -114,7 +114,7 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
           </Row>
           <Row>
             <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
-            <Col className="gutter-2">{assignedFlightLevel}</Col>
+            <Col className="gutter-2">{localAssignedFlightLevel}</Col>
             <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
           </Row>
         </Container>

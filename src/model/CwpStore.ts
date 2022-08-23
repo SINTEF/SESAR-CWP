@@ -55,6 +55,10 @@ export default class CWPStore {
 
   pseudoPilot = false;
 
+  nextSectorFlActivated = false;
+
+  flightLevelNextAccActivated = false;
+
   constructor({
     altitudeFilter,
   }: {
@@ -220,5 +224,13 @@ export default class CWPStore {
 
   setPseudoPilot(value: boolean): void {
     this.pseudoPilot = value;
+  }
+
+  showNSFL(value: boolean): void {
+    this.nextSectorFlActivated = value;
+  }
+
+  showFlACC(value: boolean): void {
+    this.flightLevelNextAccActivated = value;
   }
 }
