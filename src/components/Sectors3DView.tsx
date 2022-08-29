@@ -5,6 +5,7 @@ import ReactMapGL, { NavigationControl, ScaleControl } from 'react-map-gl';
 import type { Style } from 'mapbox-gl';
 import type { ViewState } from 'react-map-gl';
 
+import Compass from './Compass';
 import Polygons3D from './Polygons3D';
 
 const mapStyle: Style = {
@@ -39,8 +40,11 @@ const maxBounds: mapboxgl.LngLatBoundsLike = [
 ];
 
 export default function Sectors3DView(): JSX.Element {
+  // const map = React.useRef<MapRef | undefined>(undefined);
   return (
     <ReactMapGL
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+      id='map-3d'
       style={style}
       initialViewState={initialViewState}
       maxBounds={maxBounds}
@@ -52,9 +56,9 @@ export default function Sectors3DView(): JSX.Element {
       renderWorldCopies={false}
     >
       <Polygons3D />
-
+      <Compass/>
       <ScaleControl position="bottom-left" />
-      <NavigationControl position="bottom-left" visualizePitch={true} />
+      <NavigationControl visualizePitch={true} />
     </ReactMapGL>
   );
 }

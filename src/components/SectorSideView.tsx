@@ -39,7 +39,7 @@ export default observer(function SectorSideView() {
     }
   }, [simulatorTime]);
   let timeToChange = 15;
-  let timeDifferanse = 0;
+  let timeDifferanse = 10_000;
 
   const currentConfig = listConfiguration?.[0];
   const cwpCurrentSector = roleConfigurationStore
@@ -136,7 +136,7 @@ export default observer(function SectorSideView() {
         <XAxis dataKey="time" />
         <YAxis domain={[200, 560]} tickCount={20} />
 
-        <ReferenceLine x={timeDifferanse === 0 ? undefined : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
+        <ReferenceLine x={timeDifferanse > 900 ? undefined : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
       </AreaChart>
     </ResponsiveContainer>
   );
