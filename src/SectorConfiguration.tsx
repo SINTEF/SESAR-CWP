@@ -54,11 +54,11 @@ export default observer(function SectorConfiguration() {
       if (index === number_) {
         clearInterval(interval);
       } else {
-        setTimeout(() => {
-          toggleConfiguration(nextConfigId[0]);
-        }, 2000);
+        toggleConfiguration(nextConfigId[0]);
         index += 1;
-        toggleConfiguration(currentConfigTime[0]);
+        setTimeout(() => {
+          toggleConfiguration(currentConfigTime[0]);
+        }, 2000);
       }
     }, 3000);
   };
@@ -90,9 +90,11 @@ export default observer(function SectorConfiguration() {
   React.useEffect(() => {
     if ((timeToNextConfig === 603 || timeToNextConfig === 303)) {
       toggleSectorInterval(3);
+      toggleConfiguration(currentConfigTime[0]);
     }
     if (timeToNextConfig === 20 || timeToNextConfig === 123) {
       toggleSectorInterval(5);
+      toggleConfiguration(currentConfigTime[0]);
     }
     if (timeToNextConfig === 0) {
       toggleSectorChange();
@@ -129,7 +131,8 @@ export default observer(function SectorConfiguration() {
   if (timeToNextConfig <= 601 && !cwpStore.sectorChangeCountdown) {
     cwpStore.showSectorChangeCountdown(true);
   }
-
+  const timelineRectangleHeight = document.querySelector('.timeline-rectangle')?.clientHeight;
+  const bottomValueTimeline = timelineRectangleHeight ? (timelineRectangleHeight / timeToNextConfig) * 100 - 50 : 0;
   return (
     <>
       <Draggable>
@@ -151,6 +154,8 @@ export default observer(function SectorConfiguration() {
                 </Accordion.Body>
               </Accordion.Item>
             ))}
+            <span style={{ top: `${bottomValueTimeline}%` }} className='moveable-timeline-rectangle'>{ChangeCountdownTime(timeToNextConfig)}</span>
+            <span className='timeline-rectangle'></span>
           </Accordion>
         </div>
       </Draggable>
