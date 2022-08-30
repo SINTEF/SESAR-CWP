@@ -64,11 +64,14 @@ div#root {
 .sector-box{
 display: grid;
 width: 500px;
-height:min-content;
+height:300px;
 grid-template-rows: repeat(4, min-content);
 gap: 0px;
 }
 
+.accordion-body{
+    position: relative;
+}
 
 #table-of-config {
     width: 450px;
@@ -100,11 +103,30 @@ gap: 0px;
 }
 .timeline-rectangle{
     background-color: #4472c4;
-    height: 90%;
+    height: 400px;
     width: 15px;
     position:absolute;
     right:1px;
-    top:53px;
+    top:10px;
+    z-index: 0;
+}
+.timeline-rectangle0{
+    background-color: #4472c4;
+    height: 320px;
+    width: 15px;
+    position:absolute;
+    right:1px;
+    top:10px;
+    z-index: 0;
+}
+.timeline-rectangle1{
+    background-color: #4472c4;
+    height: 320px;
+    float: right;
+    width: 15px;
+    position:absolute;
+    right:1px;
+    top:1%;
     z-index: 0;
 }
 .moveable-timeline-rectangle{
@@ -481,26 +503,29 @@ gap: 0px;
 
 .north-button{
     position:absolute;
-    bottom: 15em;
-    left: 5.8em;
-    width: 3em;
-    height: 5em;
+    bottom: 16em;
+    left: 4.8em;
+    width: 5em;
+    height: 3em;
     background-color: transparent;
     border: 0;
-    background-image: url('../north_arrow.png');
+    background-image: url('../saveDirectionArrow.png');
     background-size: 100% 100%;
+    transform: rotate(90deg);
+
 
 }
 .south-button{
     position:absolute;
-    left: 5.8em;
-    bottom: 6em;
-    width: 3em;
-    height: 5em;
+    left: 4.8em;
+    bottom: 7em;
+    width: 5em;
+    height: 3em;
     background-color: transparent;
     border: 0;
-    background-image: url('../south_arrow.png');
+    background-image: url('../saveDirectionArrow.png');
     background-size: 100% 100%;
+    transform: rotate(-90deg);
 
 
 }
@@ -512,8 +537,10 @@ gap: 0px;
     height: 3em;
     background-color: transparent;
     border: 0;
-    background-image: url('../east_arrow.png');
+    background-image: url('../saveDirectionArrow.png');
     background-size: 100% 100%;
+    transform: rotate(180deg);
+
 }
 .west-button{
     position:absolute;
@@ -523,7 +550,7 @@ gap: 0px;
     height: 3em;
     background-color: transparent;
     border: 0;
-    background-image: url('../west_arrow.png');
+    background-image: url('../saveDirectionArrow.png');
     background-size: 100% 100%;
 }
 .chevronlabel {
@@ -565,15 +592,15 @@ gap: 0px;
 .chevron-west{
     position:absolute;
     left: -1.5em;
-    bottom: 11.6em;
+    bottom: 11.5em;
     width: 3em;
-    height: 2.9em;
+    height: 3em;
 }
 .chevron-east{
     position:absolute;
-    left: 13.1em;
-    bottom: 11.6em;
+    left: 13.2em;
+    bottom: 11.5em;
     transform: rotate(180deg);
     width: 3em;
-    height: 2.9em;
+    height: 3em;
 }

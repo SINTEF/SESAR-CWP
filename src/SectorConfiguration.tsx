@@ -44,6 +44,7 @@ export default observer(function SectorConfiguration() {
   const listOfTimes: [string, string][] = [];
   // const listConfiguration: [string, number, number][] = [];
   const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
+  const [currentIntervalTime, setCurrentIntervalTime] = React.useState<[number, number]>([0, 0]);
 
   const nextConfigId = listConfiguration?.[1];
   const currentConfigTime = listConfiguration?.[0];
@@ -79,6 +80,9 @@ export default observer(function SectorConfiguration() {
       }
       setListConfiguration(listOfIntervals);
     }
+    if (currentConfigTime !== undefined) {
+      setCurrentIntervalTime([currentConfigTime[1], currentConfigTime[2]]);
+    }
   }, [simulatorTime]);
 
   const toggleSectorChange = (): void => {
@@ -105,7 +109,6 @@ export default observer(function SectorConfiguration() {
 
   if (currentConfigTime !== undefined) {
     sectorsForCurrent = getAreaOfIncludedAirpaces(currentConfigTime[0]); // bad state?
-
     listOfTimes.push([
       ChangeToLocaleTime(currentConfigTime[1]),
       ChangeToLocaleTime(currentConfigTime[2]),
@@ -131,8 +134,12 @@ export default observer(function SectorConfiguration() {
   if (timeToNextConfig <= 601 && !cwpStore.sectorChangeCountdown) {
     cwpStore.showSectorChangeCountdown(true);
   }
-  const timelineRectangleHeight = document.querySelector('.timeline-rectangle')?.clientHeight;
-  const bottomValueTimeline = timelineRectangleHeight ? (timelineRectangleHeight / timeToNextConfig) * 100 - 50 : 0;
+  const timelineRectangleHeight = document.querySelector('.timeline-rectangle0')?.clientHeight;
+  const timeToChange = currentIntervalTime[1] - simulatorTime;
+  const bottomValueTimeline = currentIntervalTime && timelineRectangleHeight
+    ? (((currentIntervalTime[0] - simulatorTime)
+    / (currentIntervalTime[0] - currentIntervalTime[1]))
+     * timelineRectangleHeight) : 0;
   return (
     <>
       <Draggable>
@@ -149,13 +156,13 @@ export default observer(function SectorConfiguration() {
                   {' '}
                   {value[1]}
                 </Accordion.Header>
-                <Accordion.Body>
+                <Accordion.Body className="accordion-body">
                   <TableSectors sectorsOfArray={sectorArray[index]} />
+                  {index === 0 ? <span style={{ top: `${bottomValueTimeline}px` }} className='moveable-timeline-rectangle'>{ChangeCountdownTime(timeToChange)}</span> : null}
+                  <div className={`timeline-rectangle${index}`}></div>
                 </Accordion.Body>
               </Accordion.Item>
             ))}
-            <span style={{ top: `${bottomValueTimeline}%` }} className='moveable-timeline-rectangle'>{ChangeCountdownTime(timeToNextConfig)}</span>
-            <span className='timeline-rectangle'></span>
           </Accordion>
         </div>
       </Draggable>

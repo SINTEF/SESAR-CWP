@@ -7,54 +7,43 @@ export default observer(function Compass(): JSX.Element {
   const { current: map } = useMap();
 
   const rotationButtonClicked = (rotation: string): void => {
-    const currentBearing = map?.getBearing();
-    console.log(currentBearing);
-    switch (rotation) { // Do we keep pitch while rotating? Or setting to zero?
+    const currentBearing = Number(map?.getBearing());
+    const currentPitch = Number(map?.getPitch());
+    switch (rotation) {
       case 'north': {
-        map?.setBearing(0);
+        map?.setPitch(currentPitch - 20);
 
         break;
       }
       case 'south': {
-        map?.setBearing(180);
+        map?.setPitch(currentPitch + 20);
 
         break;
       }
       case 'east': {
-        map?.setBearing(90);
+        map?.setBearing(currentBearing - 20);
 
         break;
       }
       case 'west': {
-        map?.setBearing(270);
+        map?.setBearing(currentBearing + 20);
 
         break;
       }
       case 'north-degrees': {
-        if (currentBearing !== 0) {
-          const newDegrees = Number(currentBearing) < 0 ? Number(currentBearing) + 30 : Number(currentBearing) - 30;
-          if (newDegrees < -180) {
-            map?.setBearing(0);
-          } else if (currentBearing && currentBearing > 0 && newDegrees < 0) {
-            map?.setBearing(0);
-          } else {
-            map?.setBearing(Number(newDegrees));
-          }
-        }
+        map?.setPitch(currentPitch - 5);
+        break;
+      }
+      case 'south-degrees': {
+        map?.setPitch(currentPitch + 5);
         break;
       }
       case 'west-degrees': {
-        if (currentBearing !== 90) {
-          // const positiveDegrees = Number(currentBearing) < 0 ? Number(currentBearing) + 360 : Number(currentBearing);
-          const newDegrees = Number(currentBearing) < 0 ? Number(currentBearing) + 30 : Number(currentBearing) - 30;
-          if (newDegrees < 90) {
-            map?.setBearing(0);
-          } else if (currentBearing && currentBearing > 0 && newDegrees < 0) {
-            map?.setBearing(0);
-          } else {
-            map?.setBearing(Number(newDegrees));
-          }
-        }
+        map?.setBearing(currentBearing + 5);
+        break;
+      }
+      case 'east-degrees': {
+        map?.setBearing(currentBearing - 5);
         break;
       }
       default: {
@@ -63,10 +52,6 @@ export default observer(function Compass(): JSX.Element {
     }
   };
 
-  // const degreesRotationClicked = (rotation: string) : void => {
-
-  // }
-
   return (
     <div className="compass">
       <button className='north-button' onClick={():void => rotationButtonClicked('north')}></button>
@@ -74,9 +59,9 @@ export default observer(function Compass(): JSX.Element {
       <button onClick={():void => rotationButtonClicked('west')} className='west-button'></button>
       <button onClick={():void => rotationButtonClicked('south')} className='south-button'></button>
       <button onClick={():void => rotationButtonClicked('north-degrees')} className='chevron-north chevron-degrees-button'></button>
-      <button onClick={():void => rotationButtonClicked('north-degrees')} className='chevron-south chevron-degrees-button'></button>
+      <button onClick={():void => rotationButtonClicked('south-degrees')} className='chevron-south chevron-degrees-button'></button>
       <button onClick={():void => rotationButtonClicked('west-degrees')} className='chevron-west chevron-degrees-button'></button>
-      <button onClick={():void => rotationButtonClicked('north-degrees')} className='chevron-east chevron-degrees-button'></button>
+      <button onClick={():void => rotationButtonClicked('east-degrees')} className='chevron-east chevron-degrees-button'></button>
     </div>
   );
 });
