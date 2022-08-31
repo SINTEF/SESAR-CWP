@@ -4,7 +4,6 @@ import React from 'react';
 import {
   Button, Col, Container, Row,
 } from 'react-bootstrap';
-import { Popup } from 'react-map-gl';
 
 import { changeFlightLevelOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
@@ -41,8 +40,6 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
   const {
     aircraftId,
     assignedFlightId,
-    lastKnownLongitude: longitude,
-    lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
     callSign,
     controlledBy,
@@ -139,11 +136,11 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
             <Button onClick={(): void => FlightLevelChange('down')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11167;</Button>
           </Col>
         </Row>
-        <Row>
-          <Col className="apply-cancel-wrapper"><Button onClick={close} className="apply-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
-          <Col className="apply-cancel-wrapper"><Button onClick={setFLCP} className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
-        </Row>
       </Container>
+      <div className="submit-cancel-buttons">
+        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
+        <Button onClick={setFLCP} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Apply</Button>
+      </div>
     </div>
   );
 });

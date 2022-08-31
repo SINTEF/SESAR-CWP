@@ -5,13 +5,8 @@ import { Marker } from 'react-map-gl';
 import {
   configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
-import AircraftLevelPopup from './AircraftLevelPopup';
 import AircraftPopup from './AircraftPopup';
 import AircraftPopupPseudo from './AircraftPopupPseudo';
-import ChangeBearingPopup from './ChangeBearingPopup';
-import ChangeNextFixPopup from './ChangeNextFixPopup';
-import ChangeSpeed from './ChangeSpeed';
-import NextSectorPopup from './NextSectorPopup';
 import type AircraftModel from '../model/AircraftModel';
 
 // eslint-disable-next-line max-len
@@ -61,13 +56,7 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
       >
         {SVG_ICON_PATH}
       </svg>
-      <GenericAircraftPopup aircraft={properties.aircraft}>
-        <AircraftLevelPopup aircraft={properties.aircraft} />
-        <ChangeNextFixPopup aircraft={properties.aircraft} />
-        <NextSectorPopup aircraft={properties.aircraft} />
-        <ChangeSpeed aircraft={properties.aircraft} />
-        <ChangeBearingPopup aircraft={properties.aircraft} />
-      </GenericAircraftPopup>
+      <GenericAircraftPopup aircraft={properties.aircraft} />
     </Marker>
   );
 });

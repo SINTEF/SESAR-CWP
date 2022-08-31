@@ -1,9 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import {
-  Button, Col, Container, Row,
-} from 'react-bootstrap';
-import { Popup } from 'react-map-gl';
+import { Button } from 'react-bootstrap';
 
 import { changeNextWaypointOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore, fixStore } from '../state';
@@ -13,8 +10,6 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   const {
     aircraftId,
     assignedFlightId,
-    lastKnownLongitude: longitude,
-    lastKnownLatitude: latitude,
     controlledBy,
   } = properties.aircraft;
 
@@ -52,40 +47,15 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   };
 
   return (
-    <Popup
-      className="change-bearing"
-      anchor="bottom"
-      longitude={longitude}
-      latitude={latitude}
-      offset={[53, 100]}
-      closeOnClick={false}
-      onClose={close}
-      closeButton={false}
-    >
-      <Container className="choose-next-controller">
-        <Row className="submit-cancel-wrapper">
-          <Col className="gutter-2">
-            <span>
-              Next Fix:
-              <input ref={newChangedFixInputReference} className="input-filter-popup" />
-            </span>
-          </Col>
-        </Row>
-        <Row>
-          <Col className="gutter-2">
-            <Button onClick={close}
-              className="btn btn-light submit-cancel-button" size="sm" variant="secondary">
-              Cancel
-            </Button>
-          </Col>
-          <Col className="gutter-2">
-            <Button onClick={submit}
-              className="btn btn-light submit-cancel-button" size="sm" variant="secondary">
-              Submit
-            </Button>
-          </Col>
-        </Row>
-      </Container>
-    </Popup>
+    <div className="change-next-fix">
+      <div>
+        Next Fix:
+        <input ref={newChangedFixInputReference} className="input-filter-popup" />
+      </div>
+      <div className="submit-cancel-buttons">
+        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
+        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      </div>
+    </div>
   );
 });

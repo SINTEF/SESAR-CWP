@@ -9,13 +9,18 @@ import { useMap } from 'react-map-gl';
 import { isDragging } from '../draggableState';
 import { acceptFlight } from '../mqtt';
 import { aircraftStore, configurationStore, cwpStore } from '../state';
+import AircraftLevelPopup from './AircraftLevelPopup';
+import ChangeBearingPopup from './ChangeBearingPopup';
+import ChangeNextFixPopup from './ChangeNextFixPopup';
+import ChangeSpeedPopup from './ChangeSpeedPopup';
 import DraggablePopup from './DraggablePopup';
+import NextSectorPopup from './NextSectorPopup';
 import type AircraftModel from '../model/AircraftModel';
 
 export default observer(function AircraftPopupPseudo(properties: {
-  aircraft: AircraftModel; children?: React.ReactNode;
+  aircraft: AircraftModel;
 }) {
-  const { aircraft, children } = properties;
+  const { aircraft } = properties;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -123,7 +128,7 @@ export default observer(function AircraftPopupPseudo(properties: {
       closeOnClick={false}
       closeButton={false}
       focusAfterOpen={false}
-      cancel=".flight-popup-children"
+      cancel="input, button"
       onClose={(): void => cwpStore.closeLevelPopupForAircraft(aircraftId)}
     >
       <div>
@@ -160,7 +165,11 @@ export default observer(function AircraftPopupPseudo(properties: {
           </Container>
         </div>
         <div className="flight-popup-children">
-          {children}
+          <AircraftLevelPopup aircraft={aircraft} />
+          <ChangeNextFixPopup aircraft={aircraft} />
+          <NextSectorPopup aircraft={aircraft} />
+          <ChangeSpeedPopup aircraft={aircraft} />
+          <ChangeBearingPopup aircraft={aircraft} />
         </div>
       </div>
     </DraggablePopup>

@@ -277,15 +277,8 @@ user-select: none;
 /* For level pop up */
 
 .level-popup {
-    position: relative;
-    background: rgb(70, 70, 70);
-    color: white;
-    padding: 0;
-    margin: 0;
-    width: 9rem;
-    z-index: 0;
+    width: 150px;
     height: fit-content;
-    border-radius: 1.5px;
     /* border-color: #fff; */
 }
 
@@ -302,6 +295,15 @@ user-select: none;
     margin-top: 0px;
     border-color: white;
 }*/
+
+.level-popup .levels-container .btn {
+    background: transparent;
+    border-color: transparent;
+}
+.level-popup .levels-container .btn:hover,
+.level-popup .levels-container .btn:active {
+    background: #444;
+}
 
 .level-range {
     width: 20px;
@@ -369,7 +371,7 @@ user-select: none;
     z-index: 0;
 }
 
-.change-bearing {
+.change-bearing, .change-next-fix, .next-sector-popup, .change-speed, .level-popup {
     background: rgba(90, 90, 90, 0.5);
     border-radius: 1.5px;
     padding: 0.2rem;
@@ -378,16 +380,19 @@ user-select: none;
     position: relative;
 }
 
-.change-bearing .gutter-2 {
-    line-height: 1.4em;
-    margin: 0;
-    padding: 0 0 0 0;
+.level-popup {
+    width: 150px;
+}
+
+.change-speed {
+    width: 121px;
 }
 
 .submit-cancel-buttons {
     display: flex;
     flex-direction: row;
     gap: 2px;
+    margin-top: 3px;
     justify-content: space-between;
 }
 

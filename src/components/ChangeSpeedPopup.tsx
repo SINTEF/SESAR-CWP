@@ -46,41 +46,16 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   };
 
   return (
-    <Popup
-      className="change-bearing"
-      anchor="bottom"
-      longitude={longitude}
-      latitude={latitude}
-      offset={[53, 100]}
-      closeOnClick={false}
-      onClose={close}
-      closeButton={false}
-    >
-      <Container className="choose-next-controller">
-        <Row className="submit-cancel-wrapper">
-          <Col className="gutter-2">
-            <span>
-              New Speed:
-              <input ref={newChangedSpeedInputReference} className="input-filter-popup"
+    <div className="change-speed">
+      <div>
+        New Speed:
+        <input ref={newChangedSpeedInputReference} className="input-filter-popup"
                 type="number" min="0" />
-            </span>
-          </Col>
-        </Row>
-        <Row>
-          <Col className="gutter-2">
-            <Button onClick={close}
-              className="btn btn-light submit-cancel-button" size="sm" variant="secondary">
-              Cancel
-            </Button>
-          </Col>
-          <Col className="gutter-2">
-            <Button onClick={submit}
-              className="btn btn-light submit-cancel-button" size="sm" variant="secondary">
-              Submit
-            </Button>
-          </Col>
-        </Row>
-      </Container>
-    </Popup>
+      </div>
+      <div className="submit-cancel-buttons">
+        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
+        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      </div>
+    </div>
   );
 });
