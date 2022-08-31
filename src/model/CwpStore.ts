@@ -129,9 +129,19 @@ export default class CWPStore {
   closePopupForAircraft(aircraftId: string): void {
     this.aircraftsWithManuallyOpenedPopup.delete(aircraftId);
     this.aircraftsWithManuallyClosedPopup.add(aircraftId);
+    this.closeAllSubPopupsForAircraft(aircraftId);
+  }
+
+  closeAllSubPopupsForAircraft(aircraftId: string): void {
+    this.closeLevelPopupForAircraft(aircraftId);
+    this.closeNextSectorPopupForAircraft(aircraftId);
+    this.closeChangeBearingForAircraft(aircraftId);
+    this.closeChangeNextFixForAircraft(aircraftId);
+    this.closeChangeSpeedForAircraft(aircraftId);
   }
 
   openLevelPopupForAircraft(aircraftId: string): void {
+    this.closeAllSubPopupsForAircraft(aircraftId);
     this.aircraftsWithLevelPopup.add(aircraftId);
   }
 
@@ -140,6 +150,7 @@ export default class CWPStore {
   }
 
   openNextSectorPopupForAircraft(aircraftId: string): void {
+    this.closeAllSubPopupsForAircraft(aircraftId);
     this.aircraftsWithSectorPopup.add(aircraftId);
   }
 
@@ -148,6 +159,7 @@ export default class CWPStore {
   }
 
   openChangeBearingForAircraft(aircraftId: string): void {
+    this.closeAllSubPopupsForAircraft(aircraftId);
     this.aircraftsWithBearingPopup.add(aircraftId);
   }
 
@@ -156,6 +168,7 @@ export default class CWPStore {
   }
 
   openChangeNextFixForAircraft(aircraftId: string): void {
+    this.closeAllSubPopupsForAircraft(aircraftId);
     this.aircraftsWithNextFixPopup.add(aircraftId);
   }
 
@@ -164,6 +177,7 @@ export default class CWPStore {
   }
 
   openChangeSpeedForAircraft(aircraftId: string): void {
+    this.closeAllSubPopupsForAircraft(aircraftId);
     this.aircraftWithSpeedChangePopup.add(aircraftId);
   }
 
