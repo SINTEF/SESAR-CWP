@@ -108,19 +108,13 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
   };
 
   return (
-    <Popup
-      anchor="bottom"
-      longitude={longitude}
-      latitude={latitude}
-      offset={[53, 246]}
+    <div
       className={classnames({
         pending: false,
         accepted,
         other: false,
         'level-popup': true,
       })}
-      closeOnClick={false}
-      onClose={(): void => close()}
     >
       <Container className="choose-flight-level">
         <Row className="justify-content-center">
@@ -150,6 +144,6 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
           <Col className="apply-cancel-wrapper"><Button onClick={setFLCP} className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
         </Row>
       </Container>
-    </Popup>
+    </div>
   );
 });

@@ -14,7 +14,9 @@ import {
 import DraggablePopup from './DraggablePopup';
 import type AircraftModel from '../model/AircraftModel';
 
-export default observer(function AircraftPopup(properties: { aircraft: AircraftModel }) {
+export default observer(function AircraftPopup(properties: {
+  aircraft: AircraftModel; children?: React.ReactNode;
+}) {
   const { aircraft } = properties;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 

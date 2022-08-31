@@ -1,5 +1,3 @@
-import './AircraftMarker.css';
-
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Marker } from 'react-map-gl';
@@ -41,6 +39,10 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
   if (controlledBy === configurationStore.currentCWP) {
     flightColor = '#78e251';
   }
+
+  const GenericAircraftPopup = configurationStore.currentCWP === 'All' || cwpStore.pseudoPilot
+    ? AircraftPopupPseudo : AircraftPopup;
+
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
       <svg
@@ -59,12 +61,13 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
       >
         {SVG_ICON_PATH}
       </svg>
-      <AircraftLevelPopup aircraft={properties.aircraft} />
-      {configurationStore.currentCWP === 'All' || cwpStore.pseudoPilot ? <AircraftPopupPseudo aircraft={properties.aircraft} /> : <AircraftPopup aircraft={properties.aircraft} />}
-      <ChangeNextFixPopup aircraft={properties.aircraft} />
-      <NextSectorPopup aircraft={properties.aircraft} />
-      <ChangeSpeed aircraft={properties.aircraft} />
-      <ChangeBearingPopup aircraft={properties.aircraft} />
+      <GenericAircraftPopup aircraft={properties.aircraft}>
+        <AircraftLevelPopup aircraft={properties.aircraft} />
+        <ChangeNextFixPopup aircraft={properties.aircraft} />
+        <NextSectorPopup aircraft={properties.aircraft} />
+        <ChangeSpeed aircraft={properties.aircraft} />
+        <ChangeBearingPopup aircraft={properties.aircraft} />
+      </GenericAircraftPopup>
     </Marker>
   );
 });

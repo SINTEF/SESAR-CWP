@@ -12,8 +12,10 @@ import { aircraftStore, configurationStore, cwpStore } from '../state';
 import DraggablePopup from './DraggablePopup';
 import type AircraftModel from '../model/AircraftModel';
 
-export default observer(function AircraftPopupPseudo(properties: { aircraft: AircraftModel }) {
-  const { aircraft } = properties;
+export default observer(function AircraftPopupPseudo(properties: {
+  aircraft: AircraftModel; children?: React.ReactNode;
+}) {
+  const { aircraft, children } = properties;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -121,37 +123,45 @@ export default observer(function AircraftPopupPseudo(properties: { aircraft: Air
       closeOnClick={false}
       closeButton={false}
       focusAfterOpen={false}
+      cancel=".flight-popup-children"
       onClose={(): void => cwpStore.closeLevelPopupForAircraft(aircraftId)}
     >
-      <div onWheel={onWheel}>
-        <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
-        <Container className="flight-popup-container">
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && setController()}>{callSign}</Col>
-          </Row>
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openChangeBearingForAircraft(aircraftId)}>{Math.round(bearing)}</Col>
-            <Col className="gutter-2"/>
-            <Col className="gutter-2">{assignedBearing === -1 ? 'BEG.S' : assignedBearing}</Col>
-          </Row>
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-            <Col className="gutter-2" onMouseDown={middleClickNextWaypoint} onClick={(): false | void => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
-              {nextFix}
-            </Col>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{assignedFlightLevel}</Col>
-          </Row>
-          <Row>
-            <Col className="gutter-2" onMouseDown={handleSpeedClick} onClick={(): false | void => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNSFLPopup(aircraftId)}>{nextSectorFL}</Col>
-            <Col className="gutter-2">{assignedSpeed === -1 ? 'S.S' : assignedSpeed}</Col>
-          </Row>
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
-            <Col className="gutter-2">{localAssignedFlightLevel}</Col>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNextACCPopup(aircraftId)}>{nextACCFL}</Col>
-          </Row>
-        </Container>
+      <div>
+        <div className="flight-popup-main" style={{
+          width: '110px', height: '68px',
+        }} onWheel={onWheel}>
+          <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
+          <Container className="flight-popup-container">
+            <Row>
+              <Col className="gutter-2" onClick={(): false | void => !isDragging() && setController()}>{callSign}</Col>
+            </Row>
+            <Row>
+              <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openChangeBearingForAircraft(aircraftId)}>{Math.round(bearing)}</Col>
+              <Col className="gutter-2"/>
+              <Col className="gutter-2">{assignedBearing === -1 ? 'BEG.S' : assignedBearing}</Col>
+            </Row>
+            <Row>
+              <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
+              <Col className="gutter-2" onMouseDown={middleClickNextWaypoint} onClick={(): false | void => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
+                {nextFix}
+              </Col>
+              <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{assignedFlightLevel}</Col>
+            </Row>
+            <Row>
+              <Col className="gutter-2" onMouseDown={handleSpeedClick} onClick={(): false | void => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
+              <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNSFLPopup(aircraftId)}>{nextSectorFL}</Col>
+              <Col className="gutter-2">{assignedSpeed === -1 ? 'S.S' : assignedSpeed}</Col>
+            </Row>
+            <Row>
+              <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
+              <Col className="gutter-2">{localAssignedFlightLevel}</Col>
+              <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNextACCPopup(aircraftId)}>{nextACCFL}</Col>
+            </Row>
+          </Container>
+        </div>
+        <div className="flight-popup-children">
+          {children}
+        </div>
       </div>
     </DraggablePopup>
   );
