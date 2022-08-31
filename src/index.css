@@ -420,11 +420,6 @@ gap: 0px;
 
 /* Pseudo popup */
 
-.flight-popup-pseudo {
-    width: 11em !important;
-    height: 7em !important;
-}
-
 .choose-next-controller {
     background-color: rgba(90, 90, 90, 0.5);
 }
