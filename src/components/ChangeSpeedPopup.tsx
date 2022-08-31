@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import {
-  Button, Col, Container, Row,
-} from 'react-bootstrap';
-import { Popup } from 'react-map-gl';
+import { Button } from 'react-bootstrap';
 
 import { changeSpeedOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
@@ -14,8 +11,6 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   const {
     aircraftId,
     assignedFlightId,
-    lastKnownLongitude: longitude,
-    lastKnownLatitude: latitude,
     controlledBy,
     setAssignedSpeed,
   } = properties.aircraft;
