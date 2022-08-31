@@ -112,7 +112,9 @@ export default observer(function AircraftPopupPseudo(properties: { aircraft: Air
     <DraggablePopup
       className="flight-popup flight-popup-pseudo"
       style={{ color: flightColor }}
+      color={flightColor === '#ffffff' ? undefined : flightColor}
       offset={{ x: 0, y: 0 }}
+      size={{ width: 110, height: 68 }}
       anchor="top"
       longitude={longitude}
       latitude={latitude}

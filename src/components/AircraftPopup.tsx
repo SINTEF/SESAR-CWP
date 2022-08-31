@@ -86,6 +86,7 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
       style={{ color: flightColor }}
       color={flightColor === '#ffffff' ? undefined : flightColor}
       offset={{ x: 0, y: 0 }}
+      size={{ width: 110, height: 55 }}
       anchor="top"
       longitude={longitude}
       latitude={latitude}

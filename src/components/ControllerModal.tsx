@@ -63,7 +63,8 @@ export default observer(function ControllerModal() {
           {controllers.map(
             (name) => (<ToggleButton value={name === 'Master' ? 'All' : name} id={name === 'Master' ? 'All' : name} key={name === 'Master' ? 'All' : name}>{name}</ToggleButton>))}
         </ToggleButtonGroup>
-        {'\n'}
+        <br/>
+        <br/>
         <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
           {pseudoPilots.map(
             (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}

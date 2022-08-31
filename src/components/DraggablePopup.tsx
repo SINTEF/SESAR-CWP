@@ -13,6 +13,10 @@ export type DraggablePopupProperties = {
     x: number,
     y: number,
   },
+  size: {
+    width: number,
+    height: number,
+  },
   color?: string,
 } & PopupProps;
 
@@ -72,7 +76,7 @@ export default class DraggablePopup extends
 
   render(): JSX.Element {
     const {
-      className, children, offset, color, ...otherProperties
+      className, children, offset, color, size, ...otherProperties
     } = this.props;
     const { offsetX, offsetY } = this.state;
 
@@ -81,8 +85,8 @@ export default class DraggablePopup extends
     const planeIconRadius = 10;
     const planeIconIntersectRadius = 15;
 
-    const coreWidth = 110;
-    const coreHeight = 55;
+    const coreWidth = size.width;
+    const coreHeight = size.height;
     const popupIsLower = offsetY > -coreHeight / 2;
     const popupIsOnLeft = offsetX < -coreWidth / 2;
 

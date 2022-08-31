@@ -47,19 +47,24 @@ div#root {
 }
 
 /* Accordion for sector configurations */
-.sector-title {
+#accordion .accordion-item {
+    border-color: #404040;
+}
+#accordion .accordion-button {
+    box-shadow: inset 0 -1px 0 #404040;
+}
+#accordion  .sector-title {
     font-size: 10px !important;
 }
 
-.sector-body {
+#accordion .sector-body {
     font-size: 8px !important;
 }
 
-.span3 {
-
+#accordion .span3 {
     display: inline-table;
     margin: 0px;
-        flex-wrap: nowrap;
+    flex-wrap: nowrap;
 }
 .sector-box{
 display: grid;
@@ -419,11 +424,6 @@ gap: 0px;
 }
 
 /* Pseudo popup */
-
-.flight-popup-pseudo {
-    width: 11em !important;
-    height: 7em !important;
-}
 
 .choose-next-controller {
     background-color: rgba(90, 90, 90, 0.5);
