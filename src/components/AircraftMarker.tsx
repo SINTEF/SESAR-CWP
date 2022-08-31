@@ -6,7 +6,6 @@ import {
   configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
 import AircraftPopup from './AircraftPopup';
-import AircraftPopupPseudo from './AircraftPopupPseudo';
 import type AircraftModel from '../model/AircraftModel';
 
 // eslint-disable-next-line max-len
@@ -35,8 +34,7 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
     flightColor = '#78e251';
   }
 
-  const GenericAircraftPopup = configurationStore.currentCWP === 'All' || cwpStore.pseudoPilot
-    ? AircraftPopupPseudo : AircraftPopup;
+  const pseudo = configurationStore.currentCWP === 'All' || cwpStore.pseudoPilot;
 
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
@@ -56,7 +54,7 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
       >
         {SVG_ICON_PATH}
       </svg>
-      <GenericAircraftPopup aircraft={properties.aircraft} />
+      <AircraftPopup aircraft={properties.aircraft} pseudo={pseudo}/>
     </Marker>
   );
 });
