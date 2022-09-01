@@ -40,12 +40,19 @@ export default class AircraftStore {
     this.simulatorStore = simulatorStore;
   }
 
-  get aircraftsWithPosition(): AircraftModel[] {
-    const aircrafts = [...this.aircrafts.values()]
-      .filter(({ lastKnownLongitude }) => (
-        lastKnownLongitude !== 0
+  get aircraftsWithRecentTargetReport(): AircraftModel[] {
+    const timestamp = this.simulatorStore.minuteRoundedTimestamp;
+    return [...this.aircrafts.values()]
+      .filter(({ lastTargetReportTime }) => (
+        // Remove aircrafts with target reports older than 10 minutes (or with 0 value)
+        (timestamp - lastTargetReportTime) < 600
       ));
-    return aircrafts;
+  }
+
+  get aircraftsWithPosition(): AircraftModel[] {
+    return this.aircraftsWithRecentTargetReport.filter(({ lastKnownLongitude }) => (
+      lastKnownLongitude !== 0
+    ));
   }
 
   handleNewFlight(newFlight: NewFlightMessage): void {

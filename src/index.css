@@ -94,7 +94,7 @@ gap: 0px;
 .control-panel {
     position: absolute;
     top: 72px;
-    z-index: 4;
+    z-index: 34;
     right: 50%;
     width: 500px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
