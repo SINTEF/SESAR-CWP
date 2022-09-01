@@ -1,28 +1,47 @@
+import { booleanPointInPolygon, polygon } from '@turf/turf';
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 import {
   Table,
 } from 'react-bootstrap';
+import type { Position } from '@turf/turf';
 
 import {
   aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
+import type AircraftModel from '../model/AircraftModel';
 
 const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
-  const data = aircraftStore.aircraftsWithPosition;
   const { currentCWP, currentConfigurationId } = configurationStore;
   const currentSector = roleConfigurationStore
     .getControlledSector(currentCWP, currentConfigurationId);
   const [filter, setFilter] = useState('');
+  const [listOfSectorAircrafts, setlistOfSectorAircrafts] = React.useState<AircraftModel[]>([]);
 
   const handleFlightClicked = (event: string): void => {
     cwpStore.setHighlightedAircraftId(event);
   };
-
   if (!cwpStore.showFL) return null;
+
+  React.useEffect(() => {
+    if (cwpStore.coordinatesCurrentPolygon !== undefined) {
+      const boundsGeometry = polygon(
+        [cwpStore.coordinatesCurrentPolygon] as unknown as Position[][]);
+      const temporaryAircrafts: AircraftModel[] = [];
+      for (const aircraft of aircraftStore.aircrafts) {
+        const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
+        const bool = booleanPointInPolygon(position, boundsGeometry);
+        if (bool) {
+          temporaryAircrafts.push(...aircraftStore.aircraftsWithPosition
+            .filter((flight) => flight.assignedFlightId === aircraft[0]));
+        }
+      }
+      setlistOfSectorAircrafts(temporaryAircrafts);
+    }
+  }, [cwpStore.coordinatesCurrentPolygon]);
 
   return (
     <div className="aircraft-list">
@@ -60,7 +79,7 @@ export default observer(function AircraftListElement(/* properties */) {
           </tr>
         </thead>
         <tbody>
-          {data.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
+          {listOfSectorAircrafts.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
             .map((aircraftData) => (
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
@@ -69,8 +88,6 @@ export default observer(function AircraftListElement(/* properties */) {
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
 
                 <td>
-                  {/* <li key={aircraft_data.aircraftId}>
-<a href="#" onClick={() => undefined}> */}
                   <b>
                     {aircraftData.callSign}
                   </b>

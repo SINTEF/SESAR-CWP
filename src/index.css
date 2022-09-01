@@ -186,6 +186,38 @@ gap: 0px;
     overflow-y: scroll;
     transform: translate(0px, 0px)
 }
+.fix-selector{
+    /* position: absolute;
+    top: 0;
+    left: 0; */
+    align-self: center;
+    font-size: 10px !important;
+    color: #fff !important;
+    width: 10em !important;
+    height: 3em;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+.fix-selector-container{
+    /* position: absolute;
+    top: 0;
+    left: 0; */
+    display: inline-flex;
+    justify-content: start;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+    font-size: 10px !important;
+    color: #fff !important;
+    width: 20em !important;
+    height: 3em;
+}
+.number-of-flight{
+    display: inline-flex;
+    justify-content: space-around;
+    width: 3em;
+}
+.
 
 .sector-flight-list::-webkit-scrollbar {
     display: none;

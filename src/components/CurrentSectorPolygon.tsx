@@ -3,7 +3,7 @@ import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 import type { LinePaint } from 'mapbox-gl';
 
-import { configurationStore, roleConfigurationStore } from '../state';
+import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 
 const sectorOutlinePaint: LinePaint = {
   'line-color': '#fff',
@@ -17,16 +17,21 @@ export default observer(function SectorPolygons(/* properties */) {
   const sectorData = [...sectorStore.values()]
     .filter(([key]) => key === sectorId);
 
+  if (configurationStore.currentCWP === '') {
+    return null;
+  }
   const sectors: GeoJSON.Feature[] = sectorData.map(([/* title */, area]) => {
     const coordinates = area.sectorArea.map((point) => (
       [point.longitude, point.latitude]),
     );
+    cwpStore.setCurrentPolygonCoordinates([...coordinates, coordinates[0]]);
+    // cwpStore.setCurrentPolygonCoordinates(coordinates);
     return {
       type: 'Feature',
       properties: {},
       geometry: {
-        type: 'LineString',
-        coordinates: [...coordinates, coordinates[0]],
+        type: 'Polygon',
+        coordinates: [[...coordinates, coordinates[0]]],
       },
     };
   });
