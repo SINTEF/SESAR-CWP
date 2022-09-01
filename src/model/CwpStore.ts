@@ -51,8 +51,6 @@ export default class CWPStore {
 
   highlightedAircraftId = '';
 
-  sectorChangeCountdown = false;
-
   pseudoPilot = false;
 
   nextSectorFlActivated = false;
@@ -230,10 +228,6 @@ export default class CWPStore {
     setTimeout(() => {
       this.setHighlightedAircraftId('');
     }, 10_000); // How long to highlight aircraft?
-  }
-
-  showSectorChangeCountdown(value: boolean): void {
-    this.sectorChangeCountdown = value;
   }
 
   setPseudoPilot(value: boolean): void {

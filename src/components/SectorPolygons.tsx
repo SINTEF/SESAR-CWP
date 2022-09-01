@@ -1,4 +1,5 @@
 import * as turf from '@turf/turf';
+import { computed } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
@@ -65,7 +66,9 @@ export default observer(function SectorPolygons(/* properties */) {
     }
     return '#fff';
   };
-  const setSectorName = (bottomFL: number, topFL: number, sectorId: string): string => {
+  const setSectorName = (
+    bottomFL: number, topFL: number, sectorId: string,
+  ): string => computed(() => {
     for (const key of roleConfigurationStore.roleConfigurations.keys()) {
       const sector = roleConfigurationStore
         .getControlledSector(key, currentConfigurationId);
@@ -74,7 +77,7 @@ export default observer(function SectorPolygons(/* properties */) {
       }
     }
     return `S-${bottomFL}-${topFL}`;
-  };
+  }).get();
   const sectors: Feature<Geometry, { t: string, color: string, key: string }>[] = sectorData.map(
     ([key, area]) => {
       const coordinates = area.sectorArea.map((point) => (

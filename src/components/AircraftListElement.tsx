@@ -13,9 +13,7 @@ const flightColor = (value: string): string => (value === configurationStore.cur
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
   const data = aircraftStore.aircraftsWithPosition;
-  const { currentCWP, currentConfigurationId } = configurationStore;
-  const currentSector = roleConfigurationStore
-    .getControlledSector(currentCWP, currentConfigurationId);
+  const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
 
   const handleFlightClicked = (event: string): void => {
