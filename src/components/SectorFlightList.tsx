@@ -71,7 +71,6 @@ export default observer(function SectorFlightList(/* properties */) {
             .map((aircraftData) => (
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
-                id={aircraftData.assignedFlightId}
                 key={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
                 <td>

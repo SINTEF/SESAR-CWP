@@ -64,7 +64,6 @@ export default observer(function AircraftListElement(/* properties */) {
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
                 key={aircraftData.assignedFlightId}
-                id={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
 
                 <td>

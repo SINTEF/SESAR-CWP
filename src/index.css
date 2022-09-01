@@ -279,11 +279,31 @@ user-select: none;
 .level-popup {
     width: 150px;
     height: fit-content;
-    /* border-color: #fff; */
 }
 
 .level-popup.accepted {
     border-color: rgb(120, 226, 81);
+}
+
+.level-popup-header {
+    text-align: center;
+}
+
+.level-popup-main {
+    display: flex;
+}
+
+.level-popup-main .levels-container {
+    width: 50%;
+    text-align: center;
+}
+.level-popup-main .levels-slider {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+.level-popup-main .level-range {
+    flex-grow: 1;
 }
 
 .choose-flight-level {
@@ -301,13 +321,13 @@ user-select: none;
     border-color: transparent;
 }
 .level-popup .levels-container .btn:hover,
+.level-popup .levels-container .btn.active,
 .level-popup .levels-container .btn:active {
     background: #444;
 }
 
 .level-range {
-    width: 20px;
-    height: 10em;
+    width: 100%;
 }
 
 .levels-container {
