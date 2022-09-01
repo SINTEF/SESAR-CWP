@@ -36,4 +36,8 @@ export default class SimulatorStore {
   setTimestamp(timestamp: number): void {
     this.timestamp = timestamp;
   }
+
+  get minuteRoundedTimestamp(): number {
+    return Math.floor(this.timestamp / 60) * 60;
+  }
 }
