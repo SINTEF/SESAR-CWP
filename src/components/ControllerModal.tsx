@@ -53,7 +53,7 @@ export default observer(function ControllerModal() {
       backdrop={secondSelection ? true : 'static'}
     >
       <Modal.Header closeButton={secondSelection}>
-        <Modal.Title id="contained-modal-title-vcenter">
+        <Modal.Title>
           Choose Controller
         </Modal.Title>
       </Modal.Header>

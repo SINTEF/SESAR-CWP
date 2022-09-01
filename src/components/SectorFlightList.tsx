@@ -26,7 +26,6 @@ export default observer(function SectorFlightList(/* properties */) {
           <tr>
             <th colSpan={3}>
               <input
-                id="filter"
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."

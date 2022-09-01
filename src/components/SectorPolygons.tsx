@@ -143,10 +143,10 @@ export default observer(function SectorPolygons(/* properties */) {
 
   return (
     <>
-      {sourceAndALayersForSectors}
       <Source id="sector_polygon_names" type="geojson" data={centroidPointsCollection}>
         <Layer id="sector_polygon_names_layer" type="symbol" layout={sectorNamesText} paint={sectorNamesPaint} beforeId="sector_edges_polygon" />
       </Source>
+      {sourceAndALayersForSectors}
       {showClickedSector ? (
         <Source id="sector_polygons_highlight" type="geojson" data={sectorHighlightJSON}>
           <Layer id="sector_highlight" type="fill" paint={sectorHighlightPaint} />

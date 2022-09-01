@@ -47,21 +47,21 @@ div#root {
 }
 
 /* Accordion for sector configurations */
-#accordion .accordion-item {
+.sector-configuration-accordion .accordion-item {
     border-color: #404040;
 }
-#accordion .accordion-button {
+.sector-configuration-accordion .accordion-button {
     box-shadow: inset 0 -1px 0 #404040;
 }
-#accordion  .sector-title {
+.sector-configuration-accordion  .sector-title {
     font-size: 10px !important;
 }
 
-#accordion .sector-body {
+.sector-configuration-accordion .sector-body {
     font-size: 8px !important;
 }
 
-#accordion .span3 {
+.sector-configuration-accordion .span3 {
     display: inline-table;
     margin: 0px;
     flex-wrap: nowrap;

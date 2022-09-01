@@ -15,8 +15,7 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
     setAssignedBearing,
   } = properties.aircraft;
 
-  // TODO #95: Replace use of Ref/ID by a classic react value/onChange
-  const newChangedBearingInputReference = React.useRef<HTMLInputElement>(null);
+  const [newBearing, setNewBearing] = React.useState(0);
 
   const shouldShow = cwpStore.aircraftsWithBearingPopup.has(aircraftId);
   if (!shouldShow) {
@@ -25,9 +24,6 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
   const close = (): void => cwpStore.closeChangeBearingForAircraft(aircraftId);
 
   const submit = (): void => {
-    const newBearing = Number.parseInt(
-      newChangedBearingInputReference.current?.value ?? '',
-      10);
     setAssignedBearing(newBearing);
     const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
     changeBearingOfAircraft(pilotId, assignedFlightId, newBearing);
@@ -38,8 +34,9 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
     <div className="change-bearing">
       <div>
         New Bearing:
-        <input ref={newChangedBearingInputReference} className="input-filter-bearing"
-                type="number" min="0" max="360" />
+        <input className="input-filter-bearing" type="number" min="0" max="360"
+            value={newBearing}
+            onChange={(event): void => setNewBearing(Number.parseInt(event.target.value, 10))} />
       </div>
       <div className="submit-cancel-buttons">
         <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>

@@ -31,7 +31,6 @@ export default observer(function AircraftListElement(/* properties */) {
           <tr>
             <th colSpan={2}>
               <input
-                id="filter"
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."

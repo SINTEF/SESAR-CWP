@@ -13,8 +13,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     controlledBy,
   } = properties.aircraft;
 
-  // TODO #95: Replace use of Ref/ID by a classic react value/onChange
-  const newChangedFixInputReference = React.useRef<HTMLInputElement>(null);
+  const [changedFix, setChangedFix] = React.useState('');
 
   const shouldShow = cwpStore.aircraftsWithNextFixPopup.has(aircraftId);
   if (!shouldShow) {
@@ -24,7 +23,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
 
   const submit = (): void => {
   // add for strip white space
-    const arrayOfWaypoints = newChangedFixInputReference.current?.value?.split(',');
+    const arrayOfWaypoints = changedFix.split(',');
     const newNextFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[1].trim().toLocaleUpperCase() ?? '' : arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '';
     const nextViaFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[0].trim().toLocaleUpperCase() ?? '' : '';
     const latOfFix = fixStore.fixes.get(newNextFix)?.latitude;
@@ -50,7 +49,10 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     <div className="change-next-fix">
       <div>
         Next Fix:
-        <input ref={newChangedFixInputReference} className="input-filter-popup" />
+        <input className="input-filter-popup"
+          value={changedFix}
+          onChange={(event): void => setChangedFix(event.target.value)}
+        />
       </div>
       <div className="submit-cancel-buttons">
         <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>

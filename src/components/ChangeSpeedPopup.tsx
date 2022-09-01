@@ -15,19 +15,16 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     setAssignedSpeed,
   } = properties.aircraft;
 
-  // TODO #95: Replace use of Ref/ID by a classic react value/onChange
-  const newChangedSpeedInputReference = React.useRef<HTMLInputElement>(null);
+  const [newSpeed, setNewSpeed] = React.useState(0);
 
   const shouldShow = cwpStore.aircraftWithSpeedChangePopup.has(aircraftId);
   if (!shouldShow) {
     return null;
   }
+
   const close = (): void => cwpStore.closeChangeSpeedForAircraft(aircraftId);
 
   const submit = (): void => {
-    const newSpeed = Number.parseInt(
-      newChangedSpeedInputReference.current?.value ?? '',
-      10);
     if (Number.isNaN(newSpeed)) {
       return;
     }
@@ -44,8 +41,10 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     <div className="change-speed">
       <div>
         New Speed:
-        <input ref={newChangedSpeedInputReference} className="input-filter-popup"
-                type="number" min="0" />
+        <input className="input-filter-popup" type="number" min="0"
+            value={newSpeed}
+            onChange={(event): void => setNewSpeed(Number.parseInt(event.target.value, 10))}
+        />
       </div>
       <div className="submit-cancel-buttons">
         <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
