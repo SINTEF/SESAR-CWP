@@ -5,7 +5,7 @@ import Draggable from 'react-draggable';
 
 import TableSectors from './components/TableSectors';
 import {
-  configurationStore, cwpStore, roleConfigurationStore, simulatorStore,
+  configurationStore, roleConfigurationStore, simulatorStore,
 } from './state';
 import type SectorModel from './model/SectorModel';
 
