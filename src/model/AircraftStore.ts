@@ -44,8 +44,9 @@ export default class AircraftStore {
     const timestamp = this.simulatorStore.minuteRoundedTimestamp;
     return [...this.aircrafts.values()]
       .filter(({ lastTargetReportTime }) => (
-        // Remove aircrafts with target reports older than 10 minutes (or with 0 value)
-        (timestamp - lastTargetReportTime) < 600
+        // Remove aircrafts with target reports older than 10 minutes
+        // But keep the ones with no target report time because reasons
+        (timestamp - lastTargetReportTime) < 600 || lastTargetReportTime === 0
       ));
   }
 

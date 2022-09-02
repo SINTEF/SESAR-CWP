@@ -11,33 +11,27 @@ const sectorOutlinePaint: LinePaint = {
 };
 
 export default observer(function SectorPolygons(/* properties */) {
-  const sectorId = roleConfigurationStore.currentControlledSector;
-  const sectorStore = configurationStore.areaOfIncludedAirspaces;
-  const sectorData = [...sectorStore.values()]
-    .filter(([key]) => key === sectorId);
+  const { areaOfCurrentControlledSector } = roleConfigurationStore;
 
-  if (configurationStore.currentCWP === '') {
+  if (!areaOfCurrentControlledSector || configurationStore.currentCWP === '') {
     return null;
   }
-  const sectors: GeoJSON.Feature[] = sectorData.map(([/* title */, area]) => {
-    const coordinates = area.sectorArea.map((point) => (
-      [point.longitude, point.latitude]),
-    );
-    cwpStore.setCurrentPolygonCoordinates([...coordinates, coordinates[0]]);
-    // cwpStore.setCurrentPolygonCoordinates(coordinates);
-    return {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[...coordinates, coordinates[0]]],
-      },
-    };
-  });
+
+  const coordinates = areaOfCurrentControlledSector.map((point) => (
+    [point.longitude, point.latitude]),
+  );
+  const sectors: GeoJSON.Feature = {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'Polygon',
+      coordinates: [coordinates],
+    },
+  };
 
   const geoJson: GeoJSON.FeatureCollection = {
     type: 'FeatureCollection',
-    features: sectors,
+    features: [sectors],
   };
 
   return (
