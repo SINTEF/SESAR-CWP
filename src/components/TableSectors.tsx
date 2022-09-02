@@ -6,12 +6,16 @@ import type SectorModel from '../model/SectorModel';
 
 const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#DDD555', '#01539d', '#e9b4d0', '#8c9441', '#c82169'];
 
-export default function TableSectors({ sectorsOfArray }: {
+export default function TableSectors({
+  sectorsOfArray,
+  currentSectorControlled, nextSectorControlled,
+}: {
   sectorsOfArray: [string, SectorModel][];
+  currentSectorControlled: string;
+  nextSectorControlled: string;
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { setClickedSectorId, toggleClickedSector } = cwpStore;
-
   const clickedSectorButton = (value: string): void => {
     setClickedSectorId(value);
     toggleClickedSector();
@@ -115,12 +119,17 @@ export default function TableSectors({ sectorsOfArray }: {
     }
     return `span 1 / ${gridPosition}`;
   };
-
+  const isSectorForCWP = (sectorId: string): boolean => {
+    if (sectorId === currentSectorControlled || sectorId === nextSectorControlled) {
+      return true;
+    }
+    return false;
+  };
   for (let index = 1; index < sectorsOfArray.length + 1; index += 1) {
     const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     buttons.push(
-      <Button className='table-button' key={sectorsOfArray[sectorsOfArray.length - index][0]}
+      <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index][0]}
           style={{
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,

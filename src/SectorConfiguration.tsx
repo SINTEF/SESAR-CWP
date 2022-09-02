@@ -4,7 +4,9 @@ import Accordion from 'react-bootstrap/Accordion';
 import Draggable from 'react-draggable';
 
 import TableSectors from './components/TableSectors';
-import { configurationStore, cwpStore, simulatorStore } from './state';
+import {
+  configurationStore, cwpStore, roleConfigurationStore, simulatorStore,
+} from './state';
 import type SectorModel from './model/SectorModel';
 
 function ChangeToLocaleTime(time: number): string {
@@ -33,7 +35,7 @@ export default observer(function SectorConfiguration() {
   const simulatorTime = simulatorStore.timestamp;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    currentConfigurationId, sortedConfigurationPlan, getAreaOfIncludedAirpaces, toggleConfiguration,
+    currentConfigurationId, sortedConfigurationPlan, getAreaOfIncludedAirpaces, toggleConfiguration, currentCWP,
   } = configurationStore;
   const sortedList = sortedConfigurationPlan;
   let sectorsForNext: [string, SectorModel][] = [];
@@ -157,7 +159,9 @@ export default observer(function SectorConfiguration() {
                   {value[1]}
                 </Accordion.Header>
                 <Accordion.Body className="accordion-body">
-                  <TableSectors sectorsOfArray={sectorArray[index]} />
+                  <TableSectors sectorsOfArray={sectorArray[index]}
+                  currentSectorControlled={roleConfigurationStore.getControlledSector(currentCWP, currentConfigTime[0])}
+                  nextSectorControlled={roleConfigurationStore.getControlledSector(currentCWP, nextConfigId[0])} />
                   {index === 0 ? <span style={{ top: `${bottomValueTimeline}px` }} className='moveable-timeline-rectangle'>{ChangeCountdownTime(timeToChange)}</span> : null}
                   <div className={`timeline-rectangle${index}`}></div>
                 </Accordion.Body>
