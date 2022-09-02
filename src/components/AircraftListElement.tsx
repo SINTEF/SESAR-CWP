@@ -15,9 +15,7 @@ const flightColor = (value: string): string => (value === configurationStore.cur
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
-  const { currentCWP, currentConfigurationId } = configurationStore;
-  const currentSector = roleConfigurationStore
-    .getControlledSector(currentCWP, currentConfigurationId);
+  const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
   const [listOfSectorAircrafts, setlistOfSectorAircrafts] = React.useState<AircraftModel[]>([]);
 
@@ -50,7 +48,6 @@ export default observer(function AircraftListElement(/* properties */) {
           <tr>
             <th colSpan={2}>
               <input
-                id="filter"
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
@@ -84,7 +81,6 @@ export default observer(function AircraftListElement(/* properties */) {
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
                 key={aircraftData.assignedFlightId}
-                id={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
 
                 <td>

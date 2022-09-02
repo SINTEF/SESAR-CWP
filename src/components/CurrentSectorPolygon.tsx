@@ -11,8 +11,7 @@ const sectorOutlinePaint: LinePaint = {
 };
 
 export default observer(function SectorPolygons(/* properties */) {
-  const sectorId = roleConfigurationStore
-    .getControlledSector(configurationStore.currentCWP, configurationStore.currentConfigurationId);
+  const sectorId = roleConfigurationStore.currentControlledSector;
   const sectorStore = configurationStore.areaOfIncludedAirspaces;
   const sectorData = [...sectorStore.values()]
     .filter(([key]) => key === sectorId);

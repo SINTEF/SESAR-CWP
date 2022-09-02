@@ -34,7 +34,7 @@ function sanitizeClientId(clientId: string): string {
 // TODO #91: Implement multiple client identifiers
 const clientId = sanitizeClientId('1');
 
-client.on('connect', () => {
+client.addListener('connect', () => {
   // console.debug('Connected to MQTT broker');
   client.subscribe(`ATM/${clientId}/#`, (error) => {
     if (error) {
@@ -51,26 +51,26 @@ export function onConnect(callback: MqttOnCallback): MqttOffCallback {
   if (client.connected) {
     callback();
   }
-  client.on('connect', callback);
-  return () => client.off('connect', callback);
+  client.addListener('connect', callback);
+  return () => client.removeListener('connect', callback);
 }
 
 export function onDisconnect(callback: MqttOffCallback): MqttOffCallback {
   if (!client.connected) {
     callback();
   }
-  client.on('close', callback);
-  return () => client.off('close', callback);
+  client.addListener('close', callback);
+  return () => client.removeListener('close', callback);
 }
 
 export function onPacketReceive(callback: MqttOnCallback): MqttOffCallback {
-  client.on('packetreceive', callback);
-  return () => client.off('packetreceive', callback);
+  client.addListener('packetreceive', callback);
+  return () => client.removeListener('packetreceive', callback);
 }
 
 export function onPacketSend(callback: MqttOnCallback): MqttOffCallback {
-  client.on('packetsend', callback);
-  return () => client.off('packetsend', callback);
+  client.addListener('packetsend', callback);
+  return () => client.removeListener('packetsend', callback);
 }
 
 const router = rlite<Buffer>(notFound, {
@@ -125,7 +125,7 @@ function processIncomingMessages(): void {
   incomingMessagesQueue = [];
 }
 
-client.on('message', (topic, message) => {
+client.addListener('message', (topic: string, message: Buffer) => {
   incomingMessagesQueue.push({ topic, message });
   if (incomingMessagesBatchId === 0) {
     incomingMessagesBatchId = window.requestAnimationFrame(processIncomingMessages);

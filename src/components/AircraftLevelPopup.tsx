@@ -1,10 +1,7 @@
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import {
-  Button, Col, Container, Row,
-} from 'react-bootstrap';
-import { Popup } from 'react-map-gl';
+import { Button } from 'react-bootstrap';
 
 import { changeFlightLevelOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
@@ -18,19 +15,15 @@ function ListOfLevels(
   const rows: JSX.Element[] = [];
 
   for (let index = 560; index > 200; index -= 10) {
-    rows.push(<Row
-      onClick={(): void => settingSlider(index)}
-      key={index}
-      className="child justify-content-center gutter-2"
-    >
-      <Button id={`button${index}`}
+    rows.push(<Button
+        key={index}
+        onClick={(): void => settingSlider(index)}
         className="flight-level-element"
         variant="secondary" size="sm"
+        data-level={index}
         active={index === sliderValue}>
-        {index}
-      </Button>
-    </Row>,
-    );
+      {index}
+    </Button>);
   }
 
   return (<>{rows}</>);
@@ -41,8 +34,6 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
   const {
     aircraftId,
     assignedFlightId,
-    lastKnownLongitude: longitude,
-    lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
     callSign,
     controlledBy,
@@ -53,6 +44,14 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
   } = properties.aircraft;
 
   const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
+  const listOfLevelsReference = React.createRef<HTMLDivElement>();
+
+  React.useEffect(() => {
+    // Scroll to the level in the list
+    const listElement = ([...listOfLevelsReference.current?.children ?? []] as HTMLButtonElement[])
+      .find((element) => element.dataset.level === `${flightLevel}`);
+    listElement?.scrollIntoView({ block: 'center' });
+  }, [flightLevel]);
 
   const accepted = controlledBy === configurationStore.currentCWP;
 
@@ -62,31 +61,14 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
     return null;
   }
 
-  const FlightLevelChangeSlide = (): void => {
-    // TODO #95: Replace use of Ref/ID by a classic react value/onChange
-    const parentElement = document.querySelector(`#${callSign}rangelist`);
-    const listElement = parentElement?.querySelector(`#button${Math.ceil(flightLevel / 10) * 10}`);
-    listElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
+  const sliderStep = 10;
+  const flightLevelMin = 210;
+  const flightLevelMax = 560;
 
   const FlightLevelChange = (direction: 'up' | 'down'): void => {
-    // TODO #95: Replace use of Ref/ID by a classic react value/onChange
-    const slider = document.querySelector<HTMLInputElement>(`#level-range${callSign}`);
-    if (!slider) {
-      throw new Error('No level range for flight level found');
-    }
-    const step = Number.parseInt(slider.getAttribute('step') ?? '', 10);
-    const currentSliderValue = Number.parseInt(slider.value, 10);
-    let newStepValue = currentSliderValue + step;
-
-    newStepValue = direction === 'up' ? currentSliderValue + step : currentSliderValue - step;
+    const newStepValue = Math.min(flightLevelMax, Math.max(flightLevelMin,
+      direction === 'up' ? flightLevel + sliderStep : flightLevel - sliderStep));
     setFlightLevel(newStepValue);
-    const stringNewStepValue = newStepValue.toString();
-    slider.value = stringNewStepValue;
-
-    const parentElement = document.querySelector(`#${callSign}rangelist`);
-    const listElement = parentElement?.querySelector(`#button${Math.ceil(newStepValue / 10) * 10}`);
-    listElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const close = (): void => cwpStore.closeLevelPopupForAircraft(aircraftId);
@@ -108,48 +90,35 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
   };
 
   return (
-    <Popup
-      anchor="bottom"
-      longitude={longitude}
-      latitude={latitude}
-      offset={[53, 246]}
+    <div
       className={classnames({
         pending: false,
         accepted,
         other: false,
         'level-popup': true,
       })}
-      closeOnClick={false}
-      onClose={(): void => close()}
     >
-      <Container className="choose-flight-level">
-        <Row className="justify-content-center">
-          {callSign}
-
-        </Row>
-        <Row>
-          <Col id="levels-container" className="levels-container">
-            <div id={`${callSign}rangelist`}>
-              <ListOfLevels value={flightLevel} onClick={setFlightLevel} />
-            </div>
-          </Col>
-          <Col>
-            <Button onClick={(): void => FlightLevelChange('up')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11165;</Button>
-            <Row>
-              <input id={`level-range${callSign}`} className="level-range" type="range" value={flightLevel}
+      <div className="level-popup-header">
+        {callSign}
+      </div>
+      <div className="level-popup-main">
+        <div className="levels-container" ref={listOfLevelsReference}>
+          <ListOfLevels value={flightLevel} onClick={setFlightLevel} />
+        </div>
+        <div className="levels-slider">
+          <Button onClick={(): void => FlightLevelChange('up')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11165;</Button>
+          <input className="level-range" type="range"
+                value={flightLevel}
                 onChange={(event): void => setFlightLevel(Number.parseInt(event.target.value, 10))}
-                onMouseUp={(): void => FlightLevelChangeSlide()}
-                step={10} min={210} max={560}
+                step={sliderStep} min={flightLevelMin} max={flightLevelMax}
               />
-            </Row>
-            <Button onClick={(): void => FlightLevelChange('down')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11167;</Button>
-          </Col>
-        </Row>
-        <Row>
-          <Col className="apply-cancel-wrapper"><Button onClick={close} className="apply-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
-          <Col className="apply-cancel-wrapper"><Button onClick={setFLCP} className="apply-cancel-button" size="sm" variant="secondary">Apply</Button></Col>
-        </Row>
-      </Container>
-    </Popup>
+          <Button onClick={(): void => FlightLevelChange('down')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11167;</Button>
+        </div>
+      </div>
+      <div className="submit-cancel-buttons">
+        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
+        <Button onClick={setFLCP} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Apply</Button>
+      </div>
+    </div>
   );
 });

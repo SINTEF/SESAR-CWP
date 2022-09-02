@@ -18,20 +18,22 @@ export default class AirspaceStore {
 
   handleNewAirspace(newAirspace: NewAirspaceMessage): void {
     const id = newAirspace.airspaceId;
-    if (this.airspaces.has(id)) {
-      // eslint-disable-next-line no-console
-      console.trace('TODO updating'); // How to actually update?
-    } else {
-      const airspaceArea = newAirspace.area.map((area) => {
-        if (area.position.oneofKind !== 'position4D') {
-          throw new Error('Insupported position type');
-        }
-        return new CoordinatePair({
-          latitude: area.position.position4D.latitude,
-          longitude: area.position.position4D.longitude,
-        });
-      },
+    const airspaceArea = newAirspace.area.map((area) => {
+      if (area.position.oneofKind !== 'position4D') {
+        throw new Error('Insupported position type');
+      }
+      return new CoordinatePair({
+        latitude: area.position.position4D.latitude,
+        longitude: area.position.position4D.longitude,
+      });
+    });
+    const existingAirspace = this.airspaces.get(id);
+    if (existingAirspace) {
+      existingAirspace.updateSectorArea(airspaceArea);
+      existingAirspace.updateFlightLevels(
+        newAirspace.bottomFlightLevel, newAirspace.topFlightLevel,
       );
+    } else {
       this.airspaces.set(id, new SectorModel({
         sectorId: id,
         sectorArea: airspaceArea,
@@ -39,7 +41,6 @@ export default class AirspaceStore {
         topFlightLevel: newAirspace.topFlightLevel,
       }));
     }
-    // }
   }
 
   getAreaFromId(airspaceId: string): SectorModel | undefined {
