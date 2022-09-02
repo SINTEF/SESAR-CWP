@@ -174,12 +174,7 @@ export default class ConfigurationStore {
   }
 
   get sortedConfigurationPlan(): ConfigurationTime[] {
-    const listOfConfigurations = [...this.configurationPlan.values()]; // .sort();
-    // TODO #93: implement the sorting algorithm
-    // .sort() uses the string representation of the objects to sort by default,
-    // in this case, [object Object] for every object in the map.
-    // It wasn't sorting anything.
-    // One must add a function to .sort() to sort correctly.
+    const listOfConfigurations = [...this.configurationPlan.values()];
     const sortedList = [];
     for (const element of listOfConfigurations) {
       const innerIntervalSort = [...element.timeIntervals]

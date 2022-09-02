@@ -4,6 +4,7 @@ import type { ObservableMap } from 'mobx';
 import RoleConfigurationModel from './RoleConfigurationModel';
 import type { RoleConfigurationMessage } from '../proto/ProtobufAirTrafficSimulator';
 import type ConfigurationStore from './ConfigurationStore';
+import type CoordinatePair from './CoordinatePair';
 
 export default class RoleConfigurationStore {
   roleConfigurations: ObservableMap<string, RoleConfigurationModel> = observable.map();
@@ -76,5 +77,24 @@ export default class RoleConfigurationStore {
     }
     const { tentativeFlights } = newConfig;
     cwpRole?.addTentativeAircraft(tentativeFlights);
+  }
+
+  get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
+    const areas = this.configurationStore.areaOfIncludedAirspaces;
+    const area = [...areas.values()].find(([key]) => key === this.currentControlledSector);
+    if (!area) {
+      return undefined;
+    }
+    const { sectorArea } = area[1];
+    if (sectorArea.length === 0) {
+      return undefined;
+    }
+    return [...sectorArea, sectorArea[0]];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get areaOfNextControlledSector(): CoordinatePair[] | undefined {
+    // TODO #128
+    return undefined;
   }
 }
