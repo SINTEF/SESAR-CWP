@@ -1,9 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import {
-  Button, Col, Container, Dropdown, Row,
-} from 'react-bootstrap';
-import { Popup } from 'react-map-gl';
+import { Button, Dropdown } from 'react-bootstrap';
 
 import { tentativeFlight } from '../mqtt';
 import { configurationStore, cwpStore } from '../state';
@@ -16,8 +13,6 @@ export default observer(function NextSectorPopup(properties: {
   const {
     aircraftId,
     assignedFlightId,
-    lastKnownLongitude: longitude,
-    lastKnownLatitude: latitude,
     controlledBy,
     setNextSectorController,
   } = properties.aircraft;
@@ -43,37 +38,27 @@ export default observer(function NextSectorPopup(properties: {
   };
 
   return (
-    <Popup
+    <div
       className="next-sector-popup"
-      anchor="bottom"
-      longitude={longitude}
-      latitude={latitude}
-      offset={[75, 98]}
-      closeOnClick={false}
-      onClose={close}
-      closeButton={false}
     >
-      <Container className="choose-next-controller">
-        <Row className="submit-cancel-wrapper">
-          <Col className="gutter-2">
-            <Dropdown onSelect={handleSelect}>
-              <Dropdown.Toggle className="btn btn-light dropdown-button">
-                {controllerPlaceholder}
-              </Dropdown.Toggle>
+      <div>
+        <Dropdown onSelect={handleSelect}>
+          <Dropdown.Toggle className="btn btn-light dropdown-button">
+            {controllerPlaceholder}
+          </Dropdown.Toggle>
 
-              <Dropdown.Menu>
-                {/* Needs to be set by configuration-file */}
-                <Dropdown.Item eventKey="CWP_NW">CWP_NW</Dropdown.Item>
-                <Dropdown.Item eventKey="CWP_NE">CWP_NE</Dropdown.Item>
-                <Dropdown.Item eventKey="CWP_S">CWP_S</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </Col>
-
-          <Col className="gutter-2"><Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button></Col>
-          <Col className="gutter-2"><Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button></Col>
-        </Row>
-      </Container>
-    </Popup>
+          <Dropdown.Menu>
+            {/* Needs to be set by configuration-file */}
+            <Dropdown.Item eventKey="CWP_NW">CWP_NW</Dropdown.Item>
+            <Dropdown.Item eventKey="CWP_NE">CWP_NE</Dropdown.Item>
+            <Dropdown.Item eventKey="CWP_S">CWP_S</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+      <div className="submit-cancel-buttons">
+        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
+        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      </div>
+    </div>
   );
 });

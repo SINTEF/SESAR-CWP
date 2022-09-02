@@ -123,7 +123,7 @@ export default observer(function SectorSideView() {
         }}
       >
         <defs>
-          <linearGradient id="gradient" x1="0" y1="0" x2="100%" y2="0">
+          <linearGradient x1="0" y1="0" x2="100%" y2="0">
             <stop offset="0%" stopColor={colorCurrent} />
             <stop offset={`${((Math.ceil(timeToChange) / 15) * 100)}%`} stopColor={colorCurrent} />
             <stop offset={`${((Math.ceil(timeToChange) / 15) * 100)}%`} stopColor={colorNext} />

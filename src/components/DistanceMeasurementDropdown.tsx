@@ -26,7 +26,6 @@ export default observer(function DistanceMeasurementDropdown() {
   return (<DropdownButton
     as={ButtonGroup}
     key="distance-measurement-drop-down"
-    id="distance-measurement-drop-down"
     drop="up"
     variant="secondary"
     title="R&amp;B"

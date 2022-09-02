@@ -1,35 +1,36 @@
 import { observer } from 'mobx-react-lite';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
-import {
-  Button, Col, Container, Row,
-} from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useMap } from 'react-map-gl';
 
 import { isDragging } from '../draggableState';
-import { acceptFlight } from '../mqtt';
 import {
-  aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
+  configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
+import AircraftLevelPopup from './AircraftLevelPopup';
+import AircraftPopupContent from './AircraftPopupContent';
+import AircraftPopupPseudoContent from './AircraftPopupPseudoContent';
+import ChangeBearingPopup from './ChangeBearingPopup';
+import ChangeNextFixPopup from './ChangeNextFixPopup';
+import ChangeSpeedPopup from './ChangeSpeedPopup';
 import DraggablePopup from './DraggablePopup';
+import NextSectorPopup from './NextSectorPopup';
 import type AircraftModel from '../model/AircraftModel';
 
-export default observer(function AircraftPopup(properties: { aircraft: AircraftModel }) {
-  const { aircraft } = properties;
+export default observer(function AircraftPopup(properties: {
+  aircraft: AircraftModel; pseudo: boolean;
+}) {
+  const { aircraft, pseudo } = properties;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     aircraftId,
-    assignedFlightId,
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
-    callSign,
-    speedAndWakeTurbulenceLabel,
     controlledBy,
-    nextSectorController,
-    nextFix,
     localAssignedFlightLevel,
     setLocalAssignedFlightLevel,
   } = aircraft;
@@ -59,18 +60,6 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
     setLocalAssignedFlightLevel(' ');
   }
 
-  const setController = (): void => {
-    // TODO #97: Implement setController shared across browsers, usinq MQTT
-    const listOfTentativeFlights = roleConfigurationStore
-      .roleConfigurations.get(configurationStore.currentCWP)?.tentativeAircrafts;
-    if (listOfTentativeFlights?.includes(aircraftId)) {
-      roleConfigurationStore.roleConfigurations
-        .get(configurationStore.currentCWP)?.removeTentativeAircraft(aircraftId);
-    }
-    aircraftStore.aircrafts.get(aircraftId)?.setController(configurationStore.currentCWP);
-    acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId);
-  };
-
   function onWheel<T>(event: T): void {
     const map = current?.getMap();
     // @ts-expect-error - .wheel is an undocumented function that takes wheel events
@@ -80,45 +69,40 @@ export default observer(function AircraftPopup(properties: { aircraft: AircraftM
     });
   }
 
+  const height = pseudo ? 68 : 55;
+
+  const Content = pseudo ? AircraftPopupPseudoContent : AircraftPopupContent;
+
   return (
     <DraggablePopup
       className="flight-popup"
       style={{ color: flightColor }}
       color={flightColor === '#ffffff' ? undefined : flightColor}
       offset={{ x: 0, y: 0 }}
-      size={{ width: 110, height: 55 }}
+      size={{ width: 110, height }}
       anchor="top"
       longitude={longitude}
       latitude={latitude}
       closeOnClick={false}
       closeButton={false}
       focusAfterOpen={false}
+      cancel="input, button"
       onClose={(): void => cwpStore.closeLevelPopupForAircraft(aircraftId)}
     >
-      <div onWheel={onWheel}>
-        <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
-        <Container className="flight-popup-container">
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && setController()}>{callSign}</Col>
-          </Row>
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
-              {nextFix}
-            </Col>
-            <Col className="gutter-2" />
-          </Row>
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
-            <Col className="gutter-2" />
-          </Row>
-          <Row>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
-            <Col className="gutter-2">{localAssignedFlightLevel}</Col>
-            <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
-          </Row>
-        </Container>
+      <div>
+        <div className="flight-popup-main" style={{
+          width: '110px', height: `${height}px`,
+        }} onWheel={onWheel}>
+          <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
+          <Content aircraft={aircraft} />
+        </div>
+        <div className="flight-popup-children">
+          <AircraftLevelPopup aircraft={aircraft} />
+          <ChangeNextFixPopup aircraft={aircraft} />
+          <NextSectorPopup aircraft={aircraft} />
+          <ChangeSpeedPopup aircraft={aircraft} />
+          <ChangeBearingPopup aircraft={aircraft} />
+        </div>
       </div>
     </DraggablePopup>
   );

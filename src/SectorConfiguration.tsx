@@ -131,12 +131,7 @@ export default observer(function SectorConfiguration() {
   }
   const sectorArray = [sectorsForCurrent, sectorsForNext];
 
-  if (timeToNextConfig > 601 && cwpStore.sectorChangeCountdown) {
-    cwpStore.showSectorChangeCountdown(false);
-  }
-  if (timeToNextConfig <= 601 && !cwpStore.sectorChangeCountdown) {
-    cwpStore.showSectorChangeCountdown(true);
-  }
+  const sectorChangeCountdown = timeToNextConfig <= 601;
   const timelineRectangleHeight = document.querySelector('.timeline-rectangle0')?.clientHeight;
   const timeToChange = currentIntervalTime[1] - simulatorTime;
   const bottomValueTimeline = currentIntervalTime && timelineRectangleHeight
@@ -147,9 +142,9 @@ export default observer(function SectorConfiguration() {
     <>
       <Draggable>
         <div className="control-panel">
-          <Accordion id="accordion" defaultActiveKey={['0']} alwaysOpen>
+          <Accordion className="sector-configuration-accordion" defaultActiveKey={['0']} alwaysOpen>
             {listOfTimes.sort().map((value, index) => (
-              <Accordion.Item key={value[0]} eventKey={`${index}`}>
+              <Accordion.Item key={`${index}:${value[0]}`} eventKey={`${index}`}>
                 <Accordion.Header className="accordion-header">
                   From
                   {' '}
@@ -173,7 +168,7 @@ export default observer(function SectorConfiguration() {
           </Accordion>
         </div>
       </Draggable>
-      {cwpStore.sectorChangeCountdown ? <Draggable>
+      {sectorChangeCountdown ? <Draggable>
         <div className='toggle-countdown-container'>
           <div className='time-to-change'>
             Sector change countdown:
