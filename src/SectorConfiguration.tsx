@@ -132,12 +132,20 @@ export default observer(function SectorConfiguration() {
   const sectorArray = [sectorsForCurrent, sectorsForNext];
 
   const sectorChangeCountdown = timeToNextConfig <= 601;
-  const timelineRectangleHeight = document.querySelector('.timeline-rectangle0')?.clientHeight;
+  const timelineRectangleHeight = Number(document.querySelector('.accordion-body')?.clientHeight) - 20;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const timeToChange = currentIntervalTime[1] - simulatorTime;
   const bottomValueTimeline = currentIntervalTime && timelineRectangleHeight
     ? (((currentIntervalTime[0] - simulatorTime)
     / (currentIntervalTime[0] - currentIntervalTime[1]))
      * timelineRectangleHeight) : 0;
+
+  const sectorsForHighlight = (configId: [string, number, number]) : string => {
+    if (configId) {
+      return roleConfigurationStore.getControlledSector(currentCWP, configId[0]);
+    }
+    return '';
+  };
   return (
     <>
       <Draggable>
@@ -156,10 +164,8 @@ export default observer(function SectorConfiguration() {
                 </Accordion.Header>
                 <Accordion.Body className="accordion-body">
                   <TableSectors sectorsOfArray={sectorArray[index]}
-                  currentSectorControlled={roleConfigurationStore
-                    .getControlledSector(currentCWP, currentConfigTime[0])}
-                  nextSectorControlled={roleConfigurationStore
-                    .getControlledSector(currentCWP, nextConfigId[0])} />
+                  currentSectorControlled={sectorsForHighlight(currentConfigTime)}
+                  nextSectorControlled={sectorsForHighlight(nextConfigId)} />
                   {index === 0 ? <span style={{ top: `${bottomValueTimeline}px` }} className='moveable-timeline-rectangle'>{ChangeCountdownTime(timeToChange)}</span> : null}
                   <div className={`timeline-rectangle${index}`}></div>
                 </Accordion.Body>
