@@ -4,7 +4,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Draggable from 'react-draggable';
 
 import TableSectors from './components/TableSectors';
-import { configurationStore, cwpStore, simulatorStore } from './state';
+import { configurationStore, simulatorStore } from './state';
 import type SectorModel from './model/SectorModel';
 
 function ChangeToLocaleTime(time: number): string {

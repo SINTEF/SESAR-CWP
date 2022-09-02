@@ -125,7 +125,7 @@ function processIncomingMessages(): void {
   incomingMessagesQueue = [];
 }
 
-client.addListener('message', (topic, message) => {
+client.addListener('message', (topic: string, message: Buffer) => {
   incomingMessagesQueue.push({ topic, message });
   if (incomingMessagesBatchId === 0) {
     incomingMessagesBatchId = window.requestAnimationFrame(processIncomingMessages);
