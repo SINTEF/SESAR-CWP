@@ -31,15 +31,14 @@ export default class ConfigurationStore {
   }) {
     makeAutoObservable(this, {
       airspaceStore: false,
+      getAreaOfIncludedAirpaces: false,
     }, { autoBind: true });
     this.airspaceStore = airspaceStore;
+    this.getAreaOfIncludedAirpaces = this.getAreaOfIncludedAirpaces.bind(this);
   }
 
   handleNewAirspaceConfiguration(newConfig: NewAirspaceConfigurationMessage): void {
     const configId = newConfig.configurationId;
-    if (this.configurations.has(configId)) {
-      console.log('TODO updating');
-    }
     const newEdges = newConfig.area.map((area) => {
       if (area.position.oneofKind !== 'position4D') {
         throw new Error('Insupported position type');
@@ -57,18 +56,21 @@ export default class ConfigurationStore {
     this.configurations.set(configId, configuration);
 
     for (const includedAirspace of newConfig.includedAirspaceVolumes) {
-      if (this.configurations.get(configId)
-        ?.includedAirspaces.has(includedAirspace.volumeId)) {
-        // eslint-disable-next-line no-console
-        console.trace('TODO updating');
+      const sectorId = includedAirspace.volumeId;
+      const sectorArea = this.airspaceStore
+        .getAreaFromId(sectorId)
+        ?.sectorArea?.map((area) => new CoordinatePair({
+          latitude: area.latitude,
+          longitude: area.longitude,
+        })) ?? [];
+      const existingIncludedAirspace = configuration.includedAirspaces.get(sectorId);
+      if (existingIncludedAirspace) {
+        existingIncludedAirspace.updateSectorArea(sectorArea);
+        existingIncludedAirspace.updateFlightLevels(
+          includedAirspace.bottomFlightLevel,
+          includedAirspace.topFlightLevel,
+        );
       } else {
-        const sectorArea = this.airspaceStore
-          .getAreaFromId(includedAirspace.volumeId)
-          ?.sectorArea?.map((area) => new CoordinatePair({
-            latitude: area.latitude,
-            longitude: area.longitude,
-          })) ?? [];
-        const sectorId = includedAirspace.volumeId;
         configuration.includedAirspaces.set(
           sectorId,
           new SectorModel({
@@ -76,7 +78,6 @@ export default class ConfigurationStore {
             bottomFlightLevel: includedAirspace.bottomFlightLevel,
             topFlightLevel: includedAirspace.topFlightLevel,
             sectorArea,
-
           }));
       }
     }

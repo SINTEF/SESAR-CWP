@@ -18,6 +18,7 @@ export type DraggablePopupProperties = {
     height: number,
   },
   color?: string,
+  cancel?: string,
 } & PopupProps;
 
 export type DraggablePopupState = {
@@ -76,7 +77,7 @@ export default class DraggablePopup extends
 
   render(): JSX.Element {
     const {
-      className, children, offset, color, size, ...otherProperties
+      className, children, offset, color, size, cancel, ...otherProperties
     } = this.props;
     const { offsetX, offsetY } = this.state;
 
@@ -137,14 +138,15 @@ export default class DraggablePopup extends
           style={{
             top: `${offsetY}px`,
             left: `${offsetX}px`,
-            width: `${coreWidth}px`,
-            height: `${coreHeight}px`,
+            /* width: `${coreWidth}px`, */
+            /* height: `${coreHeight}px`, */
           }}
         >
           <DraggableCore
             onStart={(event): void => this.onDragStart(event)}
             onDrag={(event): void => this.onDrag(event)}
             onStop={(): void => DraggablePopup.onStop()}
+            cancel={cancel}
           >
             {children}
           </DraggableCore>

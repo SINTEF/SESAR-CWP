@@ -74,7 +74,6 @@ export default observer(function SectorFlightList(/* properties */) {
           <tr>
             <th colSpan={3}>
               <input
-                id="filter"
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
@@ -130,7 +129,6 @@ export default observer(function SectorFlightList(/* properties */) {
             .map((aircraftData) => (
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
-                id={aircraftData.assignedFlightId}
                 key={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
                 <td>

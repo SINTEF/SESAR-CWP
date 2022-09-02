@@ -1,9 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import {
-  Button, Col, Container, Row,
-} from 'react-bootstrap';
-import { Popup } from 'react-map-gl';
+import { Button } from 'react-bootstrap';
 
 import { changeNextWaypointOfAircraft } from '../mqtt';
 import { configurationStore, cwpStore, fixStore } from '../state';
@@ -13,13 +10,10 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   const {
     aircraftId,
     assignedFlightId,
-    lastKnownLongitude: longitude,
-    lastKnownLatitude: latitude,
     controlledBy,
   } = properties.aircraft;
 
-  // TODO #95: Replace use of Ref/ID by a classic react value/onChange
-  const newChangedFixInputReference = React.useRef<HTMLInputElement>(null);
+  const [changedFix, setChangedFix] = React.useState('');
 
   const shouldShow = cwpStore.aircraftsWithNextFixPopup.has(aircraftId);
   if (!shouldShow) {
@@ -29,7 +23,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
 
   const submit = (): void => {
   // add for strip white space
-    const arrayOfWaypoints = newChangedFixInputReference.current?.value?.split(',');
+    const arrayOfWaypoints = changedFix.split(',');
     const newNextFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[1].trim().toLocaleUpperCase() ?? '' : arrayOfWaypoints?.[0].toLocaleUpperCase() ?? '';
     const nextViaFix = arrayOfWaypoints?.length === 2 ? arrayOfWaypoints?.[0].trim().toLocaleUpperCase() ?? '' : '';
     const latOfFix = fixStore.fixes.get(newNextFix)?.latitude;
@@ -52,40 +46,18 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   };
 
   return (
-    <Popup
-      className="change-bearing"
-      anchor="bottom"
-      longitude={longitude}
-      latitude={latitude}
-      offset={[53, 100]}
-      closeOnClick={false}
-      onClose={close}
-      closeButton={false}
-    >
-      <Container className="choose-next-controller">
-        <Row className="submit-cancel-wrapper">
-          <Col className="gutter-2">
-            <span>
-              Next Fix:
-              <input ref={newChangedFixInputReference} className="input-filter-popup" />
-            </span>
-          </Col>
-        </Row>
-        <Row>
-          <Col className="gutter-2">
-            <Button onClick={close}
-              className="btn btn-light submit-cancel-button" size="sm" variant="secondary">
-              Cancel
-            </Button>
-          </Col>
-          <Col className="gutter-2">
-            <Button onClick={submit}
-              className="btn btn-light submit-cancel-button" size="sm" variant="secondary">
-              Submit
-            </Button>
-          </Col>
-        </Row>
-      </Container>
-    </Popup>
+    <div className="change-next-fix">
+      <div>
+        Next Fix:
+        <input className="input-filter-popup"
+          value={changedFix}
+          onChange={(event): void => setChangedFix(event.target.value)}
+        />
+      </div>
+      <div className="submit-cancel-buttons">
+        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
+        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      </div>
+    </div>
   );
 });
