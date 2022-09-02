@@ -41,6 +41,8 @@ export default class CWPStore {
 
   activeMeasurements: Set<string> = new Set();
 
+  coordinatesCurrentPolygon: number[][] | undefined = undefined;
+
   currentDistanceColor = '';
 
   showLines = false;
@@ -240,5 +242,9 @@ export default class CWPStore {
 
   showFlACC(value: boolean): void {
     this.flightLevelNextAccActivated = value;
+  }
+
+  setCurrentPolygonCoordinates(coordinates: number[][]): void {
+    this.coordinatesCurrentPolygon = coordinates;
   }
 }
