@@ -4,7 +4,6 @@ import type { ObservableMap } from 'mobx';
 import CoordinatePair from './CoordinatePair';
 import SectorModel from './SectorModel';
 import type { NewAirspaceMessage } from '../proto/ProtobufAirTrafficSimulator';
-// import type AirspaceModel from './AirspaceModel';
 
 export default class AirspaceStore {
   airspaces: ObservableMap<string, SectorModel> = observable.map();

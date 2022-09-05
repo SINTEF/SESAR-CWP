@@ -61,7 +61,8 @@ export default observer(function SectorPolygons(/* properties */) {
   const getSectorColor = (bottom: number, top: number): string => {
     if (top > highestBound) {
       return '#ff4f00';
-    } if (bottom < lowestBound) {
+    }
+    if (bottom < lowestBound) {
       return '#48A14D';
     }
     return '#fff';

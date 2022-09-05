@@ -12,6 +12,7 @@ import type {
   CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
 import type AirspaceStore from './AirspaceStore';
+import type SimulatorStore from './SimulatorStore';
 
 export default class ConfigurationStore {
   currentConfigurationId = '';
@@ -22,18 +23,24 @@ export default class ConfigurationStore {
 
   airspaceStore: AirspaceStore;
 
+  simulatorStore: SimulatorStore;
+
   currentCWP = '';
 
   constructor({
     airspaceStore,
+    simulatorStore,
   }: {
     airspaceStore: AirspaceStore,
+    simulatorStore: SimulatorStore,
   }) {
     makeAutoObservable(this, {
       airspaceStore: false,
+      simulatorStore: false,
       getAreaOfIncludedAirpaces: false,
     }, { autoBind: true });
     this.airspaceStore = airspaceStore;
+    this.simulatorStore = simulatorStore;
     this.getAreaOfIncludedAirpaces = this.getAreaOfIncludedAirpaces.bind(this);
   }
 
@@ -175,18 +182,34 @@ export default class ConfigurationStore {
 
   get sortedConfigurationPlan(): ConfigurationTime[] {
     const listOfConfigurations = [...this.configurationPlan.values()];
-    const sortedList = [];
-    for (const element of listOfConfigurations) {
+    const sortedList = listOfConfigurations.map((element) => {
       const innerIntervalSort = [...element.timeIntervals]
         .sort((a, b) => a.startTime - b.startTime);
 
       this.setIntervals(element.configurationId, innerIntervalSort);
-      sortedList.push(element);
-    }
-    const finalSort = sortedList
+      return element;
+    });
+
+    sortedList
       .sort((a, b) => a.timeIntervals[0].startTime - b.timeIntervals[0].startTime);
 
-    return finalSort;
+    return sortedList;
+  }
+
+  get listOfIntervals(): [string, number, number][] {
+    const sortedList = this.sortedConfigurationPlan;
+    const simulatorTime = this.simulatorStore.timestamp;
+    const listOfIntervals: [string, number, number][] = [];
+    for (const element of sortedList) {
+      for (const intervals of element.timeIntervals) {
+        const startTimeInterval = intervals.startTime;
+        const endTimeInterval = intervals.endTime;
+        if (startTimeInterval >= simulatorTime || endTimeInterval >= simulatorTime) {
+          listOfIntervals.push([element.configurationId, startTimeInterval, endTimeInterval]);
+        }
+      }
+    }
+    return listOfIntervals;
   }
 
   setIntervals(configuration: string, timeIntervals: TimeConfigurations[]): void {

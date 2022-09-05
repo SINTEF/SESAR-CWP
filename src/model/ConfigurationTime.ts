@@ -8,31 +8,20 @@ import type { AirspaceAvailabilityMessage, AvailabilityIntervalsMessage } from '
 export default class ConfigurationTime {
   configurationId: string;
 
-  // startTime: number;
-
-  // endTime: number;
   timeIntervals: TimeConfigurations[];
 
   constructor({
     configurationId,
-    // startTime,
-    // endTime,
     timeIntervals,
   }: {
     configurationId: string;
-      // startTime: number;
-      // endTime: number;
       timeIntervals: TimeConfigurations[];
   }) {
     makeObservable(this, {
       configurationId: false,
-      // startTime: observable,
-      // endTime: observable,
       timeIntervals: observable,
     });
     this.configurationId = configurationId;
-    // this.startTime = startTime;
-    // this.endTime = endTime;
     this.timeIntervals = timeIntervals;
   }
 
