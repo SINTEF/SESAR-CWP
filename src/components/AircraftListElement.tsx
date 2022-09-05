@@ -20,7 +20,6 @@ export default observer(function AircraftListElement(/* properties */) {
   const [listOfSectorAircrafts, setlistOfSectorAircrafts] = React.useState<AircraftModel[]>([]);
 
   const handleFlightClicked = (event: string): void => {
-    console.log(event);
     cwpStore.setHighlightedAircraftId(event);
   };
   if (!cwpStore.showFL) return null;

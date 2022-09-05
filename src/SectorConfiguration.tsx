@@ -133,7 +133,6 @@ export default observer(function SectorConfiguration() {
 
   const sectorChangeCountdown = timeToNextConfig <= 601;
   const timelineRectangleHeight = Number(document.querySelector('.accordion-body')?.clientHeight) - 20;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const timeToChange = currentIntervalTime[1] - simulatorTime;
   const bottomValueTimeline = currentIntervalTime && timelineRectangleHeight
     ? (((currentIntervalTime[0] - simulatorTime)
