@@ -72,10 +72,9 @@ export default observer(function SectorConfiguration() {
     }
   }, [nextConfigId]);
 
-    if (currentConfigTime !== undefined) {
-      setCurrentIntervalTime([currentConfigTime[1], currentConfigTime[2]]);
-    }
-  }, [simulatorTime]);
+  if (currentConfigTime !== undefined) {
+    setCurrentIntervalTime([currentConfigTime[1], currentConfigTime[2]]);
+  }
 
   const toggleSectorChange = (): void => {
     const setConfig = currentConfigurationId === currentConfigTime[0]
