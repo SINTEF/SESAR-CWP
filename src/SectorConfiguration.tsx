@@ -70,6 +70,12 @@ export default observer(function SectorConfiguration() {
   };
 
   React.useEffect(() => {
+    if (nextConfigId) {
+      configurationStore.setNextConfigurationId(nextConfigId[0]);
+    }
+  }, [nextConfigId]);
+
+  React.useEffect(() => {
     if (sortedList.length > 0) {
       const listOfIntervals: [string, number, number][] = [];
       for (const element of sortedList) {

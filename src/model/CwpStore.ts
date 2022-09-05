@@ -59,6 +59,8 @@ export default class CWPStore {
 
   flightLevelNextAccActivated = false;
 
+  showLimboFlight = false;
+
   constructor({
     altitudeFilter,
   }: {
@@ -115,6 +117,10 @@ export default class CWPStore {
 
   toggleFlightLabels(): void {
     this.showFlightLabels = !this.showFlightLabels;
+  }
+
+  toggleLimboFlights(): void {
+    this.showLimboFlight = !this.showLimboFlight;
   }
 
   setFlightLabels(boolean: boolean): void {
