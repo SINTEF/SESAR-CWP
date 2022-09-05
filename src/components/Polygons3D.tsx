@@ -58,7 +58,6 @@ export default observer(function SectorPolygons(/* properties */) {
     type: 'FeatureCollection',
     features: sectors,
   };
-  // console.log(geoJson);
 
   return (
     <>

@@ -35,23 +35,21 @@ export default observer(function SectorConfiguration() {
   const simulatorTime = simulatorStore.timestamp;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    currentConfigurationId,
-    sortedConfigurationPlan, getAreaOfIncludedAirpaces, toggleConfiguration, currentCWP,
+    currentConfigurationId, listOfIntervals,
+    getAreaOfIncludedAirpaces, toggleConfiguration, currentCWP,
   } = configurationStore;
-  const sortedList = sortedConfigurationPlan;
   let sectorsForNext: [string, SectorModel][] = [];
   let sectorsForCurrent: [string, SectorModel][] = [];
   let nextConfigStartTime: number | undefined;
   let timeToNextConfig: number = Number.MAX_VALUE;
 
   const listOfTimes: [string, string][] = [];
-  const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
   const [currentIntervalTime, setCurrentIntervalTime] = React.useState<[number, number]>([0, 0]);
 
   const accordionBodyReference = React.useRef<HTMLDivElement>(null);
 
-  const nextConfigId = listConfiguration?.[1];
-  const currentConfigTime = listConfiguration?.[0];
+  const nextConfigId = listOfIntervals?.[1];
+  const currentConfigTime = listOfIntervals?.[0];
 
   const toggleSectorInterval = (number_: number): void => {
     let index = 0;
@@ -69,21 +67,6 @@ export default observer(function SectorConfiguration() {
   };
 
   React.useEffect(() => {
-    if (sortedList.length > 0) {
-      const listOfIntervals: [string, number, number][] = [];
-      for (const element of sortedList) {
-        for (const intervals of element.timeIntervals) {
-          const startTimeInterval = intervals.startTime;
-          const endTimeInterval = intervals.endTime;
-          if ((startTimeInterval >= simulatorTime || endTimeInterval >= simulatorTime)
-            && !listConfiguration
-              .includes([element.configurationId, startTimeInterval, endTimeInterval])) {
-            listOfIntervals.push([element.configurationId, startTimeInterval, endTimeInterval]);
-          }
-        }
-      }
-      setListConfiguration(listOfIntervals);
-    }
     if (currentConfigTime !== undefined) {
       setCurrentIntervalTime([currentConfigTime[1], currentConfigTime[2]]);
     }
