@@ -64,9 +64,10 @@ export default observer(function AircraftPopupPseudoContent(properties: {
       cwpStore.openChangeSpeedForAircraft(aircraftId);
     }
   };
+
   const middleClickNextWaypoint = (event: React.MouseEvent<HTMLElement>): void => {
     if (event.button === 1) {
-      cwpStore.openChangeNextFixForAircraft(aircraftId);
+      cwpStore.toggleFlightRouteForAircraft(aircraftId);
     }
   };
 
@@ -91,7 +92,7 @@ export default observer(function AircraftPopupPseudoContent(properties: {
       </Row>
       <Row>
         <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-        <Col className="gutter-2" onMouseDown={middleClickNextWaypoint} onClick={(): false | void => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
+        <Col className="gutter-2" onMouseDown={middleClickNextWaypoint} onClick={(): false | void => !isDragging() && cwpStore.openChangeNextFixForAircraft(aircraftId)}>
           {nextFix}
         </Col>
         <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{assignedFlightLevel}</Col>
