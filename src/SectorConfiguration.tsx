@@ -49,6 +49,8 @@ export default observer(function SectorConfiguration() {
   const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
   const [currentIntervalTime, setCurrentIntervalTime] = React.useState<[number, number]>([0, 0]);
 
+  const accordionBodyReference = React.useRef<HTMLDivElement>(null);
+
   const nextConfigId = listConfiguration?.[1];
   const currentConfigTime = listConfiguration?.[0];
 
@@ -132,7 +134,7 @@ export default observer(function SectorConfiguration() {
   const sectorArray = [sectorsForCurrent, sectorsForNext];
 
   const sectorChangeCountdown = timeToNextConfig <= 601;
-  const timelineRectangleHeight = Number(document.querySelector('.accordion-body')?.clientHeight) - 20;
+  const timelineRectangleHeight = accordionBodyReference.current?.clientHeight ?? 0 - 20;
   const timeToChange = currentIntervalTime[1] - simulatorTime;
   const bottomValueTimeline = currentIntervalTime && timelineRectangleHeight
     ? (((currentIntervalTime[0] - simulatorTime)
@@ -161,7 +163,7 @@ export default observer(function SectorConfiguration() {
                   {' '}
                   {value[1]}
                 </Accordion.Header>
-                <Accordion.Body className="accordion-body">
+                <Accordion.Body className="accordion-body" ref={accordionBodyReference}>
                   <TableSectors sectorsOfArray={sectorArray[index]}
                   currentSectorControlled={sectorsForHighlight(currentConfigTime)}
                   nextSectorControlled={sectorsForHighlight(nextConfigId)} />
