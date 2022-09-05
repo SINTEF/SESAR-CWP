@@ -35,7 +35,6 @@ function sanitizeClientId(clientId: string): string {
 const clientId = sanitizeClientId('1');
 
 client.addListener('connect', () => {
-  // console.debug('Connected to MQTT broker');
   client.subscribe(`ATM/${clientId}/#`, (error) => {
     if (error) {
       // eslint-disable-next-line no-console
@@ -190,10 +189,12 @@ export function changeBearingOfAircraft(
   );
 }
 
-export function changeNextWaypointOfAircraft(
+export function changeNextWaypointOfAircraft({
+  pilotId, waypointId, flightId, latitude, longitude, viaLat, viaLong, viaWaypointId,
+}: {
   pilotId: string, waypointId: string, flightId: string, latitude: number,
   longitude: number, viaLat: number | string, viaLong: number | string, viaWaypointId: string,
-): void {
+}): void {
   client.publish(`simulator/${clientId}/changeNextWaypointOfAircraft/`,
     serializeForSimulator(
       pilotId, waypointId, flightId, latitude, longitude, viaLat, viaLong, viaWaypointId,

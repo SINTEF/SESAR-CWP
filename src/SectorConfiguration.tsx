@@ -45,7 +45,6 @@ export default observer(function SectorConfiguration() {
   let timeToNextConfig: number = Number.MAX_VALUE;
 
   const listOfTimes: [string, string][] = [];
-  // const listConfiguration: [string, number, number][] = [];
   const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
   const [currentIntervalTime, setCurrentIntervalTime] = React.useState<[number, number]>([0, 0]);
 
@@ -124,13 +123,21 @@ export default observer(function SectorConfiguration() {
   if (nextConfigId !== undefined) {
     nextConfigStartTime = nextConfigId[1];
     timeToNextConfig = Math.floor(nextConfigStartTime - simulatorTime);
-    // console.log(timeToNextConfig);
     listOfTimes.push([
       ChangeToLocaleTime(nextConfigId[1]),
       ChangeToLocaleTime(nextConfigId[2]),
     ]);
     sectorsForNext = getAreaOfIncludedAirpaces(nextConfigId[0]);
   }
+  // Sort list of times on the two first strings of the list inside the list
+  // using toLocaleCompare
+  listOfTimes.sort((a, b) => {
+    if (a[0].localeCompare(b[0]) === 0) {
+      return a[1].localeCompare(b[1]);
+    }
+    return a[0].localeCompare(b[0]);
+  });
+
   const sectorArray = [sectorsForCurrent, sectorsForNext];
 
   const sectorChangeCountdown = timeToNextConfig <= 601;
@@ -152,7 +159,7 @@ export default observer(function SectorConfiguration() {
       <Draggable>
         <div className="control-panel">
           <Accordion className="sector-configuration-accordion" defaultActiveKey={['0']} alwaysOpen>
-            {listOfTimes.sort().map((value, index) => (
+            {listOfTimes.map((value, index) => (
               <Accordion.Item key={`${index}:${value[0]}`} eventKey={`${index}`}>
                 <Accordion.Header className="accordion-header">
                   From

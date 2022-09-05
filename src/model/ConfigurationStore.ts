@@ -175,18 +175,18 @@ export default class ConfigurationStore {
 
   get sortedConfigurationPlan(): ConfigurationTime[] {
     const listOfConfigurations = [...this.configurationPlan.values()];
-    const sortedList = [];
-    for (const element of listOfConfigurations) {
+    const sortedList = listOfConfigurations.map((element) => {
       const innerIntervalSort = [...element.timeIntervals]
         .sort((a, b) => a.startTime - b.startTime);
 
       this.setIntervals(element.configurationId, innerIntervalSort);
-      sortedList.push(element);
-    }
-    const finalSort = sortedList
+      return element;
+    });
+
+    sortedList
       .sort((a, b) => a.timeIntervals[0].startTime - b.timeIntervals[0].startTime);
 
-    return finalSort;
+    return sortedList;
   }
 
   setIntervals(configuration: string, timeIntervals: TimeConfigurations[]): void {

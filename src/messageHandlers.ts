@@ -32,7 +32,7 @@ export function notFound(parameters: unknown, message: Buffer, url: string): voi
 }
 
 export function todo(/* parameters: unknown, message: unknown, url: unknown */): void {
-  // console.info('MQTT message received but event handler is not yet implemented', url, message);
+  // MQTT message received but event handler is not yet implemented
 }
 
 export function ignored(): void { }

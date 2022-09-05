@@ -80,12 +80,6 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
 
   const recognizer = new SpeechRecognizer(speechConfiguration, audioConfiguration);
 
-  // recognizer.sessionStarted = onSessionStarted;
-
-  // The 'sessionStopped' event signals that the current interaction with the speech
-  // service has ended and audio has stopped flowing.
-  // recognizer.sessionStopped = onSessionStopped;
-
   recognizer.recognizing = (
     sender: SpeechSDKType.Recognizer, event: SpeechSDKType.SpeechRecognitionEventArgs,
   ): void => {
@@ -127,14 +121,6 @@ export async function StartContinousListening(): Promise<void> {
       startupPromise = StartUp();
     }
     const recognizer = await startupPromise;
-
-    /*
-    const result = await new Promise<SpeechSDKType.SpeechRecognitionResult>(
-      (resolve, reject) => {
-      recognizer.recognizeOnceAsync(resolve, reject);
-    });
-    console.log(result);
-    */
 
     await new Promise<void>((resolve, reject) => {
       recognizer.startContinuousRecognitionAsync(resolve, reject);
