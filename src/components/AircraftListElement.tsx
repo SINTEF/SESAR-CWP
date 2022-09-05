@@ -22,7 +22,6 @@ export default observer(function AircraftListElement(/* properties */) {
   const handleFlightClicked = (event: string): void => {
     cwpStore.setHighlightedAircraftId(event);
   };
-  if (!cwpStore.showFL) return null;
 
   React.useEffect(() => {
     if (roleConfigurationStore.areaOfCurrentControlledSector !== undefined) {
@@ -43,6 +42,8 @@ export default observer(function AircraftListElement(/* properties */) {
       setlistOfSectorAircrafts(temporaryAircrafts);
     }
   }, [roleConfigurationStore.areaOfCurrentControlledSector]);
+
+  if (!cwpStore.showFL) return null;
 
   return (
     <div className="aircraft-list">

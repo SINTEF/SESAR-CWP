@@ -196,7 +196,6 @@ gap: 0px;
     padding: 10px 14px 14px 14px;
     margin-bottom: 50px;
     margin-left: 40px;
-    font-size: 10px;
     line-height: 2;
     font-size: xx-small;
     outline: none;
@@ -640,22 +639,6 @@ user-select: none;
     border: 0;
     background-image: url('../saveDirectionArrow.png');
     background-size: 100% 100%;
-}
-.chevronlabel {
-  background-color: #0099C3; 
-  width: 31px;
-  height: 35px;
-  display: inline-block;
-  color: #ffffff;
-  box-sizing: border-box;
-  font-family: Arial;
-  /* z-index: 5;
-  background-image: url('../arrow.svg');
-  transform: scale(2,2); */
-  /* padding: 8px 30px 8px 12px; */
-  position: absolute;
-  /* bottom: 9em; */
-
 }
 .chevron-degrees-button{
     width: 3em;
