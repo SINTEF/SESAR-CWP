@@ -14,34 +14,15 @@ export default observer(function SectorSideView() {
   const simulatorTime = simulatorStore.timestamp;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    currentCWP, sortedConfigurationPlan,
+    currentCWP,
     getAreaOfIncludedAirpaces,
+    listOfIntervals,
   } = configurationStore;
-  const sortedList = sortedConfigurationPlan;
 
-  const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
-
-  React.useEffect(() => {
-    if (sortedList.length > 0) {
-      const listOfIntervals: [string, number, number][] = [];
-      for (const element of sortedList) {
-        for (const intervals of element.timeIntervals) {
-          const startTimeInterval = intervals.startTime;
-          const endTimeInterval = intervals.endTime;
-          if ((startTimeInterval >= simulatorTime || endTimeInterval >= simulatorTime)
-            && !listConfiguration
-              .includes([element.configurationId, startTimeInterval, endTimeInterval])) {
-            listOfIntervals.push([element.configurationId, startTimeInterval, endTimeInterval]);
-          }
-        }
-      }
-      setListConfiguration(listOfIntervals);
-    }
-  }, [simulatorTime]);
   let timeToChange = 15;
   let timeDifferanse = 10_000;
 
-  const currentConfig = listConfiguration?.[0];
+  const currentConfig = listOfIntervals?.[0];
   const cwpCurrentSector = roleConfigurationStore
     .getControlledSector(currentCWP, currentConfig?.[0]);
   if (cwpCurrentSector === '') {
@@ -61,8 +42,8 @@ export default observer(function SectorSideView() {
   const topFLCurrent = airspaceCurrent?.[1].topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
-  const nextConfig = listConfiguration?.[1];
-  if (listConfiguration.length > 0 && nextConfig) {
+  const nextConfig = listOfIntervals?.[1];
+  if (listOfIntervals.length > 0 && nextConfig) {
     const startTime = nextConfig[1];
     timeDifferanse = startTime - simulatorTime;
     const cwpNextSector = roleConfigurationStore

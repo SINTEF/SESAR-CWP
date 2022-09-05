@@ -13,7 +13,6 @@ const mapStyle: Style = {
   name: 'Black',
   metadata: {},
   sources: {},
-  glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
   layers: [{
     id: 'background',
     type: 'background',
@@ -40,10 +39,8 @@ const maxBounds: mapboxgl.LngLatBoundsLike = [
 ];
 
 export default function Sectors3DView(): JSX.Element {
-  // const map = React.useRef<MapRef | undefined>(undefined);
   return (
     <ReactMapGL
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
       id='map-3d'
       style={style}
       initialViewState={initialViewState}

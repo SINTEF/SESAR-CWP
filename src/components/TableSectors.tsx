@@ -20,9 +20,11 @@ export default function TableSectors({
     setClickedSectorId(value);
     toggleClickedSector();
   };
-  const ascendingSectors = sectorsOfArray
-    .sort((element1, element2) => element1[1].bottomFlightLevel - element2[1].bottomFlightLevel
+  const ascendingSectors = [...sectorsOfArray];
+  ascendingSectors.sort(
+    (element1, element2) => element1[1].bottomFlightLevel - element2[1].bottomFlightLevel
       || element1[1].topFlightLevel - element2[1].topFlightLevel);
+
   const topLevel = Math.max(...sectorsOfArray.map(([, area]) => area.topFlightLevel));
   const topLayer = new Set(sectorsOfArray.filter(([, area]) => area.topFlightLevel === topLevel)
     .map(([,area]) => area.bottomFlightLevel));
@@ -49,8 +51,6 @@ export default function TableSectors({
     let counterBelow = 0;
     if (element.topFlightLevel === nextElement.topFlightLevel) {
       topSpanCounter += 1;
-    } else {
-      topSpanCounter = 1;
     }
     for (const value of ascendingSectors) {
       if (value[1].bottomFlightLevel === element.topFlightLevel) {
@@ -65,8 +65,6 @@ export default function TableSectors({
     // }
     if (element.bottomFlightLevel === nextElement.bottomFlightLevel) {
       spanCounter += 1;
-    } else {
-      spanCounter = 1;
     }
     const maxSpan = Math.max(topSpanCounter, spanCounter);
     if (spanCounter > 1) {

@@ -24,7 +24,7 @@ const mapStyle: Style = {
   name: 'Black',
   metadata: {},
   sources: {},
-  glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+  glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
   layers: [{
     id: 'background',
     type: 'background',

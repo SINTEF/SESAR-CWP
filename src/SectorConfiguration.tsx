@@ -35,24 +35,21 @@ export default observer(function SectorConfiguration() {
   const simulatorTime = simulatorStore.timestamp;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    currentConfigurationId,
-    sortedConfigurationPlan, getAreaOfIncludedAirpaces, toggleConfiguration, currentCWP,
+    currentConfigurationId, listOfIntervals,
+    getAreaOfIncludedAirpaces, toggleConfiguration, currentCWP,
   } = configurationStore;
-  const sortedList = sortedConfigurationPlan;
   let sectorsForNext: [string, SectorModel][] = [];
   let sectorsForCurrent: [string, SectorModel][] = [];
   let nextConfigStartTime: number | undefined;
   let timeToNextConfig: number = Number.MAX_VALUE;
 
   const listOfTimes: [string, string][] = [];
-  // const listConfiguration: [string, number, number][] = [];
-  const [listConfiguration, setListConfiguration] = React.useState<[string, number, number][]>([]);
   const [currentIntervalTime, setCurrentIntervalTime] = React.useState<[number, number]>([0, 0]);
 
   const accordionBodyReference = React.useRef<HTMLDivElement>(null);
 
-  const nextConfigId = listConfiguration?.[1];
-  const currentConfigTime = listConfiguration?.[0];
+  const nextConfigId = listOfIntervals?.[1];
+  const currentConfigTime = listOfIntervals?.[0];
 
   const toggleSectorInterval = (number_: number): void => {
     let index = 0;
@@ -75,22 +72,6 @@ export default observer(function SectorConfiguration() {
     }
   }, [nextConfigId]);
 
-  React.useEffect(() => {
-    if (sortedList.length > 0) {
-      const listOfIntervals: [string, number, number][] = [];
-      for (const element of sortedList) {
-        for (const intervals of element.timeIntervals) {
-          const startTimeInterval = intervals.startTime;
-          const endTimeInterval = intervals.endTime;
-          if ((startTimeInterval >= simulatorTime || endTimeInterval >= simulatorTime)
-            && !listConfiguration
-              .includes([element.configurationId, startTimeInterval, endTimeInterval])) {
-            listOfIntervals.push([element.configurationId, startTimeInterval, endTimeInterval]);
-          }
-        }
-      }
-      setListConfiguration(listOfIntervals);
-    }
     if (currentConfigTime !== undefined) {
       setCurrentIntervalTime([currentConfigTime[1], currentConfigTime[2]]);
     }
@@ -130,13 +111,21 @@ export default observer(function SectorConfiguration() {
   if (nextConfigId !== undefined) {
     nextConfigStartTime = nextConfigId[1];
     timeToNextConfig = Math.floor(nextConfigStartTime - simulatorTime);
-    // console.log(timeToNextConfig);
     listOfTimes.push([
       ChangeToLocaleTime(nextConfigId[1]),
       ChangeToLocaleTime(nextConfigId[2]),
     ]);
     sectorsForNext = getAreaOfIncludedAirpaces(nextConfigId[0]);
   }
+  // Sort list of times on the two first strings of the list inside the list
+  // using toLocaleCompare
+  listOfTimes.sort((a, b) => {
+    if (a[0].localeCompare(b[0]) === 0) {
+      return a[1].localeCompare(b[1]);
+    }
+    return a[0].localeCompare(b[0]);
+  });
+
   const sectorArray = [sectorsForCurrent, sectorsForNext];
 
   const sectorChangeCountdown = timeToNextConfig <= 601;
@@ -158,7 +147,7 @@ export default observer(function SectorConfiguration() {
       <Draggable>
         <div className="control-panel">
           <Accordion className="sector-configuration-accordion" defaultActiveKey={['0']} alwaysOpen>
-            {listOfTimes.sort().map((value, index) => (
+            {listOfTimes.map((value, index) => (
               <Accordion.Item key={`${index}:${value[0]}`} eventKey={`${index}`}>
                 <Accordion.Header className="accordion-header">
                   From
