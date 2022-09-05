@@ -67,10 +67,13 @@ export default observer(function SectorConfiguration() {
   };
 
   React.useEffect(() => {
-    if (currentConfigTime !== undefined) {
+    if (nextConfigId) {
+      configurationStore.setNextConfigurationId(nextConfigId[0]);
+    }
+    if (currentConfigTime) {
       setCurrentIntervalTime([currentConfigTime[1], currentConfigTime[2]]);
     }
-  }, [simulatorTime]);
+  }, [nextConfigId, currentConfigTime]);
 
   const toggleSectorChange = (): void => {
     const setConfig = currentConfigurationId === currentConfigTime[0]

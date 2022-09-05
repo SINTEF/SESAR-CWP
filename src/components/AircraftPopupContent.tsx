@@ -29,11 +29,33 @@ export default observer(function AircraftPopupContent(properties: {
     nextFix,
     localAssignedFlightLevel,
     setLocalAssignedFlightLevel,
+    nextSectorFL,
+    setNextSectorFL,
+    nextACCFL,
+    setNextACCFL,
   } = aircraft;
-
+  if (nextSectorFL === altitude.toFixed(0)) {
+    setNextSectorFL('NSFL');
+  }
+  if (nextACCFL === altitude.toFixed(0)) {
+    setNextACCFL('COO');
+  }
   if (localAssignedFlightLevel === altitude.toFixed(0)) {
     setLocalAssignedFlightLevel(' ');
   }
+  const openNextACCPopup = (): void => {
+    cwpStore.showFlACC(true);
+    cwpStore.openLevelPopupForAircraft(aircraftId);
+  };
+  const openNSFLPopup = (): void => {
+    cwpStore.showNSFL(true);
+    cwpStore.openLevelPopupForAircraft(aircraftId);
+  };
+  const middleClickNextWaypoint = (event: React.MouseEvent<HTMLElement>): void => {
+    if (event.button === 1) {
+      cwpStore.toggleFlightRouteForAircraft(aircraftId);
+    }
+  };
 
   const setController = (): void => {
     // TODO #97: Implement setController shared across browsers, usinq MQTT
@@ -52,20 +74,20 @@ export default observer(function AircraftPopupContent(properties: {
     </Row>
     <Row>
       <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.toggleFlightRouteForAircraft(aircraftId)}>
+      <Col className="gutter-2" onMouseDown={middleClickNextWaypoint}>
         {nextFix}
       </Col>
       <Col className="gutter-2" />
     </Row>
     <Row>
       <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>NSFL</Col>
+      <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNSFLPopup()}>{nextSectorFL}</Col>
       <Col className="gutter-2" />
     </Row>
     <Row>
       <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
       <Col className="gutter-2">{localAssignedFlightLevel}</Col>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>COO</Col>
+      <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNextACCPopup()}>{nextACCFL}</Col>
     </Row>
   </Container>);
 });

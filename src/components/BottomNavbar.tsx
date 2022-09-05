@@ -23,7 +23,7 @@ export default function BottomNavBar(): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     toggleSFL, toggleFL, toggleFlightLabels, toggleFixes, toggleSectorLabels,
-    toggleFILT,
+    toggleFILT, toggleLimboFlights,
   } = cwpStore;
 
   return (
@@ -34,6 +34,7 @@ export default function BottomNavBar(): JSX.Element {
       <button type="button" onClick={(): void => toggleSectorLabels()}>Toggle Sector Labels</button>
       <button type="button" onClick={(): void => toggleFlightLabels()}>Toggle Flight Labels</button>
       <button type="button" onClick={(): void => toggleFixes()}>Toggle Fixes</button>
+      <button type="button" onClick={(): void => toggleLimboFlights()}>Toggle Affected Flights</button>
       <button type="button" onClick={(): void => toggleFILT()}>FILT</button>
       <SpeedVectorNavbarControl />
       <DistanceMeasurementDropdown />

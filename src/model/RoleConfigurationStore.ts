@@ -1,8 +1,12 @@
+import { booleanPointInPolygon, polygon } from '@turf/turf';
 import { makeAutoObservable, observable } from 'mobx';
+import type { Position } from '@turf/turf';
 import type { ObservableMap } from 'mobx';
 
 import RoleConfigurationModel from './RoleConfigurationModel';
 import type { RoleConfigurationMessage } from '../proto/ProtobufAirTrafficSimulator';
+import type AircraftModel from './AircraftModel';
+import type AircraftStore from './AircraftStore';
 import type ConfigurationStore from './ConfigurationStore';
 import type CoordinatePair from './CoordinatePair';
 
@@ -11,16 +15,22 @@ export default class RoleConfigurationStore {
 
   configurationStore: ConfigurationStore;
 
+  aircraftStore: AircraftStore;
+
   constructor({
     configurationStore,
+    aircraftStore,
   }: {
     configurationStore: ConfigurationStore,
+    aircraftStore: AircraftStore
   }) {
     makeAutoObservable(this, {
       configurationStore: false,
       getControlledSector: false,
+      aircraftStore: false,
     }, { autoBind: true });
     this.configurationStore = configurationStore;
+    this.aircraftStore = aircraftStore;
     this.getControlledSector = this.getControlledSector.bind(this);
 
     // Dummy data - we will get it directly from the new simulator
@@ -94,7 +104,38 @@ export default class RoleConfigurationStore {
 
   // eslint-disable-next-line class-methods-use-this
   get areaOfNextControlledSector(): CoordinatePair[] | undefined {
-    // TODO #128
-    return undefined;
+    const nextAreas = this.configurationStore.areaOfIncludedAirspacesNext;
+    const nextSectorName = this.getControlledSector(this.configurationStore.currentCWP,
+      this.configurationStore.nextConfigurationId);
+    const area = [...nextAreas.values()].find(([key]) => key === nextSectorName);
+    if (!area) {
+      return undefined;
+    }
+    const { sectorArea } = area[1];
+    if (sectorArea.length === 0) {
+      return undefined;
+    }
+    return [...sectorArea, sectorArea[0]];
+  }
+
+  get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
+    if (this.areaOfCurrentControlledSector !== undefined) {
+      const coordinates = this.areaOfCurrentControlledSector?.map((point) => (
+        [point.longitude, point.latitude]),
+      );
+      const boundsGeometry = polygon(
+        [coordinates] as unknown as Position[][]);
+      const temporaryAircrafts: AircraftModel[] = [];
+      for (const aircraft of this.aircraftStore.aircrafts) {
+        const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
+        const bool = booleanPointInPolygon(position, boundsGeometry);
+        if (bool) {
+          temporaryAircrafts.push(...this.aircraftStore.aircraftsWithPosition
+            .filter((flight) => flight.assignedFlightId === aircraft[0]));
+        }
+      }
+      return temporaryAircrafts;
+    }
+    return [];
   }
 }
