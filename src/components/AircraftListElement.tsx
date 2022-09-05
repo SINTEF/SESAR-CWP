@@ -9,16 +9,16 @@ import {
 } from '../state';
 
 const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
-
+const handleFlightClicked = (event: string): void => {
+  cwpStore.setHighlightedAircraftId(event);
+};
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
   const currentSector:string = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
   // const [listOfSectorAircrafts, setlistOfSectorAircrafts] = React.useState<AircraftModel[]>([]);
   const listOfAircraftsInSector = roleConfigurationStore.listOfFlightsInCurrentSector;
-  const handleFlightClicked = (event: string): void => {
-    cwpStore.setHighlightedAircraftId(event);
-  };
+
   if (!cwpStore.showFL) return null;
 
   return (
