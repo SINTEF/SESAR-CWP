@@ -15,6 +15,7 @@ export const aircraftStore = new AircraftStore({
 export const airspaceStore = new AirspaceStore();
 export const configurationStore = new ConfigurationStore({
   airspaceStore,
+  simulatorStore,
 });
 export const fixStore = new FixStore();
 export const distanceLineStore = new DistanceLine();

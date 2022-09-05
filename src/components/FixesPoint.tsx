@@ -28,7 +28,6 @@ const fixNameLayout: SymbolLayout = {
 export default observer(function FixesPoint(/* properties */) {
   // Load required data
   const fixData = fixStore.fixes;
-  // const { edgesPolygon } = configurationStore;
 
   if (!cwpStore.showFixes) return null;
   // Get all points

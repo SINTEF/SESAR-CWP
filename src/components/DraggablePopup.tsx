@@ -45,7 +45,7 @@ export default class DraggablePopup extends
   }
 
   onDragStart(event: DraggableEvent): void {
-    if (!('clientX' in event && 'clientX' in event)) {
+    if (!('clientX' in event && 'clientY' in event)) {
       return;
     }
     const { clientX, clientY } = event;
@@ -58,7 +58,7 @@ export default class DraggablePopup extends
   }
 
   onDrag(event: DraggableEvent): void {
-    if (!('clientX' in event && 'clientX' in event)) {
+    if (!('clientX' in event && 'clientY' in event)) {
       return;
     }
     const { clientX, clientY } = event;

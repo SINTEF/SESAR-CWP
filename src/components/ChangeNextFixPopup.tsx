@@ -33,14 +33,28 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     if (latOfFix !== undefined && longOfFix !== undefined
       && viaLat !== undefined && viaLong !== undefined) {
       const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
-      changeNextWaypointOfAircraft(
-        pilotId, newNextFix, assignedFlightId, latOfFix, longOfFix, viaLat, viaLong, nextViaFix,
-      );
+      changeNextWaypointOfAircraft({
+        pilotId,
+        waypointId: newNextFix,
+        flightId: assignedFlightId,
+        latitude: latOfFix,
+        longitude: longOfFix,
+        viaLat,
+        viaLong,
+        viaWaypointId: nextViaFix,
+      });
     } else if (latOfFix !== undefined && longOfFix !== undefined) {
       const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
-      changeNextWaypointOfAircraft(
-        pilotId, newNextFix, assignedFlightId, latOfFix, longOfFix, '', '', '',
-      );
+      changeNextWaypointOfAircraft({
+        pilotId,
+        waypointId: newNextFix,
+        flightId: assignedFlightId,
+        latitude: latOfFix,
+        longitude: longOfFix,
+        viaLat: '',
+        viaLong: '',
+        viaWaypointId: '',
+      });
     }
     close();
   };

@@ -21,7 +21,6 @@ const handleFlightClicked = (event: string): void => {
 };
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function SectorFlightList(/* properties */) {
-  // const { onClick } = properties;
   const [filter, setFilter] = useState('');
   const [listOfFixes, setListOfFixes] = React.useState<string[]>([]);
   const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>([]);
