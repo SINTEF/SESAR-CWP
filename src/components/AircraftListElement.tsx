@@ -19,7 +19,6 @@ export default observer(function AircraftListElement(/* properties */) {
   const handleFlightClicked = (event: string): void => {
     cwpStore.setHighlightedAircraftId(event);
   };
-  if (!cwpStore.showFL) return null;
 
   return (
     <div className="aircraft-list">
