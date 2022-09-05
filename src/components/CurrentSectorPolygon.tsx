@@ -3,7 +3,7 @@ import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 import type { LinePaint } from 'mapbox-gl';
 
-import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
+import { configurationStore, roleConfigurationStore } from '../state';
 
 const sectorOutlinePaint: LinePaint = {
   'line-color': '#fff',

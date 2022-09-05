@@ -15,7 +15,7 @@ const flightColor = (value: string): string => (value === configurationStore.cur
 
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
-  const currentSector = roleConfigurationStore.currentControlledSector;
+  const currentSector:string = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
   const [listOfSectorAircrafts, setlistOfSectorAircrafts] = React.useState<AircraftModel[]>([]);
 
@@ -25,9 +25,12 @@ export default observer(function AircraftListElement(/* properties */) {
   if (!cwpStore.showFL) return null;
 
   React.useEffect(() => {
-    if (cwpStore.coordinatesCurrentPolygon !== undefined) {
+    if (roleConfigurationStore.areaOfCurrentControlledSector !== undefined) {
+      const coordinates = roleConfigurationStore.areaOfCurrentControlledSector.map((point) => (
+        [point.longitude, point.latitude]),
+      );
       const boundsGeometry = polygon(
-        [cwpStore.coordinatesCurrentPolygon] as unknown as Position[][]);
+        [coordinates] as unknown as Position[][]);
       const temporaryAircrafts: AircraftModel[] = [];
       for (const aircraft of aircraftStore.aircrafts) {
         const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
@@ -39,15 +42,17 @@ export default observer(function AircraftListElement(/* properties */) {
       }
       setlistOfSectorAircrafts(temporaryAircrafts);
     }
-  }, [cwpStore.coordinatesCurrentPolygon]);
+  }, [roleConfigurationStore.areaOfCurrentControlledSector]);
 
   return (
     <div className="aircraft-list">
-      <Table hover bordered variant="dark">
+      <Table className="aircraft-list-table" hover bordered variant="dark">
         <thead>
           <tr>
             <th colSpan={2}>
               <input
+                className='input-filter'
+                style={{ width: '8em' }}
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."

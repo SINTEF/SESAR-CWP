@@ -32,7 +32,7 @@
   background: transparent;
   border: none;
   color: white;
-  width: 2.5em !important;
+  /* width: 2.5em !important; */
 }
 
 .range {

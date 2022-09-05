@@ -28,18 +28,18 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
         </Row>
         <Row className="justify-content-center">
           <Col className="align-self-center">
-            <button type="button" className="set-button"> SET </button>
+            {/* <button type="button" className="set-button"> SET </button> */}
           </Col>
           <Col className="align-self-start">
             <h6>
               H:
-              <input className="input-filter" type="text" value={highestBound}
+              <input className="input-filter" style={{ width: '2.5em' }} type="text" value={highestBound}
                 onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
               {' '}
             </h6>
             <h6>
               L:
-              <input className="input-filter" type="text" value={lowestBound}
+              <input className="input-filter" style={{ width: '2.5em' }} type="text" value={lowestBound}
                 onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
 
               {' '}

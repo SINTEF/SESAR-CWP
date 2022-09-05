@@ -10,6 +10,7 @@ import type { Position } from '@turf/turf';
 
 import {
   aircraftStore, configurationStore, cwpStore, fixStore,
+  roleConfigurationStore,
 } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -26,9 +27,12 @@ export default observer(function SectorFlightList(/* properties */) {
   const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>([]);
 
   React.useEffect(() => {
-    if (cwpStore.coordinatesCurrentPolygon !== undefined) {
+    if (roleConfigurationStore.areaOfCurrentControlledSector !== undefined) {
+      const coordinates = roleConfigurationStore.areaOfCurrentControlledSector.map((point) => (
+        [point.longitude, point.latitude]),
+      );
       const boundsGeometry = polygon(
-        [cwpStore.coordinatesCurrentPolygon] as unknown as Position[][]);
+        [coordinates] as unknown as Position[][]);
       const temporaryFixes: string[] = [];
       for (const fix of fixStore.fixes) {
         const position: Position = [fix[1].longitude, fix[1].latitude];
@@ -40,7 +44,7 @@ export default observer(function SectorFlightList(/* properties */) {
       temporaryFixes.sort();
       setListOfFixes(temporaryFixes);
     }
-  }, [cwpStore.coordinatesCurrentPolygon]);
+  }, [roleConfigurationStore.areaOfCurrentControlledSector]);
 
   if (!cwpStore.showSFL) return null;
   const setFix = (value:string) : void => {
@@ -64,11 +68,13 @@ export default observer(function SectorFlightList(/* properties */) {
 
   return (
     <div className="sector-flight-list">
-      <Table hover bordered variant="dark">
+      <Table className="sector-flight-list-table" hover bordered variant="dark">
         <thead>
           <tr>
             <th colSpan={3}>
               <input
+              className='input-filter'
+              style={{ width: '10em !important' }}
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
@@ -125,6 +131,7 @@ export default observer(function SectorFlightList(/* properties */) {
               <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
                 key={aircraftData.assignedFlightId}
+                id={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
                 <td>
                   {aircraftData.callSign}
