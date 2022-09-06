@@ -44,8 +44,8 @@ export default observer(function SectorPolygons(/* properties */) {
       properties: {
         t: `${title}-${area.bottomFlightLevel}-${area.topFlightLevel}`,
         color: fillColors[counter],
-        height: ConvertFlightLevelToMeters(area.topFlightLevel - 205) * 20,
-        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel - 205) * 20,
+        height: ConvertFlightLevelToMeters(area.topFlightLevel) * 8,
+        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel) * 8,
       },
       geometry: {
         type: 'Polygon',

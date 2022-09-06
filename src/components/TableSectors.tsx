@@ -15,10 +15,18 @@ export default function TableSectors({
   nextSectorControlled: string;
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { setClickedSectorId, toggleClickedSector } = cwpStore;
+  const {
+    setClickedSectorId, toggleClickedSector,
+    setshowClickedSector, clickedSectorId,
+  } = cwpStore;
   const clickedSectorButton = (value: string): void => {
-    setClickedSectorId(value);
-    toggleClickedSector();
+    if (clickedSectorId === value) {
+      setClickedSectorId('');
+      toggleClickedSector();
+    } else {
+      setClickedSectorId(value);
+      setshowClickedSector(true);
+    }
   };
   const ascendingSectors = [...sectorsOfArray];
   ascendingSectors.sort(
@@ -51,6 +59,8 @@ export default function TableSectors({
     let counterBelow = 0;
     if (element.topFlightLevel === nextElement.topFlightLevel) {
       topSpanCounter += 1;
+    } else {
+      topSpanCounter = 1;
     }
     for (const value of ascendingSectors) {
       if (value[1].bottomFlightLevel === element.topFlightLevel) {
@@ -65,6 +75,8 @@ export default function TableSectors({
     // }
     if (element.bottomFlightLevel === nextElement.bottomFlightLevel) {
       spanCounter += 1;
+    } else {
+      spanCounter = 1;
     }
     const maxSpan = Math.max(topSpanCounter, spanCounter);
     if (spanCounter > 1) {
@@ -73,7 +85,7 @@ export default function TableSectors({
     temporaryHighestSpan = maxSpan > temporaryHighestSpan ? maxSpan : temporaryHighestSpan;
   }
   setSpan = temporaryHighestSpan;
-  const width = `${(450 / setSpan) / 2}`;
+  const width = `${(450 / setSpan / 2)}`;
 
   const buttons = [];
 
@@ -127,7 +139,11 @@ export default function TableSectors({
     const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     buttons.push(
-      <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index][0]}
+      <Button
+          className={`table-button 
+          ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : ''}
+          ${clickedSectorId === sectorsOfArray[sectorsOfArray.length - index][0] ? 'clicked-sector' : ''}`}
+          key={sectorsOfArray[sectorsOfArray.length - index][0]}
           style={{
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
