@@ -1,3 +1,4 @@
+import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import Draggable from 'react-draggable';
@@ -24,13 +25,17 @@ export default observer(function SectorChangeCountDown(/* properties */) {
     return null;
   }
   return (<Draggable bounds="parent" cancel="button, input">
-    <div className='toggle-countdown-container'>
-      <div className='time-to-change'>
+    <div className={
+      classnames({
+        'toggle-countdown-container': true,
+        'toggle-countdown-container-next': showNextSectorsConfiguration,
+      })}>
+      <div className="time-to-change">
         Sector change countdown:
         {' '}
         {ChangeCountDownTime(timeToNextConfiguration)}
       </div>
-      <button onClick={toggleShowNextSectorsConfiguration} className='toggle-sectors-button'>
+      <button onClick={toggleShowNextSectorsConfiguration} className="toggle-sectors-button">
         {showNextSectorsConfiguration ? 'Show current sectors' : 'Show next sectors'}
       </button>
     </div>

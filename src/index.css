@@ -562,6 +562,9 @@ user-select: none;
     outline: none;
     z-index: 500;
 }
+.toggle-countdown-container-next {
+    background: rgba(255, 0, 0, 0.8);
+}
 
 .time-to-change {
     color: #0ff;
@@ -695,4 +698,16 @@ user-select: none;
 }
 .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
     filter: invert() hue-rotate(180deg);
+}
+
+.huge-next-text {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 2.5rem;
+    color: rgba(250,250,250,0.5);
+    z-index: 100;
+    user-select: none;
+    text-align: right;
+
 }

@@ -1,16 +1,25 @@
 .voice-command-feedback {
   position: absolute;
-  bottom: 1.9rem;
+  bottom: 2.9rem;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  font-size: 1.5em;
+  left: 50%;
+  margin-left: -50%;
   text-align: center;
+  font-size: 1.5em;
   line-height: 1.5em;
   z-index: 9999;
 }
 
-.voice-command-feedback-processing {
+.voice-command-feedback-text {
+  display: inline-block;
+  padding: 0 1rem;
+  border-radius: 4px;
+  backdrop-filter: blur(1.5px);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.voice-command-feedback-processing .voice-command-feedback-text {
   background-color: rgba(0, 64, 128, 0.5);
 }
