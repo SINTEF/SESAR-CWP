@@ -1,12 +1,12 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
-import { cwpStore } from '../state';
+import { configurationStore } from '../state';
 
-export default observer(function HugeNextText({ text }) {
-  const { showNextSectorsConfiguration } = cwpStore;
+export default observer(function HugeNextText() {
+  const { shouldShowNextConfiguration } = configurationStore;
 
-  if (!showNextSectorsConfiguration) {
+  if (!shouldShowNextConfiguration) {
     return null;
   }
 

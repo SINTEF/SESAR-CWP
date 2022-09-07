@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import Draggable from 'react-draggable';
 
+import { ShowNextConfiguration } from '../model/CwpStore';
 import { configurationStore, cwpStore } from '../state';
 
 export function ChangeCountDownTime(time: number): string {
@@ -18,17 +19,33 @@ export function ChangeCountDownTime(time: number): string {
 }
 
 export default observer(function SectorChangeCountDown(/* properties */) {
-  const { timeToNextConfiguration } = configurationStore;
+  const { timeToNextConfiguration, shouldShowNextConfiguration } = configurationStore;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { toggleShowNextSectorsConfiguration, showNextSectorsConfiguration } = cwpStore;
+
   if (timeToNextConfiguration > 6_000_000) {
     return null;
+  }
+
+  let buttonText = '';
+  switch (showNextSectorsConfiguration) {
+    case ShowNextConfiguration.Automatic:
+      buttonText = 'Show next sectors';
+      break;
+    case ShowNextConfiguration.On:
+      buttonText = 'Show current sectors';
+      break;
+    case ShowNextConfiguration.Off:
+      buttonText = 'Automatic';
+      break;
+    default:
+      throw new Error('Invalid showNextSectorsConfiguration');
   }
   return (<Draggable bounds="parent" cancel="button, input">
     <div className={
       classnames({
         'toggle-countdown-container': true,
-        'toggle-countdown-container-next': showNextSectorsConfiguration,
+        'toggle-countdown-container-next': shouldShowNextConfiguration,
       })}>
       <div className="time-to-change">
         Sector change countdown:
@@ -36,7 +53,7 @@ export default observer(function SectorChangeCountDown(/* properties */) {
         {ChangeCountDownTime(timeToNextConfiguration)}
       </div>
       <button onClick={toggleShowNextSectorsConfiguration} className="toggle-sectors-button">
-        {showNextSectorsConfiguration ? 'Show current sectors' : 'Show next sectors'}
+        {buttonText}
       </button>
     </div>
   </Draggable>);

@@ -2,6 +2,12 @@ import { makeAutoObservable } from 'mobx';
 
 import AltitudeFilter from './AltitudeFilter';
 
+export enum ShowNextConfiguration {
+  Automatic = 'Automatic',
+  On = 'On',
+  Off = 'Off',
+}
+
 export default class CWPStore {
   altitudeFilter: AltitudeFilter;
 
@@ -61,7 +67,7 @@ export default class CWPStore {
 
   showLimboFlight = false;
 
-  showNextSectorsConfiguration = false;
+  showNextSectorsConfiguration: ShowNextConfiguration = ShowNextConfiguration.Automatic;
 
   constructor({
     altitudeFilter,
@@ -257,6 +263,18 @@ export default class CWPStore {
   }
 
   toggleShowNextSectorsConfiguration(): void {
-    this.showNextSectorsConfiguration = !this.showNextSectorsConfiguration;
+    switch (this.showNextSectorsConfiguration) {
+      case ShowNextConfiguration.Automatic:
+        this.showNextSectorsConfiguration = ShowNextConfiguration.On;
+        break;
+      case ShowNextConfiguration.On:
+        this.showNextSectorsConfiguration = ShowNextConfiguration.Off;
+        break;
+      case ShowNextConfiguration.Off:
+        this.showNextSectorsConfiguration = ShowNextConfiguration.Automatic;
+        break;
+      default:
+        throw new Error('Invalid showNextSectorsConfiguration');
+    }
   }
 }

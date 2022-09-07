@@ -4,6 +4,7 @@ import type { ObservableMap } from 'mobx';
 import ConfigurationModel from './ConfigurationModel';
 import ConfigurationTime from './ConfigurationTime';
 import convertTimestamp from './convertTimestamp';
+import { ShowNextConfiguration } from './CwpStore';
 import TimeConfigurations from './TimeConfigurations';
 import type {
   AirspaceAvailabilityMessage, AvailabilityIntervalsMessage,
@@ -160,8 +161,7 @@ export default class ConfigurationStore {
   }
 
   get areaOfAirspacesToDisplay(): ISectorModel[] {
-    const { showNextSectorsConfiguration } = this.cwpStore;
-    if (showNextSectorsConfiguration) {
+    if (this.shouldShowNextConfiguration) {
       return this.areaOfIncludedAirspacesForNextConfiguration;
     }
     return this.areaOfIncludedAirspaces;
@@ -230,5 +230,17 @@ export default class ConfigurationStore {
     const nextConfigStartTime = nextConfiguration[1];
     const { timestamp } = simulatorStore;
     return Math.floor(nextConfigStartTime - timestamp);
+  }
+
+  get shouldShowNextConfiguration(): boolean {
+    const { showNextSectorsConfiguration } = this.cwpStore;
+    if (showNextSectorsConfiguration === ShowNextConfiguration.On) {
+      return true;
+    }
+    if (showNextSectorsConfiguration === ShowNextConfiguration.Off) {
+      return false;
+    }
+    const { timeToNextConfiguration } = this;
+    return timeToNextConfiguration % 2 === 0;
   }
 }
