@@ -21,7 +21,9 @@ export default function TableSectors({
   controlledSector: string | undefined;
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { setClickedSectorId, toggleClickedSector } = cwpStore;
+  const {
+    setClickedSectorId, toggleClickedSector, clickedSectorId,
+  } = cwpStore;
   const clickedSectorButton = (value: string): void => {
     if (controlledSector === value) {
       toggleClickedSector();
@@ -138,7 +140,11 @@ export default function TableSectors({
     const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index];
     const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index];
     buttons.push(
-      <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index].sectorId) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index].sectorId}
+      <Button
+          className={`table-button 
+          ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index].sectorId) ? 'highlight-sector' : ''}
+          ${clickedSectorId === sectorsOfArray[sectorsOfArray.length - index].sectorId ? 'clicked-sector' : ''}`}
+          key={sectorsOfArray[sectorsOfArray.length - index].sectorId}
           style={{
             order: `${findGridPositionColumn(sectorsOfArray[sectorsOfArray.length - index].sectorId)}`,
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
