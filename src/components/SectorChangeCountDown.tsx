@@ -9,6 +9,7 @@ export function ChangeCountDownTime(time: number): string {
   const localeTime = date.toLocaleTimeString('en-GB', {
     timeZone: 'UTC',
     hour12: false,
+    hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
   });

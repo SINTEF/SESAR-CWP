@@ -27,8 +27,6 @@ export default class ConfigurationStore {
 
   currentCWP = '';
 
-  nextConfigurationId = '';
-
   constructor({
     airspaceStore,
     simulatorStore,
@@ -78,10 +76,6 @@ export default class ConfigurationStore {
     this.currentCWP = controllerValue;
   }
 
-  setNextConfigurationId = (nextConfig: string): void => {
-    this.nextConfigurationId = nextConfig;
-  };
-
   handleAvailabilityMessage(newAvailabilitymessage: AirspaceAvailabilityMessage): void {
     const { airspaceId, startTime, endTime } = newAvailabilitymessage;
     if (!startTime) {
@@ -126,10 +120,11 @@ export default class ConfigurationStore {
           endTime: convertTimestamp(timeInterval.endttime),
         });
         timeIntervalsArray.push(interval);
-      this.configurationPlan.set(objectId, new ConfigurationTime({
-        configurationId: objectId,
-        timeIntervals: timeIntervalsArray,
-      }));
+        this.configurationPlan.set(objectId, new ConfigurationTime({
+          configurationId: objectId,
+          timeIntervals: timeIntervalsArray,
+        }));
+      }
     }
   }
 
@@ -183,7 +178,6 @@ export default class ConfigurationStore {
 
   get sortedConfigurationPlan(): IConfigurationTime[] {
     const listOfConfigurations = [...this.configurationPlan.values()];
-<<<<<<< HEAD
     const sortedList = listOfConfigurations.map(
       ({ configurationId, timeIntervals }) => {
         const sortedTimeIntervals = [...timeIntervals];
@@ -197,27 +191,6 @@ export default class ConfigurationStore {
     sortedList
       .sort((a, b) => a.timeIntervals[0].startTime - b.timeIntervals[0].startTime);
 
-||||||| 63bdb73
-    const sortedList = listOfConfigurations.map((element) => {
-      const innerIntervalSort = [...element.timeIntervals]
-        .sort((a, b) => a.startTime - b.startTime);
-
-      this.setIntervals(element.configurationId, innerIntervalSort);
-      return element;
-    });
-
-    sortedList
-      .sort((a, b) => a.timeIntervals[0].startTime - b.timeIntervals[0].startTime);
-
-=======
-    const sortedList = listOfConfigurations.map((element) => {
-      const innerIntervalSort = [...element.timeIntervals]
-        .sort((a, b) => a.startTime - b.startTime);
-
-      this.setIntervals(element.configurationId, innerIntervalSort);
-      return element;
-    });
->>>>>>> origin/sector-selector-and-div
     return sortedList;
   }
 
