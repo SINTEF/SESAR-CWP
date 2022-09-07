@@ -1,55 +1,59 @@
-import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { useMap } from 'react-map-gl';
 
-export default observer(function Compass(): JSX.Element {
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+export default function Compass(): JSX.Element {
   const { current: map } = useMap();
 
   const rotationButtonClicked = (rotation: string): void => {
-    const currentBearing = Number(map?.getBearing());
-    const currentPitch = Number(map?.getPitch());
+    if (!map) {
+      throw new Error('Map instance is not available');
+    }
+
+    let newBearing = map.getBearing();
+    let newPitch = map.getPitch();
+
     switch (rotation) {
       case 'north': {
-        map?.setPitch(currentPitch - 20);
-
+        newPitch -= 20;
         break;
       }
       case 'south': {
-        map?.setPitch(currentPitch + 20);
-
+        newPitch += 20;
         break;
       }
       case 'east': {
-        map?.setBearing(currentBearing - 20);
-
+        newBearing -= 20;
         break;
       }
       case 'west': {
-        map?.setBearing(currentBearing + 20);
-
+        newBearing += 20;
         break;
       }
       case 'north-degrees': {
-        map?.setPitch(currentPitch - 5);
+        newPitch -= 5;
         break;
       }
       case 'south-degrees': {
-        map?.setPitch(currentPitch + 5);
+        newPitch += 5;
         break;
       }
       case 'west-degrees': {
-        map?.setBearing(currentBearing + 5);
+        newBearing += 5;
         break;
       }
       case 'east-degrees': {
-        map?.setBearing(currentBearing - 5);
+        newBearing -= 5;
         break;
       }
       default: {
-        break;
+        throw new Error('Invalid rotation');
       }
     }
+    map.easeTo({
+      bearing: newBearing,
+      pitch: newPitch,
+      duration: 500,
+    });
   };
 
   return (
@@ -64,4 +68,4 @@ export default observer(function Compass(): JSX.Element {
       <button onClick={():void => rotationButtonClicked('east-degrees')} className='chevron-east chevron-degrees-button'></button>
     </div>
   );
-});
+}

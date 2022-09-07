@@ -111,13 +111,15 @@ let incomingMessagesBatchId = 0;
 function processIncomingMessages(): void {
   transaction(() => {
     incomingMessagesBatchId = 0;
-    for (const { topic, message }
-      of incomingMessagesQueue) {
-      try {
-        router(topic, message);
-      } catch (error) {
+    for (const { topic, message } of incomingMessagesQueue) {
+      // Ignore empty messages (they are most likely deletion messages)
+      if (message.length > 0) {
+        try {
+          router(topic, message);
+        } catch (error) {
         // eslint-disable-next-line no-console
-        console.error('Error while handling MQTT message', error);
+          console.error('Error while handling MQTT message', error);
+        }
       }
     }
   });

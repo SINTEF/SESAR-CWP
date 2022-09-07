@@ -115,7 +115,6 @@ export default class AircraftModel {
       localAssignedFlightLevel: observable,
       nextSectorFL: observable,
       nextACCFL: observable,
-      // flightColor: observable,
 
       nextFix: computed,
       wakeTurbulenceCategory: computed,
@@ -131,7 +130,6 @@ export default class AircraftModel {
       setLocalAssignedFlightLevel: action.bound,
       setNextSectorFL: action.bound,
       setNextACCFL: action.bound,
-      // setFlightColor: action.bound,
     });
 
     this.aircraftId = aircraftId;
@@ -185,10 +183,6 @@ export default class AircraftModel {
   setController(controller: string): void {
     this.controlledBy = controller;
   }
-
-  // setFlightColor(flightColor: string): void {
-  //   this.flightColor = flightColor;
-  // }
 
   get nextFix(): string {
     const simulatorTimestamp = this.simulatorStore.timestamp;

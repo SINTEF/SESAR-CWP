@@ -1,8 +1,9 @@
 import { action, makeObservable, observable } from 'mobx';
 
 import type CoordinatePair from './CoordinatePair';
+import type { ISectorModel } from './ISectorModel';
 
-export default class SectorModel {
+export default class SectorModel implements ISectorModel {
   sectorId: string;
 
   bottomFlightLevel = 0;
@@ -37,7 +38,7 @@ export default class SectorModel {
   }
 
   updateSectorArea(newSectorArea: CoordinatePair[]): void {
-    this.sectorArea = newSectorArea;
+    this.sectorArea = observable.array(newSectorArea);
   }
 
   updateFlightLevels(newBottomFlightLevel: number, newTopFlightLevel: number): void {

@@ -2,40 +2,45 @@ import React from 'react';
 import { Button, Card } from 'react-bootstrap';
 
 import { cwpStore } from '../state';
-import type SectorModel from '../model/SectorModel';
+import type { ISectorModel } from '../model/ISectorModel';
 
 const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#DDD555', '#01539d', '#e9b4d0', '#8c9441', '#c82169'];
 
 export default function TableSectors({
   sectorsOfArray,
-  currentSectorControlled, nextSectorControlled,
+  controlledSector,
 }: {
-  sectorsOfArray: [string, SectorModel][];
-  currentSectorControlled: string;
-  nextSectorControlled: string;
+  sectorsOfArray: ISectorModel[];
+  controlledSector: string | undefined;
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { setClickedSectorId, toggleClickedSector } = cwpStore;
   const clickedSectorButton = (value: string): void => {
-    setClickedSectorId(value);
-    toggleClickedSector();
+    if (controlledSector === value) {
+      toggleClickedSector();
+    } else {
+      if (controlledSector === undefined) {
+        toggleClickedSector();
+      }
+      setClickedSectorId(value);
+    }
   };
   const ascendingSectors = [...sectorsOfArray];
   ascendingSectors.sort(
-    (element1, element2) => element1[1].bottomFlightLevel - element2[1].bottomFlightLevel
-      || element1[1].topFlightLevel - element2[1].topFlightLevel);
+    (element1, element2) => element1.bottomFlightLevel - element2.bottomFlightLevel
+      || element1.topFlightLevel - element2.topFlightLevel);
 
-  const topLevel = Math.max(...sectorsOfArray.map(([, area]) => area.topFlightLevel));
-  const topLayer = new Set(sectorsOfArray.filter(([, area]) => area.topFlightLevel === topLevel)
-    .map(([,area]) => area.bottomFlightLevel));
-  const bottomLevel = Math.min(...sectorsOfArray.map(([, area]) => area.bottomFlightLevel));
+  const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
+  const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
+    .map((area) => area.bottomFlightLevel));
+  const bottomLevel = Math.min(...sectorsOfArray.map((area) => area.bottomFlightLevel));
   const bottomLayer = new Set(sectorsOfArray
-    .filter(([, area]) => area.bottomFlightLevel === bottomLevel)
-    .map(([,area]) => area.topFlightLevel));
+    .filter((area) => area.bottomFlightLevel === bottomLevel)
+    .map((area) => area.topFlightLevel));
   const middelLayer = new Set(sectorsOfArray
-    .filter(([, area]) => area.bottomFlightLevel !== bottomLevel
+    .filter((area) => area.bottomFlightLevel !== bottomLevel
     && area.topFlightLevel !== topLevel)
-    .map(([,area]) => area.topFlightLevel));
+    .map((area) => area.topFlightLevel));
   const multicells = new Map<number, number>();
   let setSpan = 1;
   let temporaryHighestSpan = 1;
@@ -45,19 +50,19 @@ export default function TableSectors({
   const countBelow = new Map<number, number>();
 
   for (let index = 0; index < ascendingSectors.length - 1; index += 1) {
-    const element = ascendingSectors[index][1];
-    const nextElement = ascendingSectors[index + 1][1];
+    const element = ascendingSectors[index];
+    const nextElement = ascendingSectors[index + 1];
     let counterAbove = 0;
     let counterBelow = 0;
     if (element.topFlightLevel === nextElement.topFlightLevel) {
       topSpanCounter += 1;
     }
     for (const value of ascendingSectors) {
-      if (value[1].bottomFlightLevel === element.topFlightLevel) {
+      if (value.bottomFlightLevel === element.topFlightLevel) {
         counterAbove += 1;
         countAbove.set(element.topFlightLevel, counterAbove);
       }
-      if (value[1].topFlightLevel === element.bottomFlightLevel) {
+      if (value.topFlightLevel === element.bottomFlightLevel) {
         counterBelow += 1;
         countBelow.set(element.bottomFlightLevel, counterBelow);
       }
@@ -117,29 +122,24 @@ export default function TableSectors({
     }
     return `span 1 / ${gridPosition}`;
   };
-  const isSectorForCWP = (sectorId: string): boolean => {
-    if (sectorId === currentSectorControlled || sectorId === nextSectorControlled) {
-      return true;
-    }
-    return false;
-  };
+  const isSectorForCWP = (sectorId: string): boolean => sectorId === controlledSector;
   for (let index = 1; index < sectorsOfArray.length + 1; index += 1) {
-    const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
-    const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
+    const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index];
+    const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index];
     buttons.push(
-      <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index][0]}
+      <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index].sectorId) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index].sectorId}
           style={{
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
             backgroundColor: fillColors[index],
           }}
           onClick={(): void => clickedSectorButton(
-            sectorsOfArray[sectorsOfArray.length - index][0],
+            sectorsOfArray[sectorsOfArray.length - index].sectorId,
           )}
         >
         <Card.Body>
           <Card.Title className="sector-title">
-            {sectorsOfArray[sectorsOfArray.length - index][0].slice(-14)}
+            {sectorsOfArray[sectorsOfArray.length - index].sectorId.slice(-14)}
           </Card.Title>
           <Card.Text className="sector-body">
             {`FL ${bottomFlightLevel}-${topFlightLevel}`}

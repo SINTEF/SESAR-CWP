@@ -17,7 +17,6 @@ import type {
 } from '../proto/ProtobufAirTrafficSimulator';
 import type SimulatorStore from './SimulatorStore';
 
-// Only way of manipulating data in MST is by creating Actions
 export default class AircraftStore {
   aircrafts: ObservableMap<string, AircraftModel> = observable.map();
 
@@ -58,9 +57,9 @@ export default class AircraftStore {
 
   handleNewFlight(newFlight: NewFlightMessage): void {
     const id = newFlight.aircraftId;
-    if (this.aircrafts.has(id)) {
-      const aircraft = this.aircrafts.get(id);
-      aircraft?.handleNewFlightUpdate(newFlight);
+    const aircraft = this.aircrafts.get(id);
+    if (aircraft) {
+      aircraft.handleNewFlightUpdate(newFlight);
     } else {
       this.aircrafts.set(id, new AircraftModel({
         aircraftId: id,
@@ -88,9 +87,9 @@ export default class AircraftStore {
 
   handleNewAircraftMessage(newAircraftMessage: NewAircraftMessage): void {
     const { aircraftId, wakeTurbulenceCategory, aircraftType } = newAircraftMessage;
-
-    if (this.aircraftInfo.has(aircraftId)) {
-      this.aircraftInfo.get(aircraftId)?.setWakeTurbulenceCategory(wakeTurbulenceCategory);
+    const aircraftInfo = this.aircraftInfo.get(aircraftId);
+    if (aircraftInfo) {
+      aircraftInfo.setWakeTurbulenceCategory(wakeTurbulenceCategory);
     } else {
       this.aircraftInfo.set(aircraftId, new AircraftInfo({
         aircraftId,

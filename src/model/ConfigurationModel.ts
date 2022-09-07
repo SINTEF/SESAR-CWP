@@ -1,22 +1,24 @@
-import { makeObservable, observable } from 'mobx';
-import type { ObservableMap } from 'mobx';
+import { makeObservable, observable, ObservableMap } from 'mobx';
 
-import type CoordinatePair from './CoordinatePair';
-import type SectorModel from './SectorModel';
+import AirspaceVolumeReference from './AirspaceVolumeReference';
+import CoordinatePair from './CoordinatePair';
+import type { NewAirspaceConfigurationMessage } from '../proto/ProtobufAirTrafficSimulator';
 
 export default class ConfigurationModel {
   configurationId: string;
 
   edges: CoordinatePair[];
 
-  includedAirspaces: ObservableMap<string, SectorModel> = observable.map();
+  includedAirspaces: ObservableMap<string, AirspaceVolumeReference> = observable.map();
 
   constructor({
     configurationId,
     edges,
+    includedAirspaces,
   }: {
     configurationId: string;
     edges: CoordinatePair[];
+    includedAirspaces: AirspaceVolumeReference[];
   }) {
     makeObservable(this, {
       configurationId: false, // ID is not observable
@@ -25,5 +27,35 @@ export default class ConfigurationModel {
     });
     this.configurationId = configurationId;
     this.edges = edges;
+    this.includedAirspaces = new ObservableMap<string, AirspaceVolumeReference>(
+      includedAirspaces.map((includedAirspace) => [includedAirspace.volumeId, includedAirspace]),
+    );
+  }
+
+  static fromProto(newConfiguration: NewAirspaceConfigurationMessage): ConfigurationModel {
+    const { configurationId, area, includedAirspaceVolumes } = newConfiguration;
+    const edges = area.map((edge) => {
+      if (edge.position.oneofKind !== 'position4D') {
+        throw new Error('Insupported position type');
+      }
+      return new CoordinatePair({
+        latitude: edge.position.position4D.latitude,
+        longitude: edge.position.position4D.longitude,
+      });
+    });
+    const includedAirspaces = includedAirspaceVolumes.map((includedAirspace) => {
+      const { volumeId, bottomFlightLevel, topFlightLevel } = includedAirspace;
+      return new AirspaceVolumeReference({
+        volumeId,
+        bottomFlightLevel,
+        topFlightLevel,
+      });
+    });
+
+    return new ConfigurationModel({
+      configurationId,
+      edges,
+      includedAirspaces,
+    });
   }
 }

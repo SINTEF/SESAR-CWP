@@ -29,3 +29,4 @@ export const cwpStore = new CWPStore({
   },
 });
 export const voiceStore = new VoiceStore();
+window.configurationStore = configurationStore;

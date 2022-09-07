@@ -4,14 +4,14 @@ import type { ObservableMap } from 'mobx';
 import ConfigurationModel from './ConfigurationModel';
 import ConfigurationTime from './ConfigurationTime';
 import convertTimestamp from './convertTimestamp';
-import CoordinatePair from './CoordinatePair';
-import SectorModel from './SectorModel';
 import TimeConfigurations from './TimeConfigurations';
 import type {
   AirspaceAvailabilityMessage, AvailabilityIntervalsMessage,
   CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
 import type AirspaceStore from './AirspaceStore';
+import type { IConfigurationTime } from './IConfigurationTime';
+import type { ISectorModel } from './ISectorModel';
 import type SimulatorStore from './SimulatorStore';
 
 export default class ConfigurationStore {
@@ -37,57 +37,15 @@ export default class ConfigurationStore {
     makeAutoObservable(this, {
       airspaceStore: false,
       simulatorStore: false,
-      getAreaOfIncludedAirpaces: false,
     }, { autoBind: true });
     this.airspaceStore = airspaceStore;
     this.simulatorStore = simulatorStore;
-    this.getAreaOfIncludedAirpaces = this.getAreaOfIncludedAirpaces.bind(this);
   }
 
-  handleNewAirspaceConfiguration(newConfig: NewAirspaceConfigurationMessage): void {
-    const configId = newConfig.configurationId;
-    const newEdges = newConfig.area.map((area) => {
-      if (area.position.oneofKind !== 'position4D') {
-        throw new Error('Insupported position type');
-      }
-      return new CoordinatePair({
-        latitude: area.position.position4D.latitude,
-        longitude: area.position.position4D.longitude,
-      });
-    });
-    const configuration = new ConfigurationModel({
-      configurationId: configId,
-      edges: newEdges,
-      // includedAirspaces: setIncludedAirspaces,
-    });
-    this.configurations.set(configId, configuration);
-
-    for (const includedAirspace of newConfig.includedAirspaceVolumes) {
-      const sectorId = includedAirspace.volumeId;
-      const sectorArea = this.airspaceStore
-        .getAreaFromId(sectorId)
-        ?.sectorArea?.map((area) => new CoordinatePair({
-          latitude: area.latitude,
-          longitude: area.longitude,
-        })) ?? [];
-      const existingIncludedAirspace = configuration.includedAirspaces.get(sectorId);
-      if (existingIncludedAirspace) {
-        existingIncludedAirspace.updateSectorArea(sectorArea);
-        existingIncludedAirspace.updateFlightLevels(
-          includedAirspace.bottomFlightLevel,
-          includedAirspace.topFlightLevel,
-        );
-      } else {
-        configuration.includedAirspaces.set(
-          sectorId,
-          new SectorModel({
-            sectorId,
-            bottomFlightLevel: includedAirspace.bottomFlightLevel,
-            topFlightLevel: includedAirspace.topFlightLevel,
-            sectorArea,
-          }));
-      }
-    }
+  handleNewAirspaceConfiguration(newConfiguration: NewAirspaceConfigurationMessage): void {
+    const model = ConfigurationModel.fromProto(newConfiguration);
+    // console.log(model.configurationId);
+    this.configurations.set(model.configurationId, model);
   }
 
   setCurrentConfiguration(configMessage: CurrentAirspaceConfigurationMessage): void {
@@ -98,10 +56,20 @@ export default class ConfigurationStore {
     this.currentConfigurationId = configuration;
   }
 
-  toggleConfiguration(nextConfig: string): string {
-    const previousConfig = this.currentConfigurationId;
-    this.setCurrentConfigFromString(nextConfig);
-    return previousConfig;
+  toggleConfiguration(): void {
+    const { currentConfigurationId, listOfIntervals } = this;
+    const [firstConfiguration, secondConfiguration] = listOfIntervals;
+
+    // Do not toggle if the configuration is invalid
+    if (!firstConfiguration || !secondConfiguration) {
+      return;
+    }
+
+    if (firstConfiguration[0] === currentConfigurationId) {
+      this.setCurrentConfigFromString(secondConfiguration[0]);
+    } else {
+      this.setCurrentConfigFromString(firstConfiguration[0]);
+    }
   }
 
   setCurrentCWP(controllerValue: string): void {
@@ -131,8 +99,8 @@ export default class ConfigurationStore {
     }
   }
 
-  handleAvailabilityIntervalsMessage(newAvailabilitymessage: AvailabilityIntervalsMessage): void {
-    const { objectId, timeIntervals } = newAvailabilitymessage;
+  handleAvailabilityIntervalsMessage(newAvailabilityMessage: AvailabilityIntervalsMessage): void {
+    const { objectId, timeIntervals } = newAvailabilityMessage;
     const timeIntervalsArray: TimeConfigurations[] = [];
     for (const timeInterval of timeIntervals) {
       if (!timeInterval.starttime) {
@@ -142,9 +110,10 @@ export default class ConfigurationStore {
         throw new Error('Missing end time');
       }
 
-      if (this.configurationPlan.has(objectId)) {
-        this.configurationPlan.get(objectId)
-          ?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
+      const existingConfigurationPlan = this.configurationPlan.get(objectId);
+
+      if (existingConfigurationPlan) {
+        existingConfigurationPlan.handleAvailabilityIntervalsMessage(newAvailabilityMessage);
       } else {
         const interval = new TimeConfigurations({
           startTime: convertTimestamp(timeInterval.starttime),
@@ -159,17 +128,45 @@ export default class ConfigurationStore {
     }
   }
 
-  getAreaOfIncludedAirpaces(configuration: string): [string, SectorModel][] {
-    const config = this.configurations.get(configuration)?.includedAirspaces;
-    if (!config) {
+  private getAreaOfIncludedAirpaces(configurationId: string): ISectorModel[] {
+    const configuration = this.configurations.get(configurationId);
+    // Force the mobx update whenever the airspaces change size (new airspaces are received)
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this.airspaceStore.airspaces.size;
+    if (!configuration) {
       return [];
     }
+    const { includedAirspaces } = configuration;
+    const references = [...includedAirspaces.values()];
+    const areas = references.map((reference): ISectorModel | undefined => {
+      const { volumeId, bottomFlightLevel, topFlightLevel } = reference;
+      const airspace = this.airspaceStore.getAreaFromId(volumeId);
+      if (!airspace) {
+        // Probably not received yet
+        return undefined;
+      }
+      return {
+        sectorId: volumeId,
+        bottomFlightLevel,
+        topFlightLevel,
+        sectorArea: [...airspace.sectorArea],
+      };
+    }).filter((area): area is ISectorModel => area !== undefined);
 
-    return [...config].filter(([sectorId]) => this.airspaceStore.existIn(sectorId));
+    return areas;
   }
 
-  get areaOfIncludedAirspaces(): [string, SectorModel][] {
+  get areaOfIncludedAirspaces(): ISectorModel[] {
     return this.getAreaOfIncludedAirpaces(this.currentConfigurationId);
+  }
+
+  get areaOfIncludedAirspacesForNextConfiguration(): ISectorModel[] {
+    const { nextConfigurationId } = this;
+    if (!nextConfigurationId) {
+      return [];
+    }
+    // console.log(this.currentConfigurationId, nextConfigurationId);
+    return this.getAreaOfIncludedAirpaces(nextConfigurationId);
   }
 
   get edgesPolygon(): [number, number][] {
@@ -180,15 +177,17 @@ export default class ConfigurationStore {
     return edges.map((edge) => ([edge.longitude, edge.latitude]));
   }
 
-  get sortedConfigurationPlan(): ConfigurationTime[] {
+  get sortedConfigurationPlan(): IConfigurationTime[] {
     const listOfConfigurations = [...this.configurationPlan.values()];
-    const sortedList = listOfConfigurations.map((element) => {
-      const innerIntervalSort = [...element.timeIntervals]
-        .sort((a, b) => a.startTime - b.startTime);
-
-      this.setIntervals(element.configurationId, innerIntervalSort);
-      return element;
-    });
+    const sortedList = listOfConfigurations.map(
+      ({ configurationId, timeIntervals }) => {
+        const sortedTimeIntervals = [...timeIntervals];
+        sortedTimeIntervals.sort((a, b) => a.startTime - b.startTime);
+        return {
+          configurationId,
+          timeIntervals: sortedTimeIntervals,
+        };
+      });
 
     sortedList
       .sort((a, b) => a.timeIntervals[0].startTime - b.timeIntervals[0].startTime);
@@ -212,10 +211,24 @@ export default class ConfigurationStore {
     return listOfIntervals;
   }
 
-  setIntervals(configuration: string, timeIntervals: TimeConfigurations[]): void {
-    this.configurationPlan.set(configuration, new ConfigurationTime({
-      configurationId: configuration,
-      timeIntervals,
-    }));
+  get nextConfiguration(): [string, number, number] | undefined {
+    const { listOfIntervals } = this;
+    // console.log([...listOfIntervals]);
+    return listOfIntervals[1];
+  }
+
+  get nextConfigurationId(): string | undefined {
+    const { nextConfiguration } = this;
+    return nextConfiguration?.[0];
+  }
+
+  get timeToNextConfiguration(): number {
+    const { nextConfiguration, simulatorStore } = this;
+    if (!nextConfiguration) {
+      return Number.MAX_SAFE_INTEGER;
+    }
+    const nextConfigStartTime = nextConfiguration[1];
+    const { timestamp } = simulatorStore;
+    return Math.floor(nextConfigStartTime - timestamp);
   }
 }

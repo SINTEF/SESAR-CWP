@@ -4,8 +4,9 @@ import { makeObservable, observable } from 'mobx';
 import convertTimestamp from './convertTimestamp';
 import TimeConfigurations from './TimeConfigurations';
 import type { AirspaceAvailabilityMessage, AvailabilityIntervalsMessage } from '../proto/ProtobufAirTrafficSimulator';
+import type { IConfigurationTime } from './IConfigurationTime';
 
-export default class ConfigurationTime {
+export default class ConfigurationTime implements IConfigurationTime {
   configurationId: string;
 
   timeIntervals: TimeConfigurations[];

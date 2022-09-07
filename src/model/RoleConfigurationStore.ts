@@ -39,9 +39,16 @@ export default class RoleConfigurationStore {
   }
 
   get currentControlledSector(): string {
-    const cwpRoleName = this.configurationStore.currentCWP;
-    const config = this.configurationStore.currentConfigurationId;
-    return this.getControlledSector(cwpRoleName, config);
+    const { currentCWP, currentConfigurationId } = this.configurationStore;
+    return this.getControlledSector(currentCWP, currentConfigurationId);
+  }
+
+  get nextControlledSector(): string | undefined {
+    const { currentCWP, nextConfigurationId } = this.configurationStore;
+    if (!nextConfigurationId) {
+      return undefined;
+    }
+    return this.getControlledSector(currentCWP, nextConfigurationId);
   }
 
   getControlledSector(cwpRoleName: string, config: string): string {
@@ -81,11 +88,11 @@ export default class RoleConfigurationStore {
 
   get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
     const areas = this.configurationStore.areaOfIncludedAirspaces;
-    const area = [...areas.values()].find(([key]) => key === this.currentControlledSector);
+    const area = areas.find(({ sectorId }) => sectorId === this.currentControlledSector);
     if (!area) {
       return undefined;
     }
-    const { sectorArea } = area[1];
+    const { sectorArea } = area;
     if (sectorArea.length === 0) {
       return undefined;
     }
