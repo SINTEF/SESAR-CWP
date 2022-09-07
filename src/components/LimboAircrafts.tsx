@@ -6,7 +6,9 @@ import { Layer, Source } from 'react-map-gl';
 import type { Position } from '@turf/turf';
 import type { CirclePaint } from 'mapbox-gl';
 
-import { aircraftStore, cwpStore, roleConfigurationStore } from '../state';
+import {
+  aircraftStore, cwpStore, roleConfigurationStore, simulatorStore,
+} from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
 const layerPaint: CirclePaint = {
@@ -45,7 +47,7 @@ export default observer(function LimboFlights(/* properties */) {
       setListOfAddedAircrafts(addedAircrafts);
       setListOfRemovedAircrafts(removedAircrafts);
     }
-  }, [roleConfigurationStore.areaOfNextControlledSector]);
+  }, [simulatorStore.timestamp]);
 
   if (!cwpStore.showLimboFlight) {
     return null;

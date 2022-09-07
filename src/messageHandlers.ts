@@ -102,7 +102,6 @@ export function newAvailabilityIntervalsMessage(parameters: unknown, message: Bu
   const protoMessage = AvailabilityIntervalsMessage.fromBinary(message);
   configurationStore.handleAvailabilityIntervalsMessage(protoMessage);
   // eslint-disable-next-line no-console
-  console.warn('TODO', protoMessage);
 }
 export function acceptedFlightMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = AddAcceptedFlightMessage.fromBinary(message);

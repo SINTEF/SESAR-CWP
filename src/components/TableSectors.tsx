@@ -6,6 +6,13 @@ import type SectorModel from '../model/SectorModel';
 
 const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#DDD555', '#01539d', '#e9b4d0', '#8c9441', '#c82169'];
 
+const findGridPositionColumn = (sectorName: string): number | string => {
+  if (sectorName.includes('W')) {
+    return -1;
+  }
+  return 'none';
+};
+
 export default function TableSectors({
   sectorsOfArray,
   currentSectorControlled, nextSectorControlled,
@@ -15,10 +22,18 @@ export default function TableSectors({
   nextSectorControlled: string;
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { setClickedSectorId, toggleClickedSector } = cwpStore;
+  const {
+    setClickedSectorId, toggleClickedSector,
+    setshowClickedSector, clickedSectorId,
+  } = cwpStore;
   const clickedSectorButton = (value: string): void => {
-    setClickedSectorId(value);
-    toggleClickedSector();
+    if (clickedSectorId === value) {
+      setClickedSectorId('');
+      toggleClickedSector();
+    } else {
+      setClickedSectorId(value);
+      setshowClickedSector(true);
+    }
   };
   const ascendingSectors = [...sectorsOfArray];
   ascendingSectors.sort(
@@ -51,6 +66,8 @@ export default function TableSectors({
     let counterBelow = 0;
     if (element.topFlightLevel === nextElement.topFlightLevel) {
       topSpanCounter += 1;
+    } else {
+      topSpanCounter = 1; // why does this keep on getting removed?
     }
     for (const value of ascendingSectors) {
       if (value[1].bottomFlightLevel === element.topFlightLevel) {
@@ -65,6 +82,8 @@ export default function TableSectors({
     // }
     if (element.bottomFlightLevel === nextElement.bottomFlightLevel) {
       spanCounter += 1;
+    } else {
+      spanCounter = 1; // why does this keep on getting removed?
     }
     const maxSpan = Math.max(topSpanCounter, spanCounter);
     if (spanCounter > 1) {
@@ -127,8 +146,13 @@ export default function TableSectors({
     const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     buttons.push(
-      <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index][0]}
+      <Button
+          className={`table-button 
+          ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : ''}
+          ${clickedSectorId === sectorsOfArray[sectorsOfArray.length - index][0] ? 'clicked-sector' : ''}`}
+          key={sectorsOfArray[sectorsOfArray.length - index][0]}
           style={{
+            order: `${findGridPositionColumn(sectorsOfArray[sectorsOfArray.length - index][0])}`,
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
             backgroundColor: fillColors[index],

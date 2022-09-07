@@ -25,6 +25,7 @@ function ChangeCountdownTime(time: number): string {
   const localeTime = date.toLocaleTimeString('en-GB', {
     timeZone: 'UTC',
     hour12: false,
+    hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
   });
@@ -48,8 +49,8 @@ export default observer(function SectorConfiguration() {
 
   const accordionBodyReference = React.useRef<HTMLDivElement>(null);
 
-  const nextConfigId = listOfIntervals?.[1];
-  const currentConfigTime = listOfIntervals?.[0];
+  // const nextConfigId = listOfIntervals?.[1];
+  // const currentConfigTime = listOfIntervals?.[0];
 
   const toggleSectorInterval = (number_: number): void => {
     let index = 0;
@@ -57,38 +58,38 @@ export default observer(function SectorConfiguration() {
       if (index === number_) {
         clearInterval(interval);
       } else {
-        toggleConfiguration(nextConfigId[0]);
+        toggleConfiguration(listOfIntervals?.[1][0]);
         index += 1;
         setTimeout(() => {
-          toggleConfiguration(currentConfigTime[0]);
+          toggleConfiguration(listOfIntervals?.[0][0]);
         }, 2000);
       }
     }, 3000);
   };
 
   React.useEffect(() => {
-    if (nextConfigId) {
-      configurationStore.setNextConfigurationId(nextConfigId[0]);
+    if (listOfIntervals?.[1]) {
+      configurationStore.setNextConfigurationId(listOfIntervals?.[1][0]);
     }
-    if (currentConfigTime) {
-      setCurrentIntervalTime([currentConfigTime[1], currentConfigTime[2]]);
+    if (listOfIntervals?.[0]) {
+      setCurrentIntervalTime([listOfIntervals?.[0][1], listOfIntervals?.[0][2]]);
     }
-  }, [nextConfigId, currentConfigTime]);
+  }, [listOfIntervals?.[1], listOfIntervals?.[0]]);
 
   const toggleSectorChange = (): void => {
-    const setConfig = currentConfigurationId === currentConfigTime[0]
-      ? nextConfigId[0] : currentConfigTime[0];
+    const setConfig = currentConfigurationId === listOfIntervals?.[0][0]
+      ? listOfIntervals?.[1][0] : listOfIntervals?.[0][0];
     toggleConfiguration(setConfig);
   };
 
   React.useEffect(() => {
     if ((timeToNextConfig === 603 || timeToNextConfig === 303)) {
       toggleSectorInterval(3);
-      toggleConfiguration(currentConfigTime[0]);
+      toggleConfiguration(listOfIntervals?.[0][0]);
     }
     if (timeToNextConfig === 20 || timeToNextConfig === 123) {
       toggleSectorInterval(5);
-      toggleConfiguration(currentConfigTime[0]);
+      toggleConfiguration(listOfIntervals?.[0][0]);
     }
     if (timeToNextConfig === 0) {
       toggleSectorChange();
@@ -96,27 +97,28 @@ export default observer(function SectorConfiguration() {
   }, [simulatorTime]);
 
   // Getting current configuration information
-
-  if (currentConfigTime !== undefined) {
-    sectorsForCurrent = getAreaOfIncludedAirpaces(currentConfigTime[0]); // bad state?
+  if (listOfIntervals?.[0] !== undefined) {
+    sectorsForCurrent = getAreaOfIncludedAirpaces(listOfIntervals?.[0][0]); // bad state?
     listOfTimes.push([
-      ChangeToLocaleTime(currentConfigTime[1]),
-      ChangeToLocaleTime(currentConfigTime[2]),
+      ChangeToLocaleTime(listOfIntervals?.[0][1]),
+      ChangeToLocaleTime(listOfIntervals?.[0][2]),
     ]);
   }
 
   // Getting next configuration information
-  if (nextConfigId !== undefined) {
-    nextConfigStartTime = nextConfigId[1];
+  if (listOfIntervals?.[1] !== undefined) {
+    nextConfigStartTime = listOfIntervals?.[1][1];
     timeToNextConfig = Math.floor(nextConfigStartTime - simulatorTime);
     listOfTimes.push([
-      ChangeToLocaleTime(nextConfigId[1]),
-      ChangeToLocaleTime(nextConfigId[2]),
+      ChangeToLocaleTime(listOfIntervals?.[1][1]),
+      ChangeToLocaleTime(listOfIntervals?.[1][2]),
     ]);
-    sectorsForNext = getAreaOfIncludedAirpaces(nextConfigId[0]);
+    sectorsForNext = getAreaOfIncludedAirpaces(listOfIntervals?.[1][0]);
   }
   // Sort list of times on the two first strings of the list inside the list
   // using toLocaleCompare
+
+  // Why sorting listOfTimes her?
   listOfTimes.sort((a, b) => {
     if (a[0].localeCompare(b[0]) === 0) {
       return a[1].localeCompare(b[1]);
@@ -127,12 +129,12 @@ export default observer(function SectorConfiguration() {
   const sectorArray = [sectorsForCurrent, sectorsForNext];
 
   const sectorChangeCountdown = timeToNextConfig <= 601;
-  const timelineRectangleHeight = accordionBodyReference.current?.clientHeight ?? 0 - 20;
+  const timelineRectangleHeight = document.querySelectorAll('.accordion-body')[0]?.clientHeight; // Ref is not working (often undefined) as I want it for some reason, so need to keep the querySelector here
   const timeToChange = currentIntervalTime[1] - simulatorTime;
   const bottomValueTimeline = currentIntervalTime && timelineRectangleHeight
     ? (((currentIntervalTime[0] - simulatorTime)
     / (currentIntervalTime[0] - currentIntervalTime[1]))
-     * timelineRectangleHeight) : 0;
+     * Number(timelineRectangleHeight)) : 0;
 
   const sectorsForHighlight = (configId: [string, number, number]) : string => {
     if (configId) {
@@ -158,8 +160,8 @@ export default observer(function SectorConfiguration() {
                 </Accordion.Header>
                 <Accordion.Body className="accordion-body" ref={accordionBodyReference}>
                   <TableSectors sectorsOfArray={sectorArray[index]}
-                  currentSectorControlled={sectorsForHighlight(currentConfigTime)}
-                  nextSectorControlled={sectorsForHighlight(nextConfigId)} />
+                  currentSectorControlled={sectorsForHighlight(listOfIntervals?.[0])}
+                  nextSectorControlled={sectorsForHighlight(listOfIntervals?.[1])} />
                   {index === 0 ? <span style={{ top: `${bottomValueTimeline}px` }} className='moveable-timeline-rectangle'>{ChangeCountdownTime(timeToChange)}</span> : null}
                   <div className={`timeline-rectangle${index}`}></div>
                 </Accordion.Body>
