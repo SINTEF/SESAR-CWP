@@ -8,52 +8,50 @@ import {
 
 import { configurationStore, roleConfigurationStore, simulatorStore } from '../state';
 
+const colorCurrent = '#ffffff';
+const colorNext = 'rgba(135,206,235)';
+
 export default observer(function SectorSideView() {
-  const colorCurrent = '#ffffff';
-  const colorNext = 'rgba(135,206,235)';
   const simulatorTime = simulatorStore.timestamp;
+
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    currentCWP,
-    getAreaOfIncludedAirpaces,
-    listOfIntervals,
+    areaOfIncludedAirspaces,
+    areaOfIncludedAirspacesForNextConfiguration,
+    nextConfiguration,
   } = configurationStore;
+
+  const {
+    currentControlledSector,
+    nextControlledSector,
+  } = roleConfigurationStore;
 
   let timeToChange = 15;
   let timeDifferanse = 10_000;
 
-  const currentConfig = listOfIntervals?.[0];
-  const cwpCurrentSector = roleConfigurationStore
-    .getControlledSector(currentCWP, currentConfig?.[0]);
-  if (cwpCurrentSector === '') {
+  if (!currentControlledSector) {
     return null;
   }
 
-  // If we want it to change when toggling
-  // const airspaceCurrent = [...areaOfIncludedAirspaces.values()]
-  //   .find(([key]) => key === cwpCurrentSector);
-  const includedAirspaces = getAreaOfIncludedAirpaces(currentConfig?.[0]);
-  const airspaceCurrent = [...includedAirspaces.values()]
-    .find(([key]) => key === cwpCurrentSector);
+  const airspaceCurrent = areaOfIncludedAirspaces
+    .find(({ sectorId }) => sectorId === currentControlledSector);
+
   if (!airspaceCurrent) {
     return null;
   }
-  const bottomFLCurrent: number = airspaceCurrent[1].bottomFlightLevel;
-  const topFLCurrent = airspaceCurrent?.[1].topFlightLevel;
+  const bottomFLCurrent: number = airspaceCurrent.bottomFlightLevel;
+  const topFLCurrent = airspaceCurrent.topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
-  const nextConfig = listOfIntervals?.[1];
-  if (listOfIntervals.length > 0 && nextConfig) {
-    const startTime = nextConfig[1];
+
+  if (nextConfiguration) {
+    const startTime = nextConfiguration[1];
     timeDifferanse = startTime - simulatorTime;
-    const cwpNextSector = roleConfigurationStore
-      .getControlledSector(currentCWP, nextConfig[0]);
-    const nextflightLevels = getAreaOfIncludedAirpaces(nextConfig[0]);
-    const airspaceNext = [...nextflightLevels.values()]
-      .find(([key]) => key === cwpNextSector);
+    const airspaceNext = areaOfIncludedAirspacesForNextConfiguration
+      .find(({ sectorId }) => sectorId === nextControlledSector);
     if (airspaceNext !== undefined) {
-      bottomFLNext = airspaceNext[1].bottomFlightLevel;
-      topFLNext = airspaceNext[1].topFlightLevel;
+      bottomFLNext = airspaceNext.bottomFlightLevel;
+      topFLNext = airspaceNext.topFlightLevel;
     }
   }
   if (timeDifferanse <= 900 && timeDifferanse > 0) {

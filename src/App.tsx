@@ -38,7 +38,7 @@ export default function App(/* properties */): JSX.Element {
           </Allotment.Pane>
           <Allotment.Pane>
             <Allotment onChange={onLayoutChange}>
-              {/* <SectorSideView /> */}
+              <SectorSideView />
               <Sectors3DView />
             </Allotment>
           </Allotment.Pane>
