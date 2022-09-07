@@ -27,6 +27,8 @@ export default class ConfigurationStore {
 
   currentCWP = '';
 
+  nextConfigurationId = '';
+
   constructor({
     airspaceStore,
     simulatorStore,
@@ -75,6 +77,10 @@ export default class ConfigurationStore {
   setCurrentCWP(controllerValue: string): void {
     this.currentCWP = controllerValue;
   }
+
+  setNextConfigurationId = (nextConfig: string): void => {
+    this.nextConfigurationId = nextConfig;
+  };
 
   handleAvailabilityMessage(newAvailabilitymessage: AirspaceAvailabilityMessage): void {
     const { airspaceId, startTime, endTime } = newAvailabilitymessage;
@@ -165,7 +171,6 @@ export default class ConfigurationStore {
     if (!nextConfigurationId) {
       return [];
     }
-    // console.log(this.currentConfigurationId, nextConfigurationId);
     return this.getAreaOfIncludedAirpaces(nextConfigurationId);
   }
 

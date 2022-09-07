@@ -46,23 +46,28 @@ export default observer(function SectorFlightList(/* properties */) {
   }, [roleConfigurationStore.areaOfCurrentControlledSector]);
 
   if (!cwpStore.showSFL) return null;
+
   const setFix = (value:string) : void => {
-    const fixValues = fixStore.fixes.get(value);
-    const aircrafts = [];
-    for (const flightRoutes of aircraftStore.flightRoutes) {
-      const flightId = flightRoutes[0];
-      const { trajectory } = flightRoutes[1];
-      for (const coordinates of trajectory) {
-        const { trajectoryCoordinate } = coordinates;
-        if (trajectoryCoordinate.longitude === fixValues?.longitude
+    if (value === 'ALL') {
+      setListOfAircraft(roleConfigurationStore.listOfFlightsInCurrentSector);
+    } else {
+      const fixValues = fixStore.fixes.get(value);
+      const aircrafts = [];
+      for (const flightRoutes of aircraftStore.flightRoutes) {
+        const flightId = flightRoutes[0];
+        const { trajectory } = flightRoutes[1];
+        for (const coordinates of trajectory) {
+          const { trajectoryCoordinate } = coordinates;
+          if (trajectoryCoordinate.longitude === fixValues?.longitude
         && trajectoryCoordinate.latitude === fixValues?.latitude) {
-          aircrafts
-            .push(...aircraftStore.aircraftsWithPosition
-              .filter((aircraft) => aircraft.assignedFlightId === flightId));
+            aircrafts
+              .push(...aircraftStore.aircraftsWithPosition
+                .filter((aircraft) => aircraft.assignedFlightId === flightId));
+          }
         }
       }
+      setListOfAircraft(aircrafts);
     }
-    setListOfAircraft(aircrafts);
   };
 
   return (
@@ -84,8 +89,9 @@ export default observer(function SectorFlightList(/* properties */) {
               <div className='fix-selector-container' >SFL &nbsp;
                 {/* <input placeholder='Type here'></input> */}
 
-                <Form.Select variant='secondary' className='fix-selector' size='sm' onChange={(event: { target: { value: string; }; }): void => setFix(event.target.value)}>
+                <Form.Select className='fix-selector' size='sm' onChange={(event: { target: { value: string; }; }): void => setFix(event.target.value)}>
                   <option hidden>Select COP</option>
+                  <option value='ALL'>ALL</option>
                   {listOfFixes.map((fix) => (
                     <option key={fix} value={fix}>{fix}</option>))}
                 </Form.Select>
@@ -133,10 +139,10 @@ export default observer(function SectorFlightList(/* properties */) {
                 id={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
                 <td>
-                  {aircraftData.callSign}
+                  Entering fix
                 </td>
                 <td>
-                  {aircraftData.assignedFlightId}
+                  Entering time
                 </td>
                 <td />
                 <td>
@@ -145,10 +151,8 @@ export default observer(function SectorFlightList(/* properties */) {
                 <td
                   style={{ color: flightColor(aircraftData.controlledBy) }}
                 >
-                  {aircraftData.callSign}
                 </td>
                 <td>
-                  {aircraftData.callSign}
                 </td>
                 <td />
                 <td

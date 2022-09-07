@@ -15,6 +15,7 @@ import DistanceMeasurements from './DistanceMeasurements';
 import FixesPoint from './FixesPoint';
 import FlightRoutes from './FlightRoutes';
 import HighlightedAircraft from './HighlightedAircraft';
+import LimboAircrafts from './LimboAircrafts';
 import Sectors from './Sectors';
 import SpeedVectors from './SpeedVectors';
 
@@ -84,6 +85,7 @@ export default function Map(): JSX.Element {
       <ControllerLabel />
       <Aircrafts />
       <HighlightedAircraft />
+      <LimboAircrafts/>
       <ScaleControl position="bottom-left" />
       <NavigationControl position="bottom-left" visualizePitch={true} />
       <FullscreenControl position="bottom-left" containerId="root" />
