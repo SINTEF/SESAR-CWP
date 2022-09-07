@@ -7,7 +7,6 @@ import {
 import {
   configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
-import type AircraftModel from '../model/AircraftModel';
 
 const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 const handleFlightClicked = (event: string): void => {
@@ -18,7 +17,7 @@ export default observer(function AircraftListElement(/* properties */) {
   const currentSector:string = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
   // const [listOfSectorAircrafts, setlistOfSectorAircrafts] = React.useState<AircraftModel[]>([]);
-  const listOfAircraftsInSector :AircraftModel[] = roleConfigurationStore.listOfFlightsInCurrentSector;
+  const listOfAircraftsInSector = roleConfigurationStore.listOfFlightsInCurrentSector;
 
   if (!cwpStore.showFL) return null;
 

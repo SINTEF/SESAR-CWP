@@ -693,3 +693,6 @@ user-select: none;
     filter: invert() hue-rotate(180deg);
     background-color: #aaa;
 }
+.maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
+    filter: invert() hue-rotate(180deg);
+}
