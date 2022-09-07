@@ -6,6 +6,13 @@ import type { ISectorModel } from '../model/ISectorModel';
 
 const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#DDD555', '#01539d', '#e9b4d0', '#8c9441', '#c82169'];
 
+const findGridPositionColumn = (sectorName: string): number | string => {
+  if (sectorName.includes('W')) {
+    return -1;
+  }
+  return 'none';
+};
+
 export default function TableSectors({
   sectorsOfArray,
   controlledSector,
@@ -56,6 +63,8 @@ export default function TableSectors({
     let counterBelow = 0;
     if (element.topFlightLevel === nextElement.topFlightLevel) {
       topSpanCounter += 1;
+    } else {
+      topSpanCounter = 1; // why does this keep on getting removed?
     }
     for (const value of ascendingSectors) {
       if (value.bottomFlightLevel === element.topFlightLevel) {
@@ -70,6 +79,8 @@ export default function TableSectors({
     // }
     if (element.bottomFlightLevel === nextElement.bottomFlightLevel) {
       spanCounter += 1;
+    } else {
+      spanCounter = 1; // why does this keep on getting removed?
     }
     const maxSpan = Math.max(topSpanCounter, spanCounter);
     if (spanCounter > 1) {
@@ -129,6 +140,7 @@ export default function TableSectors({
     buttons.push(
       <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index].sectorId) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index].sectorId}
           style={{
+            order: `${findGridPositionColumn(sectorsOfArray[sectorsOfArray.length - index][0])}`,
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
             backgroundColor: fillColors[index],

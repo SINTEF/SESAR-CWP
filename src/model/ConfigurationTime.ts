@@ -54,7 +54,8 @@ export default class ConfigurationTime implements IConfigurationTime {
         startTime: convertTimestamp(timeInterval.starttime),
         endTime: convertTimestamp(timeInterval.endttime),
       });
-      this.timeIntervals.push(interval);
+
+        this.timeIntervals.push(interval);
     }
   }
 }
