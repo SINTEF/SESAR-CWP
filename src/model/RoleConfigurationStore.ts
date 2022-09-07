@@ -39,8 +39,8 @@ export default class RoleConfigurationStore {
     this.setControlledSector('CWP_NE', 'CONF12E', 'LIMM_RUN16_COBOS_11S9_SECTOR_17');
     this.setControlledSector('CWP_S', 'CONF12E', 'LIMM_RUN16_COBOS_11S10_SECTOR_16');
 
-    this.setControlledSector('CWP_NW', 'CONF12D', 'LIMM_RUN16_COBOS_11S5_SECTOR_15');
-    this.setControlledSector('CWP_NE', 'CONF12D', 'LIMM_RUN16_COBOS_11S6_SECTOR_15');
+    this.setControlledSector('CWP_NW', 'CONF12D', 'LIMM_RUN16_COBOS_11S6_SECTOR_15');
+    this.setControlledSector('CWP_NE', 'CONF12D', 'LIMM_RUN16_COBOS_11S5_SECTOR_15');
     this.setControlledSector('CWP_S', 'CONF12D', 'LIMM_RUN16_COBOS_10S9_SECTOR_15');
 
     this.setControlledSector('CWP_NW', 'CONF11N', 'LIMM_RUN16_COBOS_11S10_SECTOR_20');

@@ -139,29 +139,32 @@ export default class ConfigurationStore {
 
   handleAvailabilityIntervalsMessage(newAvailabilitymessage: AvailabilityIntervalsMessage): void {
     const { objectId, timeIntervals } = newAvailabilitymessage;
-    const timeIntervalsArray: TimeConfigurations[] = [];
-    for (const timeInterval of timeIntervals) {
-      if (!timeInterval.starttime) {
-        throw new Error('Missing start time');
-      }
-      if (!timeInterval.endttime) {
-        throw new Error('Missing end time');
-      }
 
-      if (this.configurationPlan.has(objectId)) {
-        this.configurationPlan.get(objectId)
-          ?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
-      } else {
-        const interval = new TimeConfigurations({
-          startTime: convertTimestamp(timeInterval.starttime),
-          endTime: convertTimestamp(timeInterval.endttime),
-        });
-        timeIntervalsArray.push(interval);
-        this.configurationPlan.set(objectId, new ConfigurationTime({
-          configurationId: objectId,
-          timeIntervals: timeIntervalsArray,
-        }));
+    const timeIntervalsArray: TimeConfigurations[] = [];
+    if (this.configurationPlan.has(objectId)) {
+      this.configurationPlan.get(objectId)
+        ?.handleAvailabilityIntervalsMessage(newAvailabilitymessage);
+    } else {
+      for (const timeInterval of timeIntervals) {
+        if (!timeInterval.starttime) {
+          throw new Error('Missing start time');
+        }
+        if (!timeInterval.endttime) {
+          throw new Error('Missing end time');
+        }
+
+        {
+          const interval = new TimeConfigurations({
+            startTime: convertTimestamp(timeInterval.starttime),
+            endTime: convertTimestamp(timeInterval.endttime),
+          });
+          timeIntervalsArray.push(interval);
+        }
       }
+      this.configurationPlan.set(objectId, new ConfigurationTime({
+        configurationId: objectId,
+        timeIntervals: timeIntervalsArray,
+      }));
     }
   }
 
@@ -199,10 +202,6 @@ export default class ConfigurationStore {
       this.setIntervals(element.configurationId, innerIntervalSort);
       return element;
     });
-
-    sortedList
-      .sort((a, b) => a.timeIntervals[0].startTime - b.timeIntervals[0].startTime);
-
     return sortedList;
   }
 
@@ -219,6 +218,8 @@ export default class ConfigurationStore {
         }
       }
     }
+    listOfIntervals
+      .sort((a, b) => a[1] - b[1]);
     return listOfIntervals;
   }
 

@@ -53,7 +53,8 @@ export default class ConfigurationTime {
         startTime: convertTimestamp(timeInterval.starttime),
         endTime: convertTimestamp(timeInterval.endttime),
       });
-      this.timeIntervals.push(interval);
+
+        this.timeIntervals.push(interval);
     }
   }
 }
