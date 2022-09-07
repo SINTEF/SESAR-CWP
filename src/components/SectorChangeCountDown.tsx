@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import Draggable from 'react-draggable';
 
-import { configurationStore } from '../state';
+import { configurationStore, cwpStore } from '../state';
 
 export function ChangeCountDownTime(time: number): string {
   const date = new Date(time * 1000);
@@ -17,19 +17,22 @@ export function ChangeCountDownTime(time: number): string {
 }
 
 export default observer(function SectorChangeCountDown(/* properties */) {
+  const { timeToNextConfiguration } = configurationStore;
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { timeToNextConfiguration, toggleConfiguration } = configurationStore;
-  if (timeToNextConfiguration > 600) {
+  const { toggleShowNextSectorsConfiguration, showNextSectorsConfiguration } = cwpStore;
+  if (timeToNextConfiguration > 6_000_000) {
     return null;
   }
-  return (<Draggable>
+  return (<Draggable bounds="parent" cancel="button, input">
     <div className='toggle-countdown-container'>
       <div className='time-to-change'>
         Sector change countdown:
         {' '}
         {ChangeCountDownTime(timeToNextConfiguration)}
       </div>
-      <button onClick={toggleConfiguration} className='toggle-sectors-button'>Toggle Sector Change</button>
+      <button onClick={toggleShowNextSectorsConfiguration} className='toggle-sectors-button'>
+        {showNextSectorsConfiguration ? 'Show current sectors' : 'Show next sectors'}
+      </button>
     </div>
   </Draggable>);
 });

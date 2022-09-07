@@ -45,8 +45,8 @@ const sectorNameslayout: SymbolLayout = {
 export default observer(function SectorPolygons(/* properties */) {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
   const { showSectorLabels, showClickedSector, clickedSectorId } = cwpStore;
-  const { areaOfIncludedAirspaces, currentConfigurationId } = configurationStore;
-  const sectorData = areaOfIncludedAirspaces
+  const { areaOfAirspacesToDisplay, currentConfigurationId } = configurationStore;
+  const sectorData = areaOfAirspacesToDisplay
     .filter((area) => ((
       area.bottomFlightLevel >= lowestBound && area.bottomFlightLevel <= highestBound)
       || (area.topFlightLevel <= highestBound && area.topFlightLevel >= lowestBound))

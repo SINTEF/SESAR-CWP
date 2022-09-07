@@ -25,7 +25,7 @@ function ConvertFlightLevelToMeters(altitude: number): number {
 }
 
 export default observer(function SectorPolygons(/* properties */) {
-  const sectorStore = configurationStore.areaOfIncludedAirspaces;
+  const sectorStore = configurationStore.areaOfAirspacesToDisplay;
   const sectorData = sectorStore
     .filter((area) => area.sectorArea.length > 0);
 

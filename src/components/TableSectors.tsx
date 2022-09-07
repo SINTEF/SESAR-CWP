@@ -140,7 +140,7 @@ export default function TableSectors({
     buttons.push(
       <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index].sectorId) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index].sectorId}
           style={{
-            order: `${findGridPositionColumn(sectorsOfArray[sectorsOfArray.length - index][0])}`,
+            order: `${findGridPositionColumn(sectorsOfArray[sectorsOfArray.length - index].sectorId)}`,
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
             backgroundColor: fillColors[index],

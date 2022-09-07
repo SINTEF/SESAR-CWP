@@ -10,6 +10,7 @@ import type {
   CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
 import type AirspaceStore from './AirspaceStore';
+import type CWPStore from './CwpStore';
 import type { IConfigurationTime } from './IConfigurationTime';
 import type { ISectorModel } from './ISectorModel';
 import type SimulatorStore from './SimulatorStore';
@@ -25,21 +26,27 @@ export default class ConfigurationStore {
 
   simulatorStore: SimulatorStore;
 
+  cwpStore: CWPStore;
+
   currentCWP = '';
 
   constructor({
     airspaceStore,
     simulatorStore,
+    cwpStore,
   }: {
     airspaceStore: AirspaceStore,
     simulatorStore: SimulatorStore,
+    cwpStore: CWPStore,
   }) {
     makeAutoObservable(this, {
       airspaceStore: false,
       simulatorStore: false,
+      cwpStore: false,
     }, { autoBind: true });
     this.airspaceStore = airspaceStore;
     this.simulatorStore = simulatorStore;
+    this.cwpStore = cwpStore;
   }
 
   handleNewAirspaceConfiguration(newConfiguration: NewAirspaceConfigurationMessage): void {
@@ -54,22 +61,6 @@ export default class ConfigurationStore {
 
   setCurrentConfigFromString(configuration: string): void {
     this.currentConfigurationId = configuration;
-  }
-
-  toggleConfiguration(): void {
-    const { currentConfigurationId, listOfIntervals } = this;
-    const [firstConfiguration, secondConfiguration] = listOfIntervals;
-
-    // Do not toggle if the configuration is invalid
-    if (!firstConfiguration || !secondConfiguration) {
-      return;
-    }
-
-    if (firstConfiguration[0] === currentConfigurationId) {
-      this.setCurrentConfigFromString(secondConfiguration[0]);
-    } else {
-      this.setCurrentConfigFromString(firstConfiguration[0]);
-    }
   }
 
   setCurrentCWP(controllerValue: string): void {
@@ -166,6 +157,14 @@ export default class ConfigurationStore {
       return [];
     }
     return this.getAreaOfIncludedAirpaces(nextConfigurationId);
+  }
+
+  get areaOfAirspacesToDisplay(): ISectorModel[] {
+    const { showNextSectorsConfiguration } = this.cwpStore;
+    if (showNextSectorsConfiguration) {
+      return this.areaOfIncludedAirspacesForNextConfiguration;
+    }
+    return this.areaOfIncludedAirspaces;
   }
 
   get edgesPolygon(): [number, number][] {

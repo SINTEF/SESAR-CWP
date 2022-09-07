@@ -35,7 +35,6 @@ export default function App(/* properties */): JSX.Element {
             <Map />
             <SectorFlightList />
             <AircraftListElement />
-            <Time />
           </Allotment.Pane>
           <Allotment.Pane>
             <Allotment onChange={onLayoutChange}>
@@ -45,6 +44,7 @@ export default function App(/* properties */): JSX.Element {
           </Allotment.Pane>
         </Allotment>
       </main>
+      <Time />
       <SectorConfiguration />
       <SectorChangeCountDown />
       <AltitudeFilterPanel />

@@ -9,6 +9,7 @@ import type AircraftModel from './AircraftModel';
 import type AircraftStore from './AircraftStore';
 import type ConfigurationStore from './ConfigurationStore';
 import type CoordinatePair from './CoordinatePair';
+import type { ISectorModel } from './ISectorModel';
 
 export default class RoleConfigurationStore {
   roleConfigurations: ObservableMap<string, RoleConfigurationModel> = observable.map();
@@ -96,9 +97,9 @@ export default class RoleConfigurationStore {
     cwpRole?.addTentativeAircraft(tentativeFlights);
   }
 
-  get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
-    const areas = this.configurationStore.areaOfIncludedAirspaces;
-    const area = areas.find(({ sectorId }) => sectorId === this.currentControlledSector);
+  private static getAreaForSector(areas: ISectorModel[], sector: string)
+    : CoordinatePair[] | undefined {
+    const area = areas.find(({ sectorId }) => sectorId === sector);
     if (!area) {
       return undefined;
     }
@@ -109,20 +110,22 @@ export default class RoleConfigurationStore {
     return [...sectorArea, sectorArea[0]];
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
+    return RoleConfigurationStore.getAreaForSector(
+      this.configurationStore.areaOfIncludedAirspaces,
+      this.currentControlledSector,
+    );
+  }
+
   get areaOfNextControlledSector(): CoordinatePair[] | undefined {
-    const nextAreas = this.configurationStore.areaOfIncludedAirspacesNext;
-    const nextSectorName = this.getControlledSector(this.configurationStore.currentCWP,
-      this.configurationStore.nextConfigurationId);
-    const area = [...nextAreas.values()].find(([key]) => key === nextSectorName);
-    if (!area) {
+    const { nextControlledSector, configurationStore } = this;
+    if (!nextControlledSector) {
       return undefined;
     }
-    const { sectorArea } = area[1];
-    if (sectorArea.length === 0) {
-      return undefined;
-    }
-    return [...sectorArea, sectorArea[0]];
+    return RoleConfigurationStore.getAreaForSector(
+      configurationStore.areaOfIncludedAirspacesForNextConfiguration,
+      nextControlledSector,
+    );
   }
 
   get listOfFlightsInCurrentSector(): AircraftModel[] | [] {

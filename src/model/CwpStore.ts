@@ -61,6 +61,8 @@ export default class CWPStore {
 
   showLimboFlight = false;
 
+  showNextSectorsConfiguration = false;
+
   constructor({
     altitudeFilter,
   }: {
@@ -252,5 +254,9 @@ export default class CWPStore {
 
   setCurrentPolygonCoordinates(coordinates: number[][]): void {
     this.coordinatesCurrentPolygon = coordinates;
+  }
+
+  toggleShowNextSectorsConfiguration(): void {
+    this.showNextSectorsConfiguration = !this.showNextSectorsConfiguration;
   }
 }

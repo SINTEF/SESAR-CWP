@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
-import { configurationStore } from '../state';
 import { ChangeCountDownTime } from './SectorChangeCountDown';
 
 export default observer(function VerticalSectorTimeline(properties: {
@@ -13,17 +12,20 @@ export default observer(function VerticalSectorTimeline(properties: {
   const {
     id, start, end, current,
   } = properties;
-  const { timeToNextConfiguration } = configurationStore;
+  const timeToNextConfiguration = Math.max(0, end - current);
+
+  const showCountDown = current >= start && current <= end;
 
   const periodSize = end - start;
   const sinceStart = current - start;
   const percentage = Math.round(Math.min(1, (sinceStart / periodSize)) * 100_000) / 1000;
   return (
     <>
-      <span style={{ top: `calc(${percentage}% - 10px)` }}
+      {showCountDown ? (
+        <span style={{ top: `calc(${percentage}% - 10px)` }}
         className='moveable-timeline-rectangle'>{
       ChangeCountDownTime(timeToNextConfiguration)}
-      </span>
+        </span>) : null}
       <div className={`timeline-rectangle-${id}`}></div>
     </>
   );

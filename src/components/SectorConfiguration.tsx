@@ -152,7 +152,7 @@ export default observer(function SectorConfiguration() {
 
   // const sectorArray = [sectorsForCurrent, sectorsForNext];
 
-  return (<Draggable bounds="parent">
+  return (<Draggable bounds="parent" cancel="input">
     <div className="control-panel">
       <Accordion className="sector-configuration-accordion" defaultActiveKey={['0']} alwaysOpen>
         {configurationsToDisplay.map(({
@@ -164,9 +164,7 @@ export default observer(function SectorConfiguration() {
             </Accordion.Header>
             <Accordion.Body className="accordion-body sector-configuration-body">
               <TableSectors sectorsOfArray={area} controlledSector={controlledSector}/>
-              {index === 0 ? <VerticalSectorTimeline
-                id={`${index}`} start={start} end={end} current={timestamp}/>
-                : null}
+              <VerticalSectorTimeline id={`${index}`} start={start} end={end} current={timestamp}/>
             </Accordion.Body>
           </Accordion.Item>
         ))}
