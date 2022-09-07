@@ -22,10 +22,18 @@ export default function TableSectors({
   nextSectorControlled: string;
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { setClickedSectorId, toggleClickedSector } = cwpStore;
+  const {
+    setClickedSectorId, toggleClickedSector,
+    setshowClickedSector, clickedSectorId,
+  } = cwpStore;
   const clickedSectorButton = (value: string): void => {
-    setClickedSectorId(value);
-    toggleClickedSector();
+    if (clickedSectorId === value) {
+      setClickedSectorId('');
+      toggleClickedSector();
+    } else {
+      setClickedSectorId(value);
+      setshowClickedSector(true);
+    }
   };
   const ascendingSectors = [...sectorsOfArray];
   ascendingSectors.sort(
@@ -138,7 +146,11 @@ export default function TableSectors({
     const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index][1];
     buttons.push(
-      <Button className={`table-button ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : 'no-highlight-sector'}`} key={sectorsOfArray[sectorsOfArray.length - index][0]}
+      <Button
+          className={`table-button 
+          ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index][0]) ? 'highlight-sector' : ''}
+          ${clickedSectorId === sectorsOfArray[sectorsOfArray.length - index][0] ? 'clicked-sector' : ''}`}
+          key={sectorsOfArray[sectorsOfArray.length - index][0]}
           style={{
             order: `${findGridPositionColumn(sectorsOfArray[sectorsOfArray.length - index][0])}`,
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
