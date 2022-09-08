@@ -69,6 +69,8 @@ export default class CWPStore {
 
   showNextSectorsConfiguration: ShowNextConfiguration = ShowNextConfiguration.Automatic;
 
+  switchBackToAutomaticNextSectorsConfigurationTimeoutId = 0;
+
   constructor({
     altitudeFilter,
   }: {
@@ -79,6 +81,7 @@ export default class CWPStore {
   }) {
     makeAutoObservable(this, {
       altitudeFilter: false,
+      switchBackToAutomaticNextSectorsConfigurationTimeoutId: false,
     }, { autoBind: true });
     this.altitudeFilter = new AltitudeFilter(altitudeFilter);
   }
@@ -263,12 +266,18 @@ export default class CWPStore {
   }
 
   toggleShowNextSectorsConfiguration(): void {
+    if (this.switchBackToAutomaticNextSectorsConfigurationTimeoutId) {
+      window.clearTimeout(this.switchBackToAutomaticNextSectorsConfigurationTimeoutId);
+      this.switchBackToAutomaticNextSectorsConfigurationTimeoutId = 0;
+    }
     switch (this.showNextSectorsConfiguration) {
       case ShowNextConfiguration.Automatic:
         this.showNextSectorsConfiguration = ShowNextConfiguration.On;
+        this.switchBackToAutomaticNextSectorsConfiguration();
         break;
       case ShowNextConfiguration.On:
         this.showNextSectorsConfiguration = ShowNextConfiguration.Off;
+        this.switchBackToAutomaticNextSectorsConfiguration();
         break;
       case ShowNextConfiguration.Off:
         this.showNextSectorsConfiguration = ShowNextConfiguration.Automatic;
@@ -276,5 +285,17 @@ export default class CWPStore {
       default:
         throw new Error('Invalid showNextSectorsConfiguration');
     }
+  }
+
+  setAutomaticNextSectorsConfiguration(): void {
+    this.showNextSectorsConfiguration = ShowNextConfiguration.Automatic;
+  }
+
+  protected switchBackToAutomaticNextSectorsConfiguration(): void {
+    // Automatically revert back to automatic mode after 30s
+    this.switchBackToAutomaticNextSectorsConfigurationTimeoutId = window.setTimeout(() => {
+      this.switchBackToAutomaticNextSectorsConfigurationTimeoutId = 0;
+      this.setAutomaticNextSectorsConfiguration();
+    }, 30_000);
   }
 }

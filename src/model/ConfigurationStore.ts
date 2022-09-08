@@ -241,6 +241,21 @@ export default class ConfigurationStore {
       return false;
     }
     const { timeToNextConfiguration } = this;
-    return timeToNextConfiguration % 2 === 0;
+
+    if (
+      // Blink 3 times when less than 10 minutes
+      (timeToNextConfiguration >= 594 && timeToNextConfiguration <= 600)
+      // Blink 3 times when less than 5 minutes
+      || (timeToNextConfiguration >= 294 && timeToNextConfiguration <= 300)
+      // Blink 3 times when less than 2 minutes
+      || (timeToNextConfiguration >= 110 && timeToNextConfiguration <= 120)
+      // Blink 3 times when less than 20 seconds
+      || (timeToNextConfiguration >= 10 && timeToNextConfiguration <= 20)
+    ) {
+      // switch between true and false every 2 seconds
+      return Math.floor(timeToNextConfiguration / 2) % 2 === 0;
+    }
+
+    return false;
   }
 }
