@@ -9,6 +9,7 @@ import type AircraftModel from './AircraftModel';
 import type AircraftStore from './AircraftStore';
 import type ConfigurationStore from './ConfigurationStore';
 import type CoordinatePair from './CoordinatePair';
+import type { ISectorModel } from './ISectorModel';
 
 export default class RoleConfigurationStore {
   roleConfigurations: ObservableMap<string, RoleConfigurationModel> = observable.map();
@@ -49,9 +50,16 @@ export default class RoleConfigurationStore {
   }
 
   get currentControlledSector(): string {
-    const cwpRoleName = this.configurationStore.currentCWP;
-    const config = this.configurationStore.currentConfigurationId;
-    return this.getControlledSector(cwpRoleName, config);
+    const { currentCWP, currentConfigurationId } = this.configurationStore;
+    return this.getControlledSector(currentCWP, currentConfigurationId);
+  }
+
+  get nextControlledSector(): string | undefined {
+    const { currentCWP, nextConfigurationId } = this.configurationStore;
+    if (!nextConfigurationId) {
+      return undefined;
+    }
+    return this.getControlledSector(currentCWP, nextConfigurationId);
   }
 
   getControlledSector(cwpRoleName: string, config: string): string {
@@ -89,33 +97,35 @@ export default class RoleConfigurationStore {
     cwpRole?.addTentativeAircraft(tentativeFlights);
   }
 
-  get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
-    const areas = this.configurationStore.areaOfIncludedAirspaces;
-    const area = [...areas.values()].find(([key]) => key === this.currentControlledSector);
+  private static getAreaForSector(areas: ISectorModel[], sector: string)
+    : CoordinatePair[] | undefined {
+    const area = areas.find(({ sectorId }) => sectorId === sector);
     if (!area) {
       return undefined;
     }
-    const { sectorArea } = area[1];
+    const { sectorArea } = area;
     if (sectorArea.length === 0) {
       return undefined;
     }
     return [...sectorArea, sectorArea[0]];
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
+    return RoleConfigurationStore.getAreaForSector(
+      this.configurationStore.areaOfIncludedAirspaces,
+      this.currentControlledSector,
+    );
+  }
+
   get areaOfNextControlledSector(): CoordinatePair[] | undefined {
-    const nextAreas = this.configurationStore.areaOfIncludedAirspacesNext;
-    const nextSectorName = this.getControlledSector(this.configurationStore.currentCWP,
-      this.configurationStore.nextConfigurationId);
-    const area = [...nextAreas.values()].find(([key]) => key === nextSectorName);
-    if (!area) {
+    const { nextControlledSector, configurationStore } = this;
+    if (!nextControlledSector) {
       return undefined;
     }
-    const { sectorArea } = area[1];
-    if (sectorArea.length === 0) {
-      return undefined;
-    }
-    return [...sectorArea, sectorArea[0]];
+    return RoleConfigurationStore.getAreaForSector(
+      configurationStore.areaOfIncludedAirspacesForNextConfiguration,
+      nextControlledSector,
+    );
   }
 
   get listOfFlightsInCurrentSector(): AircraftModel[] | [] {

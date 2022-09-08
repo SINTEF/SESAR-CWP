@@ -25,16 +25,17 @@ function ConvertFlightLevelToMeters(altitude: number): number {
 }
 
 export default observer(function SectorPolygons(/* properties */) {
-  const sectorStore = configurationStore.areaOfIncludedAirspaces;
-  const sectorData = [...sectorStore.values()]
-    .filter(([, area]) => area.sectorArea?.length > 0);
+  const sectorStore = configurationStore.areaOfAirspacesToDisplay;
+  const sectorData = sectorStore
+    .filter((area) => area.sectorArea.length > 0);
 
   sectorData
-    .sort((element1, element2) => element2[1].bottomFlightLevel - element1[1].bottomFlightLevel
-      || element2[1].topFlightLevel - element1[1].topFlightLevel);
+    .sort((a, b) => b.bottomFlightLevel - a.bottomFlightLevel
+      || b.topFlightLevel - a.topFlightLevel);
 
   let counter = 0;
-  const sectors: GeoJSON.Feature[] = sectorData.map(([title, area]) => {
+  const sectors: GeoJSON.Feature[] = sectorData.map((area) => {
+    const title = area.sectorId;
     const coordinates = area.sectorArea.map((point) => (
       [point.longitude, point.latitude]),
     );

@@ -26,6 +26,9 @@ export default class AirspaceStore {
         longitude: area.position.position4D.longitude,
       });
     });
+    if (airspaceArea.length === 0) {
+      throw new Error('Area is empty');
+    }
     const existingAirspace = this.airspaces.get(id);
     if (existingAirspace) {
       existingAirspace.updateSectorArea(airspaceArea);

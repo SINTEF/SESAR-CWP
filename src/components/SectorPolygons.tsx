@@ -45,13 +45,12 @@ const sectorNameslayout: SymbolLayout = {
 export default observer(function SectorPolygons(/* properties */) {
   const { highestBound, lowestBound } = cwpStore.altitudeFilter;
   const { showSectorLabels, showClickedSector, clickedSectorId } = cwpStore;
-  const { areaOfIncludedAirspaces, currentConfigurationId } = configurationStore;
-  const sectorStore = areaOfIncludedAirspaces;
-  const sectorData = [...sectorStore.values()]
-    .filter(([, area]) => ((
+  const { areaOfAirspacesToDisplay, currentConfigurationId } = configurationStore;
+  const sectorData = areaOfAirspacesToDisplay
+    .filter((area) => ((
       area.bottomFlightLevel >= lowestBound && area.bottomFlightLevel <= highestBound)
       || (area.topFlightLevel <= highestBound && area.topFlightLevel >= lowestBound))
-      && area.sectorArea?.length > 0,
+      && area.sectorArea.length > 0,
     );
 
   const sectorNamesText: SymbolLayout = {
@@ -80,16 +79,19 @@ export default observer(function SectorPolygons(/* properties */) {
     return `S-${bottomFL}-${topFL}`;
   }).get();
   const sectors: Feature<Geometry, { t: string, color: string, key: string }>[] = sectorData.map(
-    ([key, area]) => {
-      const coordinates = area.sectorArea.map((point) => (
+    (area) => {
+      const {
+        bottomFlightLevel, topFlightLevel, sectorArea, sectorId,
+      } = area;
+      const coordinates = sectorArea.map((point) => (
         [point.longitude, point.latitude]),
       );
       return {
         type: 'Feature',
         properties: {
-          key,
-          t: setSectorName(area.bottomFlightLevel, area.topFlightLevel, key),
-          color: getSectorColor(area.bottomFlightLevel, area.topFlightLevel),
+          key: sectorId,
+          t: setSectorName(bottomFlightLevel, topFlightLevel, sectorId),
+          color: getSectorColor(bottomFlightLevel, topFlightLevel),
         },
         geometry: {
           type: 'LineString',
@@ -98,8 +100,14 @@ export default observer(function SectorPolygons(/* properties */) {
       };
     });
   const centroidPoints = [];
+  const coeff = 0.001;
+  const sectorsLength = sectors.length;
   for (const feature of sectors) {
     const centroidPt = turf.centroid<{ title: string }>(feature);
+    const index = centroidPoints.length;
+    // Add some little offset to avoid overlapping
+    centroidPt.geometry.coordinates[0] += (index * sectorsLength - sectorsLength / 2) * coeff;
+    centroidPt.geometry.coordinates[1] += (index * sectorsLength - sectorsLength / 2) * coeff;
     centroidPt.properties.title = feature.properties.t;
     centroidPoints.push(centroidPt);
   }

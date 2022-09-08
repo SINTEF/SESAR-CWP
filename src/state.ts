@@ -13,20 +13,21 @@ export const aircraftStore = new AircraftStore({
   simulatorStore,
 });
 export const airspaceStore = new AirspaceStore();
-export const configurationStore = new ConfigurationStore({
-  airspaceStore,
-  simulatorStore,
-});
 export const fixStore = new FixStore();
 export const distanceLineStore = new DistanceLine();
-export const roleConfigurationStore = new RoleConfigurationStore({
-  configurationStore,
-  aircraftStore,
-});
 export const cwpStore = new CWPStore({
   altitudeFilter: {
     lowestBound: 325,
     highestBound: 555,
   },
+});
+export const configurationStore = new ConfigurationStore({
+  cwpStore,
+  airspaceStore,
+  simulatorStore,
+});
+export const roleConfigurationStore = new RoleConfigurationStore({
+  configurationStore,
+  aircraftStore,
 });
 export const voiceStore = new VoiceStore();

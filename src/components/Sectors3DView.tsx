@@ -1,7 +1,7 @@
 import * as maplibregl from 'maplibre-gl';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
-import ReactMapGL, { NavigationControl, ScaleControl } from 'react-map-gl';
+import ReactMapGL, { NavigationControl } from 'react-map-gl';
 import type { Style } from 'mapbox-gl';
 import type { ViewState } from 'react-map-gl';
 
@@ -54,7 +54,6 @@ export default function Sectors3DView(): JSX.Element {
     >
       <Polygons3D />
       <Compass/>
-      <ScaleControl position="bottom-left" />
       <NavigationControl visualizePitch={true} />
     </ReactMapGL>
   );

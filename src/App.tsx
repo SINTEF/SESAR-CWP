@@ -10,13 +10,15 @@ import AircraftListElement from './components/AircraftListElement';
 import AltitudeFilterPanel from './components/AltitudeFilterPanel';
 import BottomNavbar from './components/BottomNavbar';
 import ControllerModal from './components/ControllerModal';
+import HugeNextText from './components/HugeNextText';
 import Map from './components/Map';
+import SectorChangeCountDown from './components/SectorChangeCountDown';
+import SectorConfiguration from './components/SectorConfiguration';
 import SectorFlightList from './components/SectorFlightList';
 import Sectors3DView from './components/Sectors3DView';
 import SectorSideView from './components/SectorSideView';
 import Time from './components/Time';
 import VoiceCommandFeedback from './components/VoiceCommandFeedback';
-import SectorConfiguration from './SectorConfiguration';
 
 const onLayoutChange = throttle(166, (): void => {
   // Dispatch a resize event to the whole application
@@ -34,18 +36,25 @@ export default function App(/* properties */): JSX.Element {
             <Map />
             <SectorFlightList />
             <AircraftListElement />
-            <AltitudeFilterPanel />
-            <Time />
+            <HugeNextText />
           </Allotment.Pane>
           <Allotment.Pane>
             <Allotment onChange={onLayoutChange}>
-              <SectorSideView />
-              <Sectors3DView />
+              <Allotment.Pane>
+                <SectorSideView />
+              </Allotment.Pane>
+              <Allotment.Pane>
+                <Sectors3DView />
+                <HugeNextText />
+              </Allotment.Pane>
             </Allotment>
           </Allotment.Pane>
         </Allotment>
       </main>
-      <SectorConfiguration key="sector-configuration" />
+      <Time />
+      <SectorConfiguration />
+      <SectorChangeCountDown />
+      <AltitudeFilterPanel />
       <BottomNavbar />
       <VoiceCommandFeedback />
     </>
