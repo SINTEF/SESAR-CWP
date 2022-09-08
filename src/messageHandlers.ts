@@ -31,10 +31,6 @@ export function notFound(parameters: unknown, message: Buffer, url: string): voi
   console.warn('MQTT message received but no matching route found', url, message);
 }
 
-export function todo(/* parameters: unknown, message: unknown, url: unknown */): void {
-  // MQTT message received but event handler is not yet implemented
-}
-
 export function ignored(): void { }
 
 export function targetReport(parameters: unknown, message: Buffer): void {

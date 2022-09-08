@@ -22,8 +22,8 @@ jobs:
 
       - run: npm ci
       - run: npm run lint
-    # TODO enable when we have tests
-    #- run: npm test
+      # enable if we decide to have tests
+      #- run: npm test
   lint-server:
     runs-on: ubuntu-latest
     steps:

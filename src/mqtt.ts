@@ -22,7 +22,6 @@ import {
   roleConfiguration,
   targetReport,
   tentativeFlightMessage,
-  todo,
 } from './messageHandlers';
 
 const client = mqtt.connect('ws://localhost:9001/mqtt');
@@ -31,8 +30,17 @@ function sanitizeClientId(clientId: string): string {
   return clientId.replace(/[^\dA-Za-z]/g, '');
 }
 
-// TODO #91: Implement multiple client identifiers
-const clientId = sanitizeClientId('1');
+function retrieveClientId() : string {
+  // Load from search parameter
+  const urlParameters = new URLSearchParams(window.location.search);
+  const clientId = urlParameters.get('clientId');
+  if (clientId) {
+    return sanitizeClientId(clientId);
+  }
+  return '1';
+}
+
+const clientId = retrieveClientId();
 
 client.addListener('connect', () => {
   client.subscribe(`ATM/${clientId}/#`, (error) => {
@@ -73,36 +81,36 @@ export function onPacketSend(callback: MqttOnCallback): MqttOffCallback {
 }
 
 const router = rlite<Buffer>(notFound, {
-  'ATM/:clientId/Initialisation/Completed': todo,
+  'ATM/:clientId/Initialisation/Completed': ignored,
   'ATM/:clientId/TargetReports/:vehicleId': targetReport,
   'ATM/:clientId/AvailabilityIntervalsMessage/:objectId/:time': newAvailabilityIntervalsMessage,
   'ATM/:clientId/AllTargetReports/:time': ignored,
-  'ATM/:clientId/FlightMilestoneTimes/:flightUniqueId': todo,
+  'ATM/:clientId/FlightMilestoneTimes/:flightUniqueId': ignored,
   'ATM/:clientId/FlightMilestonePositions/:flightUniqueId': newFlightMilestonePositions,
-  'ATM/:clientId/PlannedFlights/:flightUniqueId': todo,
+  'ATM/:clientId/PlannedFlights/:flightUniqueId': ignored,
   'ATM/:clientId/AircraftTypes/:vehicleTypeId': newAircraftTypeMessage,
   'ATM/:clientId/Aircrafts/:vehicleTypeId': newAircraftMessage,
   'ATM/:clientId/NewFlights/:flightUniqueId': newFlight,
-  'ATM/:clientId/FlightStatusCodes/:flightUniqueId': todo,
-  'ATM/:clientId/Routes/:networkId/:objectId': todo,
+  'ATM/:clientId/FlightStatusCodes/:flightUniqueId': ignored,
+  'ATM/:clientId/Routes/:networkId/:objectId': ignored,
   'ATM/:clientId/FlightRoutes/:flightUniqueId': flightRoutes,
-  'ATM/:clientId/StandManoeuvres/:networkId/:objectId': todo,
+  'ATM/:clientId/StandManoeuvres/:networkId/:objectId': ignored,
   'ATM/:clientId/Airspaces/:airspaceId': airspaces,
-  'ATM/:clientId/Sectors/:sectorId': todo, // no longer needed
-  'ATM/:clientId/Airblocks/:airblockId': todo, // no longer needed
+  'ATM/:clientId/Sectors/:sectorId': ignored, // no longer needed
+  'ATM/:clientId/Airblocks/:airblockId': ignored, // no longer needed
   'ATM/:clientId/AirspaceConfigurations/:configurationId': newAirspaceConfiguration,
   'ATM/:clientId/AirspaceAvailability/:airspaceId/:time': airspaceAvailability,
-  'ATM/:clientId/Segments/:segmentId': todo,
-  'ATM/:clientId/Waypoints/:objectId': todo,
+  'ATM/:clientId/Segments/:segmentId': ignored,
+  'ATM/:clientId/Waypoints/:objectId': ignored,
   'ATM/:clientId/Points/:nodeId': newPointMessage,
   'ATM/:clientId/RoleConfiguration/:roleName': roleConfiguration,
   'ATM/:clientId/CurrentAirspaceConfiguration': currentAirspaceConfiguration,
-  'ATM/:clientId/TesselatedAirspaceVolume/:airspaceVolumeId': todo,
+  'ATM/:clientId/TesselatedAirspaceVolume/:airspaceVolumeId': ignored,
   'ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId': newAirspaceVolumeFlightList,
   'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': acceptedFlightMessage,
   'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': tentativeFlightMessage,
   'ATM/:clientId/status/time': newSimulatorTime,
-  'ATM/:clientId/status/:status': todo,
+  'ATM/:clientId/status/:status': ignored,
 });
 
 let incomingMessagesQueue: { topic: string, message: Buffer }[] = [];
