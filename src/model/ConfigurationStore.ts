@@ -52,7 +52,6 @@ export default class ConfigurationStore {
 
   handleNewAirspaceConfiguration(newConfiguration: NewAirspaceConfigurationMessage): void {
     const model = ConfigurationModel.fromProto(newConfiguration);
-    // console.log(model.configurationId);
     this.configurations.set(model.configurationId, model);
   }
 
@@ -213,7 +212,6 @@ export default class ConfigurationStore {
 
   get nextConfiguration(): [string, number, number] | undefined {
     const { listOfIntervals } = this;
-    // console.log([...listOfIntervals]);
     return listOfIntervals[1];
   }
 
