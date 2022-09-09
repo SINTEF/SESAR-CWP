@@ -13,12 +13,13 @@ declare global {
       Recognizer: typeof SpeechSDKType.Recognizer;
       SpeechConfig: typeof SpeechSDKType.SpeechConfig;
       SpeechRecognizer: typeof SpeechSDKType.SpeechRecognizer;
+      ProfanityOption: typeof SpeechSDKType.ProfanityOption;
     };
   }
 }
 
 const {
-  AudioConfig, OutputFormat, Recognizer, SpeechConfig, SpeechRecognizer,
+  AudioConfig, OutputFormat, Recognizer, SpeechConfig, SpeechRecognizer, ProfanityOption,
 } = window.SpeechSDK;
 
 const VOICE_SERVER_ENDPOINT = import.meta.env.VITE_VOICE_SERVER_ENDPOINT ?? 'http://localhost:3001/api-v1/';
@@ -73,6 +74,8 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
   );
   // Enable detailed output
   speechConfiguration.outputFormat = OutputFormat.Detailed;
+  // Enable swear words
+  speechConfiguration.setProfanity(ProfanityOption.Raw);
   // English
   speechConfiguration.speechRecognitionLanguage = 'en-GB';
 
