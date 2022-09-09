@@ -242,16 +242,16 @@ export default class ConfigurationStore {
 
     if (
       // Blink 3 times when less than 10 minutes
-      (timeToNextConfiguration >= 594 && timeToNextConfiguration <= 600)
+      (timeToNextConfiguration >= 590 && timeToNextConfiguration <= 600)
       // Blink 3 times when less than 5 minutes
-      || (timeToNextConfiguration >= 294 && timeToNextConfiguration <= 300)
+      || (timeToNextConfiguration >= 290 && timeToNextConfiguration <= 300)
       // Blink 5 times when less than 2 minutes
-      || (timeToNextConfiguration >= 110 && timeToNextConfiguration <= 120)
+      || (timeToNextConfiguration >= 102 && timeToNextConfiguration <= 120)
       // Blink 5 times when less than 20 seconds
-      || (timeToNextConfiguration >= 10 && timeToNextConfiguration <= 20)
+      || (timeToNextConfiguration >= 2 && timeToNextConfiguration <= 20)
     ) {
       // switch between true and false every 2 seconds
-      return Math.floor(timeToNextConfiguration / 2) % 2 === 0;
+      return Math.ceil(timeToNextConfiguration / 2) % 2 === 0;
     }
 
     return false;

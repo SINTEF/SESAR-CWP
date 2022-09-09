@@ -29,13 +29,11 @@ export default observer(function SectorChangeCountDown(/* properties */) {
   let buttonText = '';
   switch (showNextSectorsConfiguration) {
     case ShowNextConfiguration.Automatic:
+    case ShowNextConfiguration.Off:
       buttonText = 'Show next sectors';
       break;
     case ShowNextConfiguration.On:
       buttonText = 'Show current sectors';
-      break;
-    case ShowNextConfiguration.Off:
-      buttonText = 'Automatic';
       break;
     default:
       throw new Error('Invalid showNextSectorsConfiguration');
