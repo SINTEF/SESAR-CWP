@@ -3,7 +3,7 @@ import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 import type { FillExtrusionPaint, FillPaint } from 'mapbox-gl';
 
-import { configurationStore } from '../state';
+import { configurationStore, cwpStore } from '../state';
 
 const sectorPaint: FillPaint = {
   'fill-color': ['get', 'color'],
@@ -24,6 +24,14 @@ function ConvertFlightLevelToMeters(altitude: number): number {
   return meters;
 }
 
+const setHighlighted3DPolygon = (id: string, index: number): string => {
+  if (id === cwpStore.clickedSectorId) {
+    return '#fff';
+  }
+
+  return fillColors[index];
+};
+
 export default observer(function SectorPolygons(/* properties */) {
   const sectorStore = configurationStore.areaOfAirspacesToDisplay;
   const sectorData = sectorStore
@@ -32,7 +40,7 @@ export default observer(function SectorPolygons(/* properties */) {
   sectorData
     .sort((a, b) => b.bottomFlightLevel - a.bottomFlightLevel
       || b.topFlightLevel - a.topFlightLevel);
-
+  const minBottomLevel = Math.min(...sectorData.map((a) => a.bottomFlightLevel));
   let counter = 0;
   const sectors: GeoJSON.Feature[] = sectorData.map((area) => {
     const title = area.sectorId;
@@ -44,9 +52,9 @@ export default observer(function SectorPolygons(/* properties */) {
       type: 'Feature',
       properties: {
         t: `${title}-${area.bottomFlightLevel}-${area.topFlightLevel}`,
-        color: fillColors[counter],
-        height: ConvertFlightLevelToMeters(area.topFlightLevel - 205) * 20,
-        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel - 205) * 20,
+        color: setHighlighted3DPolygon(title, counter),
+        height: ConvertFlightLevelToMeters(area.topFlightLevel - minBottomLevel) * 8,
+        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel - minBottomLevel) * 8,
       },
       geometry: {
         type: 'Polygon',
