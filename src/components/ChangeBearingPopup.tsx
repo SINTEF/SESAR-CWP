@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 
-import { changeBearingOfAircraft } from '../mqtt';
+import { changeBearingOfAircraft, handlePublishPromise } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -26,7 +26,9 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
   const submit = (): void => {
     setAssignedBearing(newBearing);
     const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
-    changeBearingOfAircraft(pilotId, assignedFlightId, newBearing);
+    handlePublishPromise(
+      changeBearingOfAircraft(pilotId, assignedFlightId, newBearing),
+    );
     close();
   };
 

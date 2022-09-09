@@ -10,7 +10,7 @@ import React, { Component } from 'react';
 
 import {
   onConnect, onDisconnect, onPacketReceive, onPacketSend,
-} from '../mqtt';
+} from '../mqtt/mqtt';
 
 export default class MqttIndicators extends Component<unknown, {
   connected: boolean,

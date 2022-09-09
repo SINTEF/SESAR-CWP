@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Button, Dropdown } from 'react-bootstrap';
 
-import { tentativeFlight } from '../mqtt';
+import { handlePublishPromise, tentativeFlight } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -32,8 +32,14 @@ export default observer(function NextSectorPopup(properties: {
   const submit = (): void => {
     setNextSectorController(controllerPlaceholder);
     if (configurationStore.currentCWP === 'All') {
-      tentativeFlight('All', controllerPlaceholder, assignedFlightId);
-    } else { tentativeFlight(controlledBy, controllerPlaceholder, assignedFlightId); }
+      handlePublishPromise(
+        tentativeFlight('All', controllerPlaceholder, assignedFlightId),
+      );
+    } else {
+      handlePublishPromise(
+        tentativeFlight(controlledBy, controllerPlaceholder, assignedFlightId),
+      );
+    }
     close();
   };
 

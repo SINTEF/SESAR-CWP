@@ -16,7 +16,7 @@ import {
   RoleConfigurationMessage,
   SimulatorTime,
   TargetReportMessage,
-} from './proto/ProtobufAirTrafficSimulator';
+} from '../proto/ProtobufAirTrafficSimulator';
 import {
   aircraftStore,
   airspaceStore,
@@ -24,7 +24,7 @@ import {
   fixStore,
   roleConfigurationStore,
   simulatorStore,
-} from './state';
+} from '../state';
 
 export function notFound(parameters: unknown, message: Buffer, url: string): void {
   // eslint-disable-next-line no-console

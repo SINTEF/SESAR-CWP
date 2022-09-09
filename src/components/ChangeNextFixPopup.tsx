@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 
-import { changeNextWaypointOfAircraft } from '../mqtt';
+import { changeNextWaypointOfAircraft, handlePublishPromise } from '../mqtt/publishers';
 import { configurationStore, cwpStore, fixStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -33,28 +33,32 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     if (latOfFix !== undefined && longOfFix !== undefined
       && viaLat !== undefined && viaLong !== undefined) {
       const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
-      changeNextWaypointOfAircraft({
-        pilotId,
-        waypointId: newNextFix,
-        flightId: assignedFlightId,
-        latitude: latOfFix,
-        longitude: longOfFix,
-        viaLat,
-        viaLong,
-        viaWaypointId: nextViaFix,
-      });
+      handlePublishPromise(
+        changeNextWaypointOfAircraft({
+          pilotId,
+          waypointId: newNextFix,
+          flightId: assignedFlightId,
+          latitude: latOfFix,
+          longitude: longOfFix,
+          viaLat,
+          viaLong,
+          viaWaypointId: nextViaFix,
+        }),
+      );
     } else if (latOfFix !== undefined && longOfFix !== undefined) {
       const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
-      changeNextWaypointOfAircraft({
-        pilotId,
-        waypointId: newNextFix,
-        flightId: assignedFlightId,
-        latitude: latOfFix,
-        longitude: longOfFix,
-        viaLat: '',
-        viaLong: '',
-        viaWaypointId: '',
-      });
+      handlePublishPromise(
+        changeNextWaypointOfAircraft({
+          pilotId,
+          waypointId: newNextFix,
+          flightId: assignedFlightId,
+          latitude: latOfFix,
+          longitude: longOfFix,
+          viaLat: '',
+          viaLong: '',
+          viaWaypointId: '',
+        }),
+      );
     }
     close();
   };
