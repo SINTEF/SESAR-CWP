@@ -4,7 +4,7 @@ import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 
 import { isDragging } from '../draggableState';
-import { acceptFlight } from '../mqtt';
+import { acceptFlight, handlePublishPromise } from '../mqtt/publishers';
 import { aircraftStore, configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -57,7 +57,9 @@ export default observer(function AircraftPopupPseudoContent(properties: {
   const setController = (): void => {
     // TODO #97: Implement setController shared across browsers, usinq MQTT
     aircraftStore.aircrafts.get(aircraftId)?.setController(configurationStore.currentCWP);
-    acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId);
+    handlePublishPromise(
+      acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId),
+    );
   };
   const handleSpeedClick = (event: React.MouseEvent<HTMLElement>): void => {
     if (event.button === 1) {

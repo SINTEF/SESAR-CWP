@@ -245,9 +245,9 @@ export default class ConfigurationStore {
       (timeToNextConfiguration >= 594 && timeToNextConfiguration <= 600)
       // Blink 3 times when less than 5 minutes
       || (timeToNextConfiguration >= 294 && timeToNextConfiguration <= 300)
-      // Blink 3 times when less than 2 minutes
+      // Blink 5 times when less than 2 minutes
       || (timeToNextConfiguration >= 110 && timeToNextConfiguration <= 120)
-      // Blink 3 times when less than 20 seconds
+      // Blink 5 times when less than 20 seconds
       || (timeToNextConfiguration >= 10 && timeToNextConfiguration <= 20)
     ) {
       // switch between true and false every 2 seconds

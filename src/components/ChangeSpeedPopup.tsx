@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 
-import { changeSpeedOfAircraft } from '../mqtt';
+import { changeSpeedOfAircraft, handlePublishPromise } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
 export default observer(function ChangeNextFixPopup(properties: { aircraft: AircraftModel }) {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     aircraftId,
     assignedFlightId,
@@ -30,9 +30,13 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     }
     setAssignedSpeed(newSpeed);
     if (configurationStore.currentCWP === 'All') {
-      changeSpeedOfAircraft('All', assignedFlightId, newSpeed);
+      handlePublishPromise(
+        changeSpeedOfAircraft('All', assignedFlightId, newSpeed),
+      );
     } else {
-      changeSpeedOfAircraft(controlledBy, assignedFlightId, newSpeed);
+      handlePublishPromise(
+        changeSpeedOfAircraft(controlledBy, assignedFlightId, newSpeed),
+      );
     }
     close();
   };

@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap';
 
 import { isDragging } from '../draggableState';
-import { acceptFlight } from '../mqtt';
+import { acceptFlight, handlePublishPromise } from '../mqtt/publishers';
 import {
   aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
@@ -66,7 +66,9 @@ export default observer(function AircraftPopupContent(properties: {
         .get(configurationStore.currentCWP)?.removeTentativeAircraft(aircraftId);
     }
     aircraftStore.aircrafts.get(aircraftId)?.setController(configurationStore.currentCWP);
-    acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId);
+    handlePublishPromise(
+      acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId),
+    );
   };
   return (<Container className="flight-popup-container">
     <Row>
