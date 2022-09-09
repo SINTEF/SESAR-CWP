@@ -6,6 +6,7 @@ import fastify from 'fastify';
 import got from 'got';
 import { Configuration as OpenAIConfiguration, OpenAIApi } from 'openai';
 import pMemoize from 'p-memoize';
+import pino from 'pino';
 
 import promptText from './prompt.js';
 
@@ -38,7 +39,14 @@ const configuration = new OpenAIConfiguration({
 });
 const openai = new OpenAIApi(configuration);
 
-const server = fastify();
+const server = fastify({
+  logger: {
+    stream: pino.multistream([
+      { stream: process.stdout },
+      { stream: pino.destination('./error.log') },
+    ]),
+  }, 
+});
 
 await server.register(fastifyCors, {
   origin: /^https?:\/\/localhost(:\d+)?$/,
@@ -108,13 +116,20 @@ server.get('/api-v1/get-speech-token', async (request, reply) => {
 });
 
 server.post('/api-v1/text-to-command', async (request, reply) => {
-  await reply.send(await textToCommandWithCache(request.body as string));
+  const body = request.body as string;
+  if (typeof body !== 'string') {
+    reply.statusCode = 400;
+    await reply.send({ error: 'Invalid body' });
+  }
+  const command = await textToCommandWithCache(body);
+  request.log.info({
+    type: 'text-to-command', body, command, 
+  });
+  await reply.send(command);
 });
 
 server.listen({ port: 3001 }, (error, address) => {
   if (error) {
     throw error;
   }
-  // eslint-disable-next-line no-console
-  console.log(`Server listening at ${address}`);
 });
