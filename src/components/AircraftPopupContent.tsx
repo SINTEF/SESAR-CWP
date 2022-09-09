@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap';
 
 import { isDragging } from '../draggableState';
-import { acceptFlight, handlePublishPromise } from '../mqtt/publishers';
+import { acceptFlight, handlePublishPromise, persistFrontendFlightController } from '../mqtt/publishers';
 import {
   aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
@@ -58,7 +58,6 @@ export default observer(function AircraftPopupContent(properties: {
   };
 
   const setController = (): void => {
-    // TODO #97: Implement setController shared across browsers, usinq MQTT
     const listOfTentativeFlights = roleConfigurationStore
       .roleConfigurations.get(configurationStore.currentCWP)?.tentativeAircrafts;
     if (listOfTentativeFlights?.includes(aircraftId)) {
@@ -68,6 +67,9 @@ export default observer(function AircraftPopupContent(properties: {
     aircraftStore.aircrafts.get(aircraftId)?.setController(configurationStore.currentCWP);
     handlePublishPromise(
       acceptFlight(controlledBy, configurationStore.currentCWP, assignedFlightId),
+    );
+    handlePublishPromise(
+      persistFrontendFlightController(aircraftId, configurationStore.currentCWP),
     );
   };
   return (<Container className="flight-popup-container">

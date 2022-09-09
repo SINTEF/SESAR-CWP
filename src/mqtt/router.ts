@@ -6,6 +6,7 @@ import {
   airspaces,
   currentAirspaceConfiguration,
   flightRoutes,
+  frontendFlightController,
   ignored,
   newAircraftMessage,
   newAircraftTypeMessage,
@@ -53,6 +54,7 @@ const router = rlite<Buffer>(notFound, {
   'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': tentativeFlightMessage,
   'ATM/:clientId/status/time': newSimulatorTime,
   'ATM/:clientId/status/:status': ignored,
+  'frontend/:clientId/flight/:flightId/controller': frontendFlightController,
 });
 
 export default router;

@@ -2,13 +2,13 @@ import { transaction } from 'mobx';
 import mqtt from 'mqtt';
 import type { IClientPublishOptions } from 'mqtt';
 
-import clientId from './clientId';
 import router from './router';
+import topics from './topics';
 
 const client = mqtt.connect('ws://localhost:9001/mqtt');
 
 client.addListener('connect', () => {
-  client.subscribe(`ATM/${clientId}/#`, (error) => {
+  client.subscribe(topics, (error) => {
     if (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to subscribe to MQTT topics', error);
