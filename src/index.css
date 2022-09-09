@@ -68,6 +68,9 @@ div#root {
     margin: 0px;
     flex-wrap: nowrap;
 }
+.sector-configuration-body .btn:focus {
+    box-shadow: none;
+}
 .sector-box{
 display: grid;
 width: 500px;

@@ -22,20 +22,18 @@ export default observer(function SectorChangeCountDown(/* properties */) {
   const { timeToNextConfiguration, shouldShowNextConfiguration } = configurationStore;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { toggleShowNextSectorsConfiguration, showNextSectorsConfiguration } = cwpStore;
-  if (timeToNextConfiguration > 600 || timeToNextConfiguration < 0) {
+  if (timeToNextConfiguration > 60_000 || timeToNextConfiguration < 0) {
     return null;
   }
 
   let buttonText = '';
   switch (showNextSectorsConfiguration) {
     case ShowNextConfiguration.Automatic:
+    case ShowNextConfiguration.Off:
       buttonText = 'Show next sectors';
       break;
     case ShowNextConfiguration.On:
       buttonText = 'Show current sectors';
-      break;
-    case ShowNextConfiguration.Off:
-      buttonText = 'Automatic';
       break;
     default:
       throw new Error('Invalid showNextSectorsConfiguration');

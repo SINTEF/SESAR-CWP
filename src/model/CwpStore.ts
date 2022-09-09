@@ -275,6 +275,7 @@ export default class CWPStore {
       this.switchBackToAutomaticNextSectorsConfigurationTimeoutId = 0;
     }
     switch (this.showNextSectorsConfiguration) {
+      case ShowNextConfiguration.Off:
       case ShowNextConfiguration.Automatic:
         this.showNextSectorsConfiguration = ShowNextConfiguration.On;
         this.switchBackToAutomaticNextSectorsConfiguration();
@@ -282,9 +283,6 @@ export default class CWPStore {
       case ShowNextConfiguration.On:
         this.showNextSectorsConfiguration = ShowNextConfiguration.Off;
         this.switchBackToAutomaticNextSectorsConfiguration();
-        break;
-      case ShowNextConfiguration.Off:
-        this.showNextSectorsConfiguration = ShowNextConfiguration.Automatic;
         break;
       default:
         throw new Error('Invalid showNextSectorsConfiguration');
