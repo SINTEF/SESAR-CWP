@@ -40,15 +40,20 @@ const style: React.CSSProperties = {
 };
 
 const handleMapClick = (event: MapLayerMouseEvent): void => {
-  const { currentDistanceColor } = cwpStore;
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const { currentDistanceColor, setCurrentDistanceColor } = cwpStore;
   if (currentDistanceColor !== '') {
     const coordinates = event.lngLat;
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    const { newMarker } = distanceLineStore;
+    const { newMarker, getNumberOfMarkersForColor } = distanceLineStore;
     newMarker({
       coordinates: [coordinates.lng, coordinates.lat],
       color: currentDistanceColor,
     });
+    const numberOfMarkersForColor = getNumberOfMarkersForColor(currentDistanceColor);
+    if (numberOfMarkersForColor >= 2) {
+      setCurrentDistanceColor('');
+    }
   }
 };
 
