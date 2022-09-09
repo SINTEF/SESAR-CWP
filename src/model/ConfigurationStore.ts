@@ -242,7 +242,7 @@ export default class ConfigurationStore {
 
     if (
       // Blink 3 times when less than 10 minutes
-      || (timeToNextConfiguration >= 590 && timeToNextConfiguration <= 600)
+      (timeToNextConfiguration >= 590 && timeToNextConfiguration <= 600)
       // Blink 3 times when less than 5 minutes
       || (timeToNextConfiguration >= 290 && timeToNextConfiguration <= 300)
       // Blink 5 times when less than 2 minutes
