@@ -238,6 +238,10 @@ export default class CWPStore {
     this.showClickedSector = !this.showClickedSector;
   }
 
+  setShowClickedSector(boolean: boolean): void {
+    this.showClickedSector = boolean;
+  }
+
   setClickedSectorId(sectorId: string): void {
     this.clickedSectorId = sectorId;
   }

@@ -22,23 +22,24 @@ export default function TableSectors({
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    setClickedSectorId, toggleClickedSector, clickedSectorId,
+    setClickedSectorId, toggleClickedSector, clickedSectorId, setShowClickedSector,
   } = cwpStore;
   const clickedSectorButton = (value: string): void => {
-    if (controlledSector === value) {
+    if (clickedSectorId === value) {
+      setClickedSectorId(''); // Too remove the selected border line
       toggleClickedSector();
     } else {
-      if (controlledSector === undefined) {
+      if (clickedSectorId === undefined) {
         toggleClickedSector();
       }
       setClickedSectorId(value);
+      setShowClickedSector(true);
     }
   };
   const ascendingSectors = [...sectorsOfArray];
   ascendingSectors.sort(
     (element1, element2) => element1.bottomFlightLevel - element2.bottomFlightLevel
       || element1.topFlightLevel - element2.topFlightLevel);
-
   const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
   const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
     .map((area) => area.bottomFlightLevel));
