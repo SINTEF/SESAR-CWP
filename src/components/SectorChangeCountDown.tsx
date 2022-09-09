@@ -22,8 +22,7 @@ export default observer(function SectorChangeCountDown(/* properties */) {
   const { timeToNextConfiguration, shouldShowNextConfiguration } = configurationStore;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { toggleShowNextSectorsConfiguration, showNextSectorsConfiguration } = cwpStore;
-
-  if (timeToNextConfiguration > 6_000_000) {
+  if (timeToNextConfiguration > 600 || timeToNextConfiguration < 0) {
     return null;
   }
 
