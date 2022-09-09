@@ -13,7 +13,6 @@ const linePaint: LinePaint = {
 };
 
 const lineLayout: LineLayout = {
-  // 'line-cap': 'round',
   'line-join': 'round',
 };
 const measureNamePaint: SymbolPaint = {
@@ -39,8 +38,6 @@ const measurePointsLayout: SymbolLayout = {
   'symbol-placement': 'point',
   'text-field': ['get', 'length'],
   'text-allow-overlap': true,
-  // 'icon-ignore-placement': true,
-  // 'text-keep-upright': true,
   'text-max-angle': 90,
   'text-font': [
     'Open Sans Bold',

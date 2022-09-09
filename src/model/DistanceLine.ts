@@ -43,6 +43,12 @@ export default class DistanceLine {
     this.markersCounter += 1;
   }
 
+  getNumberOfMarkersForColor(color: string): number {
+    return [...this.markers.values()]
+      .filter((marker) => marker.color === color)
+      .length;
+  }
+
   updateMarkerCoordinates(key: number, coordinates: [number, number]): void {
     const marker = this.markers.get(key);
     if (marker) {
