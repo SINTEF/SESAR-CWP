@@ -8,8 +8,6 @@ import { Configuration as OpenAIConfiguration, OpenAIApi } from 'openai';
 import pMemoize from 'p-memoize';
 import pino from 'pino';
 
-import promptText from './prompt.js';
-
 dotenv.config();
 
 const {
@@ -19,6 +17,7 @@ const {
   OPENAI_API_KEY: openaiApiKey,
   LOG_FILE_PATH: logFilePath,
   CORS_REGEX: corsRegex,
+  OPENAI_MODEL: openAiModel,
 } = process.env;
 
 if (!speechKey) {
@@ -51,7 +50,7 @@ const server = fastify({
 });
 
 await server.register(fastifyCors, {
-  origin: new RegExp(corsRegex ?? '/^https?:\\/\\/localhost(:\\d+)?$/'),
+  origin: new RegExp(corsRegex ?? '^https?:\\/\\/localhost(:\\d+)?$'),
 });
 
 // Setup simple authentication
@@ -83,27 +82,20 @@ async function getSpeechToken(): Promise<SpeechToken> {
 }
 
 async function textToCommand(text: string): Promise<string> {
-  let prompt = text.trim();
-  // Add a dot at the end of the prompt if it ends with a non punctuation character
-  if (prompt.length > 0 && !/[!.?]$/.test(prompt)) {
-    prompt += '.';
-  }
+  const prompt = `${text.trim()}:`;
 
   const response = await openai.createCompletion({
-    model: 'text-davinci-002',
-    prompt: `${promptText}\n\n${prompt}`,
+    model: openAiModel ?? 'davinci:ft-sintef-2022-09-09-11-50-22',
+    prompt,
     temperature: 0,
     max_tokens: 100,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
+    stop: [' END'],
   });
 
-  let responseText = response.data.choices?.[0]?.text?.trim() ?? '';
-
-  // Remove the text starting with "Output:"
-  responseText = responseText.replace(/^output:\s*/i, '');
-
+  const responseText = response.data.choices?.[0]?.text?.trim() ?? '';
   return responseText;
 }
 
@@ -130,7 +122,7 @@ server.post('/api-v1/text-to-command', async (request, reply) => {
   await reply.send(command);
 });
 
-server.listen({ port: 3001 }, (error, address) => {
+server.listen({ port: 3001 }, (error) => {
   if (error) {
     throw error;
   }
