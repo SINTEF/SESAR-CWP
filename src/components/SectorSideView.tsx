@@ -6,7 +6,9 @@ import {
   XAxis, YAxis,
 } from 'recharts';
 
-import { configurationStore, roleConfigurationStore, simulatorStore } from '../state';
+import {
+  configurationStore, cwpStore, roleConfigurationStore, simulatorStore,
+} from '../state';
 
 const colorCurrent = '#ffffff';
 const colorNext = 'rgba(135,206,235)';
@@ -19,12 +21,14 @@ export default observer(function SectorSideView() {
     areaOfIncludedAirspaces,
     areaOfIncludedAirspacesForNextConfiguration,
     nextConfiguration,
+    airspaceStore,
   } = configurationStore;
 
   const {
     currentControlledSector,
     nextControlledSector,
   } = roleConfigurationStore;
+  const { clickedSectorId, showClickedSector } = cwpStore;
 
   let timeToChange = 15;
   let timeDifferanse = 10_000;
@@ -32,10 +36,8 @@ export default observer(function SectorSideView() {
   if (!currentControlledSector) {
     return null;
   }
-
-  const airspaceCurrent = areaOfIncludedAirspaces
+  const airspaceCurrent = clickedSectorId !== '' && showClickedSector ? airspaceStore.getAreaFromId(clickedSectorId) : areaOfIncludedAirspaces
     .find(({ sectorId }) => sectorId === currentControlledSector);
-
   if (!airspaceCurrent) {
     return null;
   }
