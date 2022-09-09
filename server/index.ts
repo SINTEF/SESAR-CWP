@@ -17,6 +17,8 @@ const {
   AZURE_SPEECH_REGION: speechRegion,
   BEARER_AUTH_KEYS: bearerAuthKeys,
   OPENAI_API_KEY: openaiApiKey,
+  LOG_FILE_PATH: logFilePath,
+  CORS_REGEX: corsRegex,
 } = process.env;
 
 if (!speechKey) {
@@ -43,13 +45,13 @@ const server = fastify({
   logger: {
     stream: pino.multistream([
       { stream: process.stdout },
-      { stream: pino.destination('./error.log') },
+      { stream: pino.destination(logFilePath ?? './error.log') },
     ]),
   }, 
 });
 
 await server.register(fastifyCors, {
-  origin: /^https?:\/\/localhost(:\d+)?$/,
+  origin: new RegExp(corsRegex ?? '/^https?:\\/\\/localhost(:\\d+)?$/'),
 });
 
 // Setup simple authentication
