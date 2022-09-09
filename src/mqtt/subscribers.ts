@@ -115,3 +115,11 @@ export function roleConfiguration(parameters: unknown, message: Buffer): void {
   const protoMessage = RoleConfigurationMessage.fromBinary(message);
   roleConfigurationStore.handleNewRoleConfigutationMessage(protoMessage);
 }
+
+export function frontendFlightController(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const controller = message.toString();
+  aircraftStore.handleFrontendFlightController(flightId, controller);
+}

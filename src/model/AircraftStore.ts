@@ -180,4 +180,11 @@ export default class AircraftStore {
     const aircraftType = AircraftType.fromProto(newAircraftTypeMessage);
     this.aircraftTypes.set(aircraftType.vehicleTypeId, aircraftType);
   }
+
+  handleFrontendFlightController(flightId: string, controller: string): void {
+    const aircraft = this.aircrafts.get(flightId);
+    if (aircraft) {
+      aircraft.setController(controller);
+    }
+  }
 }

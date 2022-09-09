@@ -84,6 +84,16 @@ export async function acceptFlight(
   );
 }
 
+export async function persistFrontendFlightController(
+  flightUniqueId: string,
+  controller: string,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/controller`,
+    controller,
+    { retain: true },
+  );
+}
+
 export async function tentativeFlight(
   fromControllableSector: string, toControllableSector: string, flightUniqueId: string,
 ): Promise<void> {
