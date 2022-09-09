@@ -108,13 +108,7 @@ export default observer(function SectorFlightList(/* properties */) {
               ETO
             </th>
             <th>
-              OSSR
-            </th>
-            <th>
               C/S
-            </th>
-            <th>
-              NSSR
             </th>
             <th>
               PEL
@@ -144,7 +138,6 @@ export default observer(function SectorFlightList(/* properties */) {
                 <td>
                   Entering time
                 </td>
-                <td />
                 <td>
                   {aircraftData.callSign}
                 </td>
@@ -152,9 +145,7 @@ export default observer(function SectorFlightList(/* properties */) {
                   style={{ color: flightColor(aircraftData.controlledBy) }}
                 >
                 </td>
-                <td>
-                </td>
-                <td />
+                <td>{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
                 <td
                   style={{ color: flightColor(aircraftData.controlledBy) }}
 

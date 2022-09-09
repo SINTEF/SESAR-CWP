@@ -4,7 +4,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Draggable from 'react-draggable';
 
 import {
-  configurationStore, cwpStore, simulatorStore,
+  configurationStore, cwpStore, roleConfigurationStore, simulatorStore,
 } from '../state';
 import TableSectors from './TableSectors';
 import VerticalSectorTimeline from './VerticalSectorTimeline';
@@ -26,7 +26,11 @@ export default observer(function SectorConfiguration() {
     listOfIntervals,
     areaOfIncludedAirspaces,
     areaOfIncludedAirspacesForNextConfiguration,
+    currentCWP,
   } = configurationStore;
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const { getControlledSector } = roleConfigurationStore;
 
   const {
     showClickedSector,
@@ -46,19 +50,19 @@ export default observer(function SectorConfiguration() {
       area: index === 0 ? areaOfIncludedAirspaces : areaOfIncludedAirspacesForNextConfiguration,
       controlledSector: showClickedSector ? clickedSectorId : undefined,
     }));
-
   return (<Draggable bounds="parent" cancel="input">
     <div className="control-panel">
       <Accordion className="sector-configuration-accordion" defaultActiveKey={['0']} alwaysOpen>
         {configurationsToDisplay.map(({
-          id, start, end, startText, endText, area, controlledSector,
+          id, start, end, startText, endText, area,
         }, index) => (
           <Accordion.Item key={`${index}:${id}`} eventKey={`${index}`}>
             <Accordion.Header className="accordion-header">
               From {startText} to {endText}
             </Accordion.Header>
             <Accordion.Body className="accordion-body sector-configuration-body">
-              <TableSectors sectorsOfArray={area} controlledSector={controlledSector}/>
+              <TableSectors sectorsOfArray={area}
+              controlledSector={getControlledSector(currentCWP, id)}/>
               <VerticalSectorTimeline id={`${index}`} start={start} end={end} current={timestamp}/>
             </Accordion.Body>
           </Accordion.Item>
