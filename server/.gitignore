@@ -1,3 +1,4 @@
 node_modules
 .env
 error.log
+voice-ai/fine-tuning-dataset.jsonl

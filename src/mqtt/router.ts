@@ -6,7 +6,9 @@ import {
   airspaces,
   currentAirspaceConfiguration,
   flightRoutes,
+  frontendACCFlightLevel,
   frontendFlightController,
+  frontendNextSectorFlightLevel,
   ignored,
   newAircraftMessage,
   newAircraftTypeMessage,
@@ -55,6 +57,8 @@ const router = rlite<Buffer>(notFound, {
   'ATM/:clientId/status/time': newSimulatorTime,
   'ATM/:clientId/status/:status': ignored,
   'frontend/:clientId/flight/:flightId/controller': frontendFlightController,
+  'frontend/:clientId/flight/:flightId/ACCFL': frontendACCFlightLevel,
+  'frontend/:clientId/flight/:flightId/NSFL': frontendNextSectorFlightLevel,
 });
 
 export default router;

@@ -1,0 +1,107 @@
+# Each line is a voice command and the corresponding response, separated by ": " (colon and space)
+# Lines starting with a # are comments and are ignored.
+# Empty lines are also ignored.
+
+# Invalid commands:
+I would like to order a margarita pizza: invalid-command
+random text: invalid-command
+invalid command: invalid-command
+
+# Antoine's initial examples:
+Show me the speed vectors.: speed-vectors 5
+speed vector to 12: speed-vectors 12
+set the speed vector to the max: speed-vectors 12
+can you set the speed vector to the minimum?: speed-vectors 0
+Hide the flight labels: flight-labels off
+Show me the flight labels: flight-labels on
+I want to see the flight labels: flight-labels on
+No flight labels please: flight-labels off
+The flight labels? I don't want them: flight-labels off
+Display flight labels: flight-labels on
+flight labels off: flight-labels off
+hide flight labels: flight-labels off
+
+# Erik's examples:
+# Sector selector - mine
+show my current sector configuration: sector-config current
+current sector: sector-config current
+my next sector: sector-config next
+next sector: sector-config next
+show next sector configuration: sector-config next
+can I see the current sector?: sector-config current
+I want to see the next sector: sector-config next
+show me my sector please: sector-config current
+what is the next sector going to be?: sector-config next
+
+# Sector selector - left/right
+show current configuration of left sector: sector-config current left
+current right sector: sector-config current right
+show next configuration of left sector: sector-config next left
+next right sector: sector-config next right
+show me the next configuration for the sector on the left: sector-config next left
+Can you display the sector on the right ?: sector-config current right
+I want to see the sector on the left: sector-config current left
+show me the next sector on the right: sector-config next right
+
+# Sector selector - up/down
+show current configuration of upper sector: sector-config current up
+sector up: sector-config current up
+Can you show me the next configuration of the sector below?: sector-config next down
+I would gladly see the sector over: sector-config current up
+What is the next sector above?: sector-config next up
+show current sector below: sector-config current down
+show next sector above: sector-config next up
+show me the next sector under the current one: sector-config next down
+show sector above mine: sector-config current up
+
+# 3D view navigation
+# Same as clicking default button in 3D view navigator
+Default 3D view: 3d-view default
+Default: 3d-view default
+home: 3d-view default
+Home view: 3d-view default
+Normal 3D view: 3d-view default
+Reset the 3D view: 3d-view default
+Bring the 3D view back to normal: 3d-view default
+Set the view navigator to home: 3d-view default
+3D-view default: 3d-view default
+
+# Same as clicking large arrow button ("view from...") in 3D view navigator
+Show 3D view from north: 3d-view north
+Show 3D view from south: 3d-view south
+south: 3d-view south
+east: 3d-view east
+west: 3d-view west
+3D from north: 3d-view north
+show navigator view from west: 3d-view west
+3D view east: 3d-view east
+
+# same as clicking small arrow button ("move view 30 degrees...") in 3D view navigator
+Tilt 3D view to north: 3d-view north 30
+rotate left: 3d-view west 30
+rotate left a little bit: 3d-view west 10
+rotate left a lot: 3d-view west 60
+rotate top small: 3d-view north 10
+rotate top: 3d-view north 30
+rotate north: 3d-view north 30
+rotate a bit up: 3d-view north 10
+rotate a bit down: 3d-view south 10
+tilt to the right: 3d-view east 30
+tilt 3D view to east: 3d-view east 30
+tilt 3D west: 3d-view west 30
+tilt view to north but not much: 3d-view north 10
+to the right: 3d-view east 30
+slightly up: 3d-view north 10
+slightly down: 3d-view south 10
+go to the west 90 degrees: 3d-view west 90
+tilt 3D view to the left a little bit: 3d-view west 10
+
+# Limbo flights
+Highlight flights that should be handed over: flights-handed
+Show me the flights that should be handed over: flights-handed
+Highlight the flights that I will receive: flights-received
+Show me the flights that I will receive: flights-received
+What will I receive?: flights-received
+What will I hand over?: flights-handed
+List of handed over flights: flights-handed
+List of flights I will manage soon: flights-received

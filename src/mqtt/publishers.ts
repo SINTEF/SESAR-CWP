@@ -94,6 +94,26 @@ export async function persistFrontendFlightController(
   );
 }
 
+export async function persistACCFlightLevel(
+  flightUniqueId: string,
+  flightLevel: string,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/ACCFL`,
+    flightLevel,
+    { retain: true },
+  );
+}
+
+export async function persistNextSectorFlightSpeed(
+  flightUniqueId: string,
+  flightLevel: string,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/NSFL`,
+    flightLevel,
+    { retain: true },
+  );
+}
+
 export async function tentativeFlight(
   fromControllableSector: string, toControllableSector: string, flightUniqueId: string,
 ): Promise<void> {

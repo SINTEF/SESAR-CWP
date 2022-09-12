@@ -21,3 +21,11 @@
 .voice-command-feedback-processing .voice-command-feedback-text {
   background-color: rgba(0, 64, 128, 0.5);
 }
+
+.voice-command-feedback-error .voice-command-feedback-text {
+  background-color: rgba(200, 0, 0, 0.5);
+}
+
+.voice-command-feedback-success .voice-command-feedback-text {
+  background-color: rgba(0, 200, 0, 0.5);
+}

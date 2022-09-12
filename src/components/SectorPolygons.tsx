@@ -37,7 +37,7 @@ const sectorNameslayout: SymbolLayout = {
   'text-radial-offset': 0.3,
   'text-variable-anchor': ['center', 'left', 'right', 'top', 'bottom', 'top-left', 'top-right', 'bottom-left', 'bottom-right'],
   'text-font': [
-    'Open Sans Bold',
+    'IBM Plex Mono Bold',
   ],
   'text-size': 14,
 };

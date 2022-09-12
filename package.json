@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "^4.5.11",
+    "@fontsource/ibm-plex-sans": "^4.5.12",
     "@mapbox/sphericalmercator": "^1.2.0",
     "@protobuf-ts/runtime": "^2.8.1",
     "@turf/boolean-point-in-polygon": "^6.5.0",

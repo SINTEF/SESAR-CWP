@@ -2,6 +2,7 @@ import 'microsoft-cognitiveservices-speech-sdk/distrib/browser/microsoft.cogniti
 
 import type * as SpeechSDKType from 'microsoft-cognitiveservices-speech-sdk/distrib/lib/microsoft.cognitiveservices.speech.sdk';
 
+import { ProcessingCommandStatus } from '../model/VoiceStore';
 import { voiceStore } from '../state';
 import HandleCommand from './commands';
 
@@ -96,14 +97,16 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
     const { result: { text } } = event;
     const shortFinalText = text?.trim() ?? '';
     if (shortFinalText !== '') {
-      voiceStore.setProcessingCommand(true);
+      voiceStore.setProcessingCommand(ProcessingCommandStatus.Processing);
+
       TextToCommand(shortFinalText).then((command) => {
         HandleCommand(command);
+      }).then(() => {
+        voiceStore.setProcessingCommand(ProcessingCommandStatus.Success);
       }).catch((error) => {
         // eslint-disable-next-line no-console
         console.error('voice error', error);
-      }).finally(() => {
-        voiceStore.setProcessingCommand(false);
+        voiceStore.setProcessingCommand(ProcessingCommandStatus.Error);
       });
     }
   };
