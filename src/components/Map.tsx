@@ -19,12 +19,19 @@ import LimboAircrafts from './LimboAircrafts';
 import Sectors from './Sectors';
 import SpeedVectors from './SpeedVectors';
 
+// Do not load the RTL plugin because it is unecessary
+try {
+  // @ts-expect-error invalid type
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  maplibregl.setRTLTextPlugin('', () => {}, true);
+} catch { /* ignore error */ }
+
 const mapStyle: Style = {
   version: 8,
   name: 'Black',
   metadata: {},
   sources: {},
-  glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+  glyphs: '/map-fonts/{fontstack}/{range}.pbf',
   layers: [{
     id: 'background',
     type: 'background',

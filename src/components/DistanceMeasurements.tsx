@@ -27,7 +27,7 @@ const measureLinesLayout: SymbolLayout = {
   'text-allow-overlap': false,
   'text-max-angle': 90,
   'text-font': [
-    'Open Sans Bold',
+    'IBM Plex Mono Bold',
   ],
   'text-size': 9,
   'text-offset': [0, -1],
@@ -40,7 +40,7 @@ const measurePointsLayout: SymbolLayout = {
   'text-allow-overlap': true,
   'text-max-angle': 90,
   'text-font': [
-    'Open Sans Bold',
+    'IBM Plex Mono Bold',
   ],
   'text-size': 12,
   'text-offset': [0, -1],

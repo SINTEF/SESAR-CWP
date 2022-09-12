@@ -18,9 +18,9 @@ const fixNameLayout: SymbolLayout = {
   'text-field': ['get', 'title'],
   'text-allow-overlap': true,
   'text-font': [
-    'Open Sans Bold',
+    'IBM Plex Mono',
   ],
-  'text-size': 7,
+  'text-size': 8,
   'text-offset': [0, 0.5],
   'text-anchor': 'top',
 };

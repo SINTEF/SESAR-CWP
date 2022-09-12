@@ -78,7 +78,7 @@ const layoutSymbol: SymbolLayout = {
   'text-field': ['get', 'title'],
   'text-allow-overlap': true,
   'text-font': [
-    'Open Sans Bold',
+    'IBM Plex Mono Bold',
   ],
   'text-size': 8,
   'text-offset': [0, 0.45],
