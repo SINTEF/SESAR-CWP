@@ -5,6 +5,7 @@ import ReactMapGL, { NavigationControl } from 'react-map-gl';
 import type { Style } from 'mapbox-gl';
 import type { ViewState } from 'react-map-gl';
 
+import SectorsVoiceControl from '../voice/SectorsVoiceControl';
 import Compass from './Compass';
 import Polygons3D from './Polygons3D';
 
@@ -26,9 +27,10 @@ const style: React.CSSProperties = {
   background: 'black',
 };
 
-const initialViewState: Partial<ViewState> = {
+export const initialViewState: Partial<ViewState> = {
   longitude: 9.27,
   latitude: 45.11,
+  bearing: 0,
   zoom: 6.3,
   pitch: 40,
 };
@@ -55,6 +57,7 @@ export default function Sectors3DView(): JSX.Element {
       <Polygons3D />
       <Compass/>
       <NavigationControl visualizePitch={true} />
+      <SectorsVoiceControl />
     </ReactMapGL>
   );
 }

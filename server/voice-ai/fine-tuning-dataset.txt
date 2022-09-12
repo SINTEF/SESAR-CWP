@@ -64,6 +64,7 @@ Normal 3D view: 3d-view default
 Reset the 3D view: 3d-view default
 Bring the 3D view back to normal: 3d-view default
 Set the view navigator to home: 3d-view default
+3D-view default: 3d-view default
 
 # Same as clicking large arrow button ("view from...") in 3D view navigator
 Show 3D view from north: 3d-view north
@@ -92,6 +93,8 @@ tilt view to north but not much: 3d-view north 10
 to the right: 3d-view east 30
 slightly up: 3d-view north 10
 slightly down: 3d-view south 10
+go to the west 90 degrees: 3d-view west 90
+tilt 3D view to the left a little bit: 3d-view west 10
 
 # Limbo flights
 Highlight flights that should be handed over: flights-handed

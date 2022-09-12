@@ -2,18 +2,27 @@ import { makeAutoObservable } from 'mobx';
 
 const CURRENT_TEXT_DURATION = 2000;
 
+export enum ProcessingCommandStatus {
+  NotProcessing,
+  Processing,
+  Error,
+  Success,
+}
+
 export default class VoiceStore {
   listening = false;
 
   currentText = '';
 
-  processingCommand = false;
+  processingCommandStatus: ProcessingCommandStatus = ProcessingCommandStatus.NotProcessing;
 
   clearCurrentTextTimeoutId = 0;
 
   constructor() {
     makeAutoObservable(this, {
       clearCurrentTextTimeoutId: false,
+    }, {
+      autoBind: true,
     });
   }
 
@@ -25,15 +34,16 @@ export default class VoiceStore {
     this.currentText = currentText.trim();
     window.clearTimeout(this.clearCurrentTextTimeoutId);
     this.clearCurrentTextTimeoutId = window.setTimeout(() => {
-      this.clearCurrentText();
+      this.clear();
     }, CURRENT_TEXT_DURATION);
   }
 
-  clearCurrentText(): void {
+  private clear(): void {
     this.currentText = '';
+    this.processingCommandStatus = ProcessingCommandStatus.NotProcessing;
   }
 
-  setProcessingCommand(processingCommand: boolean): void {
-    this.processingCommand = processingCommand;
+  setProcessingCommand(processingCommand: ProcessingCommandStatus): void {
+    this.processingCommandStatus = processingCommand;
   }
 }

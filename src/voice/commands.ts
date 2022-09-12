@@ -1,4 +1,5 @@
 import { cwpStore } from '../state';
+import ThreeDViewCommand from './ThreeDViewCommand';
 
 function convertHumanStringToBoolean(input: string): boolean {
   /** Handle on/off, yes/no, true/false, 1/0, etc... */
@@ -8,6 +9,7 @@ function convertHumanStringToBoolean(input: string): boolean {
 }
 
 export default function HandleCommand(input: string): void {
+  console.log('Command:', input);
   /** A command is a set of word separated by spaces. */
   const [command, ...commandArguments] = input.split(/\s+/);
   switch (command.toLowerCase()) {
@@ -33,8 +35,10 @@ export default function HandleCommand(input: string): void {
         cwpStore.setSpeedVectorMinutes(Math.max(0, Math.min(15, length)));
       }
       break;
+    case '3d-view':
+      ThreeDViewCommand(commandArguments);
+      break;
     default:
-      // eslint-disable-next-line no-console
-      console.info('unimplemented or invalid voice command:', command);
+      throw new Error(`Unknown command: ${command}`);
   }
 }

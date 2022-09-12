@@ -23,16 +23,16 @@ export default observer(function MicrophoneButton() {
 
   let text;
   if (loading) {
-    text = 'Loading';
+    text = '⏳ Loading';
   } else if (hasErrorState) {
-    text = 'Error';
+    text = '❌ Error';
   } else if (listening) {
-    text = 'Stop';
+    text = '🔴 Stop';
   } else {
-    text = 'Start';
+    text = '🎙 Start';
   }
 
   return (<button type="button" onClick={handleClick}>
-    🎙 {text}
+    {text}
   </button>);
 });
