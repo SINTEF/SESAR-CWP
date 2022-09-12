@@ -123,3 +123,19 @@ export function frontendFlightController(
   const controller = message.toString();
   aircraftStore.handleFrontendFlightController(flightId, controller);
 }
+
+export function frontendACCFlightLevel(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const level = message.toString();
+  aircraftStore.handleFrontendACCFlightLevel(flightId, level);
+}
+
+export function frontendNextSectorFlightLevel(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const level = message.toString();
+  aircraftStore.handleFrontendNextSectorFlightLevel(flightId, level);
+}

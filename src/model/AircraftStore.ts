@@ -182,9 +182,14 @@ export default class AircraftStore {
   }
 
   handleFrontendFlightController(flightId: string, controller: string): void {
-    const aircraft = this.aircrafts.get(flightId);
-    if (aircraft) {
-      aircraft.setController(controller);
-    }
+    this.aircrafts.get(flightId)?.setController(controller);
+  }
+
+  handleFrontendACCFlightLevel(flightId: string, flightLevel: string): void {
+    this.aircrafts.get(flightId)?.setNextACCFL(flightLevel);
+  }
+
+  handleFrontendNextSectorFlightLevel(flightId: string, flightLevel: string): void {
+    this.aircrafts.get(flightId)?.setNextSectorFL(flightLevel);
   }
 }

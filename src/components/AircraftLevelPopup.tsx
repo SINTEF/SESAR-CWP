@@ -3,7 +3,12 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 
-import { changeFlightLevelOfAircraft, handlePublishPromise } from '../mqtt/publishers';
+import {
+  changeFlightLevelOfAircraft,
+  handlePublishPromise,
+  persistACCFlightLevel,
+  persistNextSectorFlightSpeed,
+} from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -77,9 +82,15 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
     if (cwpStore.nextSectorFlActivated) {
       cwpStore.showNSFL(false);
       setNextSectorFL(stringFlightLevel);
+      handlePublishPromise(
+        persistNextSectorFlightSpeed(assignedFlightId, stringFlightLevel),
+      );
     } else if (cwpStore.flightLevelNextAccActivated) {
       cwpStore.showFlACC(false);
       setNextACCFL(stringFlightLevel);
+      handlePublishPromise(
+        persistACCFlightLevel(assignedFlightId, stringFlightLevel),
+      );
     } else if (!cwpStore.pseudoPilot) {
       setLocalAssignedFlightLevel(stringFlightLevel);
     } else {
