@@ -2,6 +2,7 @@ import {
   AddAcceptedFlightMessage,
   AddTentativeFlightMessage,
   AirspaceAvailabilityMessage,
+  AirTrafficControllerAssignmentMessage,
   AvailabilityIntervalsMessage,
   CurrentAirspaceConfigurationMessage,
   FlightMilestonePositionMessage,
@@ -96,6 +97,7 @@ export function newFlightMilestonePositions(parameters: unknown, message: Buffer
 }
 export function newAvailabilityIntervalsMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = AvailabilityIntervalsMessage.fromBinary(message);
+  console.log('newAvailabilityIntervalsMessage', protoMessage);
   configurationStore.handleAvailabilityIntervalsMessage(protoMessage);
 }
 export function acceptedFlightMessage(parameters: unknown, message: Buffer): void {
@@ -114,6 +116,11 @@ export function roleConfiguration(parameters: unknown, message: Buffer): void {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const protoMessage = RoleConfigurationMessage.fromBinary(message);
   roleConfigurationStore.handleNewRoleConfigutationMessage(protoMessage);
+}
+export function airTrafficControllerMessage(parameters: unknown, message: Buffer): void {
+  const protoMessage = AirTrafficControllerAssignmentMessage.fromBinary(message);
+  console.log(protoMessage);
+  roleConfigurationStore.handleNewAirTrafficControllerMessage(protoMessage);
 }
 
 export function frontendFlightController(

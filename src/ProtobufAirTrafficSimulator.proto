@@ -6,7 +6,7 @@ package ProtobufAirTrafficSimulator;
 
 // Changing the file
 // protoc --js_out=import_style=commonjs,binary:. ProtobufAirTrafficSimulator.proto
-
+// For changing file here: npm run protoc
 // ###################################################################################
 // * Enumerations, begin.                                                            |
 //  ##################################################################################
@@ -622,6 +622,10 @@ message TesselatedAirspaceVolumeMessage {
 message NewAirspaceVolumeFlightListMessage {
   string airspaceVolumeId         = 1;  // Id of the airspace volume this flight list belongs to.
   repeated string flightsInVolume = 2; //Ids of all the flights in this volume.
+}
+message AirTrafficControllerAssignmentMessage{
+  string airTrafficControllerId = 1;
+  repeated string sectorIds = 2; 
 }
 
 message AddAcceptedFlightMessage {

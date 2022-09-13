@@ -4,7 +4,7 @@ import type { Position } from '@turf/turf';
 import type { ObservableMap } from 'mobx';
 
 import RoleConfigurationModel from './RoleConfigurationModel';
-import type { RoleConfigurationMessage } from '../proto/ProtobufAirTrafficSimulator';
+import type { AirTrafficControllerAssignmentMessage, RoleConfigurationMessage } from '../proto/ProtobufAirTrafficSimulator';
 import type AircraftModel from './AircraftModel';
 import type AircraftStore from './AircraftStore';
 import type ConfigurationStore from './ConfigurationStore';
@@ -33,25 +33,11 @@ export default class RoleConfigurationStore {
     this.configurationStore = configurationStore;
     this.aircraftStore = aircraftStore;
     this.getControlledSector = this.getControlledSector.bind(this);
-
-    // Dummy data - we will get it directly from the new simulator
-    // For debug choose dataset 2
-    this.setControlledSector('CWP_NW', 'CONF12E', 'LIMM_RUN16_COBOS_12S8_SECTOR_17');
-    this.setControlledSector('CWP_NE', 'CONF12E', 'LIMM_RUN16_COBOS_11S9_SECTOR_17');
-    this.setControlledSector('CWP_S', 'CONF12E', 'LIMM_RUN16_COBOS_11S10_SECTOR_16');
-
-    this.setControlledSector('CWP_NW', 'CONF12D', 'LIMM_RUN16_COBOS_11S6_SECTOR_15');
-    this.setControlledSector('CWP_NE', 'CONF12D', 'LIMM_RUN16_COBOS_11S5_SECTOR_15');
-    this.setControlledSector('CWP_S', 'CONF12D', 'LIMM_RUN16_COBOS_10S9_SECTOR_15');
-
-    this.setControlledSector('CWP_NW', 'CONF11N', 'LIMM_RUN16_COBOS_11S10_SECTOR_20');
-    this.setControlledSector('CWP_NE', 'CONF11N', 'LIMM_RUN16_COBOS_12S9_SECTOR_17');
-    this.setControlledSector('CWP_S', 'CONF11N', 'LIMM_RUN16_COBOS_12S11_SECTOR_15');
   }
 
-  get currentControlledSector(): string {
+  get currentControlledSector(): string | undefined {
     const { currentCWP, currentConfigurationId } = this.configurationStore;
-    return this.getControlledSector(currentCWP, currentConfigurationId);
+    return this.findCurrentSectorByCWP(currentCWP, currentConfigurationId);
   }
 
   get nextControlledSector(): string | undefined {
@@ -97,6 +83,22 @@ export default class RoleConfigurationStore {
     cwpRole?.addTentativeAircraft(tentativeFlights);
   }
 
+  findCurrentSectorByCWP(cwp:string, config: string):string | undefined {
+    const listOfSectorIds = this.roleConfigurations
+      .get(cwp)?.sectorsToControl;
+    const includedAirspaces = this.configurationStore.getAreaOfIncludedAirpaces(config);
+    if (listOfSectorIds) {
+      for (const sector of listOfSectorIds) {
+        const area = RoleConfigurationStore
+          .getAreaForSector(includedAirspaces, sector);
+        if (area) {
+          return sector;
+        }
+      }
+    }
+    return undefined;
+  }
+
   private static getAreaForSector(areas: ISectorModel[], sector: string)
     : CoordinatePair[] | undefined {
     const area = areas.find(({ sectorId }) => sectorId === sector);
@@ -111,21 +113,56 @@ export default class RoleConfigurationStore {
   }
 
   get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
-    return RoleConfigurationStore.getAreaForSector(
-      this.configurationStore.areaOfIncludedAirspaces,
-      this.currentControlledSector,
-    );
+    const listOfSectorIds = this.roleConfigurations
+      .get(this.configurationStore.currentCWP)?.sectorsToControl;
+    if (listOfSectorIds) {
+      for (const sector of listOfSectorIds) {
+        const area = RoleConfigurationStore
+          .getAreaForSector(this.configurationStore.areaOfIncludedAirspaces, sector);
+        if (area) {
+          return area;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  getcolorBySectorId(sectorId: string): string {
+    const color = [...this.roleConfigurations]
+      .map(([index, array]) => (array.inSectorToControl(sectorId)
+        ? this.roleConfigurations
+          .get(index)?.assignedColorById : undefined)).find((element) => element !== undefined);
+    return color ?? '#555';
+  }
+
+  handleNewAirTrafficControllerMessage(newAirTrafficControllerMessage:
+  AirTrafficControllerAssignmentMessage): void {
+    const roleName = `CWP${newAirTrafficControllerMessage.airTrafficControllerId}`;
+    const controllingSectors = newAirTrafficControllerMessage.sectorIds;
+    this.roleConfigurations.set(roleName, new RoleConfigurationModel({
+      cwpRoleName: roleName,
+    }));
+    this.roleConfigurations.get(roleName)?.replaceSectorsToControl(controllingSectors);
+    this.roleConfigurations.get(roleName)?.setAssignedColor();
   }
 
   get areaOfNextControlledSector(): CoordinatePair[] | undefined {
-    const { nextControlledSector, configurationStore } = this;
-    if (!nextControlledSector) {
+    if (!this.nextControlledSector) {
       return undefined;
     }
-    return RoleConfigurationStore.getAreaForSector(
-      configurationStore.areaOfIncludedAirspacesForNextConfiguration,
-      nextControlledSector,
-    );
+    const listOfSectorIds = this.roleConfigurations
+      .get(this.configurationStore.currentCWP)?.sectorsToControl;
+    if (listOfSectorIds) {
+      for (const sector of listOfSectorIds) {
+        const area = RoleConfigurationStore
+          .getAreaForSector(this.configurationStore
+            .areaOfIncludedAirspacesForNextConfiguration, sector);
+        if (area) {
+          return area;
+        }
+      }
+    }
+    return undefined;
   }
 
   get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
@@ -147,5 +184,21 @@ export default class RoleConfigurationStore {
       return temporaryAircrafts;
     }
     return [];
+  }
+
+  get listOfAllControllers(): string[] {
+    const controllers: string[] = [];
+    for (const value of this.roleConfigurations) {
+      controllers.push(value[0]);
+    }
+    return controllers;
+  }
+
+  get listOfAllPseudoControllers():string[] {
+    const pseudoControllers: string[] = [];
+    for (const value of this.roleConfigurations) {
+      pseudoControllers.push(`${value[0]} PseudoPilot`);
+    }
+    return pseudoControllers;
   }
 }

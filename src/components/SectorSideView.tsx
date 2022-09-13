@@ -33,9 +33,6 @@ export default observer(function SectorSideView() {
   let timeToChange = 15;
   let timeDifferanse = 10_000;
 
-  if (!currentControlledSector) {
-    return null;
-  }
   const airspaceCurrent = clickedSectorId !== '' && showClickedSector ? airspaceStore.getAreaFromId(clickedSectorId) : areaOfIncludedAirspaces
     .find(({ sectorId }) => sectorId === currentControlledSector);
   if (!airspaceCurrent) {

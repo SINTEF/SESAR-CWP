@@ -3,7 +3,7 @@ import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 import type { FillExtrusionPaint, FillPaint } from 'mapbox-gl';
 
-import { configurationStore, cwpStore } from '../state';
+import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 
 const sectorPaint: FillPaint = {
   'fill-color': ['get', 'color'],
@@ -16,7 +16,6 @@ const sectorFillPaint: FillExtrusionPaint = {
   'fill-extrusion-base': ['get', 'base_height'],
   'fill-extrusion-opacity': 0.8,
 };
-const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#DDD555', '#01539d', '#e9b4d0', '#8c9441', '#c82169'];
 
 function ConvertFlightLevelToMeters(altitude: number): number {
   const feet = altitude * 100;
@@ -24,12 +23,12 @@ function ConvertFlightLevelToMeters(altitude: number): number {
   return meters;
 }
 
-const setHighlighted3DPolygon = (id: string, index: number): string => {
+const setHighlighted3DPolygon = (id: string): string | undefined => {
   if (id === cwpStore.clickedSectorId) {
     return '#fff';
   }
-
-  return fillColors[index];
+  const color = roleConfigurationStore.getcolorBySectorId(id);
+  return color;
 };
 
 export default observer(function SectorPolygons(/* properties */) {
@@ -40,21 +39,20 @@ export default observer(function SectorPolygons(/* properties */) {
   sectorData
     .sort((a, b) => b.bottomFlightLevel - a.bottomFlightLevel
       || b.topFlightLevel - a.topFlightLevel);
-  const minBottomLevel = Math.min(...sectorData.map((a) => a.bottomFlightLevel));
-  let counter = 0;
+  // const minBottomLevel = Math.min(...sectorData.map((a) => a.bottomFlightLevel));
   const sectors: GeoJSON.Feature[] = sectorData.map((area) => {
     const title = area.sectorId;
     const coordinates = area.sectorArea.map((point) => (
       [point.longitude, point.latitude]),
     );
-    counter += 1;
     return {
       type: 'Feature',
       properties: {
         t: `${title}-${area.bottomFlightLevel}-${area.topFlightLevel}`,
-        color: setHighlighted3DPolygon(title, counter),
-        height: ConvertFlightLevelToMeters(area.topFlightLevel - minBottomLevel) * 8,
-        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel - minBottomLevel) * 8,
+        color: setHighlighted3DPolygon(title),
+        height: ConvertFlightLevelToMeters(area.topFlightLevel - 205 > 415 ? 415 - 205
+          : area.topFlightLevel - 205) * 30,
+        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel - 205) * 30,
       },
       geometry: {
         type: 'Polygon',

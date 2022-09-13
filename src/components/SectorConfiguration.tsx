@@ -30,7 +30,7 @@ export default observer(function SectorConfiguration() {
   } = configurationStore;
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { getControlledSector } = roleConfigurationStore;
+  const { findCurrentSectorByCWP } = roleConfigurationStore;
 
   const {
     showClickedSector,
@@ -62,7 +62,7 @@ export default observer(function SectorConfiguration() {
             </Accordion.Header>
             <Accordion.Body className="accordion-body sector-configuration-body">
               <TableSectors sectorsOfArray={area}
-              controlledSector={getControlledSector(currentCWP, id)}/>
+              controlledSector={findCurrentSectorByCWP(currentCWP, id)}/>
               <VerticalSectorTimeline id={`${index}`} start={start} end={end} current={timestamp}/>
             </Accordion.Body>
           </Accordion.Item>
