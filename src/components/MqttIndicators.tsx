@@ -12,6 +12,8 @@ import {
   onConnect, onDisconnect, onPacketReceive, onPacketSend,
 } from '../mqtt/mqtt';
 
+const DEBOUNCE_DELAY = 128;
+
 export default class MqttIndicators extends Component<unknown, {
   connected: boolean,
   sending: boolean,
@@ -19,9 +21,15 @@ export default class MqttIndicators extends Component<unknown, {
 }> {
   blinkingDelay: number;
 
-  receiveTimeoutId: number;
+  receiveStartTimeoutId: number;
 
-  sendTimeoutId: number;
+  receiveEndTimeoutId: number;
+
+  sendStartTimeoutId: number;
+
+  sendEndTimeoutId: number;
+
+  connectDisconnectTimeoutId: number;
 
   removeOnConnect?: () => void;
 
@@ -42,8 +50,12 @@ export default class MqttIndicators extends Component<unknown, {
 
     this.blinkingDelay = 100;
 
-    this.receiveTimeoutId = 0;
-    this.sendTimeoutId = 0;
+    this.receiveStartTimeoutId = 0;
+    this.receiveEndTimeoutId = 0;
+    this.sendStartTimeoutId = 0;
+    this.sendEndTimeoutId = 0;
+
+    this.connectDisconnectTimeoutId = 0;
 
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
@@ -67,28 +79,54 @@ export default class MqttIndicators extends Component<unknown, {
     this.removeOnPacketSend?.();
   }
 
+  private onConnectDisconnect(connected: boolean): void {
+    if (this.connectDisconnectTimeoutId !== 0) {
+      window.clearTimeout(this.connectDisconnectTimeoutId);
+    }
+    this.connectDisconnectTimeoutId = window.setTimeout(() => {
+      this.setState({ connected });
+      this.connectDisconnectTimeoutId = 0;
+    }, DEBOUNCE_DELAY);
+  }
+
   onConnect(): void {
-    this.setState({ connected: true });
+    this.onConnectDisconnect(true);
   }
 
   onDisconnect(): void {
-    this.setState({ connected: false });
+    this.onConnectDisconnect(false);
   }
 
   onPacketReceive(): void {
-    this.setState({ receiving: true });
-    clearTimeout(this.receiveTimeoutId);
-    this.receiveTimeoutId = window.setTimeout(() => {
-      this.setState({ receiving: false });
-    }, this.blinkingDelay);
+    if (this.receiveEndTimeoutId !== 0) {
+      window.clearTimeout(this.receiveEndTimeoutId);
+      this.receiveEndTimeoutId = 0;
+    }
+    if (this.receiveStartTimeoutId === 0) {
+      this.receiveStartTimeoutId = window.setTimeout(() => {
+        this.receiveStartTimeoutId = 0;
+        this.setState({ receiving: true });
+        this.receiveEndTimeoutId = window.setTimeout(() => {
+          this.setState({ receiving: false });
+        }, this.blinkingDelay);
+      }, DEBOUNCE_DELAY);
+    }
   }
 
   onPacketSend(): void {
-    this.setState({ sending: true });
-    clearTimeout(this.sendTimeoutId);
-    this.sendTimeoutId = window.setTimeout(() => {
-      this.setState({ sending: false });
-    }, this.blinkingDelay);
+    if (this.sendEndTimeoutId !== 0) {
+      window.clearTimeout(this.sendEndTimeoutId);
+      this.sendEndTimeoutId = 0;
+    }
+    if (this.sendStartTimeoutId === 0) {
+      this.sendStartTimeoutId = window.setTimeout(() => {
+        this.sendStartTimeoutId = 0;
+        this.setState({ sending: true });
+        this.sendEndTimeoutId = window.setTimeout(() => {
+          this.setState({ sending: false });
+        }, this.blinkingDelay);
+      }, DEBOUNCE_DELAY);
+    }
   }
 
   render(): JSX.Element {
