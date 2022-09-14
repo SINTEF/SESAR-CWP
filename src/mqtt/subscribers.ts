@@ -2,6 +2,7 @@ import {
   AddAcceptedFlightMessage,
   AddTentativeFlightMessage,
   AirspaceAvailabilityMessage,
+  AirTrafficControllerAssignmentMessage,
   AvailabilityIntervalsMessage,
   CurrentAirspaceConfigurationMessage,
   FlightMilestonePositionMessage,
@@ -111,9 +112,12 @@ export function tentativeFlightMessage(parameters: unknown, message: Buffer): vo
   // aircraftStore.handleTentativeFlightMessage(protoMessage);
 }
 export function roleConfiguration(parameters: unknown, message: Buffer): void {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const protoMessage = RoleConfigurationMessage.fromBinary(message);
   roleConfigurationStore.handleNewRoleConfigutationMessage(protoMessage);
+}
+export function airTrafficControllerMessage(parameters: unknown, message: Buffer): void {
+  const protoMessage = AirTrafficControllerAssignmentMessage.fromBinary(message);
+  roleConfigurationStore.handleNewAirTrafficControllerMessage(protoMessage);
 }
 
 export function frontendFlightController(

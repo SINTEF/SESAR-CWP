@@ -46,9 +46,9 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
             </h6>
           </Col>
           <Col className="range-wrapper align-self-start">
-            <input type="range" value={highestBound} className="range" min="500" max="1000"
+            <input type="range" value={highestBound} className="range" min={lowestBound} max="1000"
               onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
-            <input type="range" value={lowestBound} className="range" min="0" max="500"
+            <input type="range" value={lowestBound} className="range" min="0" max={highestBound}
               onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
           </Col>
         </Row>

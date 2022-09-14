@@ -1,10 +1,8 @@
 import React from 'react';
 import { Button, Card } from 'react-bootstrap';
 
-import { cwpStore } from '../state';
+import { cwpStore, roleConfigurationStore } from '../state';
 import type { ISectorModel } from '../model/ISectorModel';
-
-const fillColors = ['#fff', '#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#40f', '#DDD555', '#01539d', '#e9b4d0', '#8c9441', '#c82169'];
 
 const findGridPositionColumn = (sectorName: string): number | string => {
   if (sectorName.includes('W')) {
@@ -138,19 +136,21 @@ export default function TableSectors({
   };
   const isSectorForCWP = (sectorId: string): boolean => sectorId === controlledSector;
   for (let index = 1; index < sectorsOfArray.length + 1; index += 1) {
-    const { topFlightLevel } = sectorsOfArray[sectorsOfArray.length - index];
-    const { bottomFlightLevel } = sectorsOfArray[sectorsOfArray.length - index];
+    const {
+      bottomFlightLevel, sectorId,
+      topFlightLevel,
+    } = sectorsOfArray[sectorsOfArray.length - index];
     buttons.push(
       <Button
           className={`table-button 
-          ${isSectorForCWP(sectorsOfArray[sectorsOfArray.length - index].sectorId) ? 'highlight-sector' : ''}
-          ${clickedSectorId === sectorsOfArray[sectorsOfArray.length - index].sectorId ? 'clicked-sector' : ''}`}
-          key={sectorsOfArray[sectorsOfArray.length - index].sectorId}
+          ${isSectorForCWP(sectorId) ? 'highlight-sector' : ''}
+          ${clickedSectorId === sectorId ? 'clicked-sector' : ''}`}
+          key={sectorId}
           style={{
-            order: `${findGridPositionColumn(sectorsOfArray[sectorsOfArray.length - index].sectorId)}`,
+            order: `${findGridPositionColumn(sectorId)}`,
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
-            backgroundColor: fillColors[index],
+            backgroundColor: roleConfigurationStore.getcolorBySectorId(sectorId),
           }}
           onClick={(): void => clickedSectorButton(
             sectorsOfArray[sectorsOfArray.length - index].sectorId,

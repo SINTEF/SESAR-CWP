@@ -4,22 +4,17 @@ import {
   Modal, ToggleButton, ToggleButtonGroup,
 } from 'react-bootstrap';
 
-import { configurationStore, cwpStore } from '../state';
-
-// Need to create a role configuration file for the exercise to access the different roles
-const controllers = [
-  'CWP_NW',
-  'CWP_NE',
-  'CWP_S',
-  'Master',
-];
+import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 
 export default observer(function ControllerModal() {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { showControllerSelection, toggleControllerSelection, setPseudoPilot } = cwpStore;
-  const [pseudoPilots, setPseudoPilotsList] = React.useState<string[]>([]);
   const [selectedCWP, setSelectedCWP] = React.useState<string>('');
+  const listOfControllers = roleConfigurationStore.listOfAllControllers;
+  const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
   const controller = configurationStore.currentCWP;
+  const listOfAll = [...listOfControllers, ...pseudoPilots, 'All'];
+
   const handleSelect = (targetValue: string): void => {
     const valueSplit = targetValue.split(' ');
     const cwp = valueSplit[0];
@@ -33,13 +28,9 @@ export default observer(function ControllerModal() {
     configurationStore.setCurrentCWP(cwp);
     toggleControllerSelection();
   };
-  React.useEffect(() => {
-    const listPseudoPilots = controllers.filter((control) => control !== 'Master').map((control) => `${control} PseudoPilot`);
-    setPseudoPilotsList(listPseudoPilots);
-  }, [controllers]); // Temporary controllers, before we get the names
 
   // True if the controller has already been selected
-  const secondSelection = controllers.includes(controller) || controller === 'All';
+  const secondSelection = listOfAll.includes(controller);
 
   return (
     <Modal
@@ -60,8 +51,9 @@ export default observer(function ControllerModal() {
       <Modal.Body>
 
         <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
-          {controllers.map(
-            (name) => (<ToggleButton value={name === 'Master' ? 'All' : name} id={name === 'Master' ? 'All' : name} key={name === 'Master' ? 'All' : name}>{name}</ToggleButton>))}
+          {listOfControllers.map(
+            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
+          <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
         </ToggleButtonGroup>
         <br/>
         <br/>

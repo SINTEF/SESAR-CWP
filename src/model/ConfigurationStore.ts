@@ -119,7 +119,7 @@ export default class ConfigurationStore {
     }
   }
 
-  private getAreaOfIncludedAirpaces(configurationId: string): ISectorModel[] {
+  getAreaOfIncludedAirpaces(configurationId: string): ISectorModel[] {
     const configuration = this.configurations.get(configurationId);
     // Force the mobx update whenever the airspaces change size (new airspaces are received)
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions

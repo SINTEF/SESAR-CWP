@@ -14,9 +14,8 @@ const handleFlightClicked = (event: string): void => {
 };
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
-  const currentSector:string = roleConfigurationStore.currentControlledSector;
+  const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
-  // const [listOfSectorAircrafts, setlistOfSectorAircrafts] = React.useState<AircraftModel[]>([]);
   const listOfAircraftsInSector = roleConfigurationStore.listOfFlightsInCurrentSector;
 
   if (!cwpStore.showFL) return null;
@@ -39,7 +38,7 @@ export default observer(function AircraftListElement(/* properties */) {
             <th colSpan={2}>
               FL Sector :
               {' '}
-              {currentSector.slice(-14)}
+              {currentSector ?? ''}
             </th>
           </tr>
           <tr>

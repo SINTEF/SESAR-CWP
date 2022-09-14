@@ -16,7 +16,6 @@ export default observer(function SectorPolygons(/* properties */) {
   if (!areaOfCurrentControlledSector || configurationStore.currentCWP === '') {
     return null;
   }
-
   const coordinates = areaOfCurrentControlledSector.map((point) => (
     [point.longitude, point.latitude]),
   );
