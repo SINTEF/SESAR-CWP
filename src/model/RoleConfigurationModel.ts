@@ -7,7 +7,8 @@ const flightColors = ['#f59', '#0bb', '#94a', '#b00', '#f80', '#f63', '#3c0', '#
 export default class RoleConfigurationModel {
   cwpRoleName = '';
 
-  sectorToConfiguration: ObservableMap<string, SectorToConfiguration> = observable.map();
+  sectorToConfiguration: ObservableMap<string, SectorToConfiguration> = observable.map(
+    undefined, { deep: false });
 
   sectorsToControl: Array<string> = [];
 

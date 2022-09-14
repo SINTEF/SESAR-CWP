@@ -15,7 +15,9 @@ const ControllerButton = observer(function ControllerButton() {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { toggleControllerSelection } = cwpStore;
   return (
-    <button type="button" onClick={(): void => toggleControllerSelection()}>{currentCWP}</button>
+    <button type="button" onClick={(): void => toggleControllerSelection()}>
+      {currentCWP || 'Controller'}
+    </button>
   );
 });
 

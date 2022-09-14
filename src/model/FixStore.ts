@@ -8,7 +8,7 @@ import type {
 } from '../proto/ProtobufAirTrafficSimulator';
 
 export default class FixStore {
-  fixes: ObservableMap<string, FixModel> = observable.map();
+  fixes: ObservableMap<string, FixModel> = observable.map(undefined, { deep: false });
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });

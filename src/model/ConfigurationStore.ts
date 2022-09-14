@@ -19,9 +19,11 @@ import type SimulatorStore from './SimulatorStore';
 export default class ConfigurationStore {
   currentConfigurationId = '';
 
-  configurations: ObservableMap<string, ConfigurationModel> = observable.map();
+  configurations: ObservableMap<string, ConfigurationModel> = observable.map(
+    undefined, { deep: false });
 
-  configurationPlan: ObservableMap<string, ConfigurationTime> = observable.map();
+  configurationPlan: ObservableMap<string, ConfigurationTime> = observable.map(
+    undefined, { deep: false });
 
   airspaceStore: AirspaceStore;
 

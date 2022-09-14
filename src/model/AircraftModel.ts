@@ -157,11 +157,24 @@ export default class AircraftModel {
       return;
     }
     this.lastTargetReportTime = timestamp;
-    this.lastKnownAltitude = convertToFlightMeters(altitude);
-    this.lastKnownLatitude = latitude;
-    this.lastKnownLongitude = longitude;
-    this.lastKnownBearing = bearing;
-    this.lastKnownSpeed = speed;
+    const altitudeInFlightMeters = convertToFlightMeters(altitude);
+    if (altitudeInFlightMeters !== this.lastKnownAltitude) {
+      this.lastKnownAltitude = altitudeInFlightMeters;
+    }
+    if (latitude !== this.lastKnownLatitude) {
+      this.lastKnownLatitude = latitude;
+    }
+    if (longitude !== this.lastKnownLongitude) {
+      this.lastKnownLongitude = longitude;
+    }
+    // Round because we had a lot of invisible updates
+    const roundedBearing = Math.round(bearing * 10) / 10;
+    if (roundedBearing !== this.lastKnownBearing) {
+      this.lastKnownBearing = roundedBearing;
+    }
+    if (speed !== this.lastKnownSpeed) {
+      this.lastKnownSpeed = speed;
+    }
   }
 
   handleTargetMilestone(milestone: FlightMilestonePositionMessage): void {

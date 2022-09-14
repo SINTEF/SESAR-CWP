@@ -533,6 +533,17 @@ user-select: none;
 .controller-modal .modal-body {
     padding-bottom: 1.5rem;
 }
+.controller-modal .btn-group {
+    flex-wrap: wrap;
+    gap: 0.333rem;
+}
+.controller-modal .btn-group .btn {
+    border-top-left-radius: 0.2rem !important;
+    border-top-right-radius: 0.2rem !important;
+    border-bottom-left-radius: 0.2rem !important;
+    border-bottom-right-radius: 0.2rem !important;
+    width: 25%;
+}
 
 /* Pseudo popup */
 
