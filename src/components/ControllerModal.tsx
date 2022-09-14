@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import * as React from 'react';
 import {
-  Modal, ToggleButton, ToggleButtonGroup,
+  Modal, Spinner, ToggleButton, ToggleButtonGroup,
 } from 'react-bootstrap';
 
 import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
@@ -32,6 +32,8 @@ export default observer(function ControllerModal() {
   // True if the controller has already been selected
   const secondSelection = listOfAll.includes(controller);
 
+  const isLoading = listOfAll.length === 1;
+
   return (
     <Modal
       show={showControllerSelection}
@@ -49,18 +51,21 @@ export default observer(function ControllerModal() {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-
-        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
-          {listOfControllers.map(
-            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
-          <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
-        </ToggleButtonGroup>
-        <br/>
-        <br/>
-        <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
-          {pseudoPilots.map(
-            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
-        </ToggleButtonGroup>
+        { isLoading ? (
+          <Spinner animation="border" variant="light" />
+        ) : (<>
+          <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
+            {listOfControllers.map(
+              (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
+            <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
+          </ToggleButtonGroup>
+          <br/>
+          <br/>
+          <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
+            {pseudoPilots.map(
+              (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
+          </ToggleButtonGroup>
+        </>)}
       </Modal.Body>
     </Modal>
 
