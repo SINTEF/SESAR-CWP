@@ -18,13 +18,13 @@ import type {
 import type SimulatorStore from './SimulatorStore';
 
 export default class AircraftStore {
-  aircrafts: ObservableMap<string, AircraftModel> = observable.map();
+  aircrafts: ObservableMap<string, AircraftModel> = observable.map(undefined, { deep: false });
 
-  aircraftInfo: ObservableMap<string, AircraftInfo> = observable.map();
+  aircraftInfo: ObservableMap<string, AircraftInfo> = observable.map(undefined, { deep: false });
 
-  aircraftTypes: ObservableMap<string, AircraftType> = observable.map();
+  aircraftTypes: ObservableMap<string, AircraftType> = observable.map(undefined, { deep: false });
 
-  flightRoutes: ObservableMap<string, FlightRoute> = observable.map();
+  flightRoutes: ObservableMap<string, FlightRoute> = observable.map(undefined, { deep: false });
 
   simulatorStore: SimulatorStore;
 

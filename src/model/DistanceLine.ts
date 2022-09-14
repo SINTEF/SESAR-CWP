@@ -23,7 +23,7 @@ export function getLength(coordinates: number[][]): string {
 export default class DistanceLine {
   markersCounter = 0;
 
-  markers: ObservableMap<number, MarkerElement> = observable.map();
+  markers: ObservableMap<number, MarkerElement> = observable.map(undefined, { deep: false });
 
   constructor() {
     makeAutoObservable(this,

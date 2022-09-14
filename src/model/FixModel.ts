@@ -8,7 +8,7 @@ export default class FixModel {
 
   longitude = 0;
 
-  sectorFlightList: ObservableMap<string, unknown> = observable.map();
+  sectorFlightList: ObservableMap<string, unknown> = observable.map(undefined, { deep: false });
 
   constructor({
     pointId,

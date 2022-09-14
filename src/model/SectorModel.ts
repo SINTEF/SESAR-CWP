@@ -38,7 +38,7 @@ export default class SectorModel implements ISectorModel {
   }
 
   updateSectorArea(newSectorArea: CoordinatePair[]): void {
-    this.sectorArea = observable.array(newSectorArea);
+    this.sectorArea = observable.array(newSectorArea, { deep: false });
   }
 
   updateFlightLevels(newBottomFlightLevel: number, newTopFlightLevel: number): void {

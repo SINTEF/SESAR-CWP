@@ -12,7 +12,8 @@ import type CoordinatePair from './CoordinatePair';
 import type { ISectorModel } from './ISectorModel';
 
 export default class RoleConfigurationStore {
-  roleConfigurations: ObservableMap<string, RoleConfigurationModel> = observable.map();
+  roleConfigurations: ObservableMap<string, RoleConfigurationModel> = observable.map(
+    undefined, { deep: false });
 
   configurationStore: ConfigurationStore;
 

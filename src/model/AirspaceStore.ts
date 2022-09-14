@@ -6,7 +6,7 @@ import SectorModel from './SectorModel';
 import type { NewAirspaceMessage } from '../proto/ProtobufAirTrafficSimulator';
 
 export default class AirspaceStore {
-  airspaces: ObservableMap<string, SectorModel> = observable.map();
+  airspaces: ObservableMap<string, SectorModel> = observable.map(undefined, { deep: false });
 
   constructor() {
     makeAutoObservable(this, {

@@ -9,7 +9,8 @@ export default class ConfigurationModel {
 
   edges: CoordinatePair[];
 
-  includedAirspaces: ObservableMap<string, AirspaceVolumeReference> = observable.map();
+  includedAirspaces: ObservableMap<string, AirspaceVolumeReference> = observable.map(
+    undefined, { deep: false });
 
   constructor({
     configurationId,
