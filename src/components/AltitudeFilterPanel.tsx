@@ -34,22 +34,26 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
             <h6>
               H:
               <input className="input-filter" style={{ width: '2.5em' }} type="text" value={highestBound}
-                onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
+                onChange={(event): void => setHighBound(
+                  Number.parseInt(event.target.value, 10) || 0)} />
               {' '}
             </h6>
             <h6>
               L:
               <input className="input-filter" style={{ width: '2.5em' }} type="text" value={lowestBound}
-                onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
+                onChange={(event): void => setLowBound(
+                  Number.parseInt(event.target.value, 10) || 0)} />
 
               {' '}
             </h6>
           </Col>
           <Col className="range-wrapper align-self-start">
             <input type="range" value={highestBound} className="range" min={lowestBound} max="1000"
-              onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
+              onChange={(event): void => setHighBound(
+                Number.parseInt(event.target.value, 10) || 0)} />
             <input type="range" value={lowestBound} className="range" min="0" max={highestBound}
-              onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
+              onChange={(event): void => setLowBound(
+                Number.parseInt(event.target.value, 10) || 0)} />
           </Col>
         </Row>
       </Card.Body>

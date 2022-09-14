@@ -148,7 +148,7 @@ export function frontendACCBearing(
   { flightId }: { [key: string]: string },
   message: Buffer,
 ): void {
-  const bearing = Number.parseInt(message.toString(), 10) ?? 0;
+  const bearing = Number.parseInt(message.toString(), 10) || 0;
   aircraftStore.handleFrontendACCBearing(flightId, bearing);
 }
 
@@ -164,6 +164,14 @@ export function frontendSpeed(
   { flightId }: { [key: string]: string },
   message: Buffer,
 ): void {
-  const speed = Number.parseInt(message.toString(), 10) ?? 0;
+  const speed = Number.parseInt(message.toString(), 10) || 0;
   aircraftStore.handleFrontendSpeed(flightId, speed);
+}
+
+export function frontendLocalAssignedFlightLevel(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const level = message.toString();
+  aircraftStore.handleFrontendLocalAssignedFlightLevel(flightId, level);
 }

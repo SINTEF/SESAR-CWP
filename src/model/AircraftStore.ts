@@ -204,4 +204,8 @@ export default class AircraftStore {
   handleFrontendSpeed(flightId: string, speed: number): void {
     this.aircrafts.get(flightId)?.setAssignedSpeed(speed);
   }
+
+  handleFrontendLocalAssignedFlightLevel(flightId: string, flightLevel: string): void {
+    this.aircrafts.get(flightId)?.setLocalAssignedFlightLevel(flightLevel);
+  }
 }

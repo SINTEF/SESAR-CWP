@@ -1,3 +1,6 @@
+import {
+  bbox, bboxPolygon, buffer, polygon,
+} from '@turf/turf';
 import { makeAutoObservable, observable } from 'mobx';
 import type { ObservableMap } from 'mobx';
 
@@ -174,6 +177,48 @@ export default class ConfigurationStore {
       return [];
     }
     return edges.map((edge) => ([edge.longitude, edge.latitude]));
+  }
+
+  get edgesBounds(): {
+    minLat: number, maxLat: number,
+    minLon: number, maxLon: number,
+  } | undefined {
+    const edges = this.edgesPolygon;
+    if (edges.length === 0) {
+      return undefined;
+    }
+    // use turf to calculate the bounds
+    const bounds = bbox(polygon([
+      [...edges, edges[0]],
+    ]));
+
+    return {
+      minLat: bounds[1],
+      maxLat: bounds[3],
+      minLon: bounds[0],
+      maxLon: bounds[2],
+    };
+  }
+
+  get extendedEdgesBounds(): {
+    minLat: number, maxLat: number,
+    minLon: number, maxLon: number,
+  } | undefined {
+    const bounds = this.edgesBounds;
+    if (!bounds) {
+      return undefined;
+    }
+
+    const extendedBounds = bbox(buffer(bboxPolygon(
+      [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat],
+    ), 100, { units: 'kilometers' }));
+
+    return {
+      minLat: extendedBounds[1],
+      maxLat: extendedBounds[3],
+      minLon: extendedBounds[0],
+      maxLon: extendedBounds[2],
+    };
   }
 
   get sortedConfigurationPlan(): IConfigurationTime[] {

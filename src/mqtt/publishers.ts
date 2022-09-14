@@ -104,7 +104,7 @@ export async function persistACCFlightLevel(
   );
 }
 
-export async function persistNextSectorFlightSpeed(
+export async function persistNextSectorFlightLevel(
   flightUniqueId: string,
   flightLevel: string,
 ): Promise<void> {
@@ -148,6 +148,16 @@ export async function persistSpeedAircraft(
 ): Promise<void> {
   await publish(`frontend/${clientId}/flight/${flightUniqueId}/speed`,
     speed.toFixed(0),
+    { retain: true },
+  );
+}
+
+export async function persistLocalAssignedFlightLevel(
+  flightUniqueId: string,
+  flightLevel: string,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/localAssignedFL`,
+    flightLevel,
     { retain: true },
   );
 }
