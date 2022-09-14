@@ -37,7 +37,7 @@ const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Ele
   return (<td onClick={setController} colSpan={colSpan}>{callSign}</td>);
 });
 
-const Altitude = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+export const Altitude = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const onClick = (): void => {
     if (isDragging()) return;
     cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
@@ -76,7 +76,7 @@ const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
     </td>);
 });
 
-const NextSectorFL = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+export const NextSectorFL = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const openNSFLPopup = (): void => {
     if (isDragging()) return;
     cwpStore.showNSFL(true);
@@ -90,7 +90,7 @@ const NextSectorFL = observer(({ aircraft }: SubContentProperties): JSX.Element 
   );
 });
 
-const NextSectorController = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+export const NextSectorController = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const onClick = (): void => {
     if (isDragging()) return;
     cwpStore.openNextSectorPopupForAircraft(aircraft.aircraftId);
@@ -100,13 +100,14 @@ const NextSectorController = observer(({ aircraft }: SubContentProperties): JSX.
   </td>);
 });
 
-const LocalAssignedFlightLevel = observer(({ aircraft }: SubContentProperties): JSX.Element => (
+export const LocalAssignedFlightLevel = observer(({ aircraft }: SubContentProperties,
+): JSX.Element => (
   <td>
     {aircraft.localAssignedFlightLevel}
   </td>
 ));
 
-const NextACCFlightLevel = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+export const NextACCFlightLevel = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const openNextACCPopup = (): void => {
     if (isDragging()) return;
     cwpStore.showFlACC(true);

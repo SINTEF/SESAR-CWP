@@ -1,7 +1,6 @@
 import rlite from 'rlite-router';
 
 import {
-  acceptedFlightMessage,
   airspaceAvailability,
   airspaces,
   airTrafficControllerMessage,
@@ -18,7 +17,6 @@ import {
   newAircraftMessage,
   newAircraftTypeMessage,
   newAirspaceConfiguration,
-  newAirspaceVolumeFlightList,
   newAvailabilityIntervalsMessage,
   newFlight,
   newFlightMilestonePositions,
@@ -27,7 +25,6 @@ import {
   notFound,
   roleConfiguration,
   targetReport,
-  tentativeFlightMessage,
 } from './subscribers';
 
 const router = rlite<Buffer>(notFound, {
@@ -57,9 +54,9 @@ const router = rlite<Buffer>(notFound, {
   'ATM/:clientId/CurrentAirspaceConfiguration': currentAirspaceConfiguration,
   'ATM/:clientId/AirTrafficControllerAssignmentMessage/:objectId/:time': airTrafficControllerMessage,
   'ATM/:clientId/TesselatedAirspaceVolume/:airspaceVolumeId': ignored,
-  'ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId': newAirspaceVolumeFlightList,
-  'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': acceptedFlightMessage,
-  'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': tentativeFlightMessage,
+  'ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId': ignored,
+  'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': ignored,
+  'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': ignored,
   'ATM/:clientId/status/time': newSimulatorTime,
   'ATM/:clientId/status/:status': ignored,
   'frontend/:clientId/flight/:flightId/controller': frontendFlightController,
