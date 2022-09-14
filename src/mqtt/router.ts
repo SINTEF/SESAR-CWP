@@ -7,9 +7,12 @@ import {
   airTrafficControllerMessage,
   currentAirspaceConfiguration,
   flightRoutes,
+  frontendACCBearing,
   frontendACCFlightLevel,
+  frontendAssignedFlightLevel,
   frontendFlightController,
   frontendNextSectorFlightLevel,
+  frontendSpeed,
   ignored,
   newAircraftMessage,
   newAircraftTypeMessage,
@@ -61,6 +64,9 @@ const router = rlite<Buffer>(notFound, {
   'frontend/:clientId/flight/:flightId/controller': frontendFlightController,
   'frontend/:clientId/flight/:flightId/ACCFL': frontendACCFlightLevel,
   'frontend/:clientId/flight/:flightId/NSFL': frontendNextSectorFlightLevel,
+  'frontend/:clientId/flight/:flightId/ACCBearing': frontendACCBearing,
+  'frontend/:clientId/flight/:flightId/assignedFL': frontendAssignedFlightLevel,
+  'frontend/:clientId/flight/:flightId/speed': frontendSpeed,
 });
 
 export default router;

@@ -7,6 +7,7 @@ import {
   changeFlightLevelOfAircraft,
   handlePublishPromise,
   persistACCFlightLevel,
+  persistAssignedFlightLevel,
   persistNextSectorFlightSpeed,
 } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
@@ -97,6 +98,9 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
       setAssignedFlightLevel(stringFlightLevel);
       handlePublishPromise(
         changeFlightLevelOfAircraft(controlledBy, assignedFlightId, stringFlightLevel),
+      );
+      handlePublishPromise(
+        persistAssignedFlightLevel(assignedFlightId, stringFlightLevel),
       );
     }
     close();

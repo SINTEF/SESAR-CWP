@@ -143,3 +143,27 @@ export function frontendNextSectorFlightLevel(
   const level = message.toString();
   aircraftStore.handleFrontendNextSectorFlightLevel(flightId, level);
 }
+
+export function frontendACCBearing(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const bearing = Number.parseInt(message.toString(), 10) ?? 0;
+  aircraftStore.handleFrontendACCBearing(flightId, bearing);
+}
+
+export function frontendAssignedFlightLevel(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const level = message.toString();
+  aircraftStore.handleFrontendAssignedFlightLevel(flightId, level);
+}
+
+export function frontendSpeed(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const speed = Number.parseInt(message.toString(), 10) ?? 0;
+  aircraftStore.handleFrontendSpeed(flightId, speed);
+}
