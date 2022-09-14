@@ -3,6 +3,7 @@ import React from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import Draggable from 'react-draggable';
 
+import { isDragging, startDragging, stopDragging } from '../draggableState';
 import {
   configurationStore, cwpStore, roleConfigurationStore, simulatorStore,
 } from '../state';
@@ -50,14 +51,23 @@ export default observer(function SectorConfiguration() {
       area: index === 0 ? areaOfIncludedAirspaces : areaOfIncludedAirspacesForNextConfiguration,
       controlledSector: showClickedSector ? clickedSectorId : undefined,
     }));
-  return (<Draggable bounds="parent" cancel="input">
+  return (<Draggable
+    bounds="parent" cancel="input"
+    onStart={startDragging}
+    onStop={stopDragging}
+    >
     <div className="control-panel">
       <Accordion className="sector-configuration-accordion" defaultActiveKey={['0']} alwaysOpen>
         {configurationsToDisplay.map(({
           id, start, end, startText, endText, area,
         }, index) => (
           <Accordion.Item key={`${index}:${id}`} eventKey={`${index}`}>
-            <Accordion.Header className="accordion-header">
+            <Accordion.Header className="accordion-header"
+            onClickCapture={(event): void => {
+              if (isDragging()) {
+                event.stopPropagation();
+              }
+            }}>
               From {startText} to {endText}
             </Accordion.Header>
             <Accordion.Body className="accordion-body sector-configuration-body">

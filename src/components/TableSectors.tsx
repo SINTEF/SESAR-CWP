@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Card } from 'react-bootstrap';
 
+import { isDragging } from '../draggableState';
 import { cwpStore, roleConfigurationStore } from '../state';
 import type { ISectorModel } from '../model/ISectorModel';
 
@@ -152,9 +153,12 @@ export default function TableSectors({
             gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
             backgroundColor: roleConfigurationStore.getcolorBySectorId(sectorId),
           }}
-          onClick={(): void => clickedSectorButton(
-            sectorsOfArray[sectorsOfArray.length - index].sectorId,
-          )}
+          onClick={(): void => {
+            if (isDragging()) return;
+            clickedSectorButton(
+              sectorsOfArray[sectorsOfArray.length - index].sectorId,
+            );
+          }}
         >
         <Card.Body>
           <Card.Title className="sector-title">
