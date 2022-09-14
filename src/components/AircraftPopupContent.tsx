@@ -1,9 +1,6 @@
 import { observer } from 'mobx-react-lite';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
-import {
-  Col, Container, Row,
-} from 'react-bootstrap';
 
 import { isDragging } from '../draggableState';
 import { acceptFlight, handlePublishPromise, persistFrontendFlightController } from '../mqtt/publishers';
@@ -12,52 +9,17 @@ import {
 } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
-export default observer(function AircraftPopupContent(properties: {
+type SubContentProperties = {
   aircraft: AircraftModel;
-}) {
-  const { aircraft } = properties;
+  colSpan?: number;
+};
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const {
-    aircraftId,
-    assignedFlightId,
-    lastKnownAltitude: altitude,
-    callSign,
-    speedAndWakeTurbulenceLabel,
-    controlledBy,
-    nextSectorController,
-    nextFix,
-    localAssignedFlightLevel,
-    setLocalAssignedFlightLevel,
-    nextSectorFL,
-    setNextSectorFL,
-    nextACCFL,
-    setNextACCFL,
-  } = aircraft;
-  if (nextSectorFL === altitude.toFixed(0)) {
-    setNextSectorFL('NSFL');
-  }
-  if (nextACCFL === altitude.toFixed(0)) {
-    setNextACCFL('COO');
-  }
-  if (localAssignedFlightLevel === altitude.toFixed(0)) {
-    setLocalAssignedFlightLevel(' ');
-  }
-  const openNextACCPopup = (): void => {
-    cwpStore.showFlACC(true);
-    cwpStore.openLevelPopupForAircraft(aircraftId);
-  };
-  const openNSFLPopup = (): void => {
-    cwpStore.showNSFL(true);
-    cwpStore.openLevelPopupForAircraft(aircraftId);
-  };
-  const middleClickNextWaypoint = (event: React.MouseEvent<HTMLElement>): void => {
-    if (event.button === 1) {
-      cwpStore.toggleFlightRouteForAircraft(aircraftId);
-    }
-  };
-
+const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
+  const { callSign } = aircraft;
   const setController = (): void => {
+    if (isDragging()) return;
+    const { aircraftId, controlledBy, assignedFlightId } = aircraft;
+
     const listOfTentativeFlights = roleConfigurationStore
       .roleConfigurations.get(configurationStore.currentCWP)?.tentativeAircrafts;
     if (listOfTentativeFlights?.includes(aircraftId)) {
@@ -72,26 +34,114 @@ export default observer(function AircraftPopupContent(properties: {
       persistFrontendFlightController(aircraftId, configurationStore.currentCWP),
     );
   };
-  return (<Container className="flight-popup-container">
-    <Row>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && setController()}>{callSign}</Col>
-    </Row>
-    <Row>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openLevelPopupForAircraft(aircraftId)}>{Number.parseFloat((altitude).toFixed(0))}</Col>
-      <Col className="gutter-2" onMouseDown={middleClickNextWaypoint}>
-        {nextFix}
-      </Col>
-      <Col className="gutter-2" />
-    </Row>
-    <Row>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.toggleSpeedVectorForAircraft(aircraftId)}>{speedAndWakeTurbulenceLabel}</Col>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNSFLPopup()}>{nextSectorFL}</Col>
-      <Col className="gutter-2" />
-    </Row>
-    <Row>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && cwpStore.openNextSectorPopupForAircraft(aircraftId)}>{nextSectorController}</Col>
-      <Col className="gutter-2">{localAssignedFlightLevel}</Col>
-      <Col className="gutter-2" onClick={(): false | void => !isDragging() && openNextACCPopup()}>{nextACCFL}</Col>
-    </Row>
-  </Container>);
+  return (<td onClick={setController} colSpan={colSpan}>{callSign}</td>);
+});
+
+const Altitude = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const onClick = (): void => {
+    if (isDragging()) return;
+    cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
+  };
+  return (<td onClick={onClick}>
+    {Number.parseFloat((aircraft.lastKnownAltitude).toFixed(0))}
+  </td>);
+});
+
+const SpeedAndWakeTurbulenceLabel = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const onClick = (): void => {
+    if (isDragging()) return;
+    cwpStore.toggleSpeedVectorForAircraft(aircraft.aircraftId);
+  };
+
+  return (
+    <td onClick={onClick}>
+      {aircraft.speedAndWakeTurbulenceLabel}
+    </td>
+  );
+});
+
+const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const middleClickNextWaypoint = (event: React.MouseEvent<HTMLElement>): void => {
+    if (event.button === 1) {
+      cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
+    }
+  };
+
+  const { nextFix, assignedBearing } = aircraft;
+  const showNextFix = assignedBearing === -1 || assignedBearing === undefined;
+
+  return (
+    <td onMouseDown={middleClickNextWaypoint} >
+      {showNextFix ? nextFix : '--'}
+    </td>);
+});
+
+const NextSectorFL = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const openNSFLPopup = (): void => {
+    if (isDragging()) return;
+    cwpStore.showNSFL(true);
+    cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
+  };
+  return (
+    <td
+        onClick={openNSFLPopup}>
+      {aircraft.nextSectorFL}
+    </td>
+  );
+});
+
+const NextSectorController = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const onClick = (): void => {
+    if (isDragging()) return;
+    cwpStore.openNextSectorPopupForAircraft(aircraft.aircraftId);
+  };
+  return (<td onClick={onClick}>
+    {aircraft.nextSectorController}
+  </td>);
+});
+
+const LocalAssignedFlightLevel = observer(({ aircraft }: SubContentProperties): JSX.Element => (
+  <td>
+    {aircraft.localAssignedFlightLevel}
+  </td>
+));
+
+const NextACCFlightLevel = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const openNextACCPopup = (): void => {
+    if (isDragging()) return;
+    cwpStore.showFlACC(true);
+    cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
+  };
+
+  return (<td onClick={openNextACCPopup}>
+    {aircraft.nextACCFL}
+  </td>);
+});
+
+export default observer(function AircraftPopupContent(properties: {
+  aircraft: AircraftModel;
+}) {
+  const { aircraft } = properties;
+  return (
+    <table className="flight-popup-container">
+      <tbody>
+        <tr>
+          <CallSign aircraft={aircraft} colSpan={2} />
+        </tr>
+        <tr>
+          <Altitude aircraft={aircraft}/>
+          <NextFix aircraft={aircraft}/>
+        </tr>
+        <tr>
+          <SpeedAndWakeTurbulenceLabel aircraft={aircraft}/>
+          <NextSectorFL aircraft={aircraft}/>
+        </tr>
+        <tr>
+          <NextSectorController aircraft={aircraft}/>
+          <LocalAssignedFlightLevel aircraft={aircraft}/>
+          <NextACCFlightLevel aircraft={aircraft}/>
+        </tr>
+      </tbody>
+    </table>
+  );
 });
