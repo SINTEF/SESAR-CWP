@@ -532,6 +532,7 @@ user-select: none;
 
 .controller-modal .modal-body {
     padding-bottom: 1.5rem;
+    text-align: center;
 }
 .controller-modal .btn-group {
     flex-wrap: wrap;
