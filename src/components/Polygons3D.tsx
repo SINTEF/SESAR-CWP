@@ -23,12 +23,11 @@ function ConvertFlightLevelToMeters(altitude: number): number {
   return meters;
 }
 
-const setHighlighted3DPolygon = (id: string): string | undefined => {
+const setHighlighted3DPolygon = (id: string): string => {
   if (id === cwpStore.clickedSectorId) {
     return '#fff';
   }
-  const color = roleConfigurationStore.getcolorBySectorId(id);
-  return color;
+  return roleConfigurationStore.getcolorBySectorId(id);
 };
 
 export default observer(function SectorPolygons(/* properties */) {
@@ -39,7 +38,6 @@ export default observer(function SectorPolygons(/* properties */) {
   sectorData
     .sort((a, b) => b.bottomFlightLevel - a.bottomFlightLevel
       || b.topFlightLevel - a.topFlightLevel);
-  // const minBottomLevel = Math.min(...sectorData.map((a) => a.bottomFlightLevel));
   const sectors: GeoJSON.Feature[] = sectorData.map((area) => {
     const title = area.sectorId;
     const coordinates = area.sectorArea.map((point) => (
