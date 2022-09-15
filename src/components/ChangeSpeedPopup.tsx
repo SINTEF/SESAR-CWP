@@ -42,12 +42,12 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
 
   return (
     <div className="change-speed">
-      <div>
+      <form onSubmit={(event):void => { event.preventDefault(); submit(); }}>
         New Speed:
         <input className="input-filter-popup" type="number" min="0"
             value={newSpeed}
             onChange={(event): void => setNewSpeed(event.target.value)}/>
-      </div>
+      </form>
       <div className="submit-cancel-buttons">
         <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
         <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
