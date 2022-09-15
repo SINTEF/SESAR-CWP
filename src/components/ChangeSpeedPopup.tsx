@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 
-import { changeSpeedOfAircraft, handlePublishPromise } from '../mqtt/publishers';
+import { changeSpeedOfAircraft, handlePublishPromise, persistSpeedAircraft } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
@@ -15,7 +15,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     setAssignedSpeed,
   } = properties.aircraft;
 
-  const [newSpeed, setNewSpeed] = React.useState(0);
+  const [newSpeed, setNewSpeed] = React.useState('');
 
   const shouldShow = cwpStore.aircraftWithSpeedChangePopup.has(aircraftId);
   if (!shouldShow) {
@@ -25,19 +25,18 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   const close = (): void => cwpStore.closeChangeSpeedForAircraft(aircraftId);
 
   const submit = (): void => {
+    const newSpeedNumber = Math.max(Math.min(Number.parseInt(newSpeed, 10), 9999), 0);
     if (Number.isNaN(newSpeed)) {
       return;
     }
-    setAssignedSpeed(newSpeed);
-    if (configurationStore.currentCWP === 'All') {
-      handlePublishPromise(
-        changeSpeedOfAircraft('All', assignedFlightId, newSpeed),
-      );
-    } else {
-      handlePublishPromise(
-        changeSpeedOfAircraft(controlledBy, assignedFlightId, newSpeed),
-      );
-    }
+    setAssignedSpeed(newSpeedNumber);
+    const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
+    handlePublishPromise(
+      changeSpeedOfAircraft(pilotId, assignedFlightId, newSpeedNumber),
+    );
+    handlePublishPromise(
+      persistSpeedAircraft(assignedFlightId, newSpeedNumber),
+    );
     close();
   };
 
@@ -47,8 +46,7 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
         New Speed:
         <input className="input-filter-popup" type="number" min="0"
             value={newSpeed}
-            onChange={(event): void => setNewSpeed(Number.parseInt(event.target.value, 10))}
-        />
+            onChange={(event): void => setNewSpeed(event.target.value)}/>
       </div>
       <div className="submit-cancel-buttons">
         <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>

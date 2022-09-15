@@ -192,4 +192,20 @@ export default class AircraftStore {
   handleFrontendNextSectorFlightLevel(flightId: string, flightLevel: string): void {
     this.aircrafts.get(flightId)?.setNextSectorFL(flightLevel);
   }
+
+  handleFrontendACCBearing(flightId: string, bearing: number): void {
+    this.aircrafts.get(flightId)?.setAssignedBearing(bearing);
+  }
+
+  handleFrontendAssignedFlightLevel(flightId: string, flightLevel: string): void {
+    this.aircrafts.get(flightId)?.setAssignedFlightLevel(flightLevel);
+  }
+
+  handleFrontendSpeed(flightId: string, speed: number): void {
+    this.aircrafts.get(flightId)?.setAssignedSpeed(speed);
+  }
+
+  handleFrontendLocalAssignedFlightLevel(flightId: string, flightLevel: string): void {
+    this.aircrafts.get(flightId)?.setLocalAssignedFlightLevel(flightLevel);
+  }
 }

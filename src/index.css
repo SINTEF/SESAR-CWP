@@ -277,12 +277,16 @@ gap: 0px;
 }
 
 .flight-popup-main .btn {
-    padding: 0 0.25rem;
+    padding: 0rem 0.2rem 0rem 1.5rem;
+    margin: 0;
     background: none;
     border: none;
     position: absolute;
     top: 0;
     right: 0;
+    line-height: 1em;
+    font-family: var(--sesar-font-mono);
+    font-size: 0.8rem;
 } 
 
 .flight-popup-main {
@@ -296,9 +300,11 @@ user-select: none;
 
 .flight-popup-container {
     border-spacing: 0;
+    width: 100%;
+    max-width: 100%;
 }
 
-.flight-popup .gutter-2 {
+.flight-popup td {
     line-height: 1.4em;
     margin: 0;
     padding: 0 0.25rem 0 0.25rem;
@@ -321,7 +327,6 @@ user-select: none;
     /* color: white; */
     padding: 0;
     margin: 0;
-    width: 11em;
     z-index: 0;
 }
 

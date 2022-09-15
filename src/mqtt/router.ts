@@ -1,20 +1,22 @@
 import rlite from 'rlite-router';
 
 import {
-  acceptedFlightMessage,
   airspaceAvailability,
   airspaces,
   airTrafficControllerMessage,
   currentAirspaceConfiguration,
   flightRoutes,
+  frontendACCBearing,
   frontendACCFlightLevel,
+  frontendAssignedFlightLevel,
   frontendFlightController,
+  frontendLocalAssignedFlightLevel,
   frontendNextSectorFlightLevel,
+  frontendSpeed,
   ignored,
   newAircraftMessage,
   newAircraftTypeMessage,
   newAirspaceConfiguration,
-  newAirspaceVolumeFlightList,
   newAvailabilityIntervalsMessage,
   newFlight,
   newFlightMilestonePositions,
@@ -23,7 +25,6 @@ import {
   notFound,
   roleConfiguration,
   targetReport,
-  tentativeFlightMessage,
 } from './subscribers';
 
 const router = rlite<Buffer>(notFound, {
@@ -53,14 +54,18 @@ const router = rlite<Buffer>(notFound, {
   'ATM/:clientId/CurrentAirspaceConfiguration': currentAirspaceConfiguration,
   'ATM/:clientId/AirTrafficControllerAssignmentMessage/:objectId/:time': airTrafficControllerMessage,
   'ATM/:clientId/TesselatedAirspaceVolume/:airspaceVolumeId': ignored,
-  'ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId': newAirspaceVolumeFlightList,
-  'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': acceptedFlightMessage,
-  'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': tentativeFlightMessage,
+  'ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId': ignored,
+  'ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId': ignored,
+  'ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId': ignored,
   'ATM/:clientId/status/time': newSimulatorTime,
   'ATM/:clientId/status/:status': ignored,
   'frontend/:clientId/flight/:flightId/controller': frontendFlightController,
   'frontend/:clientId/flight/:flightId/ACCFL': frontendACCFlightLevel,
   'frontend/:clientId/flight/:flightId/NSFL': frontendNextSectorFlightLevel,
+  'frontend/:clientId/flight/:flightId/ACCBearing': frontendACCBearing,
+  'frontend/:clientId/flight/:flightId/assignedFL': frontendAssignedFlightLevel,
+  'frontend/:clientId/flight/:flightId/speed': frontendSpeed,
+  'frontend/:clientId/flight/:flightId/localAssignedFL': frontendLocalAssignedFlightLevel,
 });
 
 export default router;
