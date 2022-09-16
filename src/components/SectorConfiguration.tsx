@@ -39,7 +39,6 @@ export default observer(function SectorConfiguration() {
   } = cwpStore;
 
   const { timestamp } = simulatorStore;
-
   const configurationsToDisplay = listOfIntervals.slice(0, 2)
     .map(([id, start, end], index) => ({
       id,

@@ -21,12 +21,17 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
     lastKnownBearing: bearing,
     aircraftId,
     controlledBy,
+    flightInSectorTimes,
   } = properties.aircraft;
 
   let flightColor = '#ffffff';
 
   const listOfTentativeFlights = roleConfigurationStore
     .roleConfigurations.get(configurationStore.currentCWP)?.tentativeAircrafts;
+  if (roleConfigurationStore.currentControlledSector
+  && flightInSectorTimes.get(roleConfigurationStore.currentControlledSector) !== undefined) {
+    flightColor = '#006400';
+  }
   if (listOfTentativeFlights?.includes(aircraftId)) {
     flightColor = '#ff00ff';
   }

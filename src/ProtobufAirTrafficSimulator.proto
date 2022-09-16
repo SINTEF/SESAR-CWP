@@ -628,6 +628,16 @@ message AirTrafficControllerAssignmentMessage{
   repeated string sectorIds = 2; 
 }
 
+message FlightEnteringAirspaceMessage {
+    string flightUniqueId = 1;
+    string sectorId = 2;
+    Position4D entryPosition = 3;
+    Position4D exitPosition = 4;
+    string entryWaypointId = 5;
+    string exitWaypointId = 6;
+    PlanningStage planningStage = 7;
+}
+
 message AddAcceptedFlightMessage {
   string fromControllableAirspaceVolume   = 1; // Id of the controllable airspace volume that released ownership of the flight to toRole.
   string toControllableAirspaceVolume     = 2; // Id of the controllable airspace volume that accepted the flight, that has become the owner.

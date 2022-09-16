@@ -202,4 +202,24 @@ export default class RoleConfigurationStore {
     }
     return pseudoControllers;
   }
+
+  get aircraftsEnteringCurrentSector(): AircraftModel[] {
+    const currentSector = this.currentControlledSector;
+    const listOfAircraftsInSector = this.listOfFlightsInCurrentSector;
+    const listOfAircraftsEnteringSector = currentSector
+      ? this.aircraftStore.aircraftsWithRecentTargetReport.map((aircraft) => {
+        if (aircraft.flightInSectorTimes?.get(currentSector) !== undefined) {
+          return aircraft;
+        }
+        return undefined;
+      }) : [];
+    const filteredUndefined : AircraftModel[] = [];
+    for (const aircraft of listOfAircraftsEnteringSector) {
+      if (aircraft !== undefined) {
+        filteredUndefined.push(aircraft);
+      }
+    }
+
+    return [...listOfAircraftsInSector, ...filteredUndefined];
+  }
 }

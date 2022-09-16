@@ -4,6 +4,7 @@ import {
   Table,
 } from 'react-bootstrap';
 
+import convertTimestamp from '../model/convertTimestamp';
 import {
   configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
@@ -12,14 +13,21 @@ const flightColor = (value: string): string => (value === configurationStore.cur
 const handleFlightClicked = (event: string): void => {
   cwpStore.setHighlightedAircraftId(event);
 };
+function ChangeToLocaleTime(time: number): string {
+  const date = new Date(time * 1000);
+  const localeTime = date.toLocaleTimeString('en-GB', {
+    timeZone: 'UTC',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return localeTime;
+}
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
   const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
-  const listOfAircraftsInSector = roleConfigurationStore.listOfFlightsInCurrentSector;
-
-  if (!cwpStore.showFL) return null;
-
+  const listOfAircraftsInSector = roleConfigurationStore.aircraftsEnteringCurrentSector;
   return (
     <div className="aircraft-list">
       <Table className="aircraft-list-table" hover bordered variant="dark">
@@ -28,11 +36,11 @@ export default observer(function AircraftListElement(/* properties */) {
             <th colSpan={2}>
               <input
                 className='input-filter'
-                style={{ width: '8em' }}
+                style={{ width: '100px', fontSize: '8px' }}
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
-                onChange={(event): void => setFilter(event.target.value)}
+                onChange={(event): void => setFilter((event.target.value).toUpperCase())}
               />
             </th>
             <th colSpan={2}>
@@ -58,28 +66,33 @@ export default observer(function AircraftListElement(/* properties */) {
         </thead>
         <tbody>
           {listOfAircraftsInSector.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
-            .map((aircraftData) => (
-              <tr
+            .map((aircraftData) => {
+              const exitTime = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.exitPosition?.time : '';
+              const exitWaypointId = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.exitWaypointId : '';
+              const toTime = exitTime ? ChangeToLocaleTime(convertTimestamp(exitTime)) : '';
+              return (
+                <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
                 key={aircraftData.assignedFlightId}
                 onClick={(): void => handleFlightClicked(aircraftData.assignedFlightId)}>
 
-                <td>
-                  <b>
-                    {aircraftData.callSign}
-                  </b>
-                </td>
-                <td>
-                  {Math.ceil(aircraftData.lastKnownAltitude)}
-                </td>
-                <td>
-                  {aircraftData.departureAirport}
-                </td>
-                <td>
-                  13:30
-                </td>
-              </tr>
-            ),
+                  <td>
+                    <b>
+                      {aircraftData.callSign}
+                    </b>
+                  </td>
+                  <td>
+                    {Math.ceil(aircraftData.lastKnownAltitude)}
+                  </td>
+                  <td>
+                    {exitWaypointId}
+                  </td>
+                  <td>
+                    {toTime}
+                  </td>
+                </tr>
+              );
+            },
             )}
         </tbody>
       </Table>
