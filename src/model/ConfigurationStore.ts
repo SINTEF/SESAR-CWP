@@ -247,8 +247,12 @@ export default class ConfigurationStore {
       for (const intervals of element.timeIntervals) {
         const startTimeInterval = intervals.startTime;
         const endTimeInterval = intervals.endTime;
-        if (startTimeInterval >= simulatorTime || endTimeInterval >= simulatorTime) {
-          listOfIntervals.push([element.configurationId, startTimeInterval, endTimeInterval]);
+        const listElement:
+        [string, number, number] = [element.configurationId, startTimeInterval, endTimeInterval];
+        if ((startTimeInterval >= simulatorTime
+        || endTimeInterval >= simulatorTime)
+        && !JSON.stringify(listOfIntervals).includes(JSON.stringify(listElement))) {
+          listOfIntervals.push(listElement);
         }
       }
     }

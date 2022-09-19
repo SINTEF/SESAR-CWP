@@ -8,11 +8,23 @@ import {
 } from 'react-bootstrap';
 import type { Position } from '@turf/turf';
 
+import convertTimestamp from '../model/convertTimestamp';
 import {
   aircraftStore, configurationStore, cwpStore, fixStore,
   roleConfigurationStore,
 } from '../state';
 import type AircraftModel from '../model/AircraftModel';
+
+function ChangeToLocaleTime(time: number): string {
+  const date = new Date(time * 1000);
+  const localeTime = date.toLocaleTimeString('en-GB', {
+    timeZone: 'UTC',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return localeTime;
+}
 
 const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
 
@@ -21,6 +33,7 @@ const handleFlightClicked = (event: string): void => {
 };
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function SectorFlightList(/* properties */) {
+  const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
   const [listOfFixes, setListOfFixes] = React.useState<string[]>([]);
   const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>([]);
@@ -126,37 +139,45 @@ export default observer(function SectorFlightList(/* properties */) {
         </thead>
         <tbody>
           {listOfAircraft.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
-            .map((aircraftData) => (
-              <tr
+            .map((aircraftData) => {
+              const enteringTime = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.time : '';
+              const enteringFix = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryWaypointId : '';
+              const exitingFix = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.exitWaypointId : '';
+              const enteringToTime = enteringTime ? ChangeToLocaleTime(convertTimestamp(enteringTime)) : '';
+              const enteringFL = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.altitude : '';
+              return (
+                <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
                 key={aircraftData.assignedFlightId}
                 id={aircraftData.assignedFlightId}
                 onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
-                <td>
-                  Entering fix
-                </td>
-                <td>
-                  Entering time
-                </td>
-                <td>
-                  {aircraftData.callSign}
-                </td>
-                <td
+                  <td>
+                    {enteringFix}
+                  </td>
+                  <td>
+                    {enteringToTime}
+                  </td>
+                  <td>
+                    {aircraftData.callSign}
+                  </td>
+                  <td
                   style={{ color: flightColor(aircraftData.controlledBy) }}
                 >
-                </td>
-                <td>{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
-                <td
+                    {enteringFL}
+                  </td>
+                  <td>{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
+                  <td
                   style={{ color: flightColor(aircraftData.controlledBy) }}
 
                 >
-                  {Math.ceil(aircraftData.lastKnownAltitude)}
-                </td>
-                <td>
-                  {aircraftData.departureAirport}
-                </td>
-              </tr>
-            ),
+                    {Math.ceil(aircraftData.lastKnownAltitude)}
+                  </td>
+                  <td>
+                    {exitingFix}
+                  </td>
+                </tr>
+              );
+            },
             )}
         </tbody>
       </Table>
