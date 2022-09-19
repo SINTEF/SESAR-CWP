@@ -104,11 +104,31 @@ export async function persistACCFlightLevel(
   );
 }
 
-export async function persistNextSectorFlightSpeed(
+export async function persistNextSectorFlightLevel(
   flightUniqueId: string,
   flightLevel: string,
 ): Promise<void> {
   await publish(`frontend/${clientId}/flight/${flightUniqueId}/NSFL`,
+    flightLevel,
+    { retain: true },
+  );
+}
+
+export async function persistACCBearing(
+  flightUniqueId: string,
+  bearing: number,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/ACCBearing`,
+    bearing.toFixed(0),
+    { retain: true },
+  );
+}
+
+export async function persistAssignedFlightLevel(
+  flightUniqueId: string,
+  flightLevel: string,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/assignedFL`,
     flightLevel,
     { retain: true },
   );
@@ -119,5 +139,25 @@ export async function tentativeFlight(
 ): Promise<void> {
   await publish(`simulator/${clientId}/tentativeFlight/`,
     serializeForSimulator(fromControllableSector, toControllableSector, flightUniqueId),
+  );
+}
+
+export async function persistSpeedAircraft(
+  flightUniqueId: string,
+  speed: number,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/speed`,
+    speed.toFixed(0),
+    { retain: true },
+  );
+}
+
+export async function persistLocalAssignedFlightLevel(
+  flightUniqueId: string,
+  flightLevel: string,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/localAssignedFL`,
+    flightLevel,
+    { retain: true },
   );
 }

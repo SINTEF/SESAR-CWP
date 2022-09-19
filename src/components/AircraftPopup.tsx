@@ -51,10 +51,19 @@ export default observer(function AircraftPopup(properties: {
   }
   const showAllFlightLabels = cwpStore.showFlightLabels;
 
+  const bounds = configurationStore.extendedEdgesBounds;
+
   const shouldShow = cwpStore.aircraftsWithManuallyOpenedPopup.has(aircraftId)
     || (altitude >= lowestBound && altitude <= highestBound
       && showAllFlightLabels
-      && !cwpStore.aircraftsWithManuallyClosedPopup.has(aircraftId));
+      && !cwpStore.aircraftsWithManuallyClosedPopup.has(aircraftId)
+      // Airplanes far the sectors are not shown by default
+      && bounds !== undefined
+      && latitude >= bounds.minLat
+      && latitude <= bounds.maxLat
+      && longitude >= bounds.minLon
+      && longitude <= bounds.maxLon
+    );
 
   const { current } = useMap();
 

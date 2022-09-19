@@ -26,7 +26,14 @@ export type DraggablePopupState = {
   offsetY: number,
   startX: number,
   startY: number,
+  zIndex: number,
 };
+
+let globalHighestZIndex = 0;
+function getNextZIndex(): number {
+  globalHighestZIndex += 1;
+  return globalHighestZIndex;
+}
 
 export default class DraggablePopup extends
   React.Component<DraggablePopupProperties, DraggablePopupState> {
@@ -41,7 +48,15 @@ export default class DraggablePopup extends
       offsetY: y,
       startX: 0,
       startY: 0,
+      zIndex: getNextZIndex(),
     };
+  }
+
+  incrementZIndex(): void {
+    this.setState((state) => ({
+      ...state,
+      zIndex: getNextZIndex(),
+    }));
   }
 
   onDragStart(event: DraggableEvent): void {
@@ -79,7 +94,7 @@ export default class DraggablePopup extends
     const {
       className, children, offset, color, size, cancel, ...otherProperties
     } = this.props;
-    const { offsetX, offsetY } = this.state;
+    const { offsetX, offsetY, zIndex } = this.state;
 
     // Compute the length of the line from the offset,
     // use pytagore
@@ -131,10 +146,21 @@ export default class DraggablePopup extends
 
     const displayLine = !planeIconAndCoreIntersects;
 
+    // Increase the z-index of the popup when it is clicked
+    // To make sure it is on top of other popups
+    const onClick = (): void => {
+      if (zIndex < globalHighestZIndex) {
+        this.incrementZIndex();
+      }
+    };
+
     return (
-      <Popup {...otherProperties} className="draggable-popup">
+      <Popup {...otherProperties} style={{
+        zIndex,
+      }} className="draggable-popup">
         <div
           className={`draggable-popup-core ${className ?? ''}`}
+          onMouseDown={onClick}
           style={{
             top: `${offsetY}px`,
             left: `${offsetX}px`,

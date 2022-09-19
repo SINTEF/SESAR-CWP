@@ -7,6 +7,7 @@ import '@fontsource/ibm-plex-mono';
 import './index.css';
 import './mqtt';
 import './voice/voice';
+import './frontendSimulationLogic';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

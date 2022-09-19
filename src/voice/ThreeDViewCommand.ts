@@ -9,7 +9,7 @@ export default function ThreeDViewCommand(_arguments: string[]): void {
     throw new Error('Missing orientation');
   }
   const hasAngle = angle !== undefined;
-  const angleNumber = (Number.parseInt(angle, 10) ?? 0) % 360;
+  const angleNumber = (Number.parseInt(angle, 10) || 0) % 360;
 
   const map = getMap();
   const bearing = map.getBearing();

@@ -1,6 +1,4 @@
 import {
-  AddAcceptedFlightMessage,
-  AddTentativeFlightMessage,
   AirspaceAvailabilityMessage,
   AirTrafficControllerAssignmentMessage,
   AvailabilityIntervalsMessage,
@@ -12,7 +10,6 @@ import {
   NewAircraftTypeMessage,
   NewAirspaceConfigurationMessage,
   NewAirspaceMessage,
-  NewAirspaceVolumeFlightListMessage,
   NewFlightMessage,
   NewPointMessage,
   RoleConfigurationMessage,
@@ -75,12 +72,6 @@ export function flightRoutes(parameters: unknown, message: Buffer): void {
   const protoMessage = FlightRouteMessage.fromBinary(message);
   aircraftStore.handleNewFlightRoute(protoMessage);
 }
-export function newAirspaceVolumeFlightList(parameters: unknown, message: Buffer): void {
-  const protoMessage = NewAirspaceVolumeFlightListMessage
-    .fromBinary(message);
-  // eslint-disable-next-line no-console
-  console.warn('TODO', protoMessage);
-}
 export function airspaceAvailability(parameters: unknown, message: Buffer): void {
   const protoMessage = AirspaceAvailabilityMessage.fromBinary(message);
   configurationStore.handleAvailabilityMessage(protoMessage);
@@ -93,25 +84,12 @@ export function newSimulatorTime(parameters: unknown, message: Buffer): void {
 
 export function newFlightMilestonePositions(parameters: unknown, message: Buffer): void {
   const protoMessage = FlightMilestonePositionMessage.fromBinary(message);
-  // fixStore.handleNewMilestoneMessage(protoMessage);
   aircraftStore.handleFlightNewMilestonePositions(protoMessage);
 }
 export function newAvailabilityIntervalsMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = AvailabilityIntervalsMessage.fromBinary(message);
   console.log(protoMessage);
   configurationStore.handleAvailabilityIntervalsMessage(protoMessage);
-}
-export function acceptedFlightMessage(parameters: unknown, message: Buffer): void {
-  const protoMessage = AddAcceptedFlightMessage.fromBinary(message);
-  // eslint-disable-next-line no-console
-  console.log(protoMessage);
-  // aircraftStore.handleAcceptedFlightMessage(protoMessage);
-}
-export function tentativeFlightMessage(parameters: unknown, message: Buffer): void {
-  const protoMessage = AddTentativeFlightMessage.fromBinary(message);
-  // eslint-disable-next-line no-console
-  console.log(protoMessage);
-  // aircraftStore.handleTentativeFlightMessage(protoMessage);
 }
 export function roleConfiguration(parameters: unknown, message: Buffer): void {
   const protoMessage = RoleConfigurationMessage.fromBinary(message);
@@ -149,4 +127,36 @@ export function frontendNextSectorFlightLevel(
 ): void {
   const level = message.toString();
   aircraftStore.handleFrontendNextSectorFlightLevel(flightId, level);
+}
+
+export function frontendACCBearing(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const bearing = Number.parseInt(message.toString(), 10) || 0;
+  aircraftStore.handleFrontendACCBearing(flightId, bearing);
+}
+
+export function frontendAssignedFlightLevel(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const level = message.toString();
+  aircraftStore.handleFrontendAssignedFlightLevel(flightId, level);
+}
+
+export function frontendSpeed(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const speed = Number.parseInt(message.toString(), 10) || 0;
+  aircraftStore.handleFrontendSpeed(flightId, speed);
+}
+
+export function frontendLocalAssignedFlightLevel(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const level = message.toString();
+  aircraftStore.handleFrontendLocalAssignedFlightLevel(flightId, level);
 }

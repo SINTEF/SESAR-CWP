@@ -7,7 +7,9 @@ import {
   changeFlightLevelOfAircraft,
   handlePublishPromise,
   persistACCFlightLevel,
-  persistNextSectorFlightSpeed,
+  persistAssignedFlightLevel,
+  persistLocalAssignedFlightLevel,
+  persistNextSectorFlightLevel,
 } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
@@ -83,7 +85,7 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
       cwpStore.showNSFL(false);
       setNextSectorFL(stringFlightLevel);
       handlePublishPromise(
-        persistNextSectorFlightSpeed(assignedFlightId, stringFlightLevel),
+        persistNextSectorFlightLevel(assignedFlightId, stringFlightLevel),
       );
     } else if (cwpStore.flightLevelNextAccActivated) {
       cwpStore.showFlACC(false);
@@ -93,10 +95,16 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
       );
     } else if (!cwpStore.pseudoPilot) {
       setLocalAssignedFlightLevel(stringFlightLevel);
+      handlePublishPromise(
+        persistLocalAssignedFlightLevel(assignedFlightId, stringFlightLevel),
+      );
     } else {
       setAssignedFlightLevel(stringFlightLevel);
       handlePublishPromise(
         changeFlightLevelOfAircraft(controlledBy, assignedFlightId, stringFlightLevel),
+      );
+      handlePublishPromise(
+        persistAssignedFlightLevel(assignedFlightId, stringFlightLevel),
       );
     }
     close();
@@ -122,7 +130,8 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
           <Button onClick={(): void => FlightLevelChange('up')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11165;</Button>
           <input className="level-range" type="range"
                 value={flightLevel}
-                onChange={(event): void => setFlightLevel(Number.parseInt(event.target.value, 10))}
+                onChange={(event): void => setFlightLevel(
+                  Number.parseInt(event.target.value, 10) || 0)}
                 step={sliderStep} min={flightLevelMin} max={flightLevelMax}
               />
           <Button onClick={(): void => FlightLevelChange('down')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11167;</Button>

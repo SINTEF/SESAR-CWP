@@ -300,11 +300,11 @@ export default class AircraftModel {
   }
 
   setAssignedBearing(assignedBearing: number): void {
-    this.assignedBearing = assignedBearing;
+    this.assignedBearing = assignedBearing === -1 ? undefined : assignedBearing;
   }
 
   setAssignedSpeed(assignedSpeed: number): void {
-    this.assignedSpeed = assignedSpeed;
+    this.assignedSpeed = assignedSpeed === -1 ? undefined : assignedSpeed;
   }
 
   setLocalAssignedFlightLevel(localAssignedFlightLevel: string): void {
