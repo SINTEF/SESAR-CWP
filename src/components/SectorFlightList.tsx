@@ -35,8 +35,10 @@ const handleFlightClicked = (event: string): void => {
 export default observer(function SectorFlightList(/* properties */) {
   const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
+  const [valueSelected, setSelectedValue] = useState('');
   const [listOfFixes, setListOfFixes] = React.useState<string[]>([]);
   const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>([]);
+  const fixSelect = React.createRef<HTMLSelectElement>();
 
   React.useEffect(() => {
     if (roleConfigurationStore.areaOfCurrentControlledSector !== undefined) {
@@ -61,8 +63,9 @@ export default observer(function SectorFlightList(/* properties */) {
   if (!cwpStore.showSFL) return null;
 
   const setFix = (value:string) : void => {
+    setSelectedValue(value);
     if (value === 'ALL') {
-      setListOfAircraft(roleConfigurationStore.listOfFlightsInCurrentSector);
+      setListOfAircraft(roleConfigurationStore.aircraftsEnteringCurrentSector);
     } else {
       const fixValues = fixStore.fixes.get(value);
       const aircrafts = [];
@@ -83,6 +86,30 @@ export default observer(function SectorFlightList(/* properties */) {
     }
   };
 
+  const arrowClicked = (direction : string) : void => {
+    let selectedValue = '';
+    if (direction === 'down') {
+      if (valueSelected === '' || valueSelected === 'ALL') {
+        selectedValue = listOfFixes[0];
+      } else {
+        const index = listOfFixes.indexOf(valueSelected);
+        selectedValue = index === listOfFixes.length - 1 ? listOfFixes[0] : listOfFixes[index + 1];
+      }
+    } else if (direction === 'up') {
+      if (valueSelected === '' || valueSelected === 'ALL') {
+        selectedValue = listOfFixes[listOfFixes.length - 1];
+      } else {
+        const index = listOfFixes.indexOf(valueSelected);
+        selectedValue = index === 0 ? listOfFixes[listOfFixes.length - 1] : listOfFixes[index - 1];
+      }
+    }
+    setSelectedValue(selectedValue);
+    if (fixSelect.current) {
+      fixSelect.current.value = selectedValue;
+      setFix(selectedValue);
+    }
+  };
+
   return (
     <div className="sector-flight-list">
       <Table className="sector-flight-list-table" hover bordered variant="dark">
@@ -99,16 +126,20 @@ export default observer(function SectorFlightList(/* properties */) {
               />
             </th>
             <th colSpan={6} style={{ fontSize: '10px' }}>
-              <div className='fix-selector-container' >SFL &nbsp;
-                {/* <input placeholder='Type here'></input> */}
+              <div className='fix-selector-container' >
+                <div className='drop-down-container'><div className="SFL-text">SFL &nbsp;</div>
+                  {/* <input placeholder='Type here'></input> */}
 
-                <Form.Select className='fix-selector' size='sm' onChange={(event: { target: { value: string; }; }): void => setFix(event.target.value)}>
-                  <option hidden>Select COP</option>
-                  <option value='ALL'>ALL</option>
-                  {listOfFixes.map((fix) => (
-                    <option key={fix} value={fix}>{fix}</option>))}
-                </Form.Select>
-                <div className='number-of-flight'><span>&nbsp;:</span><span>{listOfAircraft.length}</span></div>
+                  <Form.Select ref={fixSelect} className='fix-selector' size='sm' onChange={(event: { target: { value: string; }; }): void => setFix(event.target.value)}>
+                    <option value='ALL' hidden>Select COP</option>
+                    <option value='ALL'>ALL</option>
+                    {listOfFixes.map((fix) => (
+                      <option key={fix} value={fix}>{fix}</option>))}
+                  </Form.Select>
+                  <div className='number-of-flight'><span>&nbsp;:</span><span>{listOfAircraft.length} &#35;</span></div>
+
+                </div>
+                <div className='up-down-arrows'><div onClick={(): void => arrowClicked('up')}>&#x25B2;&nbsp;</div><div onClick={(): void => arrowClicked('down')}>&#x25BC;</div></div>
 
               </div>
             </th>

@@ -16,17 +16,20 @@ const layerPaint: CirclePaint = {
   'circle-color': ['get', 'circleColor'],
   'circle-blur': 0.9,
 };
+const outLineTest = {
+  'line-color': '#0ff',
+  'line-width': 5,
+};
 
 export default observer(function LimboFlights(/* properties */) {
   const currentSectorBounds = roleConfigurationStore.areaOfCurrentControlledSector?.map((point) => (
-    [point.longitude, point.latitude]),
+    [point.longitude * 1.5, point.latitude * 1.5]),
   );
   const nextSectorBounds = roleConfigurationStore.areaOfNextControlledSector?.map((point) => (
     [point.longitude, point.latitude]),
   );
   const [listOfAddedAircrafts, setListOfAddedAircrafts] = React.useState<AircraftModel[]>([]);
   const [listOfRemovedAircrafts, setListOfRemovedAircrafts] = React.useState<AircraftModel[]>([]);
-
   React.useEffect(() => {
     if (currentSectorBounds && nextSectorBounds) {
       const currentPolygon = polygon([currentSectorBounds] as unknown as Position[][]);
@@ -81,10 +84,20 @@ export default observer(function LimboFlights(/* properties */) {
     type: 'FeatureCollection',
     features: addedGeoJson as GeoJSON.Feature[],
   };
-
+  const testSectors = polygon([currentSectorBounds] as unknown as Position[][]);
+  const testGeoJson: GeoJSON.FeatureCollection = {
+    type: 'FeatureCollection',
+    features: [testSectors] as GeoJSON.Feature[],
+  };
+  console.log(testGeoJson);
   return (
-    <Source id="limbo-flights-source" type="geojson" data={limboGeoJson}>
-      <Layer id="limbo-flights" type="circle" paint={layerPaint} />
-    </Source>
+    <>
+      <Source id="limbo-flights-source" type="geojson" data={limboGeoJson}>
+        <Layer id="limbo-flights" type="circle" paint={layerPaint} />
+      </Source>
+      <Source id="test-outline" type="geojson" data={testGeoJson}>
+        <Layer id="test" type="line" paint={outLineTest}/>
+      </Source>
+    </>
   );
 });
