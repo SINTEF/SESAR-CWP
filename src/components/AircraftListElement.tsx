@@ -67,9 +67,9 @@ export default observer(function AircraftListElement(/* properties */) {
         <tbody>
           {listOfAircraftsInSector.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
             .map((aircraftData) => {
-              const exitTime = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.exitPosition?.time : '';
+              const entryTime = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.time : '';
               const exitWaypointId = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.exitWaypointId : '';
-              const toTime = exitTime ? ChangeToLocaleTime(convertTimestamp(exitTime)) : '';
+              const toTime = entryTime ? ChangeToLocaleTime(convertTimestamp(entryTime)) : '';
               return (
                 <tr
                 style={{ color: flightColor(aircraftData.controlledBy) }}
