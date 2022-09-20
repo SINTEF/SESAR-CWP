@@ -121,11 +121,12 @@ export const NextACCFlightLevel = observer(({ aircraft }: SubContentProperties):
 
 export default observer(function AircraftPopupContent(properties: {
   aircraft: AircraftModel;
+  flightColor: string;
 }) {
-  const { aircraft } = properties;
+  const { aircraft, flightColor } = properties;
   return (
     <table className="flight-popup-container">
-      <tbody>
+      <tbody style={{ color: flightColor }}>
         <tr>
           <CallSign aircraft={aircraft} colSpan={2} />
         </tr>

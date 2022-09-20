@@ -91,7 +91,7 @@ export default observer(function AircraftPopup(properties: {
     <DraggablePopup
       className="flight-popup"
       style={{ color: flightColor }}
-      color={flightColor === '#ffffff' ? undefined : flightColor}
+      color={flightColor}
       offset={{ x: 0, y: 0 }}
       size={{ width: 110, height }}
       anchor="top"
@@ -108,7 +108,7 @@ export default observer(function AircraftPopup(properties: {
           width: '110px', height: `${height}px`,
         }} onWheel={onWheel}>
           <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
-          <Content aircraft={aircraft} />
+          <Content flightColor={flightColor} aircraft={aircraft} />
         </div>
         <div className="flight-popup-children">
           <AircraftLevelPopup aircraft={aircraft} />
