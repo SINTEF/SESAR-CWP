@@ -4,11 +4,7 @@ import {
 } from 'mobx';
 import type { ObservableMap } from 'mobx';
 
-export interface MarkerElement {
-  coordinates: [number, number];
-  color: string;
-  key: number;
-}
+import DistanceMarker from './DistanceMarker';
 
 export function getLength(coordinates: number[][]): string {
   if (coordinates.length < 2) {
@@ -23,7 +19,7 @@ export function getLength(coordinates: number[][]): string {
 export default class DistanceLine {
   markersCounter = 0;
 
-  markers: ObservableMap<number, MarkerElement> = observable.map(undefined, { deep: false });
+  markers: ObservableMap<number, DistanceMarker> = observable.map(undefined, { deep: false });
 
   constructor() {
     makeAutoObservable(this,
@@ -34,35 +30,29 @@ export default class DistanceLine {
     );
   }
 
-  newMarker({ coordinates, color }: { coordinates: [number, number], color: string }): void {
-    this.markers.set(this.markersCounter, {
-      coordinates,
-      color,
+  newMarker({ lat, lng, colour }: { lat: number, lng: number, colour: string }): void {
+    this.markers.set(this.markersCounter, new DistanceMarker({
+      lat,
+      lng,
+      colour,
       key: this.markersCounter,
-    });
+    }));
     this.markersCounter += 1;
   }
 
-  getNumberOfMarkersForColor(color: string): number {
+  getNumberOfMarkersForColour(colour: string): number {
     return [...this.markers.values()]
-      .filter((marker) => marker.color === color)
+      .filter((marker) => marker.colour === colour)
       .length;
-  }
-
-  updateMarkerCoordinates(key: number, coordinates: [number, number]): void {
-    const marker = this.markers.get(key);
-    if (marker) {
-      marker.coordinates = coordinates;
-    }
   }
 
   removeMarker(key: number): void {
     this.markers.delete(key);
   }
 
-  removeColor(color: string): void {
+  removeColor(colour: string): void {
     for (const marker of this.markers.values()) {
-      if (marker.color === color) {
+      if (marker.colour === colour) {
         this.markers.delete(marker.key);
       }
     }
@@ -74,12 +64,12 @@ export default class DistanceLine {
   }> {
     const markers = [...this.markers.values()];
 
-    const markersByColors = new Map<string, MarkerElement[]>();
+    const markersByColors = new Map<string, DistanceMarker[]>();
     for (const marker of markers) {
-      const { color } = marker;
-      const markersForColor = markersByColors.get(color);
+      const { colour } = marker;
+      const markersForColor = markersByColors.get(colour);
       if (!markersForColor) {
-        markersByColors.set(color, [marker]);
+        markersByColors.set(colour, [marker]);
       } else {
         markersForColor.push(marker);
       }
@@ -88,7 +78,7 @@ export default class DistanceLine {
     return {
       type: 'FeatureCollection',
       features: [...markersByColors.entries()].map(([color, markersForColor]) => {
-        const lines = markersForColor.map((marker) => marker.coordinates);
+        const lines = markersForColor.map((marker) => [marker.lng, marker.lat]);
         return {
           type: 'Feature',
           properties: {

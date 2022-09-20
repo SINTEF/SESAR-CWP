@@ -52,12 +52,13 @@ const handleMapClick = (event: MapLayerMouseEvent): void => {
   if (currentDistanceColor !== '') {
     const coordinates = event.lngLat;
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    const { newMarker, getNumberOfMarkersForColor } = distanceLineStore;
+    const { newMarker, getNumberOfMarkersForColour } = distanceLineStore;
     newMarker({
-      coordinates: [coordinates.lng, coordinates.lat],
-      color: currentDistanceColor,
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      colour: currentDistanceColor,
     });
-    const numberOfMarkersForColor = getNumberOfMarkersForColor(currentDistanceColor);
+    const numberOfMarkersForColor = getNumberOfMarkersForColour(currentDistanceColor);
     if (numberOfMarkersForColor >= 2) {
       setCurrentDistanceColor('');
     }
