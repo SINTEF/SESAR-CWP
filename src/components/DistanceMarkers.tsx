@@ -4,25 +4,23 @@ import { Marker } from 'react-map-gl';
 import type { MapboxEvent, MarkerDragEvent } from 'react-map-gl';
 
 import { distanceLineStore } from '../state';
-import type { MarkerElement } from '../model/DistanceLine';
+import type DistanceMarker from '../model/DistanceMarker';
 
-const DistanceMarker = observer((properties: {
-  marker: MarkerElement,
+const MapDistanceMarker = observer((properties: {
+  marker: DistanceMarker,
 }): JSX.Element => {
   const { marker } = properties;
 
-  const { color, coordinates, key } = marker;
-  const [longitude, latitude] = coordinates;
-
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { updateMarkerCoordinates, removeMarker } = distanceLineStore;
+  const {
+    colour, lat: latitude, lng: longitude, key,
+  } = marker;
 
   function onDrag(event: MarkerDragEvent): void {
-    updateMarkerCoordinates(key, [event.lngLat.lng, event.lngLat.lat]);
+    marker.setLatLng(event.lngLat.lat, event.lngLat.lng);
   }
 
   function onClick(event: MapboxEvent<MouseEvent>): void {
-    removeMarker(key);
+    distanceLineStore.removeMarker(key);
     event.originalEvent.stopPropagation();
   }
 
@@ -30,7 +28,7 @@ const DistanceMarker = observer((properties: {
     <Marker latitude={latitude} longitude={longitude}
       draggable={true} onDrag={onDrag} onClick={onClick}>
       <svg height="10" width="10">
-        <circle cx="5" cy="5" r="5" stroke="black" strokeWidth="3" fill={color} />
+        <circle cx="5" cy="5" r="5" stroke="black" strokeWidth="3" fill={colour} />
       </svg>
     </Marker>
   );
@@ -42,7 +40,7 @@ export default observer(function DistanceMarkers() {
   return (
     <>
       {[...markers.entries()].map(([key, marker]) => (
-        <DistanceMarker key={key} marker={marker} />
+        <MapDistanceMarker key={key} marker={marker} />
       ))}
     </>
 

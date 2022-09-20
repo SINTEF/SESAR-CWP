@@ -773,4 +773,10 @@ html .btn {
 
 .maplibregl-map {
     font-family: var(--sesar-font-mono);
+    z-index: 0;
+}
+
+.maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-top-left, .maplibregl-ctrl-top-right {
+    /* Highest z-index (32 bits signed integer) */
+    z-index: 2147483647;
 }
