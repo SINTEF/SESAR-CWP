@@ -1,13 +1,18 @@
-/* @import-normalize; */
-
 :root {
     --sesar-font: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
     --sesar-font-mono: "IBM Plex Mono", "Roboto Mono", "Monaco", "Courier New", Courier, monospace;
 }
 
+html,
 body {
+    width: 100%;
+    height: 100%;
     margin: 0;
+    padding: 0;
+}
+
+body {
     font-family: var(--sesar-font);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -15,19 +20,9 @@ body {
 }
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-family: var(--sesar-font-mono);
 }
 
-.map-container {
-    height: 400px;
-    background-color: black;
-}
-
-html,
-body {
-    width: 100%;
-    height: 100%;
-}
 
 div#root {
     width: 100%;
@@ -40,28 +35,17 @@ div#root {
     flex-grow: 1;
 }
 
-.sidebar {
-    background-color: rgba(35, 55, 75, 0.9);
-    color: #fff;
-    padding: 6px 12px;
-    font-family: monospace;
-    z-index: 1;
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: 12px;
-    border-radius: 4px;
-}
-
 /* Accordion for sector configurations */
 .sector-configuration-accordion .accordion-item {
     border-color: #404040;
 }
+
 .sector-configuration-accordion .accordion-button,
 .sector-configuration-accordion .accordion-button:not(.collapsed) {
     box-shadow: inset 0 -1px 0 #404040;
 }
-.sector-configuration-accordion  .sector-title {
+
+.sector-configuration-accordion .sector-title {
     font-size: 10px !important;
 }
 
@@ -74,18 +58,20 @@ div#root {
     margin: 0px;
     flex-wrap: nowrap;
 }
+
 .sector-configuration-body .btn:focus {
     box-shadow: none;
 }
-.sector-box{
-display: grid;
-width: 500px;
-height:250px;
-grid-template-rows: repeat(4, 4.5em);
-gap: 0px;
+
+.sector-box {
+    display: grid;
+    width: 500px;
+    height: 250px;
+    grid-template-rows: repeat(4, 4.5em);
+    gap: 0px;
 }
 
-.accordion-body{
+.accordion-body {
     position: relative;
 }
 
@@ -95,20 +81,24 @@ gap: 0px;
     left: -5px;
 
 }
-.highlight-sector{
-    border: 6px solid rgba(250,250,250,0.5) !important;
+
+.highlight-sector {
+    border: 6px solid rgba(250, 250, 250, 0.5) !important;
     /* z-index: -1; */
 
 
 }
-.no-highlight-sector{
+
+.no-highlight-sector {
     border: none;
 }
-.clicked-sector{
-    outline: 3.5px dotted rgba(250,250,250,0.6) !important;
+
+.clicked-sector {
+    outline: 3.5px dotted rgba(250, 250, 250, 0.6) !important;
     z-index: 1;
 }
-.no-clicked-sector{
+
+.no-clicked-sector {
     outline: none;
 }
 
@@ -134,41 +124,45 @@ gap: 0px;
     outline: none;
     text-transform: uppercase;
 }
-.timeline-rectangle{
+
+.timeline-rectangle {
     background-color: #4472c4;
     height: 250px;
     width: 15px;
-    position:absolute;
-    right:1px;
-    top:10px;
+    position: absolute;
+    right: 1px;
+    top: 10px;
     z-index: 0;
 }
+
 .timeline-rectangle-0 {
     background-color: #4472c4;
     height: 282px;
     width: 15px;
-    position:absolute;
-    right:1px;
-    top:0px;
+    position: absolute;
+    right: 1px;
+    top: 0px;
     z-index: 0;
 }
+
 .timeline-rectangle-1 {
     background-color: #4472c4;
     height: 282px;
     float: right;
     width: 15px;
-    position:absolute;
-    right:1px;
-    top:0;
+    position: absolute;
+    right: 1px;
+    top: 0;
     z-index: 0;
 }
-.moveable-timeline-rectangle{
+
+.moveable-timeline-rectangle {
     color: #fff;
     font-size: 12px;
     width: 4rem;
     height: 20px;
     position: absolute;
-    right:-1.5rem;
+    right: -1.5rem;
     background-color: #ed7d31;
     z-index: 20;
     border: solid #b66129 2px;
@@ -176,11 +170,13 @@ gap: 0px;
     text-align: center;
     line-height: 16px;
 }
-.accordion-button:not(.collapsed){
+
+.accordion-button:not(.collapsed) {
     background-color: #222 !important;
     color: #fff !important;
     z-index: 1;
 }
+
 /* Aircraft list */
 
 .aircraft-list {
@@ -198,10 +194,11 @@ gap: 0px;
     max-height: 250px;
     overflow-y: scroll;
 }
+
 .sector-flight-list-table thead,
 .aircraft-list-table thead {
     position: sticky;
-    top:-14px;
+    top: -14px;
     z-index: 1;
 
 }
@@ -228,7 +225,8 @@ gap: 0px;
     transform: translate(0px, 0px);
     font-family: var(--sesar-font-mono);
 }
-.fix-selector{
+
+.fix-selector {
     align-self: center;
     font-size: 10px !important;
     color: #fff !important;
@@ -237,22 +235,24 @@ gap: 0px;
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.1) !important;
 }
-.fix-selector-container{
+
+.fix-selector-container {
     display: inline-flex;
     justify-content: space-between;
     justify-items: center;
     align-items: center;
     align-content: center;
-    font-size: 10px;
-    color: #fff;
-    width: 100%;
+    font-size: 10px !important;
+    color: #fff !important;
+    width: 20em !important;
     height: 3em;
 }
-.fix-selector-container option{
+
+.fix-selector-container option {
     background-color: #404040 !important;
 }
 
-.drop-down-container{
+.drop-down-container {
     display: inline-flex;
     justify-content: space-between;
     justify-items: center;
@@ -261,9 +261,8 @@ gap: 0px;
 
 }
 
-.up-down-arrows{
+.up-down-arrows {
     display: inline-flex;
-    align-items: space-between;
     justify-content: end;
     align-self: center;
     align-items: center;
@@ -274,7 +273,7 @@ gap: 0px;
 }
 
 
-.number-of-flight{
+.number-of-flight {
     display: inline-flex;
     justify-content: space-around;
     width: 3em;
@@ -309,11 +308,11 @@ gap: 0px;
     line-height: 1em;
     font-family: var(--sesar-font-mono);
     font-size: 0.8rem;
-} 
+}
 
 .flight-popup-main {
-/** Disable text selection */
-user-select: none;
+    /** Disable text selection */
+    user-select: none;
 }
 
 .flight-popup-children {
@@ -325,6 +324,11 @@ user-select: none;
     width: 100%;
     max-width: 100%;
 }
+
+.flight-popup-container tr {
+    width: 33.333333%;
+}
+
 
 .flight-popup td {
     line-height: 1.4em;
@@ -344,17 +348,13 @@ user-select: none;
     background: rgba(90, 90, 90, 0.5);
     border-radius: 1.5px;
 }
+
 .flight-popup {
     backdrop-filter: blur(1.5px);
     /* color: white; */
     padding: 0;
     margin: 0;
     z-index: 0;
-}
-
-
-.flight-popup .mapboxgl-popup-anchor-top>.mapboxgl-popup-content {
-    /* margin-bottom: 5px; */
 }
 
 .mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
@@ -390,29 +390,22 @@ user-select: none;
     width: 50%;
     text-align: center;
 }
+
 .level-popup-main .levels-slider {
     width: 50%;
     display: flex;
     flex-direction: column;
 }
+
 .level-popup-main .level-range {
     flex-grow: 1;
 }
-
-.choose-flight-level {
-    /* padding:-5px; */
-    /*margin-top: -4px;*/
-}
-
-/*.level-popup .mapboxgl-popup-anchor-bottom>.mapboxgl-popup-content {
-    margin-top: 0px;
-    border-color: white;
-}*/
 
 .level-popup .levels-container .btn {
     background: transparent;
     border-color: transparent;
 }
+
 .level-popup .levels-container .btn:hover,
 .level-popup .levels-container .btn.active,
 .level-popup .levels-container .btn:active {
@@ -449,19 +442,16 @@ user-select: none;
 .apply-cancel-wrapper {
     margin-top: 0px;
     margin-bottom: 0px;
-    /* margin-right:-10px; */
     margin-left: -10px;
     width: 2em !important;
 
 }
 
 .apply-cancel-button {
-    /* width: 4em !important; */
     font-size: 8.5px !important;
     align-items: center;
     padding: -3px -5px !important;
     border-radius: 5px;
-    /* height: 75%; */
 }
 
 /* For Next Sector Popup */
@@ -476,7 +466,6 @@ user-select: none;
 .next-sector-popup .mapboxgl-popup-content {
     background: rgba(90, 90, 90, 0.5);
     border-radius: 1.5px;
-    /* color: white; */
     padding: 0;
     margin: 0;
     height: 3em;
@@ -484,7 +473,11 @@ user-select: none;
     z-index: 0;
 }
 
-.change-bearing, .change-next-fix, .next-sector-popup, .change-speed, .level-popup {
+.change-bearing,
+.change-next-fix,
+.next-sector-popup,
+.change-speed,
+.level-popup {
     background: rgba(90, 90, 90, 0.5);
     border-radius: 1.5px;
     padding: 0.2rem;
@@ -494,7 +487,7 @@ user-select: none;
 }
 
 .change-speed {
-    width: 121px;
+    width: 110px;
 }
 
 .submit-cancel-buttons {
@@ -541,9 +534,6 @@ user-select: none;
     background-color: #fff !important;
     position: relative;
     border-radius: 0px !important;
-
-    /* left: -1px; */
-
 }
 
 .next-sector-popup .gutter-2 {
@@ -561,10 +551,12 @@ user-select: none;
     padding-bottom: 1.5rem;
     text-align: center;
 }
+
 .controller-modal .btn-group {
     flex-wrap: wrap;
     gap: 0.333rem;
 }
+
 .controller-modal .btn-group .btn {
     border-top-left-radius: 0.2rem !important;
     border-top-right-radius: 0.2rem !important;
@@ -613,6 +605,7 @@ user-select: none;
     outline: none;
     z-index: 500;
 }
+
 .toggle-countdown-container-next {
     background: rgba(255, 0, 0, 0.8);
 }
@@ -628,34 +621,36 @@ user-select: none;
 
 /* COMPASS */
 
-#map-3d > * .maplibregl-ctrl-group .maplibregl-ctrl-compass{
+#map-3d>* .maplibregl-ctrl-group .maplibregl-ctrl-compass {
     position: absolute;
     top: 7.5em;
     right: 6.8em;
     width: 3em;
     height: 3em;
-    /* background-color: #fff !important; */
     z-index: 0;
     border: 0;
 }
-.compass{
+
+.compass {
     position: absolute;
     right: 16.5em;
     top: 23em;
 
 }
-.mapboxgl-ctrl-top-right .maplibregl-ctrl-top-right{
+
+.mapboxgl-ctrl-top-right .maplibregl-ctrl-top-right {
     z-index: -1;
 }
 
-#map-3d > * .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon, .maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+#map-3d>* .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
+.maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
     background-color: transparent;
     background-image: url('/compassArrow.svg') !important;
     background-size: 120% 120%;
 }
 
-.north-button{
-    position:absolute;
+.north-button {
+    position: absolute;
     bottom: 16em;
     left: 4.8em;
     width: 5em;
@@ -668,8 +663,9 @@ user-select: none;
 
 
 }
-.south-button{
-    position:absolute;
+
+.south-button {
+    position: absolute;
     left: 4.8em;
     bottom: 7em;
     width: 5em;
@@ -682,8 +678,9 @@ user-select: none;
 
 
 }
-.east-button{
-    position:absolute;
+
+.east-button {
+    position: absolute;
     left: 9.2em;
     bottom: 11.5em;
     width: 5em;
@@ -695,8 +692,9 @@ user-select: none;
     transform: rotate(180deg);
 
 }
-.west-button{
-    position:absolute;
+
+.west-button {
+    position: absolute;
     left: 0.5em;
     bottom: 11.5em;
     width: 5em;
@@ -706,7 +704,8 @@ user-select: none;
     background-image: url('../saveDirectionArrow.png');
     background-size: 100% 100%;
 }
-.chevron-degrees-button{
+
+.chevron-degrees-button {
     width: 3em;
     height: 3em;
     background-image: url('../arrow_chevron.png');
@@ -714,27 +713,31 @@ user-select: none;
     border: 0;
     background-size: 100% 100%;
 }
-.chevron-north{
-    position:absolute;
+
+.chevron-north {
+    position: absolute;
     bottom: 19em;
     left: 5.8em;
     transform: rotate(90deg);
 }
-.chevron-south{
-    position:absolute;
+
+.chevron-south {
+    position: absolute;
     left: 5.8em;
     bottom: 4em;
     transform: rotate(-90deg);
 }
-.chevron-west{
-    position:absolute;
+
+.chevron-west {
+    position: absolute;
     left: -1.5em;
     bottom: 11.5em;
     width: 3em;
     height: 3em;
 }
-.chevron-east{
-    position:absolute;
+
+.chevron-east {
+    position: absolute;
     left: 13.2em;
     bottom: 11.5em;
     transform: rotate(180deg);
@@ -747,6 +750,7 @@ user-select: none;
     filter: invert() hue-rotate(180deg);
     background-color: #aaa;
 }
+
 .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
     filter: invert() hue-rotate(180deg);
 }
@@ -756,13 +760,14 @@ user-select: none;
     bottom: 0.5rem;
     right: 0.5rem;
     font-size: 2.5rem;
-    color: rgba(250,250,250,0.5);
+    color: rgba(250, 250, 250, 0.5);
     z-index: 100;
     user-select: none;
     text-align: right;
 
 }
-html body, html .btn {
+
+html .btn {
     font-family: var(--sesar-font);
 }
 

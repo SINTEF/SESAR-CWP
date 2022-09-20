@@ -1,0 +1,80 @@
+name: Create and publish a Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: sintef/sesar-cwp
+  GITOPS_REPOSITORY: SINTEF/infrastructure-as-code-sustainable-communication-technologies
+
+jobs:
+  build-demonstrator-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for main image
+        id: meta-main
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+            type=sha
+
+      - name: Build demonstrator docker image
+
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          push: true
+          tags: ${{ steps.meta-main.outputs.tags }}
+          labels: ${{ steps.meta-main.outputs.labels }}
+          build-args: |
+            MQTT_BROKER_URL=${{ secrets.MQTT_BROKER_URL }}
+            VOICE_SERVER_BEARER_TOKEN=${{ secrets.VOICE_SERVER_BEARER_TOKEN }}
+            VOICE_SERVER_ENDPOINT=${{ secrets.VOICE_SERVER_ENDPOINT }}
+            BUILDTIME=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.created'] }}
+            VERSION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.version'] }}
+            REVISION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+  deploy:
+    if: contains(github.ref, 'heads')
+    runs-on: ubuntu-latest
+    needs:
+      - build-demonstrator-image
+      - build-demonstrator-init-image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.GITOPS_REPOSITORY }}
+          ssh-key: ${{secrets.GITOPS_REPOSITORY_SSH_KEY}}
+      - name: Patch version
+        run: |
+          yq --inplace '.image.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/gaia/image-tag.yaml
+      - name: Commit and push
+        run: |
+          git config user.email "gitops@sintef.cloud"
+          git config user.name "GitOps"
+          git commit -am "GitOps update for SESAR-CWP"
+          git pull --rebase
+          git push

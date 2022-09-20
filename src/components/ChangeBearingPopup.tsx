@@ -39,12 +39,12 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
 
   return (
     <div className="change-bearing">
-      <div>
+      <form onSubmit={(event):void => { event.preventDefault(); submit(); }}>
         New Bearing:
         <input className="input-filter-bearing" type="number" min="0" max="360"
             value={newBearing}
             onChange={(event): void => setNewBearing(event.target.value)}/>
-      </div>
+      </form>
       <div className="submit-cancel-buttons">
         <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
         <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>

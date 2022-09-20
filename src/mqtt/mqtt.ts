@@ -5,7 +5,23 @@ import type { IClientPublishOptions } from 'mqtt';
 import router from './router';
 import topics from './topics';
 
-const client = mqtt.connect('ws://localhost:9001/mqtt');
+function createClient(): mqtt.Client {
+  const MQTT_BROKER_URL = import.meta.env.VITE_MQTT_BROKER_URL;
+
+  let brokerUrl: string;
+  if (MQTT_BROKER_URL) {
+    brokerUrl = MQTT_BROKER_URL;
+  } else if (/^localhost(:\d+)?$/.test(window.location.host)) {
+    brokerUrl = 'ws://localhost:9001/mqtt';
+  } else {
+    const isHTTPS = window.location.protocol === 'https:';
+    brokerUrl = `${isHTTPS ? 'wss' : 'ws'}://${window.location.host}/mqtt`;
+  }
+
+  return mqtt.connect(brokerUrl);
+}
+
+const client = createClient();
 
 client.addListener('connect', () => {
   client.subscribe(topics, (error) => {
