@@ -263,7 +263,6 @@ div#root {
 
 .up-down-arrows {
     display: inline-flex;
-    align-items: space-between;
     justify-content: end;
     align-self: center;
     align-items: center;
