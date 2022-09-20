@@ -1,5 +1,5 @@
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { polygon } from '@turf/turf';
+import { polygon, transformScale } from '@turf/turf';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
@@ -16,14 +16,10 @@ const layerPaint: CirclePaint = {
   'circle-color': ['get', 'circleColor'],
   'circle-blur': 0.9,
 };
-const outLineTest = {
-  'line-color': '#0ff',
-  'line-width': 5,
-};
 
 export default observer(function LimboFlights(/* properties */) {
   const currentSectorBounds = roleConfigurationStore.areaOfCurrentControlledSector?.map((point) => (
-    [point.longitude * 1.5, point.latitude * 1.5]),
+    [point.longitude, point.latitude]),
   );
   const nextSectorBounds = roleConfigurationStore.areaOfNextControlledSector?.map((point) => (
     [point.longitude, point.latitude]),
@@ -34,12 +30,14 @@ export default observer(function LimboFlights(/* properties */) {
     if (currentSectorBounds && nextSectorBounds) {
       const currentPolygon = polygon([currentSectorBounds] as unknown as Position[][]);
       const nextPolygon = polygon([nextSectorBounds] as unknown as Position[][]);
+      const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'center' });
+
       const addedAircrafts: AircraftModel[] = [];
       const removedAircrafts: AircraftModel[] = [];
       for (const aircraft of aircraftStore.aircrafts) {
         const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
         const inCurrentSector = booleanPointInPolygon(position, currentPolygon);
-        const inNextSector = booleanPointInPolygon(position, nextPolygon);
+        const inNextSector = booleanPointInPolygon(position, scaledNextSectorBounds);
         if (!inCurrentSector && inNextSector) {
           addedAircrafts.push(aircraft[1]);
         }
@@ -84,19 +82,11 @@ export default observer(function LimboFlights(/* properties */) {
     type: 'FeatureCollection',
     features: addedGeoJson as GeoJSON.Feature[],
   };
-  const testSectors = polygon([currentSectorBounds] as unknown as Position[][]);
-  const testGeoJson: GeoJSON.FeatureCollection = {
-    type: 'FeatureCollection',
-    features: [testSectors] as GeoJSON.Feature[],
-  };
-  console.log(testGeoJson);
+
   return (
     <>
       <Source id="limbo-flights-source" type="geojson" data={limboGeoJson}>
         <Layer id="limbo-flights" type="circle" paint={layerPaint} />
-      </Source>
-      <Source id="test-outline" type="geojson" data={testGeoJson}>
-        <Layer id="test" type="line" paint={outLineTest}/>
       </Source>
     </>
   );

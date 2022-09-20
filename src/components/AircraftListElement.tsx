@@ -3,13 +3,30 @@ import React, { useState } from 'react';
 import {
   Table,
 } from 'react-bootstrap';
+import type { ObservableMap } from 'mobx';
 
 import convertTimestamp from '../model/convertTimestamp';
 import {
   configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
+import type FlightInSectorModel from '../model/FlightInSectorModel';
 
-const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
+const flightColor = (value: string, aircraftId: string, flightInSectorTimes :
+ObservableMap<string, FlightInSectorModel>): string => {
+  const listOfTentatives = roleConfigurationStore.roleConfigurations
+    .get(configurationStore.currentCWP)?.tentativeAircrafts;
+  if (roleConfigurationStore.currentControlledSector
+  && flightInSectorTimes.get(roleConfigurationStore.currentControlledSector) !== undefined) {
+    return '#006400';
+  }
+  if (value === configurationStore.currentCWP) {
+    return '#78e251';
+  }
+  if (listOfTentatives?.includes(aircraftId)) {
+    return '#ff00ff';
+  }
+  return '#ffffff';
+};
 const handleFlightClicked = (event: string): void => {
   cwpStore.setHighlightedAircraftId(event);
 };
@@ -72,7 +89,11 @@ export default observer(function AircraftListElement(/* properties */) {
               const toTime = entryTime ? ChangeToLocaleTime(convertTimestamp(entryTime)) : '';
               return (
                 <tr
-                style={{ color: flightColor(aircraftData.controlledBy) }}
+                style={{
+                  color: flightColor(aircraftData.controlledBy,
+                    aircraftData.aircraftId,
+                    aircraftData.flightInSectorTimes),
+                }}
                 key={aircraftData.assignedFlightId}
                 onClick={(): void => handleFlightClicked(aircraftData.assignedFlightId)}>
 

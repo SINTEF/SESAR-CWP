@@ -13,6 +13,7 @@ import type AircraftModel from '../model/AircraftModel';
 type SubContentProperties = {
   aircraft: AircraftModel;
   colSpan?: number;
+  flightColor?: string;
 };
 
 const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
@@ -104,11 +105,11 @@ const AssignedSpeed = observer(({ aircraft }: SubContentProperties): JSX.Element
 ));
 
 export default observer(function AircraftPopupPseudoContent(
-  { aircraft }: SubContentProperties,
+  { aircraft, flightColor }: SubContentProperties,
 ): JSX.Element {
   return (
     <table className="flight-popup-container flight-popup-pseudo-container">
-      <tbody>
+      <tbody style={{ color: flightColor }}>
         <tr>
           <CallSign aircraft={aircraft} colSpan={2} />
         </tr>
