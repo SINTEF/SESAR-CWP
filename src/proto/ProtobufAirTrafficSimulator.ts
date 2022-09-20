@@ -1067,6 +1067,39 @@ export interface AirTrafficControllerAssignmentMessage {
     sectorIds: string[];
 }
 /**
+ * @generated from protobuf message ProtobufAirTrafficSimulator.FlightEnteringAirspaceMessage
+ */
+export interface FlightEnteringAirspaceMessage {
+    /**
+     * @generated from protobuf field: string flightUniqueId = 1;
+     */
+    flightUniqueId: string;
+    /**
+     * @generated from protobuf field: string sectorId = 2;
+     */
+    sectorId: string;
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.Position4D entryPosition = 3;
+     */
+    entryPosition?: Position4D;
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.Position4D exitPosition = 4;
+     */
+    exitPosition?: Position4D;
+    /**
+     * @generated from protobuf field: string entryWaypointId = 5;
+     */
+    entryWaypointId: string;
+    /**
+     * @generated from protobuf field: string exitWaypointId = 6;
+     */
+    exitWaypointId: string;
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.PlanningStage planningStage = 7;
+     */
+    planningStage: PlanningStage;
+}
+/**
  * @generated from protobuf message ProtobufAirTrafficSimulator.AddAcceptedFlightMessage
  */
 export interface AddAcceptedFlightMessage {
@@ -1110,7 +1143,7 @@ export interface AddTentativeFlightMessage {
 }
 // Changing the file
 // protoc --js_out=import_style=commonjs,binary:. ProtobufAirTrafficSimulator.proto
-
+// For changing file here: npm run protoc
 // ###################################################################################
 // * Enumerations, begin.                                                            |
 //  ##################################################################################
@@ -4701,6 +4734,95 @@ class AirTrafficControllerAssignmentMessage$Type extends MessageType<AirTrafficC
  * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.AirTrafficControllerAssignmentMessage
  */
 export const AirTrafficControllerAssignmentMessage = new AirTrafficControllerAssignmentMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class FlightEnteringAirspaceMessage$Type extends MessageType<FlightEnteringAirspaceMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.FlightEnteringAirspaceMessage", [
+            { no: 1, name: "flightUniqueId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "sectorId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "entryPosition", kind: "message", T: () => Position4D },
+            { no: 4, name: "exitPosition", kind: "message", T: () => Position4D },
+            { no: 5, name: "entryWaypointId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 6, name: "exitWaypointId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "planningStage", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.PlanningStage", PlanningStage] }
+        ]);
+    }
+    create(value?: PartialMessage<FlightEnteringAirspaceMessage>): FlightEnteringAirspaceMessage {
+        const message = { flightUniqueId: "", sectorId: "", entryWaypointId: "", exitWaypointId: "", planningStage: 0 };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<FlightEnteringAirspaceMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: FlightEnteringAirspaceMessage): FlightEnteringAirspaceMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string flightUniqueId */ 1:
+                    message.flightUniqueId = reader.string();
+                    break;
+                case /* string sectorId */ 2:
+                    message.sectorId = reader.string();
+                    break;
+                case /* ProtobufAirTrafficSimulator.Position4D entryPosition */ 3:
+                    message.entryPosition = Position4D.internalBinaryRead(reader, reader.uint32(), options, message.entryPosition);
+                    break;
+                case /* ProtobufAirTrafficSimulator.Position4D exitPosition */ 4:
+                    message.exitPosition = Position4D.internalBinaryRead(reader, reader.uint32(), options, message.exitPosition);
+                    break;
+                case /* string entryWaypointId */ 5:
+                    message.entryWaypointId = reader.string();
+                    break;
+                case /* string exitWaypointId */ 6:
+                    message.exitWaypointId = reader.string();
+                    break;
+                case /* ProtobufAirTrafficSimulator.PlanningStage planningStage */ 7:
+                    message.planningStage = reader.int32();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: FlightEnteringAirspaceMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string flightUniqueId = 1; */
+        if (message.flightUniqueId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.flightUniqueId);
+        /* string sectorId = 2; */
+        if (message.sectorId !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.sectorId);
+        /* ProtobufAirTrafficSimulator.Position4D entryPosition = 3; */
+        if (message.entryPosition)
+            Position4D.internalBinaryWrite(message.entryPosition, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* ProtobufAirTrafficSimulator.Position4D exitPosition = 4; */
+        if (message.exitPosition)
+            Position4D.internalBinaryWrite(message.exitPosition, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        /* string entryWaypointId = 5; */
+        if (message.entryWaypointId !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.entryWaypointId);
+        /* string exitWaypointId = 6; */
+        if (message.exitWaypointId !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.exitWaypointId);
+        /* ProtobufAirTrafficSimulator.PlanningStage planningStage = 7; */
+        if (message.planningStage !== 0)
+            writer.tag(7, WireType.Varint).int32(message.planningStage);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.FlightEnteringAirspaceMessage
+ */
+export const FlightEnteringAirspaceMessage = new FlightEnteringAirspaceMessage$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class AddAcceptedFlightMessage$Type extends MessageType<AddAcceptedFlightMessage> {
     constructor() {

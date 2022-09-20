@@ -31,21 +31,19 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
             {/* <button type="button" className="set-button"> SET </button> */}
           </Col>
           <Col className="align-self-start">
-            <h6>
-              H:
-              <input className="input-filter" style={{ width: '2.5em' }} type="text" value={highestBound}
-                onChange={(event): void => setHighBound(
-                  Number.parseInt(event.target.value, 10) || 0)} />
+            <p>
+              H:&nbsp;
+              <input className="input-filter-panel" style={{ width: '40px', fontSize: '12px' }} type="text" value={Number.isNaN(highestBound) ? 0 : highestBound}
+                onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
               {' '}
-            </h6>
-            <h6>
-              L:
-              <input className="input-filter" style={{ width: '2.5em' }} type="text" value={lowestBound}
-                onChange={(event): void => setLowBound(
-                  Number.parseInt(event.target.value, 10) || 0)} />
+            </p>
+            <p>
+              L:&nbsp;
+              <input className="input-filter-panel" style={{ width: '43px', fontSize: '12px' }} type="text" value={Number.isNaN(lowestBound) ? 0 : lowestBound}
+                onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
 
               {' '}
-            </h6>
+            </p>
           </Col>
           <Col className="range-wrapper align-self-start">
             <input type="range" value={highestBound} className="range" min={lowestBound} max="1000"

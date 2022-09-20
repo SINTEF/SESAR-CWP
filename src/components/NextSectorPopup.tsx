@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Dropdown } from 'react-bootstrap';
 
 import { handlePublishPromise, tentativeFlight } from '../mqtt/publishers';
-import { configurationStore, cwpStore } from '../state';
+import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
 export default observer(function NextSectorPopup(properties: {
@@ -17,6 +17,7 @@ export default observer(function NextSectorPopup(properties: {
     setNextSectorController,
   } = properties.aircraft;
 
+  const { listOfAllControllers } = roleConfigurationStore;
   const [controllerPlaceholder, setControllerPlaceholder] = React.useState(controlledBy);
   const shouldShow = cwpStore.aircraftsWithSectorPopup.has(aircraftId);
   if (!shouldShow) {
@@ -54,10 +55,9 @@ export default observer(function NextSectorPopup(properties: {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {/* Needs to be set by configuration-file */}
-            <Dropdown.Item eventKey="CWP_NW">CWP_NW</Dropdown.Item>
-            <Dropdown.Item eventKey="CWP_NE">CWP_NE</Dropdown.Item>
-            <Dropdown.Item eventKey="CWP_S">CWP_S</Dropdown.Item>
+            {listOfAllControllers.map(
+              (name) => (<Dropdown.Item eventKey={name} key={name}>{name}</Dropdown.Item>))}
+
           </Dropdown.Menu>
         </Dropdown>
       </div>

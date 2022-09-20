@@ -71,7 +71,7 @@ export default observer(function SectorPolygons(/* properties */) {
   ): string => computed(() => {
     for (const key of roleConfigurationStore.roleConfigurations.keys()) {
       const sector = roleConfigurationStore
-        .getControlledSector(key, currentConfigurationId);
+        .findCurrentSectorByCWP(key, currentConfigurationId);
       if (sector === sectorId) {
         return `${key}-${bottomFL}-${topFL}`;
       }
@@ -99,6 +99,7 @@ export default observer(function SectorPolygons(/* properties */) {
         },
       };
     });
+  console.log(sectors);
   const centroidPoints = [];
   const coeff = 0.001;
   const sectorsLength = sectors.length;

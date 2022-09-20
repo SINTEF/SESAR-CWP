@@ -46,7 +46,7 @@ export default class RoleConfigurationStore {
     if (!nextConfigurationId) {
       return undefined;
     }
-    return this.getControlledSector(currentCWP, nextConfigurationId);
+    return this.findCurrentSectorByCWP(currentCWP, nextConfigurationId);
   }
 
   getControlledSector(cwpRoleName: string, config: string): string {
@@ -136,6 +136,14 @@ export default class RoleConfigurationStore {
     return color ?? '#555';
   }
 
+  getCWPBySectorId(sectorId:string): string {
+    const cwpName = [...this.roleConfigurations]
+      .map(([index, array]) => (array.inSectorToControl(sectorId)
+        ? this.roleConfigurations
+          .get(index)?.cwpRoleName : undefined)).find((element) => element !== undefined);
+    return cwpName ?? '';
+  }
+
   handleNewAirTrafficControllerMessage(newAirTrafficControllerMessage:
   AirTrafficControllerAssignmentMessage): void {
     const roleName = `CWP${newAirTrafficControllerMessage.airTrafficControllerId}`;
@@ -201,5 +209,25 @@ export default class RoleConfigurationStore {
       pseudoControllers.push(`${value[0]} PseudoPilot`);
     }
     return pseudoControllers;
+  }
+
+  get aircraftsEnteringCurrentSector(): AircraftModel[] {
+    const currentSector = this.currentControlledSector;
+    const listOfAircraftsInSector = this.listOfFlightsInCurrentSector;
+    const listOfAircraftsEnteringSector = currentSector
+      ? this.aircraftStore.aircraftsWithRecentTargetReport.map((aircraft) => {
+        if (aircraft.flightInSectorTimes?.get(currentSector) !== undefined) {
+          return aircraft;
+        }
+        return undefined;
+      }) : [];
+    const filteredUndefined : AircraftModel[] = [];
+    for (const aircraft of listOfAircraftsEnteringSector) {
+      if (aircraft !== undefined) {
+        filteredUndefined.push(aircraft);
+      }
+    }
+
+    return [...listOfAircraftsInSector, ...filteredUndefined];
   }
 }

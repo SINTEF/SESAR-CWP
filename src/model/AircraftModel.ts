@@ -7,7 +7,10 @@ import {
   WakeTurbulenceCategory,
 } from '../proto/ProtobufAirTrafficSimulator';
 import convertTimestamp from './convertTimestamp';
-import type { FlightMilestonePositionMessage, NewFlightMessage, TargetReportMessage } from '../proto/ProtobufAirTrafficSimulator';
+import FlightInSectorModel from './FlightInSectorModel';
+import type {
+  FlightEnteringAirspaceMessage, FlightMilestonePositionMessage, NewFlightMessage, TargetReportMessage,
+} from '../proto/ProtobufAirTrafficSimulator';
 import type AircraftInfo from './AircraftInfo';
 import type AircraftType from './AircraftType';
 import type SimulatorStore from './SimulatorStore';
@@ -68,6 +71,8 @@ export default class AircraftModel {
 
   aircraftTypes: ObservableMap<string, AircraftType>;
 
+  flightInSectorTimes: ObservableMap<string, FlightInSectorModel>;
+
   simulatorStore: SimulatorStore;
 
   // flightColor = '#ffffff'; Not made it work nicely with magenta
@@ -81,6 +86,7 @@ export default class AircraftModel {
     aircraftInfo,
     aircraftTypes,
     simulatorStore,
+    flightInSectorTimes,
   }: {
     aircraftId: string;
     assignedFlightId: string;
@@ -89,6 +95,7 @@ export default class AircraftModel {
     departureAirport: string;
     aircraftInfo: ObservableMap<string, AircraftInfo>;
     aircraftTypes: ObservableMap<string, AircraftType>;
+    flightInSectorTimes: ObservableMap<string, FlightInSectorModel>;
     simulatorStore: SimulatorStore;
   }) {
     makeObservable(this, {
@@ -99,6 +106,7 @@ export default class AircraftModel {
       aircraftInfo: false,
       aircraftTypes: false,
       simulatorStore: false,
+      flightInSectorTimes: observable,
       lastKnownLongitude: observable,
       lastKnownLatitude: observable,
       lastKnownAltitude: observable,
@@ -139,6 +147,7 @@ export default class AircraftModel {
     this.departureAirport = departureAirport;
     this.aircraftInfo = aircraftInfo;
     this.aircraftTypes = aircraftTypes;
+    this.flightInSectorTimes = flightInSectorTimes;
     this.simulatorStore = simulatorStore;
   }
 
@@ -258,6 +267,32 @@ export default class AircraftModel {
       default:
         return `${speed}`;
     }
+  }
+
+  handleSectorInFlightMessage(message: FlightEnteringAirspaceMessage): void {
+    const {
+      flightUniqueId,
+      sectorId, entryPosition, exitPosition, entryWaypointId, exitWaypointId,
+    } = message;
+    const flightInSector = new FlightInSectorModel({
+      sectorId,
+      entryPosition,
+      exitPosition,
+      entryWaypointId,
+      exitWaypointId,
+    });
+    const listsSectorHasFlight = this.flightInSectorTimes;
+    for (const element of listsSectorHasFlight) {
+      if (element[1].sectorId === sectorId) {
+        element[1] = flightInSector;
+        return;
+      }
+      if (element[1]?.entryPosition?.time && entryPosition?.time
+      && element[1]?.entryPosition?.time < entryPosition?.time) {
+        this.flightInSectorTimes.delete(element[0]);
+      }
+    }
+    this.flightInSectorTimes.set(flightUniqueId, flightInSector);
   }
 
   setAssignedFlightLevel(assignedFlightLevel: string): void {

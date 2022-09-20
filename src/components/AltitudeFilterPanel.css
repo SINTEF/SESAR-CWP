@@ -1,7 +1,7 @@
 .altitude-filter-panel {
   position: absolute;
   bottom: 1.9rem;
-  left: 24rem;
+  left: 32rem;
   margin-left: 1px;
   font-size: 13px;
   color: white;
@@ -34,7 +34,11 @@
   color: white;
   /* width: 2.5em !important; */
 }
-
+.input-filter-panel {
+  background: transparent;
+  color: white;
+  /* width: 2.5em !important; */
+}
 .range {
   width: 20px;
   height: 80px;
