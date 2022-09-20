@@ -101,8 +101,7 @@ export function airTrafficControllerMessage(parameters: unknown, message: Buffer
 }
 export function flightEnteringAirspaceMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = FlightEnteringAirspaceMessage.fromBinary(message);
-  console.log(protoMessage);
-  // configurationStore.handleFlightEnteringAirspaceMessage(protoMessage);
+  aircraftStore.handleNewSectorInFlightMessage(protoMessage);
 }
 
 export function frontendFlightController(
