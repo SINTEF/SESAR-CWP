@@ -46,7 +46,7 @@ export default class RoleConfigurationStore {
     if (!nextConfigurationId) {
       return undefined;
     }
-    return this.getControlledSector(currentCWP, nextConfigurationId);
+    return this.findCurrentSectorByCWP(currentCWP, nextConfigurationId);
   }
 
   getControlledSector(cwpRoleName: string, config: string): string {
@@ -134,6 +134,14 @@ export default class RoleConfigurationStore {
         ? this.roleConfigurations
           .get(index)?.assignedColorById : undefined)).find((element) => element !== undefined);
     return color ?? '#555';
+  }
+
+  getCWPBySectorId(sectorId:string): string {
+    const cwpName = [...this.roleConfigurations]
+      .map(([index, array]) => (array.inSectorToControl(sectorId)
+        ? this.roleConfigurations
+          .get(index)?.cwpRoleName : undefined)).find((element) => element !== undefined);
+    return cwpName ?? '';
   }
 
   handleNewAirTrafficControllerMessage(newAirTrafficControllerMessage:

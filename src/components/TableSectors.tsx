@@ -156,13 +156,13 @@ export default function TableSectors({
           onClick={(): void => {
             if (isDragging()) return;
             clickedSectorButton(
-              sectorsOfArray[sectorsOfArray.length - index].sectorId,
+              sectorId,
             );
           }}
         >
         <Card.Body>
           <Card.Title className="sector-title">
-            {sectorsOfArray[sectorsOfArray.length - index].sectorId.slice(-14)}
+            {`${roleConfigurationStore.getCWPBySectorId(sectorId)}-${sectorId}` }
           </Card.Title>
           <Card.Text className="sector-body">
             {`FL ${bottomFlightLevel}-${topFlightLevel}`}

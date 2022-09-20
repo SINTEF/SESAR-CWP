@@ -232,25 +232,47 @@ gap: 0px;
     align-self: center;
     font-size: 10px !important;
     color: #fff !important;
-    width: 10em !important;
+    width: 12em !important;
     height: 3em;
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.1) !important;
 }
 .fix-selector-container{
     display: inline-flex;
-    justify-content: start;
+    justify-content: space-between;
     justify-items: center;
     align-items: center;
     align-content: center;
-    font-size: 10px !important;
-    color: #fff !important;
-    width: 20em !important;
+    font-size: 10px;
+    color: #fff;
+    width: 100%;
     height: 3em;
 }
 .fix-selector-container option{
     background-color: #404040 !important;
 }
+
+.drop-down-container{
+    display: inline-flex;
+    justify-content: space-between;
+    justify-items: center;
+    align-items: center;
+    align-content: center;
+
+}
+
+.up-down-arrows{
+    display: inline-flex;
+    align-items: space-between;
+    justify-content: end;
+    align-self: center;
+    align-items: center;
+    align-content: center;
+    width: 5em;
+    font-size: 18px;
+    cursor: pointer;
+}
+
 
 .number-of-flight{
     display: inline-flex;
