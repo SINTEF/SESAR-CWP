@@ -23,8 +23,21 @@ const {
   AudioConfig, OutputFormat, Recognizer, SpeechConfig, SpeechRecognizer, ProfanityOption,
 } = window.SpeechSDK;
 
-const VOICE_SERVER_ENDPOINT = import.meta.env.VITE_VOICE_SERVER_ENDPOINT ?? 'http://localhost:3001/api-v1/';
 const VOICE_SERVER_BEARER_TOKEN = import.meta.env.VITE_VOICE_SERVER_BEARER_TOKEN;
+
+function getServerEndPoint(): string {
+  const voiceServerEndpointConfig = import.meta.env.VITE_VOICE_SERVER_ENDPOINT;
+  if (voiceServerEndpointConfig) {
+    return voiceServerEndpointConfig;
+  }
+  if (/^localhost(:\d+)?$/.test(window.location.host)) {
+    return 'http://localhost:3001/api-v1/';
+  }
+  const isHTTPS = window.location.protocol === 'https:';
+  return `${isHTTPS ? 'https' : 'http'}://${window.location.host}/api-v1/`;
+}
+
+const VOICE_SERVER_ENDPOINT = getServerEndPoint();
 
 interface AuthorizationToken {
   token: string;
@@ -32,9 +45,6 @@ interface AuthorizationToken {
 }
 
 async function RequestAuthorizationToken(): Promise<AuthorizationToken> {
-  if (!VOICE_SERVER_ENDPOINT) {
-    throw new Error('VITE_VOICE_SERVER_ENDPOINT is not set');
-  }
   if (!VOICE_SERVER_BEARER_TOKEN) {
     throw new Error('VITE_VOICE_SERVER_BEARER_TOKEN is not set');
   }
