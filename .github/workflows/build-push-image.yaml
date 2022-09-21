@@ -109,8 +109,8 @@ jobs:
           ssh-key: ${{secrets.GITOPS_REPOSITORY_SSH_KEY}}
       - name: Patch version
         run: |
-          yq --inplace '.frontendImage.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/sesar/image-tag.yaml
-          yq --inplace '.serverImage.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/sesar/image-tag.yaml
+          yq --inplace '.image.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/sesar/image-tag.yaml
+          yq --inplace '.sesar-server.image.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/sesar/image-tag.yaml
       - name: Commit and push
         run: |
           git config user.email "gitops@sintef.cloud"
