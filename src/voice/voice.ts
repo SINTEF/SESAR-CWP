@@ -30,7 +30,7 @@ function getServerEndPoint(): string {
   if (voiceServerEndpointConfig) {
     return voiceServerEndpointConfig;
   }
-  if (/^(localhost|127\.\d+\.\d+.\d+|\[::1])(:\d+)?$/.test(window.location.host)) {
+  if (/^(localhost|127(?:\.\d{1,3}){2}.\d{1,3}|\[:{2}1])(:\d+)?$/.test(window.location.host)) {
     return 'http://localhost:3001/api-v1/';
   }
   const isHTTPS = window.location.protocol === 'https:';
