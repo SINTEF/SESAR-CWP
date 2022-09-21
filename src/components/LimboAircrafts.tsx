@@ -30,13 +30,13 @@ export default observer(function LimboFlights(/* properties */) {
     if (currentSectorBounds && nextSectorBounds) {
       const currentPolygon = polygon([currentSectorBounds] as unknown as Position[][]);
       const nextPolygon = polygon([nextSectorBounds] as unknown as Position[][]);
-      const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'center' });
-
+      const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'centroid' });
+      const scaledCurrentSectorBounds = transformScale(currentPolygon, 0.75, { origin: 'centroid' });
       const addedAircrafts: AircraftModel[] = [];
       const removedAircrafts: AircraftModel[] = [];
       for (const aircraft of aircraftStore.aircrafts) {
         const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
-        const inCurrentSector = booleanPointInPolygon(position, currentPolygon);
+        const inCurrentSector = booleanPointInPolygon(position, scaledCurrentSectorBounds);
         const inNextSector = booleanPointInPolygon(position, scaledNextSectorBounds);
         if (!inCurrentSector && inNextSector) {
           addedAircrafts.push(aircraft[1]);

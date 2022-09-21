@@ -9,6 +9,7 @@ import type AircraftModel from './AircraftModel';
 import type AircraftStore from './AircraftStore';
 import type ConfigurationStore from './ConfigurationStore';
 import type CoordinatePair from './CoordinatePair';
+import type FixStore from './FixStore';
 import type { ISectorModel } from './ISectorModel';
 
 export default class RoleConfigurationStore {
@@ -19,20 +20,26 @@ export default class RoleConfigurationStore {
 
   aircraftStore: AircraftStore;
 
+  fixStore: FixStore;
+
   constructor({
     configurationStore,
     aircraftStore,
+    fixStore,
   }: {
     configurationStore: ConfigurationStore,
-    aircraftStore: AircraftStore
+    aircraftStore: AircraftStore,
+    fixStore: FixStore,
   }) {
     makeAutoObservable(this, {
       configurationStore: false,
       getControlledSector: false,
       aircraftStore: false,
+      fixStore: false,
     }, { autoBind: true });
     this.configurationStore = configurationStore;
     this.aircraftStore = aircraftStore;
+    this.fixStore = fixStore;
     this.getControlledSector = this.getControlledSector.bind(this);
   }
 
@@ -174,6 +181,28 @@ export default class RoleConfigurationStore {
     return undefined;
   }
 
+  getOriginalColorOfAircraft(aircraftId: string): string {
+    let flightColor = '#ffffff';
+    const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
+    if (!aircraft) {
+      return flightColor;
+    }
+    const listOfTentatives = this.roleConfigurations
+      .get(this.configurationStore.currentCWP)?.tentativeAircrafts;
+    if (this.currentControlledSector
+  && aircraft.flightInSectorTimes?.get(this.currentControlledSector) !== undefined) {
+      flightColor = '#009900';
+    }
+    if (aircraft.controlledBy === this.configurationStore.currentCWP) {
+      flightColor = '#78e251';
+    }
+    if (listOfTentatives?.includes(aircraftId)) {
+      flightColor = '#ff00ff';
+    }
+    // light green: "#CEFCBA"
+    return flightColor;
+  }
+
   get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
     if (this.areaOfCurrentControlledSector !== undefined) {
       const coordinates = this.areaOfCurrentControlledSector?.map((point) => (
@@ -227,7 +256,29 @@ export default class RoleConfigurationStore {
         filteredUndefined.push(aircraft);
       }
     }
+    const allAircrafts = [...new Set([...listOfAircraftsInSector, ...filteredUndefined])];
+    return allAircrafts;
+  }
 
-    return [...listOfAircraftsInSector, ...filteredUndefined];
+  get listOfFixesInPolygon(): string[] {
+    const { fixes } = this.fixStore;
+    if (this.areaOfCurrentControlledSector !== undefined) {
+      const coordinates = this.areaOfCurrentControlledSector.map((point) => (
+        [point.longitude, point.latitude]),
+      );
+      const boundsGeometry = polygon(
+        [coordinates] as unknown as Position[][]);
+      const temporaryFixes: string[] = [];
+      for (const fix of fixes) {
+        const position: Position = [fix[1].longitude, fix[1].latitude];
+        const bool = booleanPointInPolygon(position, boundsGeometry);
+        if (bool) {
+          temporaryFixes.push(fix[0]);
+        }
+      }
+      temporaryFixes.sort();
+      return temporaryFixes;
+    }
+    return [];
   }
 }

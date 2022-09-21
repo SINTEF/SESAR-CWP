@@ -71,11 +71,10 @@ export default class AircraftModel {
 
   aircraftTypes: ObservableMap<string, AircraftType>;
 
-  flightInSectorTimes: ObservableMap<string, FlightInSectorModel>;
+  flightInSectorTimes: ObservableMap<string, FlightInSectorModel> = observable.map(
+    undefined, { deep: false });
 
   simulatorStore: SimulatorStore;
-
-  // flightColor = '#ffffff'; Not made it work nicely with magenta
 
   constructor({
     aircraftId,
@@ -86,7 +85,6 @@ export default class AircraftModel {
     aircraftInfo,
     aircraftTypes,
     simulatorStore,
-    flightInSectorTimes,
   }: {
     aircraftId: string;
     assignedFlightId: string;
@@ -95,7 +93,6 @@ export default class AircraftModel {
     departureAirport: string;
     aircraftInfo: ObservableMap<string, AircraftInfo>;
     aircraftTypes: ObservableMap<string, AircraftType>;
-    flightInSectorTimes: ObservableMap<string, FlightInSectorModel>;
     simulatorStore: SimulatorStore;
   }) {
     makeObservable(this, {
@@ -147,7 +144,6 @@ export default class AircraftModel {
     this.departureAirport = departureAirport;
     this.aircraftInfo = aircraftInfo;
     this.aircraftTypes = aircraftTypes;
-    this.flightInSectorTimes = flightInSectorTimes;
     this.simulatorStore = simulatorStore;
   }
 
@@ -271,7 +267,6 @@ export default class AircraftModel {
 
   handleSectorInFlightMessage(message: FlightEnteringAirspaceMessage): void {
     const {
-      flightUniqueId,
       sectorId, entryPosition, exitPosition, entryWaypointId, exitWaypointId,
     } = message;
     const flightInSector = new FlightInSectorModel({
@@ -282,17 +277,19 @@ export default class AircraftModel {
       exitWaypointId,
     });
     const listsSectorHasFlight = this.flightInSectorTimes;
-    for (const element of listsSectorHasFlight) {
-      if (element[1].sectorId === sectorId) {
-        element[1] = flightInSector;
-        return;
-      }
-      if (element[1]?.entryPosition?.time && entryPosition?.time
+    if (listsSectorHasFlight) {
+      for (const element of listsSectorHasFlight) {
+        if (element[1].sectorId === sectorId) {
+          element[1] = flightInSector;
+          return;
+        }
+        if (element[1]?.entryPosition?.time && entryPosition?.time
       && element[1]?.entryPosition?.time < entryPosition?.time) {
-        this.flightInSectorTimes.delete(element[0]);
+          listsSectorHasFlight.delete(element[0]);
+        }
       }
+      listsSectorHasFlight.set(sectorId, flightInSector);
     }
-    this.flightInSectorTimes.set(flightUniqueId, flightInSector);
   }
 
   setAssignedFlightLevel(assignedFlightLevel: string): void {

@@ -28,7 +28,7 @@ const sectorNamesPaint: SymbolPaint = {
 };
 const sectorHighlightPaint: FillPaint = {
   'fill-color': '#fff',
-  'fill-opacity': 0.4,
+  'fill-opacity': 0.2,
 };
 
 const sectorNameslayout: SymbolLayout = {

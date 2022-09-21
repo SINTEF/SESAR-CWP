@@ -1,21 +1,16 @@
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { polygon } from '@turf/turf';
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 import {
   Form,
   Table,
 } from 'react-bootstrap';
-import type { Position } from '@turf/turf';
-import type { ObservableMap } from 'mobx';
 
 import convertTimestamp from '../model/convertTimestamp';
 import {
-  aircraftStore, configurationStore, cwpStore, fixStore,
+  aircraftStore, cwpStore, fixStore,
   roleConfigurationStore,
 } from '../state';
 import type AircraftModel from '../model/AircraftModel';
-import type FlightInSectorModel from '../model/FlightInSectorModel';
 
 function ChangeToLocaleTime(time: number): string {
   const date = new Date(time * 1000);
@@ -28,22 +23,6 @@ function ChangeToLocaleTime(time: number): string {
   return localeTime;
 }
 
-const flightColor = (value: string, aircraftId: string, flightInSectorTimes:
-ObservableMap<string, FlightInSectorModel>): string => {
-  const listOfTentatives = roleConfigurationStore.roleConfigurations
-    .get(configurationStore.currentCWP)?.tentativeAircrafts;
-  if (roleConfigurationStore.currentControlledSector
-    && flightInSectorTimes.get(roleConfigurationStore.currentControlledSector) !== undefined) {
-    return '#006400';
-  }
-  if (value === configurationStore.currentCWP) {
-    return '#78e251';
-  }
-  if (listOfTentatives?.includes(aircraftId)) {
-    return '#ff00ff';
-  }
-  return '#ffffff';
-};
 const handleFlightClicked = (event: string): void => {
   cwpStore.setHighlightedAircraftId(event);
 };
@@ -52,29 +31,9 @@ export default observer(function SectorFlightList(/* properties */) {
   const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
   const [valueSelected, setSelectedValue] = useState('');
-  const [listOfFixes, setListOfFixes] = React.useState<string[]>([]);
+  const listOfFixes = roleConfigurationStore.listOfFixesInPolygon;
   const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>([]);
   const fixSelect = React.createRef<HTMLSelectElement>();
-
-  React.useEffect(() => {
-    if (roleConfigurationStore.areaOfCurrentControlledSector !== undefined) {
-      const coordinates = roleConfigurationStore.areaOfCurrentControlledSector.map((point) => (
-        [point.longitude, point.latitude]),
-      );
-      const boundsGeometry = polygon(
-        [coordinates] as unknown as Position[][]);
-      const temporaryFixes: string[] = [];
-      for (const fix of fixStore.fixes) {
-        const position: Position = [fix[1].longitude, fix[1].latitude];
-        const bool = booleanPointInPolygon(position, boundsGeometry);
-        if (bool) {
-          temporaryFixes.push(fix[0]);
-        }
-      }
-      temporaryFixes.sort();
-      setListOfFixes(temporaryFixes);
-    }
-  }, [roleConfigurationStore.areaOfCurrentControlledSector]);
 
   if (!cwpStore.showSFL) return null;
 
@@ -187,17 +146,18 @@ export default observer(function SectorFlightList(/* properties */) {
         <tbody>
           {listOfAircraft.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
             .map((aircraftData) => {
-              const enteringTime = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.time : '';
-              const enteringFix = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryWaypointId : '';
-              const exitingFix = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.exitWaypointId : '';
+              console.log(aircraftData.flightInSectorTimes);
+              // console.log(convertTimestamp(aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.time));
+              const enteringTime = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryPosition?.time : '';
+              const enteringFix = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryWaypointId : '';
+              const exitingFix = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.exitWaypointId : '';
               const enteringToTime = enteringTime ? ChangeToLocaleTime(convertTimestamp(enteringTime)) : '';
-              const enteringFL = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.altitude : '';
+              const enteringFL = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryPosition?.altitude : '';
               return (
                 <tr
                   style={{
-                    color: flightColor(aircraftData.controlledBy,
-                      aircraftData.aircraftId,
-                      aircraftData.flightInSectorTimes),
+                    color: roleConfigurationStore
+                      .getOriginalColorOfAircraft(aircraftData.aircraftId),
                   }} key={aircraftData.assignedFlightId}
                   id={aircraftData.assignedFlightId}
                   onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
@@ -212,18 +172,16 @@ export default observer(function SectorFlightList(/* properties */) {
                   </td>
                   <td
                     style={{
-                      color: flightColor(aircraftData.controlledBy,
-                        aircraftData.aircraftId,
-                        aircraftData.flightInSectorTimes),
+                      color: roleConfigurationStore
+                        .getOriginalColorOfAircraft(aircraftData.aircraftId),
                     }} >
                     {enteringFL}
                   </td>
                   <td>{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
                   <td
                     style={{
-                      color: flightColor(aircraftData.controlledBy,
-                        aircraftData.aircraftId,
-                        aircraftData.flightInSectorTimes),
+                      color: roleConfigurationStore
+                        .getOriginalColorOfAircraft(aircraftData.aircraftId),
                     }}
                   >
                     {Math.ceil(aircraftData.lastKnownAltitude)}
