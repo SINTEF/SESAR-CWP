@@ -20,6 +20,7 @@ COPY --chown=node:node package.json package-lock.json /app/
 RUN npm ci --omit=dev
 COPY --from=builder --chown=node:node /app/dist /app
 COPY --from=dataset-builder --chown=node:node /dataset/fine-tuning-dataset.jsonl /app/voice-ai/fine-tuning-dataset.jsonl
+ENV LISTEN_HOST 0.0.0.0
 ENV LISTEN_PORT 8080
 ENV LOG_FILE_PATH /var/log/app.log
 EXPOSE 8080
