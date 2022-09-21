@@ -89,12 +89,16 @@ rotate a bit down: 3d-view south 10
 tilt to the right: 3d-view east 30
 tilt 3D view to east: 3d-view east 30
 tilt 3D west: 3d-view west 30
+tilt up: 3d-view north 30
+tilt down: 3d-view south 30
 tilt view to north but not much: 3d-view north 10
 to the right: 3d-view east 30
 slightly up: 3d-view north 10
 slightly down: 3d-view south 10
 go to the west 90 degrees: 3d-view west 90
 tilt 3D view to the left a little bit: 3d-view west 10
+Nutch 3D view left: 3d-view west 10
+Nutch view up: 3d-view north 10
 
 # Limbo flights
 Highlight flights that should be handed over: flights-handed
