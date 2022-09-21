@@ -181,8 +181,8 @@ export default class DraggablePopup extends
           className="draggable-popup-line"
           style={{
             display: displayLine ? 'block' : 'none',
-            top: `${popupIsLower ? planeIconRadius : -planeIconRadius}px`,
-            left: `${popupIsOnLeft ? -planeIconRadius : planeIconRadius}px`,
+            top: 0,
+            left: 0,
             width: `${width}px`,
             transform: `rotate(${angle}rad)`,
             background: color,
