@@ -33,13 +33,19 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
           <Col className="align-self-start">
             <p>
               H:&nbsp;
-              <input className="input-filter-panel" style={{ width: '40px', fontSize: '12px' }} type="text" value={Number.isNaN(highestBound) ? 0 : highestBound}
+              <input className="input-filter-panel"
+                type="text" inputMode="numeric" pattern="[0-9]*"
+                style={{ width: '40px', fontSize: '12px' }}
+                value={Number.isNaN(highestBound) ? 0 : highestBound}
                 onChange={(event): void => setHighBound(Number.parseInt(event.target.value, 10))} />
               {' '}
             </p>
             <p>
               L:&nbsp;
-              <input className="input-filter-panel" style={{ width: '43px', fontSize: '12px' }} type="text" value={Number.isNaN(lowestBound) ? 0 : lowestBound}
+              <input className="input-filter-panel"
+                type="text" inputMode="numeric" pattern="[0-9]*"
+                style={{ width: '43px', fontSize: '12px' }}
+                value={Number.isNaN(lowestBound) ? 0 : lowestBound}
                 onChange={(event): void => setLowBound(Number.parseInt(event.target.value, 10))} />
 
               {' '}
