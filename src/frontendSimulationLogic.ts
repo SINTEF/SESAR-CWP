@@ -40,6 +40,9 @@ function runSimulationLogic(aircraft: AircraftModel): void {
     localAssignedFlightLevel,
     nextACCFL,
     nextSectorFL,
+    nextSectorController,
+    controlledBy,
+    setNextSectorController,
     setAssignedBearing,
     setAssignedFlightLevel,
     setAssignedSpeed,
@@ -84,6 +87,9 @@ function runSimulationLogic(aircraft: AircraftModel): void {
     handlePublishPromise(
       persistSpeedAircraft(assignedFlightId, -1),
     );
+  }
+  if (nextSectorController === controlledBy) {
+    setNextSectorController('NS');
   }
 }
 

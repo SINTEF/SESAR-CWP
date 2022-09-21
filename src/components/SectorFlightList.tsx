@@ -7,6 +7,7 @@ import {
   Table,
 } from 'react-bootstrap';
 import type { Position } from '@turf/turf';
+import type { ObservableMap } from 'mobx';
 
 import convertTimestamp from '../model/convertTimestamp';
 import {
@@ -14,6 +15,7 @@ import {
   roleConfigurationStore,
 } from '../state';
 import type AircraftModel from '../model/AircraftModel';
+import type FlightInSectorModel from '../model/FlightInSectorModel';
 
 function ChangeToLocaleTime(time: number): string {
   const date = new Date(time * 1000);
@@ -26,8 +28,22 @@ function ChangeToLocaleTime(time: number): string {
   return localeTime;
 }
 
-const flightColor = (value: string): string => (value === configurationStore.currentCWP ? '#78e251' : '#ffffff');
-
+const flightColor = (value: string, aircraftId: string, flightInSectorTimes:
+ObservableMap<string, FlightInSectorModel>): string => {
+  const listOfTentatives = roleConfigurationStore.roleConfigurations
+    .get(configurationStore.currentCWP)?.tentativeAircrafts;
+  if (roleConfigurationStore.currentControlledSector
+    && flightInSectorTimes.get(roleConfigurationStore.currentControlledSector) !== undefined) {
+    return '#006400';
+  }
+  if (value === configurationStore.currentCWP) {
+    return '#78e251';
+  }
+  if (listOfTentatives?.includes(aircraftId)) {
+    return '#ff00ff';
+  }
+  return '#ffffff';
+};
 const handleFlightClicked = (event: string): void => {
   cwpStore.setHighlightedAircraftId(event);
 };
@@ -62,7 +78,7 @@ export default observer(function SectorFlightList(/* properties */) {
 
   if (!cwpStore.showSFL) return null;
 
-  const setFix = (value:string) : void => {
+  const setFix = (value: string): void => {
     setSelectedValue(value);
     if (value === 'ALL') {
       setListOfAircraft(roleConfigurationStore.aircraftsEnteringCurrentSector);
@@ -75,7 +91,7 @@ export default observer(function SectorFlightList(/* properties */) {
         for (const coordinates of trajectory) {
           const { trajectoryCoordinate } = coordinates;
           if (trajectoryCoordinate.longitude === fixValues?.longitude
-        && trajectoryCoordinate.latitude === fixValues?.latitude) {
+            && trajectoryCoordinate.latitude === fixValues?.latitude) {
             aircrafts
               .push(...aircraftStore.aircraftsWithPosition
                 .filter((aircraft) => aircraft.assignedFlightId === flightId));
@@ -86,7 +102,7 @@ export default observer(function SectorFlightList(/* properties */) {
     }
   };
 
-  const arrowClicked = (direction : string) : void => {
+  const arrowClicked = (direction: string): void => {
     let selectedValue = '';
     if (direction === 'down') {
       if (valueSelected === '' || valueSelected === 'ALL') {
@@ -117,8 +133,8 @@ export default observer(function SectorFlightList(/* properties */) {
           <tr>
             <th colSpan={3}>
               <input
-              className='input-filter'
-              style={{ width: '10em !important' }}
+                className='input-filter'
+                style={{ width: '10em !important' }}
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
@@ -178,10 +194,13 @@ export default observer(function SectorFlightList(/* properties */) {
               const enteringFL = currentSector ? aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.altitude : '';
               return (
                 <tr
-                style={{ color: flightColor(aircraftData.controlledBy) }}
-                key={aircraftData.assignedFlightId}
-                id={aircraftData.assignedFlightId}
-                onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
+                  style={{
+                    color: flightColor(aircraftData.controlledBy,
+                      aircraftData.aircraftId,
+                      aircraftData.flightInSectorTimes),
+                  }} key={aircraftData.assignedFlightId}
+                  id={aircraftData.assignedFlightId}
+                  onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
                   <td>
                     {enteringFix}
                   </td>
@@ -192,15 +211,21 @@ export default observer(function SectorFlightList(/* properties */) {
                     {aircraftData.callSign}
                   </td>
                   <td
-                  style={{ color: flightColor(aircraftData.controlledBy) }}
-                >
+                    style={{
+                      color: flightColor(aircraftData.controlledBy,
+                        aircraftData.aircraftId,
+                        aircraftData.flightInSectorTimes),
+                    }} >
                     {enteringFL}
                   </td>
                   <td>{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
                   <td
-                  style={{ color: flightColor(aircraftData.controlledBy) }}
-
-                >
+                    style={{
+                      color: flightColor(aircraftData.controlledBy,
+                        aircraftData.aircraftId,
+                        aircraftData.flightInSectorTimes),
+                    }}
+                  >
                     {Math.ceil(aircraftData.lastKnownAltitude)}
                   </td>
                   <td>

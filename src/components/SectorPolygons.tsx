@@ -99,7 +99,6 @@ export default observer(function SectorPolygons(/* properties */) {
         },
       };
     });
-  console.log(sectors);
   const centroidPoints = [];
   const coeff = 0.001;
   const sectorsLength = sectors.length;
