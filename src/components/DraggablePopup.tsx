@@ -98,7 +98,6 @@ export default class DraggablePopup extends
 
     // Compute the length of the line from the offset,
     // use pytagore
-    const planeIconRadius = 10;
     const planeIconIntersectRadius = 15;
 
     const coreWidth = size.width;
@@ -109,16 +108,12 @@ export default class DraggablePopup extends
     let adjustedLineX = offsetX;
     let adjustedLineY = offsetY;
 
-    if (popupIsLower) {
-      adjustedLineY -= planeIconRadius;
-    } else {
-      adjustedLineY += coreHeight + planeIconRadius;
+    if (!popupIsLower) {
+      adjustedLineY += coreHeight;
     }
 
     if (popupIsOnLeft) {
-      adjustedLineX += coreWidth + planeIconRadius;
-    } else {
-      adjustedLineX -= planeIconRadius;
+      adjustedLineX += coreWidth;
     }
 
     const width = Math.sqrt(adjustedLineX * adjustedLineX
