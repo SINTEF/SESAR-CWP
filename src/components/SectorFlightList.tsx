@@ -22,6 +22,10 @@ function ChangeToLocaleTime(time: number): string {
   });
   return localeTime;
 }
+function convertMetersToFlightLevel(altitude: number): number {
+  const feet = altitude * 3.280_84;
+  return Math.round(feet / 100);
+}
 
 const handleFlightClicked = (event: string): void => {
   cwpStore.setHighlightedAircraftId(event);
@@ -146,8 +150,6 @@ export default observer(function SectorFlightList(/* properties */) {
         <tbody>
           {listOfAircraft.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
             .map((aircraftData) => {
-              console.log(aircraftData.flightInSectorTimes);
-              // console.log(convertTimestamp(aircraftData.flightInSectorTimes.get(currentSector)?.entryPosition?.time));
               const enteringTime = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryPosition?.time : '';
               const enteringFix = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryWaypointId : '';
               const exitingFix = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.exitWaypointId : '';
@@ -175,7 +177,7 @@ export default observer(function SectorFlightList(/* properties */) {
                       color: roleConfigurationStore
                         .getOriginalColorOfAircraft(aircraftData.aircraftId),
                     }} >
-                    {enteringFL}
+                    {enteringFL ? convertMetersToFlightLevel(enteringFL) : ''}
                   </td>
                   <td>{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
                   <td
