@@ -78,8 +78,13 @@ async function TextToCommand(text: string): Promise<string> {
 
 Recognizer.enableTelemetry(false);
 
+let authorizationTokenCachedPromise: Promise<AuthorizationToken> | undefined;
+
 async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
-  const { token, region } = await RequestAuthorizationToken();
+  if (!authorizationTokenCachedPromise) {
+    authorizationTokenCachedPromise = RequestAuthorizationToken();
+  }
+  const { token, region } = await authorizationTokenCachedPromise;
   const speechConfiguration = SpeechConfig.fromAuthorizationToken(
     token, region,
   );
@@ -99,6 +104,14 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
   ): void => {
     const { result: { text } } = event;
     voiceStore.setCurrentText(text);
+  };
+
+  recognizer.sessionStarted = (): void => {
+    voiceStore.setListening(true);
+  };
+
+  recognizer.sessionStopped = (): void => {
+    voiceStore.setListening(false);
   };
 
   recognizer.recognized = (
@@ -127,7 +140,7 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
 let startupPromise: Promise<SpeechSDKType.SpeechRecognizer> | undefined;
 let stoppingPromise: Promise<void> | undefined;
 
-export async function StartContinousListening(): Promise<void> {
+export async function StartListeningOnce(): Promise<void> {
   try {
     if (stoppingPromise) {
       await stoppingPromise;
@@ -136,20 +149,18 @@ export async function StartContinousListening(): Promise<void> {
     if (!startupPromise) {
       startupPromise = StartUp();
     }
+
     const recognizer = await startupPromise;
-
-    await new Promise<void>((resolve, reject) => {
-      recognizer.startContinuousRecognitionAsync(resolve, reject);
+    await new Promise<SpeechSDKType.SpeechRecognitionResult>((resolve, reject) => {
+      recognizer.recognizeOnceAsync(resolve, reject);
     });
-
-    voiceStore.setListening(true);
   } catch (error) {
     voiceStore.setListening(false);
     throw error;
   }
 }
 
-export async function StopContinuousListening(): Promise<void> {
+export async function StopListeningOnce(): Promise<void> {
   // If we haven't started we are fine
   if (!startupPromise) {
     return;
@@ -158,7 +169,13 @@ export async function StopContinuousListening(): Promise<void> {
   const recognizer = await startupPromise;
 
   stoppingPromise = new Promise<void>((resolve, reject) => {
-    recognizer.stopContinuousRecognitionAsync(resolve, reject);
+    try {
+      recognizer.close();
+      startupPromise = undefined;
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
   });
 
   await stoppingPromise;
@@ -167,5 +184,5 @@ export async function StopContinuousListening(): Promise<void> {
 }
 
 export async function ToggleListening(): Promise<void> {
-  await (voiceStore.listening ? StopContinuousListening() : StartContinousListening());
+  await (voiceStore.listening ? StopListeningOnce() : StartListeningOnce());
 }
