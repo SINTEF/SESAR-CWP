@@ -58,7 +58,7 @@ server.post('/api-v1/text-to-command', async (request, reply) => {
   await reply.send(command);
 });
 
-const port = listenPort ? parseInt(listenPort, 10) || 3001 : 3001;
+const port = listenPort ? Number.parseInt(listenPort, 10) || 3001 : 3001;
 
 server.listen({ port }, (error) => {
   if (error) {
