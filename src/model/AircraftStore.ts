@@ -15,7 +15,6 @@ import type {
   NewAircraftTypeMessage, NewFlightMessage,
   PositionAtObject, TargetReportMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
-import type FlightInSectorModel from './FlightInSectorModel';
 import type SimulatorStore from './SimulatorStore';
 
 export default class AircraftStore {
@@ -26,9 +25,6 @@ export default class AircraftStore {
   aircraftTypes: ObservableMap<string, AircraftType> = observable.map(undefined, { deep: false });
 
   flightRoutes: ObservableMap<string, FlightRoute> = observable.map(undefined, { deep: false });
-
-  flightsInSectorTimes:
-  ObservableMap<string, FlightInSectorModel> = observable.map(undefined, { deep: false });
 
   simulatorStore: SimulatorStore;
 
@@ -73,7 +69,6 @@ export default class AircraftStore {
         departureAirport: newFlight.departureAirport,
         aircraftInfo: this.aircraftInfo,
         aircraftTypes: this.aircraftTypes,
-        flightInSectorTimes: this.flightsInSectorTimes,
         simulatorStore: this.simulatorStore,
       }));
     }
@@ -192,6 +187,8 @@ export default class AircraftStore {
       console.warn('Received sector in flight message for unknown aircraft', flightUniqueId);
       return;
     }
+    // console.log(this.flightsInSectorTimes);
+
     aircraft.handleSectorInFlightMessage(flightEnteringAirspaceMessage);
   }
 

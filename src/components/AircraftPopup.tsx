@@ -30,25 +30,11 @@ export default observer(function AircraftPopup(properties: {
     lastKnownLongitude: longitude,
     lastKnownLatitude: latitude,
     lastKnownAltitude: altitude,
-    controlledBy,
     localAssignedFlightLevel,
     setLocalAssignedFlightLevel,
-    flightInSectorTimes,
   } = aircraft;
 
-  let flightColor = '#ffffff';
-  const listOfTentatives = roleConfigurationStore.roleConfigurations
-    .get(configurationStore.currentCWP)?.tentativeAircrafts;
-  if (roleConfigurationStore.currentControlledSector
-  && flightInSectorTimes.get(roleConfigurationStore.currentControlledSector) !== undefined) {
-    flightColor = '#006400';
-  }
-  if (controlledBy === configurationStore.currentCWP) {
-    flightColor = '#78e251';
-  }
-  if (listOfTentatives?.includes(aircraftId)) {
-    flightColor = '#ff00ff';
-  }
+  const flightColor = roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
   const showAllFlightLabels = cwpStore.showFlightLabels;
 
   const bounds = configurationStore.extendedEdgesBounds;

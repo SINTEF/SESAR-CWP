@@ -4,7 +4,7 @@ import { Layer, Source } from 'react-map-gl';
 import type { SymbolLayout, SymbolPaint } from 'mapbox-gl';
 
 import {
-  aircraftStore, configurationStore, cwpStore, roleConfigurationStore,
+  aircraftStore, cwpStore, roleConfigurationStore,
 } from '../state';
 
 const cwpLayerLayout: SymbolLayout = {
@@ -35,20 +35,11 @@ export default observer(function ControllerLabel(/* properties */) {
   ));
   const labels: GeoJSON.Feature[] = [];
   for (const aircraft of filteredData) {
-    let flightColor = '#ffffff';
-    const listOfTentatives = roleConfigurationStore.roleConfigurations
-      .get(configurationStore.currentCWP)?.tentativeAircrafts;
-    if (aircraft.controlledBy === configurationStore.currentCWP) {
-      flightColor = '#78e251';
-    }
-    if (listOfTentatives?.includes(aircraft.aircraftId)) {
-      flightColor = '#ff00ff';
-    }
     labels.push({
       type: 'Feature',
       properties: {
         title: aircraft.controlledBy,
-        description: flightColor,
+        description: roleConfigurationStore.getOriginalColorOfAircraft(aircraft.aircraftId),
       },
       geometry: {
         type: 'Point',
