@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .js --ext .ts",
-    "start": "ts-node --esm index.ts"
+    "start": "ts-node --esm index.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -17,14 +18,14 @@
     "@fastify/cors": "^8.1.0",
     "dotenv": "^16.0.2",
     "expiry-map": "^2.0.0",
-    "fastify": "^4.5.3",
-    "got": "^12.4.1",
+    "fastify": "^4.6.0",
+    "got": "^12.5.0",
     "openai": "^3.0.0",
     "p-memoize": "^7.1.0",
-    "pino": "^8.5.0"
+    "pino": "^8.6.0"
   },
   "devDependencies": {
-    "eslint": "^8.23.0",
+    "eslint": "^8.23.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
