@@ -45,6 +45,11 @@ export default observer(function AircraftListElement(/* properties */) {
   const currentSector = roleConfigurationStore.currentControlledSector;
   const [filter, setFilter] = useState('');
   const listOfAircraftsInSector = roleConfigurationStore.aircraftsEnteringCurrentSector;
+
+  if (!cwpStore.showFL) {
+    return null;
+  }
+
   return (
     <div className="aircraft-list">
       <Table className="aircraft-list-table" hover bordered variant="dark">

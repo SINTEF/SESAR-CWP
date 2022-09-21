@@ -88,6 +88,10 @@ export default function Map(): JSX.Element {
       antialias
       onClick={handleMapClick}
       renderWorldCopies={false}
+      // If rotation and pitch should be disabled:
+      // maxPitch={0}
+      // pitchWithRotate={false}
+      // dragRotate={false}
     >
       <DistanceMarkers />
       <DistanceMeasurements />
