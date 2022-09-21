@@ -11,7 +11,7 @@ function createClient(): mqtt.Client {
   let brokerUrl: string;
   if (MQTT_BROKER_URL) {
     brokerUrl = MQTT_BROKER_URL;
-  } else if (/^localhost(:\d+)?$/.test(window.location.host)) {
+  } else if (/^(localhost|127\.\d+\.\d+.\d+|\[::1])(:\d+)?$/.test(window.location.host)) {
     brokerUrl = 'ws://localhost:9001/mqtt';
   } else {
     const isHTTPS = window.location.protocol === 'https:';
