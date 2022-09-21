@@ -27,9 +27,9 @@ export default observer(function MicrophoneButton() {
   } else if (hasErrorState) {
     text = '❌ Error';
   } else if (listening) {
-    text = '🔴 Stop';
+    text = '🔴 Stop Speech';
   } else {
-    text = '🎙 Start';
+    text = '🎙 Start Speech';
   }
 
   return (<button type="button" onClick={handleClick}>

@@ -41,7 +41,8 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
     <div className="change-bearing">
       <form onSubmit={(event):void => { event.preventDefault(); submit(); }}>
         New Bearing:
-        <input className="input-filter-bearing" type="number" min="0" max="360"
+        <input className="input-filter-bearing"
+            type="text" inputMode="numeric" pattern="-?[0-9]*"
             value={newBearing}
             onChange={(event): void => setNewBearing(event.target.value)}/>
       </form>

@@ -16,6 +16,10 @@
   border-radius: 0;
   border-width: 2px;
   border-style: outset;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+  flex-shrink: 1;
   /** 90's style */
 }
 
