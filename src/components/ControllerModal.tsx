@@ -52,20 +52,23 @@ export default observer(function ControllerModal() {
       </Modal.Header>
       <Modal.Body>
         { isLoading ? (
-          <Spinner animation="border" variant="light" />
-        ) : (<>
-          <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
-            {listOfControllers.map(
-              (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
-            <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
-          </ToggleButtonGroup>
-          <br/>
-          <br/>
-          <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
-            {pseudoPilots.map(
-              (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
-          </ToggleButtonGroup>
-        </>)}
+          <div>
+            <Spinner animation="border" variant="light" />
+            <br/>
+            <br/>
+          </div>
+        ) : null}
+        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
+          {listOfControllers.map(
+            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
+          <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
+        </ToggleButtonGroup>
+        <br/>
+        <br/>
+        <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
+          {pseudoPilots.map(
+            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
+        </ToggleButtonGroup>
       </Modal.Body>
     </Modal>
 
