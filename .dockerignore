@@ -3,3 +3,8 @@ dist
 .github
 .vscode
 .env
+.gitignore
+.editorconfig
+.gitattributes
+README.md
+sonar-project.properties

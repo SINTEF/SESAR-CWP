@@ -13,6 +13,7 @@ const {
   BEARER_AUTH_KEYS: bearerAuthKeys,
   LOG_FILE_PATH: logFilePath,
   CORS_REGEX: corsRegex,
+  LISTEN_PORT: listenPort,
 } = process.env;
 
 
@@ -57,7 +58,9 @@ server.post('/api-v1/text-to-command', async (request, reply) => {
   await reply.send(command);
 });
 
-server.listen({ port: 3001 }, (error) => {
+const port = listenPort ? Number.parseInt(listenPort, 10) || 3001 : 3001;
+
+server.listen({ port }, (error) => {
   if (error) {
     throw error;
   }
