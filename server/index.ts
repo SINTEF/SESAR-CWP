@@ -3,6 +3,7 @@ import fastifyCors from '@fastify/cors';
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import pino from 'pino';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import getSpeechToken from './getSpeechToken.js';
 import textToCommandWithCache from './textToCommand.js';
@@ -38,15 +39,36 @@ await server.register(fastifyCors, {
 // Setup simple authentication
 await server.register(fastifyBearerAuth, {
   keys: new Set(bearerAuthKeys.split(',').map((s) => s.trim())),
+  addHook: false,
 });
 
+function verifyBearerAuth(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!server.verifyBearerAuth) {
+      reject(new Error('server.verifyBearerAuth is not defined'));
+      return;
+    }
+    server.verifyBearerAuth(request, reply, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
 
 server.get('/api-v1/get-speech-token', async (request, reply) => {
-  //
+  await verifyBearerAuth(request, reply);
   await reply.send(await getSpeechToken());
 });
 
+
 server.post('/api-v1/text-to-command', async (request, reply) => {
+  await verifyBearerAuth(request, reply);
   const body = request.body as string;
   if (typeof body !== 'string') {
     reply.statusCode = 400;
@@ -57,6 +79,15 @@ server.post('/api-v1/text-to-command', async (request, reply) => {
     type: 'text-to-command', body, command, 
   });
   await reply.send(command);
+});
+
+server.route({
+  method: 'GET',
+  url: '/health',
+  preHandler: undefined,
+  handler: async (request, reply) => {
+    await reply.send({ status: 'ok' });
+  },
 });
 
 const host = listenHost || 'localhost';
