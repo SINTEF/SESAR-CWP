@@ -63,6 +63,11 @@ div#root {
     box-shadow: none;
 }
 
+.flight-popup input[type="range"]{
+    -webkit-appearance: slider-vertical;
+    height: 80px;
+}
+
 .sector-box {
     display: grid;
     width: 500px;
@@ -648,11 +653,18 @@ div#root {
 }
 
 #map-3d>* .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
-.maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
     background-color: transparent;
-    background-image: url('/compassArrow.svg') !important;
+    background-image: url('/compassArrow.svg');
     background-size: 120% 120%;
 }
+#radar-map>* .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
+.maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+    background-color: transparent;
+    background-image: default;
+    background-size: 120% 120%;
+}
+
 
 .north-button {
     position: absolute;

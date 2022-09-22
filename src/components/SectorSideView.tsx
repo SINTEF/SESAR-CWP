@@ -112,7 +112,7 @@ export default observer(function SectorSideView() {
         <Area type="monotone" dataKey="flightLevelNext" stroke={colorNext} dot={false} fill="transparent" />
 
         <XAxis dataKey="time" />
-        <YAxis domain={[200, 560]} tickCount={20} />
+        <YAxis domain={[0, 1000]} tickCount={1000} />
 
         <ReferenceLine x={timeDifferanse > 900 ? undefined : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
       </AreaChart>
