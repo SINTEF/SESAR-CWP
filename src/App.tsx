@@ -25,6 +25,7 @@ const onLayoutChange = throttle(166, (): void => {
 });
 
 export default function App(/* properties */): JSX.Element {
+  const verticalSectorsPreferedSize = Math.min(Math.round(window.innerWidth / 4), 320);
   return (
     <>
       <main>
@@ -38,7 +39,7 @@ export default function App(/* properties */): JSX.Element {
           </Allotment.Pane>
           <Allotment.Pane>
             <Allotment onChange={onLayoutChange}>
-              <Allotment.Pane>
+              <Allotment.Pane preferredSize={verticalSectorsPreferedSize}>
                 <SectorSideView />
               </Allotment.Pane>
               <Allotment.Pane>
