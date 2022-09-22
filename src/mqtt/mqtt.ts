@@ -18,7 +18,9 @@ function createClient(): mqtt.Client {
     brokerUrl = `${isHTTPS ? 'wss' : 'ws'}://${window.location.host}/mqtt`;
   }
 
-  return mqtt.connect(brokerUrl);
+  return mqtt.connect(brokerUrl, {
+    protocolVersion: 5,
+  });
 }
 
 const client = createClient();
