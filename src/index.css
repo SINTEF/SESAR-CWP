@@ -583,14 +583,12 @@ div#root {
 
 .input-filter-popup {
     background: transparent;
-    border: none;
     color: white;
     width: 6.2em !important;
 }
 
 .input-filter-bearing {
     background: transparent;
-    border: none;
     color: white;
     width: 4.4em !important;
 }

@@ -38,19 +38,40 @@ export default observer(function SectorPolygons(/* properties */) {
   sectorData
     .sort((a, b) => b.bottomFlightLevel - a.bottomFlightLevel
       || b.topFlightLevel - a.topFlightLevel);
+  const minBottomLevel = Math.min(...sectorData.map((a) => a.bottomFlightLevel));
   const sectors: GeoJSON.Feature[] = sectorData.map((area) => {
     const title = area.sectorId;
     const coordinates = area.sectorArea.map((point) => (
       [point.longitude, point.latitude]),
     );
+    const setTopFlightLevel = (altitude: number): number => {
+      if (minBottomLevel === 0) {
+        if (altitude > 450) {
+          return ConvertFlightLevelToMeters(450 - minBottomLevel - 250) * 30;
+        }
+
+        return ConvertFlightLevelToMeters(altitude - minBottomLevel - 250) * 30;
+      }
+      if (altitude > 450) {
+        return ConvertFlightLevelToMeters(450 - minBottomLevel) * 30;
+      }
+
+      return ConvertFlightLevelToMeters(altitude - minBottomLevel) * 30;
+    };
+    const setBottomFlightLevel = (altitude: number): number => {
+      if (minBottomLevel === 0) {
+        return ConvertFlightLevelToMeters(altitude - minBottomLevel - 250) * 30;
+      }
+
+      return ConvertFlightLevelToMeters(altitude - minBottomLevel) * 30;
+    };
     return {
       type: 'Feature',
       properties: {
         t: `${title}-${area.bottomFlightLevel}-${area.topFlightLevel}`,
         color: setHighlighted3DPolygon(title),
-        height: ConvertFlightLevelToMeters(area.topFlightLevel - 205 > 415 ? 415 - 205
-          : area.topFlightLevel - 205) * 30,
-        base_height: ConvertFlightLevelToMeters(area.bottomFlightLevel - 205) * 30,
+        height: setTopFlightLevel(area.topFlightLevel),
+        base_height: setBottomFlightLevel(area.bottomFlightLevel),
       },
       geometry: {
         type: 'Polygon',
