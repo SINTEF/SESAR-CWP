@@ -50,6 +50,7 @@ jobs:
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
           build-args: |
+            NODE_OPTIONS=--max-old-space-size=6000
             MQTT_BROKER_URL=${{ secrets.MQTT_BROKER_URL }}
             VOICE_SERVER_BEARER_TOKEN=${{ secrets.VOICE_SERVER_BEARER_TOKEN }}
             VOICE_SERVER_ENDPOINT=${{ secrets.VOICE_SERVER_ENDPOINT }}
