@@ -38,33 +38,37 @@ export default observer(function SectorPolygons(/* properties */) {
   sectorData
     .sort((a, b) => b.bottomFlightLevel - a.bottomFlightLevel
       || b.topFlightLevel - a.topFlightLevel);
+
   const minBottomLevel = Math.min(...sectorData.map((a) => a.bottomFlightLevel));
+
+  const setTopFlightLevel = (altitude: number): number => {
+    if (minBottomLevel === 0) {
+      if (altitude > 450) {
+        return ConvertFlightLevelToMeters(450 - minBottomLevel - 250) * 30;
+      }
+
+      return ConvertFlightLevelToMeters(altitude - minBottomLevel - 250) * 30;
+    }
+    if (altitude > 450) {
+      return ConvertFlightLevelToMeters(450 - minBottomLevel) * 30;
+    }
+
+    return ConvertFlightLevelToMeters(altitude - minBottomLevel) * 30;
+  };
+  const setBottomFlightLevel = (altitude: number): number => {
+    if (minBottomLevel === 0) {
+      return ConvertFlightLevelToMeters(altitude - minBottomLevel - 250) * 30;
+    }
+
+    return ConvertFlightLevelToMeters(altitude - minBottomLevel) * 30;
+  };
+
   const sectors: GeoJSON.Feature[] = sectorData.map((area) => {
     const title = area.sectorId;
     const coordinates = area.sectorArea.map((point) => (
       [point.longitude, point.latitude]),
     );
-    const setTopFlightLevel = (altitude: number): number => {
-      if (minBottomLevel === 0) {
-        if (altitude > 450) {
-          return ConvertFlightLevelToMeters(450 - minBottomLevel - 250) * 30;
-        }
 
-        return ConvertFlightLevelToMeters(altitude - minBottomLevel - 250) * 30;
-      }
-      if (altitude > 450) {
-        return ConvertFlightLevelToMeters(450 - minBottomLevel) * 30;
-      }
-
-      return ConvertFlightLevelToMeters(altitude - minBottomLevel) * 30;
-    };
-    const setBottomFlightLevel = (altitude: number): number => {
-      if (minBottomLevel === 0) {
-        return ConvertFlightLevelToMeters(altitude - minBottomLevel - 250) * 30;
-      }
-
-      return ConvertFlightLevelToMeters(altitude - minBottomLevel) * 30;
-    };
     return {
       type: 'Feature',
       properties: {
