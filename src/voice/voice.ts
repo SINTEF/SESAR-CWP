@@ -27,7 +27,7 @@ const VOICE_SERVER_BEARER_TOKEN = import.meta.env.VITE_VOICE_SERVER_BEARER_TOKEN
 
 function getServerEndPoint(): string {
   const voiceServerEndpointConfig = import.meta.env.VITE_VOICE_SERVER_ENDPOINT;
-  if (voiceServerEndpointConfig) {
+  if (voiceServerEndpointConfig && voiceServerEndpointConfig !== 'default') {
     return voiceServerEndpointConfig;
   }
   if (/^(localhost|127(?:\.\d{1,3}){2}.\d{1,3}|\[:{2}1])(:\d+)?$/.test(window.location.host)) {

@@ -1,14 +1,18 @@
 # Each line is a voice command and the corresponding response, separated by ": " (colon and space)
 # Lines starting with a # are comments and are ignored.
 # Empty lines are also ignored.
+# Lines starting with a ! are regex generating variations, using esrex/xeger.
 
 # Invalid commands:
 I would like to order a margarita pizza: invalid-command
+this text does not make any sense: invalid-command
+test: invalid-command
+1234, I repeat, 1234: invalid-command
 random text: invalid-command
 invalid command: invalid-command
 
 # Antoine's initial examples:
-Show me the speed vectors.: speed-vectors 5
+Show me all the speed vectors.: speed-vectors 5
 speed vector to 12: speed-vectors 12
 set the speed vector to the max: speed-vectors 12
 can you set the speed vector to the minimum?: speed-vectors 0
@@ -22,14 +26,45 @@ flight labels off: flight-labels off
 hide flight labels: flight-labels off
 
 # Erik's examples:
-# Sector selector - mine
+# Sector selector - Same as clicking in sector selector
+! (show|display)? (my)? (current|own)? sector (configuration)?: sector-config current
+! (show|display)? (my)? (next|following|futur) sector (configuration)?: sector-config next
+
+! (show|display)? (current|own)? (configuration)? (of)? left sector: sector-config current left
+! (show|display)? (current|own)? (configuration)? (of)? right sector: sector-config current right
+! (show|display)? (current|own)? (configuration)? (of)? (above|over) sector: sector-config current above
+! (show|display)? (current|own)? (configuration)? (of)? (below|under) sector: sector-config current below
+! (show|display)? (next|following) (configuration)? (of)? left sector: sector-config next left
+! (show|display)? (next|following) (configuration)? (of)? right sector: sector-config next right
+! (show|display)? (next|following) (configuration)? (of)? (above|over) sector: sector-config next above
+! (show|display)? (next|following) (configuration)? (of)? (below|under) sector: sector-config next below
+
+
+
 show my current sector configuration: sector-config current
+show my current sector: sector-config current
+show current sector configuration: sector-config current
+show current sector: sector-config current
+my current sector configuration: sector-config current
+my current sector: sector-config current
+current sector configuration: sector-config current
 current sector: sector-config current
-my next sector: sector-config next
-next sector: sector-config next
+show my next sector configuration: sector-config next
+show my next sector: sector-config next
 show next sector configuration: sector-config next
+show next sector: sector-config next
+my next sector configuration: sector-config next
+my next sector: sector-config next
+next sector configuration: sector-config next
+next sector: sector-config next
+
 can I see the current sector?: sector-config current
 I want to see the next sector: sector-config next
+could you show me the current sector?: sector-config current
+I really would like to see the next configuration: sector-config next
+can you show me the next sector?: sector-config next
+I would like to see the current sector: sector-config current
+can you show me the next sector configuration?: sector-config next
 show me my sector please: sector-config current
 what is the next sector going to be?: sector-config next
 
@@ -44,6 +79,8 @@ I want to see the sector on the left: sector-config current left
 show me the next sector on the right: sector-config next right
 
 # Sector selector - up/down
+
+
 show current configuration of upper sector: sector-config current up
 sector up: sector-config current up
 Can you show me the next configuration of the sector below?: sector-config next down
@@ -56,6 +93,23 @@ show sector above mine: sector-config current up
 
 # 3D view navigation
 # Same as clicking default button in 3D view navigator
+
+! (default|home|normal) (3D)? (view|model|sectors)?: sector-config default
+! (show|display)? (3D)? (view|model|sectors) (from)? north: sector-config north
+! (show|display)? (3D)? (view|model|sectors) (from)? south: sector-config south
+! (show|display)? (3D)? (view|model|sectors) (from)? east: sector-config east
+! (show|display)? (3D)? (view|model|sectors) (from)? west: sector-config west
+
+! tilt (3D)? (view|model|sectors) up: sector-config north 30
+! tilt (3D)? (view|model|sectors) down: sector-config south 30
+! tilt (3D)? (view|model|sectors) left: sector-config west 30
+! tilt (3D)? (view|model|sectors) right: sector-config east 30
+
+! nutch (3D)? (view|model|sectors) up: sector-config north 10
+! nutch (3D)? (view|model|sectors) down: sector-config south 10
+! nutch (3D)? (view|model|sectors) left: sector-config west 10
+! nutch (3D)? (view|model|sectors) right: sector-config east 10
+
 Default 3D view: 3d-view default
 Default: 3d-view default
 home: 3d-view default
@@ -101,11 +155,55 @@ Nutch 3D view left: 3d-view west 10
 Nutch view up: 3d-view north 10
 
 # Limbo flights
-Highlight flights that should be handed over: flights-handed
-Show me the flights that should be handed over: flights-handed
-Highlight the flights that I will receive: flights-received
-Show me the flights that I will receive: flights-received
-What will I receive?: flights-received
-What will I hand over?: flights-handed
-List of handed over flights: flights-handed
-List of flights I will manage soon: flights-received
+Highlight flights that should be handed over: flights-handed on
+Show me the flights that should be handed over: flights-handed on
+Highlight the flights that I will receive: flights-handed on
+Show me the flights that I will receive: flights-handed on
+What will I receive?: flights-handed on
+What will I hand over?: flights-handed on
+List of handed over flights: flights-handed on
+List of flights I will manage soon: flights-handed on
+
+! (highlight) affected flights?: flights-handed on
+! (stop|quit|cancel|do not) highlight: flights-handed off
+
+! (set|configure) speed (vectors|lines) (to)? (0|off|no|disable|disabled): speed-vectors 0
+! (set|configure) speed (vectors|lines) (to)? (5|five|on|yes|enable|enabled): speed-vectors 5
+! (set|configure) speed (vectors|lines) (to)? (the max|max|15): speed-vectors 12
+! (set|configure) speed (vectors|lines) (to)? (1|one): speed-vectors 1
+! (set|configure) speed (vectors|lines) (to)? (9|nine): speed-vectors 9
+
+toggle fixes: fixes toggle
+switch fixes: fixes toggle
+! turn on (the)? fixes: fixes on
+! enable (the)? fixes: fixes on
+! turn off (the)? fixes: fixes off
+! disable (the)? fixes: fixes off
+
+! (toggle|switch) (the)? sectors? labels: sectors-labels toggle
+! (turn on|enable) (the)? sectors? labels: sectors-labels on
+! (turn off|disable) (the)? sectors? labels: sectors-labels off
+
+! (toggle|switch) (the)? (flights?)? labels: flights-labels toggle
+! (turn on|enable) (the)? (flights?)? labels: flights-labels on
+! (turn off|disable) (the)? (flights?)? labels: flights-labels off
+
+! (show|activate|display|turn on) (the)? trajectory: trajectory on
+! (hide|turn off|deactivate) (the)? trajectory: trajectory off
+
+! (show|activate|display|turn on) (the)? speed vector: current-speed-vector on
+! (hide|turn off|deactivate) (the)? speed vector: current-speed-vector off
+
+I don't want to see the flight labels!: flights-labels off
+I don't want to see the sector labels!: sectors-labels off
+I don't want to see the fixes!: fixes off
+I don't want to see the speed vectors!: speed-vectors 0
+I don't want to see the trajectory!: trajectory off
+I don't want to see the speed vector!: current-speed-vector off
+
+Stop showing the flight labels!: flights-labels off
+Stop showing the sector labels!: sectors-labels off
+Stop showing the fixes!: fixes off
+Stop showing the speed vectors!: speed-vectors 0
+Stop showing the trajectory!: trajectory off
+Stop showing the speed vector!: current-speed-vector off

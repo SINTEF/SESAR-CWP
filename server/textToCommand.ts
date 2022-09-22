@@ -63,7 +63,7 @@ export async function textToCommand(text: string): Promise<string> {
   }
 
   const response = await openai.createCompletion({
-    model: openAiModel ?? 'davinci:ft-sintef-2022-09-09-11-50-22',
+    model: openAiModel ?? 'davinci:ft-sintef-2022-09-22-19-08-27',
     prompt,
     temperature: 0,
     max_tokens: 100,

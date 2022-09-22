@@ -9,7 +9,7 @@ function createClient(): mqtt.Client {
   const MQTT_BROKER_URL = import.meta.env.VITE_MQTT_BROKER_URL;
 
   let brokerUrl: string;
-  if (MQTT_BROKER_URL) {
+  if (MQTT_BROKER_URL && MQTT_BROKER_URL !== 'default') {
     brokerUrl = MQTT_BROKER_URL;
   } else if (/^(localhost|127(?:\.\d{1,3}){2}.\d{1,3}|\[:{2}1])(:\d+)?$/.test(window.location.host)) {
     brokerUrl = 'ws://localhost:9001/mqtt';
@@ -18,7 +18,9 @@ function createClient(): mqtt.Client {
     brokerUrl = `${isHTTPS ? 'wss' : 'ws'}://${window.location.host}/mqtt`;
   }
 
-  return mqtt.connect(brokerUrl);
+  return mqtt.connect(brokerUrl, {
+    protocolVersion: 5,
+  });
 }
 
 const client = createClient();
