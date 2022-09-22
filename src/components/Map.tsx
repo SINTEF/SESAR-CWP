@@ -79,6 +79,7 @@ const maxBounds: mapboxgl.LngLatBoundsLike = [
 export default function Map(): JSX.Element {
   return (
     <ReactMapGL
+      id='radar-map'
       style={style}
       initialViewState={initialViewState}
       maxBounds={maxBounds}

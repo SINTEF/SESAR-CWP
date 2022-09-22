@@ -198,8 +198,7 @@ export default class RoleConfigurationStore {
     }
     if (listOfTentatives?.includes(aircraftId)) {
       flightColor = '#ff00ff';
-    }
-    if (aircraft.nextSectorController !== 'NS' && aircraft.nextSectorController !== aircraft.controlledBy) {
+    } else if (aircraft.nextSectorController !== 'NS' && aircraft.nextSectorController !== aircraft.controlledBy) {
       flightColor = '#CEFCBA';
     }
     return flightColor;
