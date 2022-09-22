@@ -29,13 +29,14 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
     if (Number.isNaN(newSpeed)) {
       return;
     }
+    const speedNumberKnots = newSpeedNumber * 1.943_84;
     setAssignedSpeed(newSpeedNumber);
     const pilotId = configurationStore.currentCWP === 'All' ? 'All' : controlledBy;
     handlePublishPromise(
-      changeSpeedOfAircraft(pilotId, assignedFlightId, newSpeedNumber),
+      changeSpeedOfAircraft(pilotId, assignedFlightId, speedNumberKnots),
     );
     handlePublishPromise(
-      persistSpeedAircraft(assignedFlightId, newSpeedNumber),
+      persistSpeedAircraft(assignedFlightId, speedNumberKnots),
     );
     close();
   };

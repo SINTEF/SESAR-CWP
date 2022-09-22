@@ -106,7 +106,7 @@ export default function TableSectors({
     const countOverTop = countAbove.get(valueFL) ?? 1;
     const countTop = countBelow.get(valueFL) ?? 1;
     const value = countTop / countOverTop;
-    return Math.ceil(value * 2);
+    return Math.floor(value * 2);
   };
 
   const findGridPositionRow = (topFL : number, bottomFL : number): number | string => {
