@@ -51,3 +51,20 @@
   color: inherit;
   height: 1.9rem;
 }
+
+.navbar.button-navbar button.microphone-button-is-listening {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.navbar.button-navbar button.microphone-button-is-processing {
+  background-color: rgba(0, 64, 128, 0.5);
+}
+
+.navbar.button-navbar button.microphone-button-is-error {
+  background-color: rgba(200, 0, 0, 0.5);
+}
+
+.navbar.button-navbar button.microphone-button-is-success {
+  background-color: rgba(0, 200, 0, 0.5);
+}
