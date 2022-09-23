@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, observable } from 'mobx';
 
 import AltitudeFilter from './AltitudeFilter';
 
@@ -27,25 +27,25 @@ export default class CWPStore {
 
   showControllerSelection = true;
 
-  aircraftsWithSpeedVectors: Set<string> = new Set();
+  aircraftsWithSpeedVectors: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithFlightRoutes: Set<string> = new Set();
+  aircraftsWithFlightRoutes: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithManuallyOpenedPopup: Set<string> = new Set();
+  aircraftsWithManuallyOpenedPopup: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithManuallyClosedPopup: Set<string> = new Set();
+  aircraftsWithManuallyClosedPopup: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithLevelPopup: Set<string> = new Set();
+  aircraftsWithLevelPopup: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithSectorPopup: Set<string> = new Set();
+  aircraftsWithSectorPopup: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithBearingPopup: Set<string> = new Set();
+  aircraftsWithBearingPopup: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithNextFixPopup: Set<string> = new Set();
+  aircraftsWithNextFixPopup: Set<string> = observable.set(undefined, { deep: false });
 
-  aircraftWithSpeedChangePopup: Set<string> = new Set();
+  aircraftWithSpeedChangePopup: Set<string> = observable.set(undefined, { deep: false });
 
-  activeMeasurements: Set<string> = new Set();
+  activeMeasurements: Set<string> = observable.set(undefined, { deep: false });
 
   coordinatesCurrentPolygon: number[][] | undefined = undefined;
 
@@ -71,6 +71,8 @@ export default class CWPStore {
 
   switchBackToAutomaticNextSectorsConfigurationTimeoutId = 0;
 
+  highligtedAircraftIdTimeoutId = 0;
+
   constructor({
     altitudeFilter,
   }: {
@@ -81,6 +83,7 @@ export default class CWPStore {
   }) {
     makeAutoObservable(this, {
       altitudeFilter: false,
+      highligtedAircraftIdTimeoutId: false,
       switchBackToAutomaticNextSectorsConfigurationTimeoutId: false,
     }, { autoBind: true });
     this.altitudeFilter = new AltitudeFilter(altitudeFilter);
@@ -248,9 +251,16 @@ export default class CWPStore {
 
   setHighlightedAircraftId(aircraftId: string): void {
     this.highlightedAircraftId = aircraftId;
-    setTimeout(() => {
-      this.setHighlightedAircraftId('');
-    }, 10_000); // How long to highlight aircraft?
+    if (this.highligtedAircraftIdTimeoutId !== 0) {
+      window.clearTimeout(this.highligtedAircraftIdTimeoutId);
+      this.highligtedAircraftIdTimeoutId = 0;
+    }
+    if (aircraftId !== '') {
+      this.highligtedAircraftIdTimeoutId = window.setTimeout(() => {
+        this.setHighlightedAircraftId('');
+        this.highligtedAircraftIdTimeoutId = 0;
+      }, 10_000); // How long to highlight aircraft?
+    }
   }
 
   setPseudoPilot(value: boolean): void {

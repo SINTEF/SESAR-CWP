@@ -26,6 +26,8 @@ export default class AircraftStore {
 
   flightRoutes: ObservableMap<string, FlightRoute> = observable.map(undefined, { deep: false });
 
+  hiddenFlights: Set<string> = observable.set(undefined, { deep: false });
+
   simulatorStore: SimulatorStore;
 
   constructor({
@@ -39,14 +41,18 @@ export default class AircraftStore {
     this.simulatorStore = simulatorStore;
   }
 
+  get notHiddenAircrafts(): AircraftModel[] {
+    return [...this.aircrafts.values()]
+      .filter(({ aircraftId }) => !this.hiddenFlights.has(aircraftId));
+  }
+
   get aircraftsWithRecentTargetReport(): AircraftModel[] {
     const timestamp = this.simulatorStore.minuteRoundedTimestamp;
-    return [...this.aircrafts.values()]
-      .filter(({ lastTargetReportTime }) => (
-        // Remove aircrafts with target reports older than 10 minutes
-        // But keep the ones with no target report time because reasons
-        (timestamp - lastTargetReportTime) < 600 || lastTargetReportTime === 0
-      ));
+    return this.notHiddenAircrafts.filter(({ lastTargetReportTime }) => (
+      // Remove aircrafts with target reports older than 10 minutes
+      // But keep the ones with no target report time because reasons
+      (timestamp - lastTargetReportTime) < 600 || lastTargetReportTime === 0
+    ));
   }
 
   get aircraftsWithPosition(): AircraftModel[] {
@@ -79,7 +85,7 @@ export default class AircraftStore {
     const aircraft = this.aircrafts.get(vehicleId);
     if (!aircraft) {
       // eslint-disable-next-line no-console
-      console.warn('Received target report for unknown aircraft', vehicleId);
+      // console.warn('Received target report for unknown aircraft', vehicleId);
       return;
     }
     aircraft.handleTargetReport(targetReport);
@@ -223,5 +229,13 @@ export default class AircraftStore {
 
   handleFrontendLocalAssignedFlightLevel(flightId: string, flightLevel: string): void {
     this.aircrafts.get(flightId)?.setLocalAssignedFlightLevel(flightLevel);
+  }
+
+  handleFrontendFlightHidden(aircraftId: string, hidden: boolean): void {
+    if (hidden) {
+      this.hiddenFlights.add(aircraftId);
+    } else {
+      this.hiddenFlights.delete(aircraftId);
+    }
   }
 }

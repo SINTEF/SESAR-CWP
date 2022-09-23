@@ -159,3 +159,11 @@ export function frontendLocalAssignedFlightLevel(
   const level = message.toString();
   aircraftStore.handleFrontendLocalAssignedFlightLevel(flightId, level);
 }
+
+export function frontendFlightHidden(
+  { flightId }: { [key: string]: string },
+  message: Buffer,
+): void {
+  const hidden = message.toString() === 'true';
+  aircraftStore.handleFrontendFlightHidden(flightId, hidden);
+}

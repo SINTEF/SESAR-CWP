@@ -1,9 +1,10 @@
 import { observer } from 'mobx-react-lite';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
+import { Form } from 'react-bootstrap';
 
 import { isDragging } from '../draggableState';
-import { acceptFlight, handlePublishPromise } from '../mqtt/publishers';
+import { acceptFlight, handlePublishPromise, persistHiddenAircraft } from '../mqtt/publishers';
 import { aircraftStore, configurationStore, cwpStore } from '../state';
 import {
   Altitude, LocalAssignedFlightLevel, NextACCFlightLevel, NextSectorController, NextSectorFL,
@@ -104,9 +105,87 @@ const AssignedSpeed = observer(({ aircraft }: SubContentProperties): JSX.Element
   </td>
 ));
 
+const HideAircraft = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const [confirm, setConfirm] = React.useState(false);
+  const [doubleConfirm, setDoubleConfirm] = React.useState(false);
+  const [timer, setTimer] = React.useState(-1);
+  const [timerTimeoutId, setTimerTimeoutId] = React.useState(0);
+  const [timerIntervalId, setTimerIntervalId] = React.useState(0);
+
+  React.useEffect(() => {
+    if (timerTimeoutId !== 0) {
+      window.clearTimeout(timerTimeoutId);
+      setTimerTimeoutId(0);
+    }
+    if (timerIntervalId !== 0) {
+      window.clearInterval(timerIntervalId);
+      setTimerIntervalId(0);
+    }
+    if (confirm) {
+      const id = window.setTimeout(() => {
+        setConfirm(false);
+        setTimerTimeoutId(0);
+      }, 5000);
+      setTimerTimeoutId(id);
+    }
+  }, [confirm]);
+
+  React.useEffect(() => {
+    if (timerTimeoutId !== 0) {
+      window.clearTimeout(timerTimeoutId);
+      setTimerTimeoutId(0);
+    }
+    if (timerIntervalId !== 0) {
+      window.clearInterval(timerIntervalId);
+      setTimerIntervalId(0);
+    }
+    if (doubleConfirm) {
+      setTimer(5);
+      const id = window.setInterval(() => {
+        setTimer((t) => t - 1);
+      }, 1000);
+      setTimerIntervalId(id);
+    } else {
+      setTimer(-1);
+      const id = window.setTimeout(() => {
+        setConfirm(false);
+        setTimerTimeoutId(0);
+      }, 5000);
+      setTimerTimeoutId(id);
+    }
+  }, [doubleConfirm]);
+
+  React.useEffect(() => {
+    if (timer === 0) {
+      handlePublishPromise(persistHiddenAircraft(aircraft.assignedFlightId));
+      setTimer(-1);
+      setConfirm(false);
+      setDoubleConfirm(false);
+      window.clearInterval(timerIntervalId);
+      setTimerIntervalId(0);
+    }
+  }, [timer]);
+
+  if (confirm) {
+    return (
+      <>
+        <Form.Check
+        checked={doubleConfirm}
+        onChange={(event): void => setDoubleConfirm(event.target.checked)}
+        type="switch"
+        id="hide-switch"
+      />
+        { timer < 0 ? null : <strong style={{ color: 'red' }}>{timer}</strong> }
+      </>
+    );
+  }
+  return (<div onClick={(): void => setConfirm(true)}>DEL</div>);
+});
+
 export default observer(function AircraftPopupPseudoContent(
   { aircraft, flightColor }: SubContentProperties,
 ): JSX.Element {
+  const isMaster = configurationStore.currentCWP === 'All';
   return (
     <table className="flight-popup-container flight-popup-pseudo-container">
       <tbody style={{ color: flightColor }}>
@@ -115,7 +194,9 @@ export default observer(function AircraftPopupPseudoContent(
         </tr>
         <tr>
           <Bearing aircraft={aircraft}/>
-          <td></td>
+          <td>
+            {isMaster && <HideAircraft aircraft={aircraft} />}
+          </td>
           <AssignedBearing aircraft={aircraft}/>
         </tr>
         <tr>

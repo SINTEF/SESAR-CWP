@@ -161,3 +161,13 @@ export async function persistLocalAssignedFlightLevel(
     { retain: true },
   );
 }
+
+export async function persistHiddenAircraft(
+  flightUniqueId: string,
+  hidden = true,
+): Promise<void> {
+  await publish(`frontend/${clientId}/flight/${flightUniqueId}/hidden`,
+    hidden ? 'true' : '',
+    { retain: true },
+  );
+}

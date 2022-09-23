@@ -117,7 +117,7 @@ autorun(() => {
       || assignedBearing === Math.round(lastKnownBearing)
       || assignedSpeed === Math.round(lastKnownSpeed)) {
       // Do the update in a random delay
-      setTimeout(
+      window.setTimeout(
         () => runSimulationLogic(aircraft),
         timeBeforeNextRunInMs(),
       );

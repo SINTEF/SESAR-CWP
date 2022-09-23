@@ -13,7 +13,8 @@ export default observer(function ControllerModal() {
   const listOfControllers = roleConfigurationStore.listOfAllControllers;
   const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
   const controller = configurationStore.currentCWP;
-  const listOfAll = [...listOfControllers, ...pseudoPilots, 'All'];
+  const controllersWithoutAll = listOfControllers.filter((cwp) => cwp !== 'All');
+  const listOfAll = [...controllersWithoutAll, ...pseudoPilots, 'All'];
 
   const handleSelect = (targetValue: string): void => {
     const valueSplit = targetValue.split(' ');
@@ -59,15 +60,19 @@ export default observer(function ControllerModal() {
           </div>
         ) : null}
         <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
-          {listOfControllers.map(
+          {controllersWithoutAll.map(
             (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
-          <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
         </ToggleButtonGroup>
         <br/>
         <br/>
         <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
           {pseudoPilots.map(
             (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
+        </ToggleButtonGroup>
+        <br/>
+        <br/>
+        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
+          <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
         </ToggleButtonGroup>
       </Modal.Body>
     </Modal>

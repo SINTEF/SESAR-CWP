@@ -11,6 +11,7 @@ import {
   frontendACCFlightLevel,
   frontendAssignedFlightLevel,
   frontendFlightController,
+  frontendFlightHidden,
   frontendLocalAssignedFlightLevel,
   frontendNextSectorFlightLevel,
   frontendSpeed,
@@ -68,6 +69,7 @@ const router = rlite<Buffer>(notFound, {
   'frontend/:clientId/flight/:flightId/assignedFL': frontendAssignedFlightLevel,
   'frontend/:clientId/flight/:flightId/speed': frontendSpeed,
   'frontend/:clientId/flight/:flightId/localAssignedFL': frontendLocalAssignedFlightLevel,
+  'frontend/:clientId/flight/:flightId/hidden': frontendFlightHidden,
 });
 
 export default router;
