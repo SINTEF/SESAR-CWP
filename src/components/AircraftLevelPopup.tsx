@@ -50,19 +50,18 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
     setNextACCFL,
   } = properties.aircraft;
 
-  const [flightLevel, setFlightLevel] = React.useState(Math.ceil(altitude / 10) * 10);
+  const [flightLevel, setFlightLevel] = React.useState(Math.round(altitude / 10) * 10);
   const listOfLevelsReference = React.createRef<HTMLDivElement>();
+  const shouldShow = cwpStore.aircraftsWithLevelPopup.has(aircraftId);
 
   React.useEffect(() => {
     // Scroll to the level in the list
     const listElement = ([...listOfLevelsReference.current?.children ?? []] as HTMLButtonElement[])
       .find((element) => element.dataset.level === `${flightLevel}`);
     listElement?.scrollIntoView({ block: 'center' });
-  }, [flightLevel]);
+  }, [shouldShow]);
 
   const accepted = controlledBy === configurationStore.currentCWP;
-
-  const shouldShow = cwpStore.aircraftsWithLevelPopup.has(aircraftId);
 
   if (!shouldShow) {
     return null;
