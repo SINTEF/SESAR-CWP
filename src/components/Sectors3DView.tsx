@@ -55,8 +55,8 @@ export default function Sectors3DView(): JSX.Element {
       renderWorldCopies={false}
     >
       <Polygons3D />
-      <Compass/>
       <NavigationControl visualizePitch={true} />
+      <Compass/>
       <SectorsVoiceControl />
     </ReactMapGL>
   );

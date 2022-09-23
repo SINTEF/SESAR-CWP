@@ -1,12 +1,22 @@
 import React from 'react';
 import { useMap } from 'react-map-gl';
 
+import { initialViewState } from './Sectors3DView';
+
 export default function Compass(): JSX.Element {
   const { current: map } = useMap();
 
   const rotationButtonClicked = (rotation: string): void => {
     if (!map) {
       throw new Error('Map instance is not available');
+    }
+
+    if (rotation === 'reset') {
+      map.easeTo({
+        ...initialViewState,
+        duration: 500,
+      });
+      return;
     }
 
     let newBearing = map.getBearing();
@@ -58,14 +68,15 @@ export default function Compass(): JSX.Element {
 
   return (
     <div className="compass">
-      <button className='north-button' onClick={():void => rotationButtonClicked('north')}></button>
-      <button onClick={():void => rotationButtonClicked('east')} className='east-button'></button>
-      <button onClick={():void => rotationButtonClicked('west')} className='west-button'></button>
-      <button onClick={():void => rotationButtonClicked('south')} className='south-button'></button>
-      <button onClick={():void => rotationButtonClicked('north-degrees')} className='chevron-north chevron-degrees-button'></button>
-      <button onClick={():void => rotationButtonClicked('south-degrees')} className='chevron-south chevron-degrees-button'></button>
-      <button onClick={():void => rotationButtonClicked('west-degrees')} className='chevron-west chevron-degrees-button'></button>
-      <button onClick={():void => rotationButtonClicked('east-degrees')} className='chevron-east chevron-degrees-button'></button>
+      <button onClick={(): void => rotationButtonClicked('reset')} className="reset-button"></button>
+      <button onClick={(): void => rotationButtonClicked('north')} className="north-button"></button>
+      <button onClick={(): void => rotationButtonClicked('east')} className="east-button"></button>
+      <button onClick={(): void => rotationButtonClicked('west')} className="west-button"></button>
+      <button onClick={(): void => rotationButtonClicked('south')} className="south-button"></button>
+      <button onClick={(): void => rotationButtonClicked('north-degrees')} className="chevron-north chevron-degrees-button"></button>
+      <button onClick={(): void => rotationButtonClicked('south-degrees')} className="chevron-south chevron-degrees-button"></button>
+      <button onClick={(): void => rotationButtonClicked('west-degrees')} className="chevron-west chevron-degrees-button"></button>
+      <button onClick={(): void => rotationButtonClicked('east-degrees')} className="chevron-east chevron-degrees-button"></button>
     </div>
   );
 }

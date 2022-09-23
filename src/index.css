@@ -759,6 +759,17 @@ button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
     background-size: 120% 120%;
 }
 
+.reset-button {
+    position: absolute;
+    z-index: 2147483637;
+    bottom: 11.5em;
+    left: 5.8em;
+    width: 3em;
+    height: 3em;
+    border: none;
+    background: transparent;
+    outline: none;
+}
 
 .north-button {
     position: absolute;
@@ -888,6 +899,18 @@ html .btn {
 }
 
 .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-top-left, .maplibregl-ctrl-top-right {
-    /* Highest z-index (32 bits signed integer) */
-    z-index: 2147483647;
+    /* Highest z-index (32 bits signed integer) - 10*/
+    z-index: 2147483637;
+}
+
+*:not(input,textarea) {
+    user-select: none;
+}
+
+.react-draggable {
+    cursor: grab;
+}
+
+.react-draggable-dragging {
+    cursor: grabbing;
 }
