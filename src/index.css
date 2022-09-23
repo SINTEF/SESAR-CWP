@@ -190,7 +190,6 @@ div#root {
     top: 0;
     left: 5;
     width: 250px;
-    padding: 10px 14px;
     margin: 8px;
     font-size: 10px;
     line-height: 2;
@@ -203,32 +202,128 @@ div#root {
 .sector-flight-list-table thead,
 .aircraft-list-table thead {
     position: sticky;
-    top: -14px;
+    top: 0px;
     z-index: 1;
 
 }
+/* Webkit scrollbar dark mode */
 
-.aircraft-list::-webkit-scrollbar {
-    display: none;
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-track {
+    background-color: rgb(64, 64, 64);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(96, 96, 96);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(112, 112, 112);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: rgb(128, 128, 128);
+}
+
+/* Buttons */
+::-webkit-scrollbar-button:single-button {
+    background-color: rgb(64, 64, 64);
+
+    display: block;
+    background-size: 10px;
+    background-repeat: no-repeat;
+}
+
+/* Up */
+::-webkit-scrollbar-button:single-button:vertical:decrement {
+    height: 12px;
+    width: 16px;
+    background-position: center 4px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='50,00 0,50 100,50'/></svg>");
+}
+
+::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='50,00 0,50 100,50'/></svg>");
+}
+
+::-webkit-scrollbar-button:single-button:vertical:decrement:active {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='50,00 0,50 100,50'/></svg>");
+}
+
+/* Down */
+::-webkit-scrollbar-button:single-button:vertical:increment {
+    height: 12px;
+    width: 16px;
+    background-position: center 2px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 100,0 50,50'/></svg>");
+}
+
+::-webkit-scrollbar-button:single-button:vertical:increment:hover {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 100,0 50,50'/></svg>");
+}
+
+::-webkit-scrollbar-button:single-button:vertical:increment:active {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,0 100,0 50,50'/></svg>");
+}
+
+/* Left */
+::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    height: 12px;
+    width: 12px;
+    background-position: 3px 3px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,50 50,100 50,0'/></svg>");
+
+}
+
+::-webkit-scrollbar-button:single-button:horizontal:decrement:hover {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,50 50,100 50,0'/></svg>");
+}
+
+::-webkit-scrollbar-button:single-button:horizontal:decrement:active {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,50 50,100 50,0'/></svg>");
+}
+
+/* Right */
+::-webkit-scrollbar-button:single-button:horizontal:increment {
+    height: 12px;
+    width: 12px;
+    background-position: 3px 3px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 0,100 50,50'/></svg>");
+}
+
+::-webkit-scrollbar-button:single-button:horizontal:increment:hover {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 0,100 50,50'/></svg>");
+}
+
+::-webkit-scrollbar-button:single-button:horizontal:increment:active {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,0 0,100 50,50'/></svg>");
 }
 
 /* For Sector Flight List */
 .sector-flight-list {
     position: absolute;
-    bottom: 0;
-    left: 5;
-    width: 500px;
-    padding: 10px 14px 14px 14px;
+    bottom: 10px;
+    left: 50px;
+    /* width: 500px; */
+    /* padding: 10px 14px 14px 14px;
     margin-bottom: 50px;
     margin-left: 40px;
-    line-height: 2;
+    line-height: 2; */
     font-size: xx-small;
     outline: none;
     text-transform: uppercase;
-    height: 200px;
+    max-height: 150px;
     overflow-y: scroll;
     transform: translate(0px, 0px);
     font-family: var(--sesar-font-mono);
+    z-index: 500;
 }
 
 .fix-selector {
@@ -289,9 +384,10 @@ div#root {
     /* width: 3em; */
 }
 
-.sector-flight-list::-webkit-scrollbar {
-    display: none;
-}
+/* .sector-flight-list::-webkit-scrollbar {
+    display: inline-block;
+    width: 10px;
+} */
 
 /* For popup on flights */
 .mapboxgl-popup-close-button {

@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import {
   Table,
 } from 'react-bootstrap';
+import Draggable from 'react-draggable';
 
+import { startDragging, stopDragging } from '../draggableState';
 import convertTimestamp from '../model/convertTimestamp';
 import {
   cwpStore, roleConfigurationStore,
@@ -33,12 +35,17 @@ export default observer(function AircraftListElement(/* properties */) {
   }
 
   return (
-    <div className="aircraft-list">
-      <Table className="aircraft-list-table" hover bordered variant="dark">
-        <thead>
-          <tr>
-            <th colSpan={2}>
-              <input
+    <Draggable
+                bounds="parent" cancel='input'
+                onStart={startDragging}
+                onStop={stopDragging}
+            >
+      <div className="aircraft-list">
+        <Table className="aircraft-list-table" hover bordered variant="dark">
+          <thead>
+            <tr>
+              <th colSpan={2}>
+                <input
                 className='input-filter'
                 style={{ width: '100px', fontSize: '8px' }}
                 name="filter"
@@ -46,36 +53,36 @@ export default observer(function AircraftListElement(/* properties */) {
                 placeholder="Search by callsign..."
                 onChange={(event): void => setFilter((event.target.value).toUpperCase())}
               />
-            </th>
-            <th colSpan={2}>
-              FL Sector :
-              {' '}
-              {currentSector ?? ''}
-            </th>
-          </tr>
-          <tr>
-            <th>
-              C/S
-            </th>
-            <th>
-              PLV
-            </th>
-            <th>
-              OUT
-            </th>
-            <th>
-              Time
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {listOfAircraftsInSector.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
-            .map((aircraftData) => {
-              const entryTime = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryPosition?.time : '';
-              const exitWaypointId = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.exitWaypointId : '';
-              const toTime = entryTime ? ChangeToLocaleTime(convertTimestamp(entryTime)) : '';
-              return (
-                <tr
+              </th>
+              <th colSpan={2}>
+                FL Sector :
+                {' '}
+                {currentSector ?? ''}
+              </th>
+            </tr>
+            <tr>
+              <th>
+                C/S
+              </th>
+              <th>
+                PLV
+              </th>
+              <th>
+                OUT
+              </th>
+              <th>
+                Time
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {listOfAircraftsInSector.filter((aircraftData) => aircraftData.callSign.includes(filter) || filter === '')
+              .map((aircraftData) => {
+                const entryTime = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryPosition?.time : '';
+                const exitWaypointId = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.exitWaypointId : '';
+                const toTime = entryTime ? ChangeToLocaleTime(convertTimestamp(entryTime)) : '';
+                return (
+                  <tr
                 style={{
                   color: roleConfigurationStore
                     .getOriginalColorOfAircraft(aircraftData.aircraftId),
@@ -83,27 +90,28 @@ export default observer(function AircraftListElement(/* properties */) {
                 key={aircraftData.assignedFlightId}
                 onClick={(): void => handleFlightClicked(aircraftData.assignedFlightId)}>
 
-                  <td>
-                    <b>
-                      {aircraftData.callSign}
-                    </b>
-                  </td>
-                  <td>
-                    {Math.ceil(aircraftData.lastKnownAltitude)}
-                  </td>
-                  <td>
-                    {exitWaypointId}
-                  </td>
-                  <td>
-                    {toTime}
-                  </td>
-                </tr>
-              );
-            },
-            )}
-        </tbody>
-      </Table>
-    </div>
+                    <td>
+                      <b>
+                        {aircraftData.callSign}
+                      </b>
+                    </td>
+                    <td>
+                      {Math.ceil(aircraftData.lastKnownAltitude)}
+                    </td>
+                    <td>
+                      {exitWaypointId}
+                    </td>
+                    <td>
+                      {toTime}
+                    </td>
+                  </tr>
+                );
+              },
+              )}
+          </tbody>
+        </Table>
+      </div>
+    </Draggable>
 
   );
 });
