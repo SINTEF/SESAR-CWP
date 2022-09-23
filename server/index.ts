@@ -69,22 +69,16 @@ server.get('/api-v1/get-speech-token', async (request, reply) => {
 
 server.post('/api-v1/text-to-command', async (request, reply) => {
   await verifyBearerAuth(request, reply);
-  try {
-    const body = request.body as string;
-    if (typeof body !== 'string') {
-      reply.statusCode = 400;
-      await reply.send({ error: 'Invalid body' });
-    }
-    const command = await textToCommandWithCache(body);
-    request.log.info({
-      type: 'text-to-command', body, command,
-    });
-    await reply.send(command);
-  } catch (error) {
-    console.error(error);
-    console.log(error);
-    throw error;
+  const body = request.body as string;
+  if (typeof body !== 'string') {
+    reply.statusCode = 400;
+    await reply.send({ error: 'Invalid body' });
   }
+  const command = await textToCommandWithCache(body);
+  request.log.info({
+    type: 'text-to-command', body, command,
+  });
+  await reply.send(command);
 });
 
 server.route({
