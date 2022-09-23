@@ -43,7 +43,7 @@ export const Altitude = observer(({ aircraft }: SubContentProperties): JSX.Eleme
     cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
   };
   return (<td onClick={onClick}>
-    {`H${Number.parseFloat((aircraft.lastKnownAltitude).toFixed(0))}`}
+    {Number.parseFloat((aircraft.lastKnownAltitude).toFixed(0))}
   </td>);
 });
 

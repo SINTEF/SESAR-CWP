@@ -36,7 +36,7 @@ const Bearing = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   };
 
   return (<td onClick={onClick}>
-    {Math.round(aircraft.lastKnownBearing)}
+    H{Math.round(aircraft.lastKnownBearing)}
   </td>);
 });
 
