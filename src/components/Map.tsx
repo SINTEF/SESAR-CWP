@@ -2,7 +2,7 @@ import * as maplibregl from 'maplibre-gl';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import ReactMapGL, {
-  FullscreenControl, NavigationControl, ScaleControl,
+  FullscreenControl, NavigationControl,
 } from 'react-map-gl';
 import type { MapLayerMouseEvent, Style } from 'mapbox-gl';
 import type { ViewState } from 'react-map-gl';
@@ -104,7 +104,6 @@ export default function Map(): JSX.Element {
       <Aircrafts />
       <HighlightedAircraft />
       <LimboAircrafts/>
-      <ScaleControl position="bottom-left" />
       <NavigationControl position="bottom-left" visualizePitch={true} />
       <FullscreenControl position="bottom-left" containerId="root" />
     </ReactMapGL>
