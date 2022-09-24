@@ -15,18 +15,22 @@
   background-color: rgb(170, 170, 170);
   border-radius: 0;
   border-width: 2px;
-  border-style: outset;
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
   flex-shrink: 1;
-  /** 90's style */
+}
+.navbar.button-navbar button,
+.navbar.button-navbar button:focus {
+  border-style: solid;
+  border-top-color: rgb(180, 180, 180);
+  border-right-color: rgb(110, 110, 110);
+  border-bottom-color: rgb(110, 110, 110);
+  border-left-color: rgb(160, 160, 160);
 }
 
-.navbar.button-navbar button:focus,
-.navbar.button-navbar button.btn:focus {
+.navbar.button-navbar button:focus {
   box-shadow: none;
-  border-color: #333;
 }
 
 .navbar.button-navbar button:disabled {
@@ -37,6 +41,20 @@
   font-size: x-small;
   background-color: rgb(83, 83, 83);
   border-bottom: 2px solid rgb(33, 33, 33);
+}
+.navbar.button-navbar button:hover {
+  background-color: rgb(130, 130, 130);
+}
+.navbar.button-navbar button:active {
+  background-color: rgb(100, 100, 100);
+}
+.navbar.button-navbar button:hover,
+.navbar.button-navbar button:active {
+  border-style: solid;
+  border-top-color: rgb(160, 160, 160);
+  border-right-color: rgb(90, 90, 90);
+  border-bottom-color: rgb(90, 90, 90);
+  border-left-color: rgb(140, 140, 140);
 }
 
 #speed-vector-range {

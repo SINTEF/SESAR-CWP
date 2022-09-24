@@ -16,6 +16,10 @@ export default observer(function ControllerModal() {
   const controllersWithoutAll = listOfControllers.filter((cwp) => cwp !== 'All');
   const listOfAll = [...controllersWithoutAll, ...pseudoPilots, 'All'];
 
+  const collator = new Intl.Collator([], { numeric: true });
+  pseudoPilots.sort((a, b) => collator.compare(a, b));
+  controllersWithoutAll.sort((a, b) => collator.compare(a, b));
+
   const handleSelect = (targetValue: string): void => {
     const valueSplit = targetValue.split(' ');
     const cwp = valueSplit[0];

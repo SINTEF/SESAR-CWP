@@ -46,14 +46,14 @@ export default function App(/* properties */): JSX.Element {
             </Allotment>
           </Allotment.Pane>
         </Allotment>
+        <Time />
+        <SectorFlightList />
+        <AircraftListElement />
+        <ControllerModal />
+        <SectorConfiguration />
+        <SectorChangeCountDown />
+        <AltitudeFilterPanel />
       </main>
-      <Time />
-      <SectorFlightList />
-      <AircraftListElement />
-      <ControllerModal />
-      <SectorConfiguration />
-      <SectorChangeCountDown />
-      <AltitudeFilterPanel />
       <BottomNavbar />
       <VoiceCommandFeedback />
     </>

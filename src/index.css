@@ -309,7 +309,7 @@ div#root {
 /* For Sector Flight List */
 .sector-flight-list {
     position: absolute;
-    bottom: 10px;
+    bottom: 3.45em;
     left: 50px;
     /* width: 500px; */
     /* padding: 10px 14px 14px 14px;
@@ -534,6 +534,10 @@ div#root {
 
 .flight-level-element {
     font-size: 12px !important;
+}
+.flight-level-within-range {
+    color: lightgreen !important;
+    font-weight: bold;
 }
 
 .child {
@@ -875,6 +879,9 @@ button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
 
 .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
     filter: invert() hue-rotate(180deg);
+}
+#radar-map .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
+    filter: hue-rotate(180deg);
 }
 
 .huge-next-text {

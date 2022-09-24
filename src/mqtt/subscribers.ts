@@ -88,7 +88,6 @@ export function newFlightMilestonePositions(parameters: unknown, message: Buffer
 }
 export function newAvailabilityIntervalsMessage(parameters: unknown, message: Buffer): void {
   const protoMessage = AvailabilityIntervalsMessage.fromBinary(message);
-  console.log(protoMessage);
   configurationStore.handleAvailabilityIntervalsMessage(protoMessage);
 }
 export function roleConfiguration(parameters: unknown, message: Buffer): void {

@@ -11,24 +11,36 @@ import {
   persistLocalAssignedFlightLevel,
   persistNextSectorFlightLevel,
 } from '../mqtt/publishers';
-import { configurationStore, cwpStore } from '../state';
+import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
 function ListOfLevels(
-  properties: { value: number, onClick: (index: number) => void },
+  properties: {
+    value: number,
+    onClick: (index: number) => void,
+    topFlightLevel: number | undefined,
+    bottomFlightLevel: number | undefined,
+  },
 ): JSX.Element {
-  const sliderValue = properties.value;
-  const settingSlider = properties.onClick;
+  const {
+    value, onClick, topFlightLevel, bottomFlightLevel,
+  } = properties;
   const rows: JSX.Element[] = [];
 
+  const hasLevel = topFlightLevel !== undefined && bottomFlightLevel !== undefined;
+
   for (let index = 560; index > 200; index -= 10) {
+    const isWithinRange = hasLevel && index >= bottomFlightLevel && index <= topFlightLevel;
     rows.push(<Button
         key={index}
-        onClick={(): void => settingSlider(index)}
-        className="flight-level-element"
+        onClick={(): void => onClick(index)}
+        className={classnames({
+          'flight-level-element': true,
+          'flight-level-within-range': isWithinRange,
+        })}
         variant="secondary" size="sm"
         data-level={index}
-        active={index === sliderValue}>
+        active={index === value}>
       {index}
     </Button>);
   }
@@ -50,18 +62,32 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
     setNextACCFL,
   } = properties.aircraft;
 
+  const {
+    areaOfIncludedAirspaces,
+    currentCWP,
+  } = configurationStore;
+  const {
+    currentControlledSector,
+  } = roleConfigurationStore;
+
   const [flightLevel, setFlightLevel] = React.useState(Math.round(altitude / 10) * 10);
   const listOfLevelsReference = React.createRef<HTMLDivElement>();
   const shouldShow = cwpStore.aircraftsWithLevelPopup.has(aircraftId);
+
+  const airspaceCurrent = areaOfIncludedAirspaces
+    .find(({ sectorId }) => sectorId === currentControlledSector);
+
+  const topFlightLevel = airspaceCurrent?.topFlightLevel;
+  const bottomFlightLevel = airspaceCurrent?.bottomFlightLevel;
 
   React.useEffect(() => {
     // Scroll to the level in the list
     const listElement = ([...listOfLevelsReference.current?.children ?? []] as HTMLButtonElement[])
       .find((element) => element.dataset.level === `${flightLevel}`);
     listElement?.scrollIntoView({ block: 'center' });
-  }, [shouldShow]);
+  }, [flightLevel, shouldShow]);
 
-  const accepted = controlledBy === configurationStore.currentCWP;
+  const accepted = controlledBy === currentCWP;
 
   if (!shouldShow) {
     return null;
@@ -123,7 +149,12 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
       </div>
       <div className="level-popup-main">
         <div className="levels-container" ref={listOfLevelsReference}>
-          <ListOfLevels value={flightLevel} onClick={setFlightLevel} />
+          <ListOfLevels
+            value={flightLevel}
+            onClick={setFlightLevel}
+            topFlightLevel={topFlightLevel}
+            bottomFlightLevel={bottomFlightLevel}
+            />
         </div>
         <div className="levels-slider">
           <Button onClick={(): void => FlightLevelChange('up')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11165;</Button>

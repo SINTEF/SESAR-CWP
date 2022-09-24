@@ -38,7 +38,7 @@ export default observer(function SectorSideView() {
   if (!airspaceCurrent) {
     return null;
   }
-  const bottomFLCurrent: number = airspaceCurrent.bottomFlightLevel;
+  const bottomFLCurrent = airspaceCurrent.bottomFlightLevel;
   const topFLCurrent = airspaceCurrent.topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
