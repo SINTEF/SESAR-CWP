@@ -59,7 +59,7 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
     const listElement = ([...listOfLevelsReference.current?.children ?? []] as HTMLButtonElement[])
       .find((element) => element.dataset.level === `${flightLevel}`);
     listElement?.scrollIntoView({ block: 'center' });
-  }, [shouldShow]);
+  }, [flightLevel, shouldShow]);
 
   const accepted = controlledBy === configurationStore.currentCWP;
 
