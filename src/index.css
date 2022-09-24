@@ -535,6 +535,10 @@ div#root {
 .flight-level-element {
     font-size: 12px !important;
 }
+.flight-level-within-range {
+    color: lightgreen !important;
+    font-weight: bold;
+}
 
 .child {
     /* scroll-snap-align: start; */
