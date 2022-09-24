@@ -876,6 +876,9 @@ button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
 .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
     filter: invert() hue-rotate(180deg);
 }
+#radar-map .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
+    filter: hue-rotate(180deg);
+}
 
 .huge-next-text {
     position: absolute;
