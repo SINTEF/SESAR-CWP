@@ -309,7 +309,7 @@ div#root {
 /* For Sector Flight List */
 .sector-flight-list {
     position: absolute;
-    bottom: 10px;
+    bottom: 3.45em;
     left: 50px;
     /* width: 500px; */
     /* padding: 10px 14px 14px 14px;

@@ -15,18 +15,25 @@
   background-color: rgb(170, 170, 170);
   border-radius: 0;
   border-width: 2px;
-  border-style: outset;
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
   flex-shrink: 1;
-  /** 90's style */
+}
+.navbar.button-navbar button,
+.navbar.button-navbar button:focus,
+.navbar.button-navbar button.btn:focus {
+  border-style: solid;
+  border-top-color: rgb(180, 180, 180);
+  border-right-color: rgb(110, 110, 110);
+  border-bottom-color: rgb(110, 110, 110);
+  border-left-color: rgb(160, 160, 160);
 }
 
 .navbar.button-navbar button:focus,
 .navbar.button-navbar button.btn:focus {
   box-shadow: none;
-  border-color: #333;
+  /*border-color: #333;*/
 }
 
 .navbar.button-navbar button:disabled {
