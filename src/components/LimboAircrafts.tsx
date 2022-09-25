@@ -18,18 +18,18 @@ const layerPaint: CirclePaint = {
 };
 
 export default observer(function LimboFlights(/* properties */) {
-  const currentSectorBounds = roleConfigurationStore.areaOfCurrentControlledSector?.map((point) => (
-    [point.longitude, point.latitude]),
+  const currentSectorBounds = roleConfigurationStore.areaOfCurrentControlledSector?.map(
+    (point): Position => ([point.longitude, point.latitude]),
   );
-  const nextSectorBounds = roleConfigurationStore.areaOfNextControlledSector?.map((point) => (
-    [point.longitude, point.latitude]),
+  const nextSectorBounds = roleConfigurationStore.areaOfNextControlledSector?.map(
+    (point): Position => ([point.longitude, point.latitude]),
   );
   const [listOfAddedAircrafts, setListOfAddedAircrafts] = React.useState<AircraftModel[]>([]);
   const [listOfRemovedAircrafts, setListOfRemovedAircrafts] = React.useState<AircraftModel[]>([]);
   React.useEffect(() => {
     if (currentSectorBounds && nextSectorBounds) {
-      const currentPolygon = polygon([currentSectorBounds] as unknown as Position[][]);
-      const nextPolygon = polygon([nextSectorBounds] as unknown as Position[][]);
+      const currentPolygon = polygon([currentSectorBounds]);
+      const nextPolygon = polygon([nextSectorBounds]);
       const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'centroid' });
       const scaledCurrentSectorBounds = transformScale(currentPolygon, 0.75, { origin: 'centroid' });
       const addedAircrafts: AircraftModel[] = [];

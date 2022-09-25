@@ -1,4 +1,5 @@
 import { cwpStore } from '../state';
+import SectorConfigCommand from './SectorConfigCommand';
 import ThreeDViewCommand from './ThreeDViewCommand';
 
 function convertHumanStringToBoolean(input: string): boolean {
@@ -9,11 +10,15 @@ function convertHumanStringToBoolean(input: string): boolean {
 }
 
 export default function HandleCommand(input: string): void {
+  // eslint-disable-next-line no-console
   console.log('Command:', input);
   /** A command is a set of word separated by spaces. */
   const [command, ...commandArguments] = input.split(/\s+/);
-  switch (command.toLowerCase()) {
-    case 'flight-labels':
+  switch (true) {
+    case /^sectors?-configs?$/i.test(command):
+      SectorConfigCommand(commandArguments);
+      break;
+    case /^flights?-labels?$/i.test(command):
       if (commandArguments.length === 0) {
         cwpStore.toggleFlightLabels();
       } else {
@@ -21,7 +26,7 @@ export default function HandleCommand(input: string): void {
         cwpStore.setFlightLabels(onOff);
       }
       break;
-    case 'speed-vectors':
+    case /^speeds?-vectors?$/i.test(command):
       if (commandArguments.length === 0) {
         const currentSpeedVectorMinutes = cwpStore.speedVectorMinutes;
         cwpStore.setSpeedVectorMinutes(currentSpeedVectorMinutes === 0 ? 3 : 0);
@@ -35,10 +40,14 @@ export default function HandleCommand(input: string): void {
         cwpStore.setSpeedVectorMinutes(Math.max(0, Math.min(15, length)));
       }
       break;
-    case '3d-view':
+    case /^3d-view$/i.test(command):
       ThreeDViewCommand(commandArguments);
       break;
     default:
       throw new Error(`Unknown command: ${command}`);
+      break;
   }
 }
+
+// @ts-expect-error - Debug utility
+window.debugHandleCommand = HandleCommand;

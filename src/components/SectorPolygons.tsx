@@ -140,7 +140,8 @@ export default observer(function SectorPolygons(/* properties */) {
     features: [],
   };
 
-  const highlightedSectorArea = airspaceStore.getAreaFromId(clickedSectorId);
+  const highlightedSectorArea = showClickedSector
+    ? airspaceStore.getAreaFromId(clickedSectorId) : undefined;
   if (highlightedSectorArea) {
     sectorHighlightJSON.features.push({
       type: 'Feature',

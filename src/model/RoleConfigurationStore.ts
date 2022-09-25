@@ -206,11 +206,10 @@ export default class RoleConfigurationStore {
 
   get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
     if (this.areaOfCurrentControlledSector !== undefined) {
-      const coordinates = this.areaOfCurrentControlledSector?.map((point) => (
+      const coordinates = this.areaOfCurrentControlledSector?.map((point): Position => (
         [point.longitude, point.latitude]),
       );
-      const boundsGeometry = polygon(
-        [coordinates] as unknown as Position[][]);
+      const boundsGeometry = polygon([coordinates]);
       const temporaryAircrafts: AircraftModel[] = [];
       for (const aircraft of this.aircraftStore.aircrafts) {
         const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
@@ -264,11 +263,10 @@ export default class RoleConfigurationStore {
   get listOfFixesInPolygon(): string[] {
     const { fixes } = this.fixStore;
     if (this.areaOfCurrentControlledSector !== undefined) {
-      const coordinates = this.areaOfCurrentControlledSector.map((point) => (
+      const coordinates = this.areaOfCurrentControlledSector.map((point): Position => (
         [point.longitude, point.latitude]),
       );
-      const boundsGeometry = polygon(
-        [coordinates] as unknown as Position[][]);
+      const boundsGeometry = polygon([coordinates]);
       const temporaryFixes: string[] = [];
       for (const fix of fixes) {
         const position: Position = [fix[1].longitude, fix[1].latitude];

@@ -10,7 +10,6 @@ dotenv.config();
 
 const {
   OPENAI_API_KEY: openaiApiKey,
-  OPENAI_MODEL: openAiModel,
 } = process.env;
 
 if (!openaiApiKey) {
@@ -63,7 +62,7 @@ export async function textToCommand(text: string): Promise<string> {
   }
 
   const response = await openai.createCompletion({
-    model: openAiModel ?? 'davinci:ft-sintef-2022-09-22-19-08-27',
+    model: 'davinci:ft-sintef-2022-09-24-19-37-27',
     prompt,
     temperature: 0,
     max_tokens: 100,

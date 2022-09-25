@@ -70,8 +70,11 @@ export default observer(function SectorConfiguration() {
               From {startText} to {endText}
             </Accordion.Header>
             <Accordion.Body className="accordion-body sector-configuration-body">
-              <TableSectors sectorsOfArray={area}
-              controlledSector={findCurrentSectorByCWP(currentCWP, id)}/>
+              <TableSectors
+                sectorsOfArray={area}
+                controlledSector={findCurrentSectorByCWP(currentCWP, id)}
+                nextSectorsConfiguration={index >= 1}
+                />
               <VerticalSectorTimeline id={`${index}`} start={start} end={end} current={timestamp}/>
             </Accordion.Body>
           </Accordion.Item>

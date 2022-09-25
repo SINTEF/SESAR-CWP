@@ -237,10 +237,6 @@ export default class CWPStore {
     return this.showLines;
   }
 
-  toggleClickedSector(): void {
-    this.showClickedSector = !this.showClickedSector;
-  }
-
   setShowClickedSector(boolean: boolean): void {
     this.showClickedSector = boolean;
   }
@@ -297,6 +293,16 @@ export default class CWPStore {
       default:
         throw new Error('Invalid showNextSectorsConfiguration');
     }
+  }
+
+  setShowNextSectorsConfiguration(value: boolean): void {
+    if (this.switchBackToAutomaticNextSectorsConfigurationTimeoutId) {
+      window.clearTimeout(this.switchBackToAutomaticNextSectorsConfigurationTimeoutId);
+      this.switchBackToAutomaticNextSectorsConfigurationTimeoutId = 0;
+    }
+    this.showNextSectorsConfiguration = value
+      ? ShowNextConfiguration.On : ShowNextConfiguration.Off;
+    this.switchBackToAutomaticNextSectorsConfiguration();
   }
 
   setAutomaticNextSectorsConfiguration(): void {

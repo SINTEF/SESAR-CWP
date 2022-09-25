@@ -98,11 +98,11 @@ export default class MqttIndicators extends Component<unknown, {
   }
 
   onPacketReceive(): void {
-    if (this.receiveEndTimeoutId !== 0) {
-      window.clearTimeout(this.receiveEndTimeoutId);
-      this.receiveEndTimeoutId = 0;
-    }
     if (this.receiveStartTimeoutId === 0) {
+      if (this.receiveEndTimeoutId !== 0) {
+        window.clearTimeout(this.receiveEndTimeoutId);
+        this.receiveEndTimeoutId = 0;
+      }
       this.receiveStartTimeoutId = window.setTimeout(() => {
         this.receiveStartTimeoutId = 0;
         this.setState({ receiving: true });
@@ -114,11 +114,11 @@ export default class MqttIndicators extends Component<unknown, {
   }
 
   onPacketSend(): void {
-    if (this.sendEndTimeoutId !== 0) {
-      window.clearTimeout(this.sendEndTimeoutId);
-      this.sendEndTimeoutId = 0;
-    }
     if (this.sendStartTimeoutId === 0) {
+      if (this.sendEndTimeoutId !== 0) {
+        window.clearTimeout(this.sendEndTimeoutId);
+        this.sendEndTimeoutId = 0;
+      }
       this.sendStartTimeoutId = window.setTimeout(() => {
         this.sendStartTimeoutId = 0;
         this.setState({ sending: true });
