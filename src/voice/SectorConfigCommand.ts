@@ -66,11 +66,18 @@ function findSectorWithLargestVerticalIntersection(
   // bottomFlightLevel
   // eslint-disable-next-line unicorn/no-array-reduce
   const largestSector = otherSectorsWithHeight.reduce(
-    (previous, current) => (previous.height > current.height ? previous
-      : (previous.height < current.height ? current
-        // eslint-disable-next-line unicorn/no-nested-ternary
-        : previous.sector.bottomFlightLevel < current.sector.bottomFlightLevel ? previous
-          : current)));
+    (previous, current) => {
+      if (previous.height > current.height) {
+        return previous;
+      }
+      if (previous.height < current.height) {
+        return current;
+      }
+      if (previous.sector.bottomFlightLevel < current.sector.bottomFlightLevel) {
+        return previous;
+      }
+      return current;
+    });
 
   if (largestSector.height === 0) {
     return undefined;

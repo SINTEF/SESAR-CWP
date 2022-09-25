@@ -95,7 +95,6 @@ export default function HandleCommand(input: string): void {
       break;
     default:
       throw new Error(`Unknown command: ${command}`);
-      break;
   }
 }
 

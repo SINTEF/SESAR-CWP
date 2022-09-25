@@ -193,8 +193,6 @@ export default class AircraftStore {
       console.warn('Received sector in flight message for unknown aircraft', flightUniqueId);
       return;
     }
-    // console.log(this.flightsInSectorTimes);
-
     aircraft.handleSectorInFlightMessage(flightEnteringAirspaceMessage);
   }
 
