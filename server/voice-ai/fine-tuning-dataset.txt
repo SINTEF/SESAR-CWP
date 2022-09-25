@@ -40,6 +40,10 @@ hide flight labels: flight-labels off
 ! (show|display)? (next|following) (configuration)? (of)? right sector: sector-config next right
 ! (show|display)? (next|following) (configuration)? (of)? (above|over) sector: sector-config next above
 ! (show|display)? (next|following) (configuration)? (of)? (below|under) sector: sector-config next below
+! (show|display)? (current)? (configuration)? (of)? sector (managed|handled)? (by)? (C[VW]P|controller|atco)? 6: sector-config current 6
+! (show|display)? (current)? (configuration)? (of)? sector (managed|handled)? (by)? (C[VW]P|controller|atco)? 2: sector-config current 2
+! (show|display)? (next|following) (configuration)? (of)? sector (managed|handled)? (by)? (C[VW]P|controller|atco)? 4: sector-config next 4
+! (show|display)? (next|following) (configuration)? (of)? sector (managed|handled)? (by)? (C[VW]P|controller|atco)? 1: sector-config next 1
 
 
 show my current sector configuration: sector-config current
@@ -106,10 +110,10 @@ show sector above mine: sector-config current up
 ! tilt (3D)? (view|model|sectors) left: 3d-view west 30
 ! tilt (3D)? (view|model|sectors) right: 3d-view east 30
 
-! nutch (3D)? (view|model|sectors) up: 3d-view north 10
-! nutch (3D)? (view|model|sectors) down: 3d-view south 10
-! nutch (3D)? (view|model|sectors) left: 3d-view west 10
-! nutch (3D)? (view|model|sectors) right: 3d-view east 10
+! nudge (3D)? (view|model|sectors) up: 3d-view north 10
+! nudge (3D)? (view|model|sectors) down: 3d-view south 10
+! nudge (3D)? (view|model|sectors) left: 3d-view west 10
+! nudge (3D)? (view|model|sectors) right: 3d-view east 10
 
 Default 3D view: 3d-view default
 Default: 3d-view default
@@ -152,8 +156,8 @@ slightly up: 3d-view north 10
 slightly down: 3d-view south 10
 go to the west 90 degrees: 3d-view west 90
 tilt 3D view to the left a little bit: 3d-view west 10
-Nutch 3D view left: 3d-view west 10
-Nutch view up: 3d-view north 10
+Nudge 3D view left: 3d-view west 10
+Nudge view up: 3d-view north 10
 
 # Limbo flights
 Highlight flights that should be handed over: flights-handed on
@@ -167,6 +171,7 @@ List of flights I will manage soon: flights-handed on
 
 ! (highlight) affected flights?: flights-handed on
 ! (stop|quit|cancel|do not) highlight: flights-handed off
+toggle highlight: flights-handed toggle
 
 ! (set|configure) speed (vectors|lines) (to)? (0|off|no|disable|disabled): speed-vectors 0
 ! (set|configure) speed (vectors|lines) (to)? (5|five|on|yes|enable|enabled): speed-vectors 5
@@ -189,22 +194,22 @@ switch fixes: fixes toggle
 ! (turn on|enable) (the)? (flights?)? labels: flight-labels on
 ! (turn off|disable) (the)? (flights?)? labels: flight-labels off
 
-! (show|activate|display|turn on) (the)? trajectory: trajectory on
-! (hide|turn off|deactivate) (the)? trajectory: trajectory off
+! (show|activate|display|turn on) (the)? trajectory: current-trajectory on
+! (hide|turn off|deactivate) (the)? trajectory: current-trajectory off
 
-! (show|activate|display|turn on) (the)? speed vector: current-speed-vector on
-! (hide|turn off|deactivate) (the)? speed vector: current-speed-vector off
+! (show|activate|display|turn on) (the)? speeds? vectors?: current-speed-vector on
+! (hide|turn off|deactivate) (the)? speeds? vectors?: current-speed-vector off
 
 I don't want to see the flight labels!: flight-labels off
 I don't want to see the sector labels!: sectors-labels off
 I don't want to see the fixes!: fixes off
 I don't want to see the speed vectors!: speed-vectors 0
-I don't want to see the trajectory!: trajectory off
+I don't want to see the trajectory!: current-trajectory off
 I don't want to see the speed vector!: current-speed-vector off
 
 Stop showing the flight labels!: flight-labels off
 Stop showing the sector labels!: sectors-labels off
 Stop showing the fixes!: fixes off
 Stop showing the speed vectors!: speed-vectors 0
-Stop showing the trajectory!: trajectory off
+Stop showing the trajectory!: current-trajectory off
 Stop showing the speed vector!: current-speed-vector off

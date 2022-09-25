@@ -14,7 +14,11 @@ def generate_variations(json):
 
     prompt = prompt[1:-1]
 
-    variations = exrex.generate(prompt, limit=100)
+    variations = list(exrex.generate(prompt))
+
+    # Select maximum 20 variations
+    variations = random.sample(variations, min(20, len(variations)))
+
     return [{'prompt': re.sub(r'\s+', ' ', variation).strip()+':', 'completion': json['completion']} for variation in variations]
 
 # Read ./fine-tuning-dataset.txt

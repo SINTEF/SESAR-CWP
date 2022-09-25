@@ -5,6 +5,7 @@ import { Button } from 'react-bootstrap';
 import { useMap } from 'react-map-gl';
 
 import { isDragging } from '../draggableState';
+import { setCurrentAircraftId } from '../model/CurrentAircraft';
 import {
   configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
@@ -73,6 +74,17 @@ export default observer(function AircraftPopup(properties: {
 
   const Content = pseudo ? AircraftPopupPseudoContent : AircraftPopupContent;
 
+  const onClick = (): void => {
+    if (isDragging()) {
+      return;
+    }
+    // eslint-disable-next-line unicorn/consistent-destructuring
+    if (aircraft.controlledBy === configurationStore.currentCWP
+      || configurationStore.currentCWP === 'All') {
+      setCurrentAircraftId(aircraftId);
+    }
+  };
+
   return (
     <DraggablePopup
       className="flight-popup"
@@ -89,7 +101,7 @@ export default observer(function AircraftPopup(properties: {
       cancel="input, button"
       onClose={(): void => cwpStore.closeLevelPopupForAircraft(aircraftId)}
     >
-      <div>
+      <div onClick={onClick}>
         <div className="flight-popup-main" style={{
           width: '110px', height: `${height}px`,
         }} onWheel={onWheel}>

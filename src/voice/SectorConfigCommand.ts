@@ -100,24 +100,58 @@ function findEast(sector: ISectorModel, otherSectors: ISectorModel[]): ISectorMo
 }
 
 function findSectorNextTo(
-  sectorId: string, position: string, area: ISectorModel[],
+  sector: ISectorModel, position: string, area: ISectorModel[],
 ): string | undefined {
-  const sector = area.find((s) => s.sectorId === sectorId);
-  if (!sector) {
-    throw new Error(`Sector ${sectorId} not found`);
-  }
-  switch (position) {
+  switch (position.toLocaleLowerCase()) {
+    case 'west':
     case 'left':
       return findWest(sector, area)?.sectorId;
+    case 'east':
     case 'right':
       return findEast(sector, area)?.sectorId;
     case 'above':
+    case 'up':
       return findAbove(sector, area)?.sectorId;
     case 'below':
+    case 'down':
       return findBelow(sector, area)?.sectorId;
     default:
       throw new Error(`Invalid position ${position}`);
   }
+}
+
+function findSectorWithCWPNumber(
+  cwpNumber: number, area: ISectorModel[],
+): string | undefined {
+  // Find CWP for all sectors
+  const sectorsWithCWP = area.map((s) => {
+    const cwp = roleConfigurationStore.getCWPBySectorId(s.sectorId);
+    return { sector: s, cwp };
+  });
+
+  // Find the sector with the same CWP number
+  const matchingSector = sectorsWithCWP.find((s) => s.cwp === `CWP${cwpNumber}`);
+  return matchingSector?.sector.sectorId;
+}
+
+function findSectorForPosition(
+  sectorId: string | undefined, position: string, area: ISectorModel[],
+): string | undefined {
+  const potentialNumber = Number.parseInt(position, 10);
+  if (!Number.isNaN(potentialNumber)) {
+    return findSectorWithCWPNumber(potentialNumber, area);
+  }
+
+  if (sectorId === undefined) {
+    throw new Error('Cannot find sector next to undefined sector');
+  }
+
+  const sector = area.find((s) => s.sectorId === sectorId);
+  if (!sector) {
+    throw new Error(`Sector ${sectorId} not found`);
+  }
+
+  return findSectorNextTo(sector, position, area);
 }
 
 export default function SectorConfigCommand(_arguments: string[]): void {
@@ -135,7 +169,7 @@ export default function SectorConfigCommand(_arguments: string[]): void {
     throw new Error(`Invalid sector-config mode: ${mode}`);
   }
 
-  if (!sectorName) {
+  if (!sectorName && !/^\d+$/.test(position)) {
     throw new Error('No controlled sector found (yet ?)');
   }
 
@@ -143,7 +177,7 @@ export default function SectorConfigCommand(_arguments: string[]): void {
     const area = mode === 'current'
       ? configurationStore.areaOfIncludedAirspaces
       : configurationStore.areaOfIncludedAirspacesForNextConfiguration;
-    sectorName = findSectorNextTo(sectorName, position, area);
+    sectorName = findSectorForPosition(sectorName, position, area);
   }
   if (!sectorName) {
     throw new Error('No sector found');

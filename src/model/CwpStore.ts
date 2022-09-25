@@ -93,8 +93,16 @@ export default class CWPStore {
     this.showFixes = !this.showFixes;
   }
 
+  setFixes(boolean: boolean): void {
+    this.showFixes = boolean;
+  }
+
   toggleSectorLabels(): void {
     this.showSectorLabels = !this.showSectorLabels;
+  }
+
+  setSectorLabels(boolean: boolean): void {
+    this.showSectorLabels = boolean;
   }
 
   toggleSFL(): void {
@@ -121,11 +129,27 @@ export default class CWPStore {
     }
   }
 
+  setSpeedVectorForAircraft(aircraftId: string, value: boolean): void {
+    if (value) {
+      this.aircraftsWithSpeedVectors.add(aircraftId);
+    } else {
+      this.aircraftsWithSpeedVectors.delete(aircraftId);
+    }
+  }
+
   toggleFlightRouteForAircraft(aircraftId: string): void {
     if (this.aircraftsWithFlightRoutes.has(aircraftId)) {
       this.aircraftsWithFlightRoutes.delete(aircraftId);
     } else {
       this.aircraftsWithFlightRoutes.add(aircraftId);
+    }
+  }
+
+  setFlightRouteForAircraft(aircraftId: string, value: boolean): void {
+    if (value) {
+      this.aircraftsWithFlightRoutes.add(aircraftId);
+    } else {
+      this.aircraftsWithFlightRoutes.delete(aircraftId);
     }
   }
 
@@ -135,6 +159,10 @@ export default class CWPStore {
 
   toggleLimboFlights(): void {
     this.showLimboFlight = !this.showLimboFlight;
+  }
+
+  setLimboFlight(boolean: boolean): void {
+    this.showLimboFlight = boolean;
   }
 
   setFlightLabels(boolean: boolean): void {
