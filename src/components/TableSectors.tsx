@@ -15,24 +15,25 @@ const findGridPositionColumn = (sectorName: string): number | string => {
 export default function TableSectors({
   sectorsOfArray,
   controlledSector,
+  nextSectorsConfiguration,
 }: {
   sectorsOfArray: ISectorModel[];
   controlledSector: string | undefined;
+  nextSectorsConfiguration: boolean;
 }): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
-    setClickedSectorId, toggleClickedSector, clickedSectorId, setShowClickedSector,
+    setClickedSectorId, clickedSectorId, setShowClickedSector, setShowNextSectorsConfiguration,
   } = cwpStore;
   const clickedSectorButton = (value: string): void => {
     if (clickedSectorId === value) {
       setClickedSectorId(''); // Too remove the selected border line
-      toggleClickedSector();
+      setShowClickedSector(false);
+      setShowNextSectorsConfiguration(false);
     } else {
-      if (clickedSectorId === undefined) {
-        toggleClickedSector();
-      }
       setClickedSectorId(value);
       setShowClickedSector(true);
+      setShowNextSectorsConfiguration(nextSectorsConfiguration);
     }
   };
   const ascendingSectors = [...sectorsOfArray];
@@ -93,8 +94,6 @@ export default function TableSectors({
   setSpan = temporaryHighestSpan;
   const width = `${(450 / setSpan) / 2}`;
 
-  const buttons = [];
-
   const setWidthOfButton = (bottomFL: number): number => {
     const valueFL = bottomFL;
     if (bottomFL === bottomLevel) {
@@ -136,13 +135,12 @@ export default function TableSectors({
     return `span 1 / ${gridPosition}`;
   };
   const isSectorForCWP = (sectorId: string): boolean => sectorId === controlledSector;
-  for (let index = 1; index < sectorsOfArray.length + 1; index += 1) {
+  const buttons = [...sectorsOfArray].reverse().map((sectors) => {
     const {
       bottomFlightLevel, sectorId,
       topFlightLevel,
-    } = sectorsOfArray[sectorsOfArray.length - index];
-    buttons.push(
-      <Button
+    } = sectors;
+    return (<Button
           className={`table-button 
           ${isSectorForCWP(sectorId) ? 'highlight-sector' : ''}
           ${clickedSectorId === sectorId ? 'clicked-sector' : ''}`}
@@ -155,22 +153,19 @@ export default function TableSectors({
           }}
           onClick={(): void => {
             if (isDragging()) return;
-            clickedSectorButton(
-              sectorId,
-            );
+            clickedSectorButton(sectorId);
           }}
         >
-        <Card.Body>
-          <Card.Title className="sector-title">
-            {`${roleConfigurationStore.getCWPBySectorId(sectorId)}-${sectorId}` }
-          </Card.Title>
-          <Card.Text className="sector-body">
-            {`FL ${bottomFlightLevel}-${topFlightLevel}`}
-          </Card.Text>
-        </Card.Body>
-      </Button>,
-    );
-  }
+      <Card.Body>
+        <Card.Title className="sector-title">
+          {`${roleConfigurationStore.getCWPBySectorId(sectorId)}-${sectorId}` }
+        </Card.Title>
+        <Card.Text className="sector-body">
+          {`FL ${bottomFlightLevel}-${topFlightLevel}`}
+        </Card.Text>
+      </Card.Body>
+    </Button>);
+  });
   return (
     <div className='sector-box'
     style = {{

@@ -1,4 +1,6 @@
+import { getCurrentAircraftId } from '../model/CurrentAircraft';
 import { cwpStore } from '../state';
+import SectorConfigCommand from './SectorConfigCommand';
 import ThreeDViewCommand from './ThreeDViewCommand';
 
 function convertHumanStringToBoolean(input: string): boolean {
@@ -8,21 +10,35 @@ function convertHumanStringToBoolean(input: string): boolean {
   return regex.test(input);
 }
 
+function isToggleMode(commandArguments: string[]): boolean {
+  return commandArguments.length === 0 || commandArguments[0] === 'toggle';
+}
+
 export default function HandleCommand(input: string): void {
+  // eslint-disable-next-line no-console
   console.log('Command:', input);
   /** A command is a set of word separated by spaces. */
   const [command, ...commandArguments] = input.split(/\s+/);
-  switch (command.toLowerCase()) {
-    case 'flight-labels':
-      if (commandArguments.length === 0) {
+  switch (true) {
+    case /^sectors?-configs?$/i.test(command):
+      SectorConfigCommand(commandArguments);
+      break;
+    case /^flights?-labels?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
         cwpStore.toggleFlightLabels();
       } else {
-        const onOff = convertHumanStringToBoolean(commandArguments[0]);
-        cwpStore.setFlightLabels(onOff);
+        cwpStore.setFlightLabels(convertHumanStringToBoolean(commandArguments[0]));
       }
       break;
-    case 'speed-vectors':
-      if (commandArguments.length === 0) {
+    case /^flights?-(handed|limbo)$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleLimboFlights();
+      } else {
+        cwpStore.setLimboFlight(convertHumanStringToBoolean(commandArguments[0]));
+      }
+      break;
+    case /^speeds?-vectors?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
         const currentSpeedVectorMinutes = cwpStore.speedVectorMinutes;
         cwpStore.setSpeedVectorMinutes(currentSpeedVectorMinutes === 0 ? 3 : 0);
       } else {
@@ -35,10 +51,52 @@ export default function HandleCommand(input: string): void {
         cwpStore.setSpeedVectorMinutes(Math.max(0, Math.min(15, length)));
       }
       break;
-    case '3d-view':
+    case /^3d-view$/i.test(command):
       ThreeDViewCommand(commandArguments);
+      break;
+    case /^fixes?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleFixes();
+      } else {
+        cwpStore.setFixes(convertHumanStringToBoolean(commandArguments[0]));
+      }
+      break;
+    case /^sectors?-labels?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleSectorLabels();
+      } else {
+        cwpStore.setSectorLabels(convertHumanStringToBoolean(commandArguments[0]));
+      }
+      break;
+    case /^current-speeds?-vectors?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleSpeedVectorForAircraft(
+          getCurrentAircraftId(),
+        );
+      } else {
+        cwpStore.setSpeedVectorForAircraft(
+          getCurrentAircraftId(),
+          convertHumanStringToBoolean(commandArguments[0]),
+        );
+      }
+      break;
+    case /^(current-)?trajectory$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleFlightRouteForAircraft(
+          getCurrentAircraftId(),
+        );
+      } else {
+        cwpStore.setFlightRouteForAircraft(
+          getCurrentAircraftId(),
+          convertHumanStringToBoolean(commandArguments[0]),
+        );
+      }
+
       break;
     default:
       throw new Error(`Unknown command: ${command}`);
   }
 }
+
+// @ts-expect-error - Debug utility
+window.debugHandleCommand = HandleCommand;
