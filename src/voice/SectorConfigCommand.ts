@@ -118,9 +118,14 @@ function findSectorNextTo(
       return findEast(sector, area)?.sectorId;
     case 'above':
     case 'up':
+    case 'upper':
+    case 'higher':
+    case 'top':
       return findAbove(sector, area)?.sectorId;
     case 'below':
     case 'down':
+    case 'lower':
+    case 'bottom':
       return findBelow(sector, area)?.sectorId;
     default:
       throw new Error(`Invalid position ${position}`);
