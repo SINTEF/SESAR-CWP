@@ -70,7 +70,7 @@ export default observer(function AircraftPopup(properties: {
     });
   }
 
-  const height = pseudo ? 68 : 55;
+  const height = pseudo ? 80 : 64;
 
   const Content = pseudo ? AircraftPopupPseudoContent : AircraftPopupContent;
 
@@ -103,7 +103,7 @@ export default observer(function AircraftPopup(properties: {
     >
       <div onClick={onClick}>
         <div className="flight-popup-main" style={{
-          width: '110px', height: `${height}px`,
+          width: '128px', height: `${height}px`,
         }} onWheel={onWheel}>
           <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
           <Content flightColor={flightColor} aircraft={aircraft} />
