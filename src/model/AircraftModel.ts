@@ -8,6 +8,7 @@ import {
 } from '../proto/ProtobufAirTrafficSimulator';
 import convertTimestamp from './convertTimestamp';
 import FlightInSectorModel from './FlightInSectorModel';
+import type { Timestamp } from '../proto/google/protobuf/timestamp';
 import type {
   FlightEnteringAirspaceMessage, FlightMilestonePositionMessage, NewFlightMessage, TargetReportMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
@@ -290,6 +291,19 @@ export default class AircraftModel {
       }
       listsSectorHasFlight.set(sectorId, flightInSector);
     }
+  }
+
+  isEnteringFlight(controlledSector : string) : boolean {
+    const flightEntering = this.flightInSectorTimes.get(controlledSector);
+    let flightEnteringTime : Timestamp | undefined;
+    if (flightEntering) {
+      flightEnteringTime = flightEntering.entryPosition?.time;
+    }
+    if (flightEntering && flightEnteringTime
+    && convertTimestamp(flightEnteringTime) >= this.simulatorStore.timestamp) {
+      return true;
+    }
+    return false;
   }
 
   setAssignedFlightLevel(assignedFlightLevel: string): void {

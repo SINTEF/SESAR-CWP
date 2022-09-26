@@ -59,6 +59,12 @@ const SpeedAndWakeTurbulenceLabel = observer(({ aircraft }: SubContentProperties
     </td>
   );
 });
+const AssignedBearing = observer(({ aircraft }: SubContentProperties): JSX.Element => (
+  <td>
+    { aircraft.assignedBearing === -1 || aircraft.assignedBearing === undefined
+      ? 'BEG.S' : `${aircraft.assignedBearing}` }
+  </td>
+));
 
 const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const middleClickNextWaypoint = (event: React.MouseEvent<HTMLElement>): void => {
@@ -133,6 +139,7 @@ export default observer(function AircraftPopupContent(properties: {
         <tr>
           <Altitude aircraft={aircraft}/>
           <NextFix aircraft={aircraft}/>
+          <AssignedBearing aircraft={aircraft}/>
         </tr>
         <tr>
           <SpeedAndWakeTurbulenceLabel aircraft={aircraft}/>
