@@ -90,6 +90,7 @@ export default observer(function SectorFlightList(/* properties */) {
       setFix(selectedValue);
     }
   };
+  listOfAircraft.sort((a, b) => a.callSign.localeCompare(b.callSign));
 
   return (
     <Draggable
