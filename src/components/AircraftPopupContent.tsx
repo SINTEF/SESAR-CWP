@@ -134,7 +134,7 @@ export default observer(function AircraftPopupContent(properties: {
     <table className="flight-popup-container">
       <tbody style={{ color: flightColor }}>
         <tr>
-          <CallSign aircraft={aircraft} colSpan={2} />
+          <CallSign aircraft={aircraft} colSpan={3} />
         </tr>
         <tr>
           <Altitude aircraft={aircraft}/>

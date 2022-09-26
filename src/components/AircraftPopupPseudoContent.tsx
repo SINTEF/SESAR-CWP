@@ -190,7 +190,7 @@ export default observer(function AircraftPopupPseudoContent(
     <table className="flight-popup-container flight-popup-pseudo-container">
       <tbody style={{ color: flightColor }}>
         <tr>
-          <CallSign aircraft={aircraft} colSpan={2} />
+          <CallSign aircraft={aircraft} colSpan={3} />
         </tr>
         <tr>
           <Bearing aircraft={aircraft}/>

@@ -18,6 +18,11 @@ export default observer(function NextSectorPopup(properties: {
   } = properties.aircraft;
 
   const { listOfAllControllers } = roleConfigurationStore;
+
+  const sortedListOfAllControllers = [...listOfAllControllers];
+  const collator = new Intl.Collator([], { numeric: true });
+  sortedListOfAllControllers.sort((a, b) => collator.compare(a, b));
+
   const [controllerPlaceholder, setControllerPlaceholder] = React.useState(controlledBy);
   const shouldShow = cwpStore.aircraftsWithSectorPopup.has(aircraftId);
   if (!shouldShow) {
@@ -55,7 +60,7 @@ export default observer(function NextSectorPopup(properties: {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {listOfAllControllers.map(
+            {sortedListOfAllControllers.map(
               (name) => (<Dropdown.Item eventKey={name} key={name}>{name}</Dropdown.Item>))}
 
           </Dropdown.Menu>
