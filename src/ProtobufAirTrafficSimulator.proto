@@ -282,6 +282,10 @@ message Position4D {
   float longitude                 = 3;
   float altitude                  = 4;  // Altitude (if known).
 }
+message AvailabilitySchedule{
+  repeated AvailabilityIntervalsMessage availabilityIntervals = 1;
+
+}
 
 // A position given with a coordinate (X,Y,Z) where X and Y are coonrdinates in the plane and Z gives the altitude.
 // The Z-coordinate (altitude) is optional.

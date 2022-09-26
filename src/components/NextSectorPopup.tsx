@@ -36,6 +36,10 @@ export default observer(function NextSectorPopup(properties: {
     }
   };
   const submit = (): void => {
+    if (controllerPlaceholder === 'OTHER') {
+      setNextSectorController('All');
+      handlePublishPromise(tentativeFlight(controlledBy, 'All', assignedFlightId));
+    }
     setNextSectorController(controllerPlaceholder);
     if (configurationStore.currentCWP === 'All') {
       handlePublishPromise(
