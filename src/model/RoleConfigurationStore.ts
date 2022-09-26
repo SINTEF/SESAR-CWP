@@ -182,25 +182,30 @@ export default class RoleConfigurationStore {
   }
 
   getOriginalColorOfAircraft(aircraftId: string): string {
-    let flightColor = '#ffffff';
     const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
     if (!aircraft) {
-      return flightColor;
+      return '#ffffff';
     }
+
+    if (aircraft.controlledBy === this.configurationStore.currentCWP) {
+      return '#78e251';
+    }
+
     const listOfTentatives = this.roleConfigurations
       .get(this.configurationStore.currentCWP)?.tentativeAircrafts;
-    if (aircraft.controlledBy === this.configurationStore.currentCWP) {
-      flightColor = '#78e251';
-    }
     if (listOfTentatives?.includes(aircraftId)) {
-      flightColor = '#ff00ff';
-    } else if (aircraft.nextSectorController !== 'NS' && aircraft.nextSectorController !== aircraft.controlledBy) {
-      flightColor = '#CEFCBA';
-    } else if (this.currentControlledSector
-  && aircraft.isEnteringFlight(this.currentControlledSector)) {
-      flightColor = '#009900';
+      return '#ff00ff';
     }
-    return flightColor;
+
+    if (aircraft.nextSectorController !== 'NS' && aircraft.nextSectorController !== aircraft.controlledBy) {
+      return '#CEFCBA';
+    }
+
+    if (this.currentControlledSector && aircraft.isEnteringFlight(this.currentControlledSector)) {
+      return '#009900';
+    }
+
+    return '#ffffff';
   }
 
   get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
