@@ -25,7 +25,8 @@ export default observer(function MicrophoneButton() {
 
   React.useEffect(() => {
     const keyDownEventListener = (event: KeyboardEvent): void => {
-      if (event.key === ' ' && !event.repeat) {
+      // Detect when Shift+Space is pressed
+      if (event.shiftKey && event.code === 'Space' && !event.repeat) {
         event.preventDefault();
         handleClick();
       }

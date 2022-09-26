@@ -169,6 +169,15 @@ function findSectorForPosition(
 export default function SectorConfigCommand(_arguments: string[]): void {
   const [mode, position] = _arguments;
 
+  if (mode === 'off' || mode === 'clear' || position === 'off') {
+    transaction(() => {
+      cwpStore.setClickedSectorId('');
+      cwpStore.setShowClickedSector(false);
+      cwpStore.setShowNextSectorsConfiguration(false);
+    });
+    return;
+  }
+
   let sectorName: string | undefined;
   let showNextConfiguration: boolean;
   if (mode === 'current') {

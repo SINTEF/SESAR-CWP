@@ -45,6 +45,9 @@ hide flight labels: flight-labels off
 ! (show|display)? (next|following) (configuration)? (of)? sector (managed|handled)? (by)? (C[VW]P|controller|atco)? 4: sector-config next 4
 ! (show|display)? (next|following) (configuration)? (of)? sector (managed|handled)? (by)? (C[VW]P|controller|atco)? 1: sector-config next 1
 
+! (hide|do not display|disable|unselect) (my)? (current|own)? sector (configuration)?: sector-config off
+hide sector configuration: sector-config off
+
 
 show my current sector configuration: sector-config current
 show my current sector: sector-config current
@@ -186,9 +189,9 @@ switch fixes: fixes toggle
 ! turn off (the)? fixes: fixes off
 ! disable (the)? fixes: fixes off
 
-! (toggle|switch) (the)? sectors? labels: sectors-labels toggle
-! (turn on|enable) (the)? sectors? labels: sectors-labels on
-! (turn off|disable) (the)? sectors? labels: sectors-labels off
+! (toggle|switch) (the)? sectors? (labels|names): sectors-labels toggle
+! (turn on|enable) (the)? sectors? (labels|names): sectors-labels on
+! (turn off|disable) (the)? sectors? (labels|names): sectors-labels off
 
 ! (toggle|switch) (the)? (flights?)? labels: flight-labels toggle
 ! (turn on|enable) (the)? (flights?)? labels: flight-labels on
@@ -213,3 +216,5 @@ Stop showing the fixes!: fixes off
 Stop showing the speed vectors!: speed-vectors 0
 Stop showing the trajectory!: current-trajectory off
 Stop showing the speed vector!: current-speed-vector off
+
+do not show sector names: sectors-labels off
