@@ -80,7 +80,7 @@ const layoutSymbol: SymbolLayout = {
   'text-font': [
     'IBM Plex Mono Bold',
   ],
-  'text-size': 8,
+  'text-size': 9,
   'text-offset': [0, 0.45],
   'text-anchor': 'top',
 };

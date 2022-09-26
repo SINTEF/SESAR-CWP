@@ -20,7 +20,7 @@ const fixNameLayout: SymbolLayout = {
   'text-font': [
     'IBM Plex Mono',
   ],
-  'text-size': 8,
+  'text-size': 9.5,
   'text-offset': [0, 0.5],
   'text-anchor': 'top',
 };

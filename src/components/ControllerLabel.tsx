@@ -13,7 +13,7 @@ const cwpLayerLayout: SymbolLayout = {
   'text-font': [
     'IBM Plex Mono Bold',
   ],
-  'text-size': 8,
+  'text-size': 9,
   'text-offset': [0, -1],
   'text-anchor': 'bottom',
 };
