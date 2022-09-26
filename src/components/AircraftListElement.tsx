@@ -34,6 +34,7 @@ export default observer(function AircraftListElement(/* properties */) {
     return null;
   }
 
+  listOfAircraftsInSector.sort((a, b) => a.callSign.localeCompare(b.callSign));
   return (
     <Draggable
                 bounds="parent" cancel='input'
@@ -47,7 +48,7 @@ export default observer(function AircraftListElement(/* properties */) {
               <th colSpan={2}>
                 <input
                 className='input-filter'
-                style={{ width: '100px', fontSize: '8px' }}
+                style={{ width: '126px', fontSize: '9.5px' }}
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
