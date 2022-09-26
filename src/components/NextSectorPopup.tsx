@@ -62,7 +62,7 @@ export default observer(function NextSectorPopup(properties: {
           <Dropdown.Menu>
             {sortedListOfAllControllers.map(
               (name) => (<Dropdown.Item eventKey={name} key={name}>{name}</Dropdown.Item>))}
-
+            <Dropdown.Item eventKey={'All'} key={'All'}>Master</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
