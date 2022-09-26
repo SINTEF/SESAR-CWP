@@ -190,7 +190,7 @@ export default class RoleConfigurationStore {
     const listOfTentatives = this.roleConfigurations
       .get(this.configurationStore.currentCWP)?.tentativeAircrafts;
     if (this.currentControlledSector
-  && aircraft.flightInSectorTimes?.get(this.currentControlledSector) !== undefined) {
+  && aircraft.isEnteringFlight(this.currentControlledSector)) {
       flightColor = '#009900';
     }
     if (aircraft.controlledBy === this.configurationStore.currentCWP) {

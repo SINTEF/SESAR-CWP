@@ -300,7 +300,7 @@ export default class AircraftModel {
       flightEnteringTime = flightEntering.entryPosition?.time;
     }
     if (flightEntering && flightEnteringTime
-    && convertTimestamp(flightEnteringTime) > this.simulatorStore.timestamp) {
+    && convertTimestamp(flightEnteringTime) >= this.simulatorStore.timestamp) {
       return true;
     }
     return false;
