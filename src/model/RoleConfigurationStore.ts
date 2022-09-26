@@ -189,10 +189,6 @@ export default class RoleConfigurationStore {
     }
     const listOfTentatives = this.roleConfigurations
       .get(this.configurationStore.currentCWP)?.tentativeAircrafts;
-    if (this.currentControlledSector
-  && aircraft.isEnteringFlight(this.currentControlledSector)) {
-      flightColor = '#009900';
-    }
     if (aircraft.controlledBy === this.configurationStore.currentCWP) {
       flightColor = '#78e251';
     }
@@ -200,6 +196,9 @@ export default class RoleConfigurationStore {
       flightColor = '#ff00ff';
     } else if (aircraft.nextSectorController !== 'NS' && aircraft.nextSectorController !== aircraft.controlledBy) {
       flightColor = '#CEFCBA';
+    } else if (this.currentControlledSector
+  && aircraft.isEnteringFlight(this.currentControlledSector)) {
+      flightColor = '#009900';
     }
     return flightColor;
   }
