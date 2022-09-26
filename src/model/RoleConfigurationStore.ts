@@ -181,6 +181,44 @@ export default class RoleConfigurationStore {
     return undefined;
   }
 
+  get topFLcurrentSector(): number | undefined {
+    if (!this.currentControlledSector) {
+      return undefined;
+    }
+    const listOfSectorIds = this.roleConfigurations
+      .get(this.configurationStore.currentCWP)?.sectorsToControl;
+    if (listOfSectorIds) {
+      for (const sector of listOfSectorIds) {
+        const area = RoleConfigurationStore
+          .getAreaForSector(this.configurationStore
+            .areaOfIncludedAirspaces, sector);
+        if (area) {
+          return this.configurationStore.airspaceStore.airspaces.get(sector)?.topFlightLevel;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  get bottomFLcurrentSector(): number | undefined {
+    if (!this.currentControlledSector) {
+      return undefined;
+    }
+    const listOfSectorIds = this.roleConfigurations
+      .get(this.configurationStore.currentCWP)?.sectorsToControl;
+    if (listOfSectorIds) {
+      for (const sector of listOfSectorIds) {
+        const area = RoleConfigurationStore
+          .getAreaForSector(this.configurationStore
+            .areaOfIncludedAirspaces, sector);
+        if (area) {
+          return this.configurationStore.airspaceStore.airspaces.get(sector)?.bottomFlightLevel;
+        }
+      }
+    }
+    return undefined;
+  }
+
   getOriginalColorOfAircraft(aircraftId: string): string {
     const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
     if (!aircraft) {
@@ -215,10 +253,13 @@ export default class RoleConfigurationStore {
       );
       const boundsGeometry = polygon([coordinates]);
       const temporaryAircrafts: AircraftModel[] = [];
+      const topFL = this.topFLcurrentSector;
+      const bottomFL = this.bottomFLcurrentSector;
       for (const aircraft of this.aircraftStore.aircrafts) {
         const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
         const bool = booleanPointInPolygon(position, boundsGeometry);
-        if (bool) {
+        if (bool && bottomFL && topFL && aircraft[1].lastKnownAltitude <= topFL
+        && aircraft[1].lastKnownAltitude >= bottomFL) {
           temporaryAircrafts.push(...this.aircraftStore.aircraftsWithPosition
             .filter((flight) => flight.assignedFlightId === aircraft[0]));
         }

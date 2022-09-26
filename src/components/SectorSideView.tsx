@@ -39,7 +39,7 @@ export default observer(function SectorSideView() {
     return null;
   }
   const bottomFLCurrent = airspaceCurrent.bottomFlightLevel;
-  const topFLCurrent = airspaceCurrent.topFlightLevel;
+  const topFLCurrent = airspaceCurrent.topFlightLevel > 450 ? 450 : airspaceCurrent.topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
 
@@ -50,7 +50,7 @@ export default observer(function SectorSideView() {
       .find(({ sectorId }) => sectorId === nextControlledSector);
     if (airspaceNext !== undefined) {
       bottomFLNext = airspaceNext.bottomFlightLevel;
-      topFLNext = airspaceNext.topFlightLevel;
+      topFLNext = airspaceNext.topFlightLevel > 450 ? 450 : airspaceNext.topFlightLevel;
     }
   }
   if (timeDifferanse <= 900 && timeDifferanse > 0) {
@@ -112,7 +112,7 @@ export default observer(function SectorSideView() {
         <Area type="monotone" dataKey="flightLevelNext" stroke={colorNext} dot={false} fill="transparent" />
 
         <XAxis dataKey="time" />
-        <YAxis domain={[0, 1000]} tickCount={11} />
+        <YAxis domain={[0, 500]} tickCount={11} />
 
         <ReferenceLine x={timeDifferanse > 900 ? undefined : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
       </AreaChart>
