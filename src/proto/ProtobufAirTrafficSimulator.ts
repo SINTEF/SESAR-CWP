@@ -105,6 +105,15 @@ export interface Position4D {
     altitude: number; // Altitude (if known).
 }
 /**
+ * @generated from protobuf message ProtobufAirTrafficSimulator.AvailabilitySchedule
+ */
+export interface AvailabilitySchedule {
+    /**
+     * @generated from protobuf field: repeated ProtobufAirTrafficSimulator.AvailabilityIntervalsMessage availabilityIntervals = 1;
+     */
+    availabilityIntervals: AvailabilityIntervalsMessage[];
+}
+/**
  * A position given with a coordinate (X,Y,Z) where X and Y are coonrdinates in the plane and Z gives the altitude.
  * The Z-coordinate (altitude) is optional.
  * The unit is in meters relative to an origin coordinate defined for the network.
@@ -2127,6 +2136,53 @@ class Position4D$Type extends MessageType<Position4D> {
  * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.Position4D
  */
 export const Position4D = new Position4D$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class AvailabilitySchedule$Type extends MessageType<AvailabilitySchedule> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.AvailabilitySchedule", [
+            { no: 1, name: "availabilityIntervals", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => AvailabilityIntervalsMessage }
+        ]);
+    }
+    create(value?: PartialMessage<AvailabilitySchedule>): AvailabilitySchedule {
+        const message = { availabilityIntervals: [] };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<AvailabilitySchedule>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: AvailabilitySchedule): AvailabilitySchedule {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated ProtobufAirTrafficSimulator.AvailabilityIntervalsMessage availabilityIntervals */ 1:
+                    message.availabilityIntervals.push(AvailabilityIntervalsMessage.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: AvailabilitySchedule, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated ProtobufAirTrafficSimulator.AvailabilityIntervalsMessage availabilityIntervals = 1; */
+        for (let i = 0; i < message.availabilityIntervals.length; i++)
+            AvailabilityIntervalsMessage.internalBinaryWrite(message.availabilityIntervals[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.AvailabilitySchedule
+ */
+export const AvailabilitySchedule = new AvailabilitySchedule$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class Position4DCartesian$Type extends MessageType<Position4DCartesian> {
     constructor() {

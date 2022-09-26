@@ -11,6 +11,7 @@ import { ShowNextConfiguration } from './CwpStore';
 import TimeConfigurations from './TimeConfigurations';
 import type {
   AirspaceAvailabilityMessage, AvailabilityIntervalsMessage,
+  AvailabilitySchedule,
   CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
 import type AirspaceStore from './AirspaceStore';
@@ -120,6 +121,41 @@ export default class ConfigurationStore {
           configurationId: objectId,
           timeIntervals: timeIntervalsArray,
         }));
+      }
+    }
+  }
+
+  handleAvailabilityScheduleMessage(newAvailabilitySchedule: AvailabilitySchedule): void {
+    this.configurationPlan.clear();
+    console.log(this.configurationPlan);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    for (const availabilityMessage of newAvailabilitySchedule.availabilityIntervals) {
+      const { objectId, timeIntervals } = availabilityMessage;
+      console.log(objectId, timeIntervals);
+      const timeIntervalsArray: TimeConfigurations[] = [];
+      for (const timeInterval of timeIntervals) {
+        if (!timeInterval.starttime) {
+          throw new Error('Missing start time');
+        }
+        if (!timeInterval.endttime) {
+          throw new Error('Missing end time');
+        }
+
+        const existingConfigurationPlan = this.configurationPlan.get(objectId);
+
+        if (existingConfigurationPlan) {
+          existingConfigurationPlan.handleAvailabilityIntervalsMessage(availabilityMessage);
+        } else {
+          const interval = new TimeConfigurations({
+            startTime: convertTimestamp(timeInterval.starttime),
+            endTime: convertTimestamp(timeInterval.endttime),
+          });
+          timeIntervalsArray.push(interval);
+          this.configurationPlan.set(objectId, new ConfigurationTime({
+            configurationId: objectId,
+            timeIntervals: timeIntervalsArray,
+          }));
+        }
       }
     }
   }
