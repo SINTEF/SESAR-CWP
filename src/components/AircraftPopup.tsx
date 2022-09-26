@@ -103,7 +103,7 @@ export default observer(function AircraftPopup(properties: {
     >
       <div onClick={onClick}>
         <div className="flight-popup-main" style={{
-          width: '128px', height: `${height}px`,
+          width: '124px', height: `${height}px`,
         }} onWheel={onWheel}>
           <Button size="sm" variant="dark" onClick={(): false | void => !isDragging() && cwpStore.closePopupForAircraft(aircraftId)}>x</Button>
           <Content flightColor={flightColor} aircraft={aircraft} />

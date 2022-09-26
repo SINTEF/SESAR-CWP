@@ -15,7 +15,7 @@ type SubContentProperties = {
 };
 
 const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
-  const { callSign } = aircraft;
+  const { callSign, arrivalAirport } = aircraft;
   const setController = (): void => {
     if (isDragging()) return;
     const { aircraftId, controlledBy, assignedFlightId } = aircraft;
@@ -34,7 +34,7 @@ const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Ele
       persistFrontendFlightController(aircraftId, configurationStore.currentCWP),
     );
   };
-  return (<td onClick={setController} colSpan={colSpan}>{callSign}</td>);
+  return (<td onClick={setController} colSpan={colSpan}>{callSign} {arrivalAirport}</td>);
 });
 
 export const Altitude = observer(({ aircraft }: SubContentProperties): JSX.Element => {
