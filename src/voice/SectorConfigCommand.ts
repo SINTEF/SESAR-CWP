@@ -1,4 +1,6 @@
-import { area as turfArea, intersect, polygon } from '@turf/turf';
+import {
+  area as turfArea, centerOfMass, intersect, polygon,
+} from '@turf/turf';
 import { transaction } from 'mobx';
 import type { Feature, Polygon, Position } from '@turf/turf';
 
@@ -10,6 +12,11 @@ function convertISectorModelToTurfPolygon(sector: ISectorModel): Feature<Polygon
     coord.longitude, coord.latitude,
   ]);
   return polygon([coordinates]);
+}
+
+function computeCenterOfMass(sector: ISectorModel): Position {
+  const turfPolygon = convertISectorModelToTurfPolygon(sector);
+  return centerOfMass(turfPolygon).geometry.coordinates;
 }
 
 function findSectorWithLargestIntersection(
@@ -52,58 +59,72 @@ function findBelow(sector: ISectorModel, otherSectors: ISectorModel[]): ISectorM
   return findSectorWithLargestIntersection(sector, below);
 }
 
-function findSectorWithLargestVerticalIntersection(
-  sector: ISectorModel, otherSectors: ISectorModel[],
+function findCloseSectorWithVerticalOverlap(
+  sector: ISectorModel, otherSectors: ISectorModel[], direction: 'above' | 'below' | 'west' | 'east',
 ): ISectorModel | undefined {
-  // Compute the overlapping height for each sector
-  const otherSectorsWithHeight = otherSectors.map((s) => {
-    const top = Math.min(sector.topFlightLevel, s.topFlightLevel);
-    const bottom = Math.max(sector.bottomFlightLevel, s.bottomFlightLevel);
-    return { sector: s, height: top - bottom };
-  });
+  const sectorCenterOfMass = computeCenterOfMass(sector);
 
-  // Find the sector with the largest height, when it is the same, take the sector with the lowest
-  // bottomFlightLevel
-  // eslint-disable-next-line unicorn/no-array-reduce
-  const largestSector = otherSectorsWithHeight.reduce(
-    (previous, current) => {
-      if (previous.height > current.height) {
-        return previous;
-      }
-      if (previous.height < current.height) {
-        return current;
-      }
-      if (previous.sector.bottomFlightLevel < current.sector.bottomFlightLevel) {
-        return previous;
-      }
-      return current;
-    });
+  // GeoJSON is longitude (west/east) first, latitude (north/south) second
+  const indexToCompare = direction === 'above' || direction === 'below' ? 1 : 0;
+  const reverse = direction === 'above' || direction === 'east';
 
-  if (largestSector.height === 0) {
+  const otherSectorsWithHeight = otherSectors
+    // Remove the current selected sector itself
+    .filter((s) => s.sectorId !== sector.sectorId)
+    // Compute the vertical overlap
+    .map((s) => {
+      const top = Math.min(sector.topFlightLevel, s.topFlightLevel);
+      const bottom = Math.max(sector.bottomFlightLevel, s.bottomFlightLevel);
+      const verticalOverlap = top - bottom;
+      return { sector: s, verticalOverlap };
+    })
+    // Only keep sectors with a vertical overlap
+    .filter((s) => s.verticalOverlap > 0)
+    // Compute the center of mass of the sector and the distance
+    .map((s) => {
+      const center = computeCenterOfMass(s.sector);
+      const distance = Math.sqrt(
+        (sectorCenterOfMass[0] - center[0]) ** 2 + (sectorCenterOfMass[1] - center[1]) ** 2,
+      );
+      return { ...s, center, distance };
+    })
+    // Only keep sectors with a center of mass to the west of the current sector
+    .filter((s) => s.center[indexToCompare] > sectorCenterOfMass[indexToCompare] === reverse);
+
+  if (otherSectorsWithHeight.length === 0) {
     return undefined;
   }
-  return largestSector.sector;
+
+  // Find the best by the distance and then largest overlap first, then lower bottomFlightLevel.
+  // eslint-disable-next-line unicorn/no-array-reduce
+  const bestSector = otherSectorsWithHeight.reduce((previous, current) => {
+    if (previous.distance < current.distance) {
+      return previous;
+    }
+    if (previous.distance > current.distance) {
+      return current;
+    }
+    if (previous.verticalOverlap > current.verticalOverlap) {
+      return previous;
+    }
+    if (previous.verticalOverlap < current.verticalOverlap) {
+      return current;
+    }
+    if (previous.sector.bottomFlightLevel < current.sector.bottomFlightLevel) {
+      return previous;
+    }
+    return current;
+  });
+
+  return bestSector.sector;
 }
 
 function findWest(sector: ISectorModel, otherSectors: ISectorModel[]): ISectorModel | undefined {
-  if (sector.sectorId.includes('W')) {
-    throw new Error('Cannot find west of a west sector');
-  }
-  const westSectors = otherSectors.filter(
-    (s) => s.sectorId !== sector.sectorId && s.sectorId.includes('W'));
-
-  return findSectorWithLargestVerticalIntersection(sector, westSectors);
+  return findCloseSectorWithVerticalOverlap(sector, otherSectors, 'west');
 }
 
 function findEast(sector: ISectorModel, otherSectors: ISectorModel[]): ISectorModel | undefined {
-  if (!sector.sectorId.includes('W')) {
-    throw new Error('Cannot find east of a non-west sector');
-  }
-
-  const eastSectors = otherSectors.filter(
-    (s) => s.sectorId !== sector.sectorId && !s.sectorId.includes('W'));
-
-  return findSectorWithLargestVerticalIntersection(sector, eastSectors);
+  return findCloseSectorWithVerticalOverlap(sector, otherSectors, 'east');
 }
 
 function findSectorNextTo(
