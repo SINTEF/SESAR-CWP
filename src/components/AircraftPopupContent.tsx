@@ -102,7 +102,7 @@ export const NextSectorController = observer(({ aircraft }: SubContentProperties
     cwpStore.openNextSectorPopupForAircraft(aircraft.aircraftId);
   };
   return (<td onClick={onClick}>
-    {aircraft.nextSectorController}
+    {aircraft.nextSectorController === 'All' ? 'Master' : aircraft.nextSectorController}
   </td>);
 });
 
