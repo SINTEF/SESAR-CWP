@@ -43,18 +43,15 @@ export default function TableSectors({
   const toplayers = ascendingSectors.map((sector) => sector.topFlightLevel)
     .sort((a, b) => b - a);
   const toplayerList = new Set(toplayers);
-  const numberOfLayers = toplayerList.size;
-  // const layerToKey = new Map<number, number>();
-  // for (let index = 0; index < numberOfLayers; index += 1) {
-  //   layerToKey.set(index + 1, toplayerList);
-  // }
+  const layerToKey = new Map<number, number>(
+    [...toplayerList].map((value, index) => [index + 1, value]),
+  );
   const bottomLayers = ascendingSectors.map((sector) => sector.bottomFlightLevel)
     .sort((a, b) => b - a);
   const bottomLayerList = new Set(bottomLayers);
-  const bottomLayerToKey = new Map<number, number>();
-  // for (let index = 0; index < numberOfLayers; index += 1) {
-  //   bottomLayerToKey.set(index + 1, bottomLayerList[index]);
-  // }
+  const bottomLayerToKey = new Map<number, number>(
+    [...bottomLayerList].map((value, index) => [index + 1, value]),
+  );
   console.log(toplayerList);
   console.log(bottomLayerList);
 
@@ -123,7 +120,7 @@ export default function TableSectors({
     const countOverTop = countAbove.get(valueFL) ?? 1;
     const countTop = countBelow.get(valueFL) ?? 1;
     const value = countTop / countOverTop;
-    return Math.floor(value * 2);
+    return Math.ceil(value * 2);
   };
 
   const findGridPositionRow = (topFL : number, bottomFL : number): number | string => {
@@ -156,17 +153,17 @@ export default function TableSectors({
     // const gridPosition = findGridPositionRow(topFL, bottomFL);
     let bottomKey = 1;
     let topKey = 1;
-    for (const [key, value] of toplayerList.entries()) {
+    for (const [key, value] of layerToKey.entries()) {
       if (value === topFL) {
         topKey = key;
       }
     }
-    for (const [key, value] of bottomLayerList.entries()) {
+    for (const [key, value] of bottomLayerToKey.entries()) {
       if (value === bottomFL) {
         bottomKey = key;
       }
     }
-    return `${topKey} / ${bottomKey}`;
+    return `${topKey} / ${bottomKey + 1}`;
   };
   const isSectorForCWP = (sectorId: string): boolean => sectorId === controlledSector;
   const buttons = [...sectorsOfArray].reverse().map((sectors) => {
@@ -204,7 +201,7 @@ export default function TableSectors({
     <div className='sector-box'
     style = {{
       gridTemplateColumns: `repeat(${setSpan * 2}, ${width}px)`,
-
+      gridTemplateRows: `repeat(${toplayerList.size}, calc(250px / ${toplayerList.size}))`,
     }}
     >
       {buttons}

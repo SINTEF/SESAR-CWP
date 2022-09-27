@@ -70,9 +70,8 @@ div#root {
 
 .sector-box {
     display: grid;
-    width: 500px;
+    width: 450px;
     height: 250px;
-    grid-template-rows: repeat(4, 4.5em);
     gap: 0px;
 }
 
