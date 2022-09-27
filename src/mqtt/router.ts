@@ -33,7 +33,7 @@ const router = rlite<Buffer>(notFound, {
   'ATM/:clientId/Initialisation/Completed': ignored,
   'ATM/:clientId/TargetReports/:vehicleId': targetReport,
   // 'ATM/:clientId/AvailabilityIntervalsMessage/:objectId/:time': newAvailabilityIntervalsMessage,
-  'ATM/1/AvailabilitySchedule': newAvailabilitySchedule,
+  'ATM/:clientId/AvailabilitySchedule': newAvailabilitySchedule,
   'ATM/:clientId/AllTargetReports/:time': ignored,
   'ATM/:clientId/FlightMilestoneTimes/:flightUniqueId': ignored,
   'ATM/:clientId/FlightMilestonePositions/:flightUniqueId': newFlightMilestonePositions,
