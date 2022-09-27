@@ -127,11 +127,9 @@ export default class ConfigurationStore {
 
   handleAvailabilityScheduleMessage(newAvailabilitySchedule: AvailabilitySchedule): void {
     this.configurationPlan.clear();
-    console.log(this.configurationPlan);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     for (const availabilityMessage of newAvailabilitySchedule.availabilityIntervals) {
       const { objectId, timeIntervals } = availabilityMessage;
-      console.log(objectId, timeIntervals);
       const timeIntervalsArray: TimeConfigurations[] = [];
       for (const timeInterval of timeIntervals) {
         if (!timeInterval.starttime) {

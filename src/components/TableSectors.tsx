@@ -52,20 +52,8 @@ export default function TableSectors({
   const bottomLayerToKey = new Map<number, number>(
     [...bottomLayerList].map((value, index) => [index + 1, value]),
   );
-  console.log(toplayerList);
-  console.log(bottomLayerList);
 
-  const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
-  const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
-    .map((area) => area.bottomFlightLevel));
   const bottomLevel = Math.min(...sectorsOfArray.map((area) => area.bottomFlightLevel));
-  const bottomLayer = new Set(sectorsOfArray
-    .filter((area) => area.bottomFlightLevel === bottomLevel)
-    .map((area) => area.topFlightLevel));
-  const middelLayer = new Set(sectorsOfArray
-    .filter((area) => area.bottomFlightLevel !== bottomLevel
-    && area.topFlightLevel !== topLevel)
-    .map((area) => area.topFlightLevel));
   const multicells = new Map<number, number>();
   let setSpan = 1;
   let temporaryHighestSpan = 1;
@@ -123,32 +111,6 @@ export default function TableSectors({
     return Math.ceil(value * 2);
   };
 
-  const findGridPositionRow = (topFL : number, bottomFL : number): number | string => {
-    if (topFL === topLevel) {
-      return '[rowstart]';
-    }
-    if (bottomLayer.has(bottomFL) && !topLayer.has(topFL)) {
-      return -3 + 1; // Pluss one is for grid css
-    }
-    if (bottomFL === bottomLevel) {
-      return -2 + 1;
-    }
-    return 2 + 1;
-  };
-
-  // const setHeightOfButton = (topFL:number, bottomFL: number): string => {
-  //   const gridPosition = findGridPositionRow(topFL, bottomFL);
-  //   if (topFL === topLevel && bottomLayer.has(bottomFL) && !middelLayer.has(bottomFL)) {
-  //     return '1 / -2';
-  //   }
-  //   if (bottomFL === bottomLevel && topFL === topLevel) {
-  //     return `span 4 / ${gridPosition}`;
-  //   }
-  //   if (bottomLayer.has(bottomFL) && topLayer.has(topFL)) {
-  //     return '2 /  -2';
-  //   }
-  //   return `span 1 / ${gridPosition}`;
-  // };
   const setHeightOfButton = (topFL:number, bottomFL: number): string => {
     // const gridPosition = findGridPositionRow(topFL, bottomFL);
     let bottomKey = 1;

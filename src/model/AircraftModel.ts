@@ -10,7 +10,10 @@ import convertTimestamp from './convertTimestamp';
 import FlightInSectorModel from './FlightInSectorModel';
 import type { Timestamp } from '../proto/google/protobuf/timestamp';
 import type {
-  FlightEnteringAirspaceMessage, FlightMilestonePositionMessage, NewFlightMessage, TargetReportMessage,
+  FlightEnteringAirspaceMessage,
+  FlightMilestonePositionMessage,
+  NewFlightMessage,
+  TargetReportMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
 import type AircraftInfo from './AircraftInfo';
 import type AircraftType from './AircraftType';
