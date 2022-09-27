@@ -44,19 +44,19 @@ export default function TableSectors({
     .sort((a, b) => b - a);
   const toplayerList = new Set(toplayers);
   const numberOfLayers = toplayerList.size;
-  const layerToKey = new Map<number, number>();
-  for (let index = 0; index < numberOfLayers; index += 1) {
-    layerToKey.set(index + 1, toplayerList[index]);
-  }
+  // const layerToKey = new Map<number, number>();
+  // for (let index = 0; index < numberOfLayers; index += 1) {
+  //   layerToKey.set(index + 1, toplayerList);
+  // }
   const bottomLayers = ascendingSectors.map((sector) => sector.bottomFlightLevel)
     .sort((a, b) => b - a);
   const bottomLayerList = new Set(bottomLayers);
   const bottomLayerToKey = new Map<number, number>();
-  for (let index = 0; index < numberOfLayers; index += 1) {
-    bottomLayerToKey.set(index + 1, bottomLayerList[index]);
-  }
-  console.log(layerToKey);
-  console.log(bottomLayerToKey);
+  // for (let index = 0; index < numberOfLayers; index += 1) {
+  //   bottomLayerToKey.set(index + 1, bottomLayerList[index]);
+  // }
+  console.log(toplayerList);
+  console.log(bottomLayerList);
 
   const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
   const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
@@ -156,12 +156,12 @@ export default function TableSectors({
     // const gridPosition = findGridPositionRow(topFL, bottomFL);
     let bottomKey = 1;
     let topKey = 1;
-    for (const [key, value] of layerToKey) {
+    for (const [key, value] of toplayerList.entries()) {
       if (value === topFL) {
         topKey = key;
       }
     }
-    for (const [key, value] of bottomLayerToKey) {
+    for (const [key, value] of bottomLayerList.entries()) {
       if (value === bottomFL) {
         bottomKey = key;
       }
