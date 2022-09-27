@@ -12,10 +12,13 @@ import type Trajectory from '../model/Trajectory';
 
 function timestampToTime(timestamp: number): string {
   const date = new Date(timestamp * 1000);
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  return date.toLocaleTimeString('en-GB', {
+    timeZone: 'UTC',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 }
 
 function buildGeoJsonFlightRoute(
