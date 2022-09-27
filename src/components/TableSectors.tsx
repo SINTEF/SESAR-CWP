@@ -40,20 +40,23 @@ export default function TableSectors({
   ascendingSectors.sort(
     (element1, element2) => element1.bottomFlightLevel - element2.bottomFlightLevel
       || element1.topFlightLevel - element2.topFlightLevel);
-  const toplayers = ascendingSectors.map((sector) => sector.topFlightLevel);
+  const toplayers = ascendingSectors.map((sector) => sector.topFlightLevel)
+    .sort((a, b) => b - a);
   const toplayerList = new Set(toplayers);
   const numberOfLayers = toplayerList.size;
   const layerToKey = new Map<number, number>();
   for (let index = 0; index < numberOfLayers; index += 1) {
-    layerToKey.set(index, toplayerList[index]);
+    layerToKey.set(index + 1, toplayerList[index]);
   }
-  const bottomLayers = ascendingSectors.map((sector) => sector.bottomFlightLevel);
+  const bottomLayers = ascendingSectors.map((sector) => sector.bottomFlightLevel)
+    .sort((a, b) => b - a);
   const bottomLayerList = new Set(bottomLayers);
   const bottomLayerToKey = new Map<number, number>();
   for (let index = 0; index < numberOfLayers; index += 1) {
-    bottomLayerToKey.set(index, bottomLayerList[index]);
+    bottomLayerToKey.set(index + 1, bottomLayerList[index]);
   }
   console.log(layerToKey);
+  console.log(bottomLayerToKey);
 
   const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
   const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
