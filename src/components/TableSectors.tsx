@@ -40,6 +40,21 @@ export default function TableSectors({
   ascendingSectors.sort(
     (element1, element2) => element1.bottomFlightLevel - element2.bottomFlightLevel
       || element1.topFlightLevel - element2.topFlightLevel);
+  const toplayers = ascendingSectors.map((sector) => sector.topFlightLevel)
+    .sort((a, b) => b - a);
+  const toplayerList = new Set(toplayers);
+  const layerToKey = new Map<number, number>(
+    [...toplayerList].map((value, index) => [index + 1, value]),
+  );
+  const bottomLayers = ascendingSectors.map((sector) => sector.bottomFlightLevel)
+    .sort((a, b) => b - a);
+  const bottomLayerList = new Set(bottomLayers);
+  const bottomLayerToKey = new Map<number, number>(
+    [...bottomLayerList].map((value, index) => [index + 1, value]),
+  );
+  console.log(toplayerList);
+  console.log(bottomLayerList);
+
   const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
   const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
     .map((area) => area.bottomFlightLevel));
@@ -105,7 +120,7 @@ export default function TableSectors({
     const countOverTop = countAbove.get(valueFL) ?? 1;
     const countTop = countBelow.get(valueFL) ?? 1;
     const value = countTop / countOverTop;
-    return Math.floor(value * 2);
+    return Math.ceil(value * 2);
   };
 
   const findGridPositionRow = (topFL : number, bottomFL : number): number | string => {
@@ -121,18 +136,34 @@ export default function TableSectors({
     return 2 + 1;
   };
 
+  // const setHeightOfButton = (topFL:number, bottomFL: number): string => {
+  //   const gridPosition = findGridPositionRow(topFL, bottomFL);
+  //   if (topFL === topLevel && bottomLayer.has(bottomFL) && !middelLayer.has(bottomFL)) {
+  //     return '1 / -2';
+  //   }
+  //   if (bottomFL === bottomLevel && topFL === topLevel) {
+  //     return `span 4 / ${gridPosition}`;
+  //   }
+  //   if (bottomLayer.has(bottomFL) && topLayer.has(topFL)) {
+  //     return '2 /  -2';
+  //   }
+  //   return `span 1 / ${gridPosition}`;
+  // };
   const setHeightOfButton = (topFL:number, bottomFL: number): string => {
-    const gridPosition = findGridPositionRow(topFL, bottomFL);
-    if (topFL === topLevel && bottomLayer.has(bottomFL) && !middelLayer.has(bottomFL)) {
-      return '1 / -2';
+    // const gridPosition = findGridPositionRow(topFL, bottomFL);
+    let bottomKey = 1;
+    let topKey = 1;
+    for (const [key, value] of layerToKey.entries()) {
+      if (value === topFL) {
+        topKey = key;
+      }
     }
-    if (bottomFL === bottomLevel && topFL === topLevel) {
-      return `span 4 / ${gridPosition}`;
+    for (const [key, value] of bottomLayerToKey.entries()) {
+      if (value === bottomFL) {
+        bottomKey = key;
+      }
     }
-    if (bottomLayer.has(bottomFL) && topLayer.has(topFL)) {
-      return '2 /  -2';
-    }
-    return `span 1 / ${gridPosition}`;
+    return `${topKey} / ${bottomKey + 1}`;
   };
   const isSectorForCWP = (sectorId: string): boolean => sectorId === controlledSector;
   const buttons = [...sectorsOfArray].reverse().map((sectors) => {
@@ -170,7 +201,7 @@ export default function TableSectors({
     <div className='sector-box'
     style = {{
       gridTemplateColumns: `repeat(${setSpan * 2}, ${width}px)`,
-
+      gridTemplateRows: `repeat(${toplayerList.size}, calc(250px / ${toplayerList.size}))`,
     }}
     >
       {buttons}
