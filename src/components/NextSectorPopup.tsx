@@ -60,13 +60,13 @@ export default observer(function NextSectorPopup(properties: {
       <div>
         <Dropdown onSelect={handleSelect}>
           <Dropdown.Toggle className="btn btn-light dropdown-button">
-            {controllerPlaceholder}
+            {controllerPlaceholder === 'All' ? 'Master' : controllerPlaceholder}
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
             {sortedListOfAllControllers.map(
-              (name) => (<Dropdown.Item eventKey={name} key={name}>{name}</Dropdown.Item>))}
-            <Dropdown.Item eventKey={'All'} key={'All'}>Master</Dropdown.Item>
+              (name) => (<Dropdown.Item eventKey={name} key={name}>{name === 'All' ? 'Master' : name}</Dropdown.Item>))}
+            {/* <Dropdown.Item eventKey={'All'} key={'All'}>Master</Dropdown.Item> */}
           </Dropdown.Menu>
         </Dropdown>
       </div>
