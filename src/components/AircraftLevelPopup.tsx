@@ -88,7 +88,7 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
   }, [flightLevel, shouldShow]);
 
   const accepted = controlledBy === currentCWP;
-
+  const isMaster = currentCWP === 'All';
   if (!shouldShow) {
     return null;
   }
@@ -118,7 +118,7 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
       handlePublishPromise(
         persistACCFlightLevel(assignedFlightId, stringFlightLevel),
       );
-    } else if (!cwpStore.pseudoPilot) {
+    } else if (!cwpStore.pseudoPilot && !isMaster) {
       setLocalAssignedFlightLevel(stringFlightLevel);
       handlePublishPromise(
         persistLocalAssignedFlightLevel(assignedFlightId, stringFlightLevel),
