@@ -40,6 +40,21 @@ export default function TableSectors({
   ascendingSectors.sort(
     (element1, element2) => element1.bottomFlightLevel - element2.bottomFlightLevel
       || element1.topFlightLevel - element2.topFlightLevel);
+  const toplayers = ascendingSectors.map((sector) => sector.topFlightLevel);
+  const toplayerList = new Set(toplayers);
+  const numberOfLayers = toplayerList.size;
+  const layerToKey = new Map<number, number>();
+  for (let index = 0; index < numberOfLayers; index += 1) {
+    layerToKey.set(index, toplayerList[index]);
+  }
+  const bottomLayers = ascendingSectors.map((sector) => sector.bottomFlightLevel);
+  const bottomLayerList = new Set(bottomLayers);
+  const bottomLayerToKey = new Map<number, number>();
+  for (let index = 0; index < numberOfLayers; index += 1) {
+    bottomLayerToKey.set(index, bottomLayerList[index]);
+  }
+  console.log(layerToKey);
+
   const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
   const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
     .map((area) => area.bottomFlightLevel));
@@ -121,18 +136,34 @@ export default function TableSectors({
     return 2 + 1;
   };
 
+  // const setHeightOfButton = (topFL:number, bottomFL: number): string => {
+  //   const gridPosition = findGridPositionRow(topFL, bottomFL);
+  //   if (topFL === topLevel && bottomLayer.has(bottomFL) && !middelLayer.has(bottomFL)) {
+  //     return '1 / -2';
+  //   }
+  //   if (bottomFL === bottomLevel && topFL === topLevel) {
+  //     return `span 4 / ${gridPosition}`;
+  //   }
+  //   if (bottomLayer.has(bottomFL) && topLayer.has(topFL)) {
+  //     return '2 /  -2';
+  //   }
+  //   return `span 1 / ${gridPosition}`;
+  // };
   const setHeightOfButton = (topFL:number, bottomFL: number): string => {
-    const gridPosition = findGridPositionRow(topFL, bottomFL);
-    if (topFL === topLevel && bottomLayer.has(bottomFL) && !middelLayer.has(bottomFL)) {
-      return '1 / -2';
+    // const gridPosition = findGridPositionRow(topFL, bottomFL);
+    let bottomKey = 1;
+    let topKey = 1;
+    for (const [key, value] of layerToKey) {
+      if (value === topFL) {
+        topKey = key;
+      }
     }
-    if (bottomFL === bottomLevel && topFL === topLevel) {
-      return `span 4 / ${gridPosition}`;
+    for (const [key, value] of bottomLayerToKey) {
+      if (value === bottomFL) {
+        bottomKey = key;
+      }
     }
-    if (bottomLayer.has(bottomFL) && topLayer.has(topFL)) {
-      return '2 /  -2';
-    }
-    return `span 1 / ${gridPosition}`;
+    return `${topKey} / ${bottomKey}`;
   };
   const isSectorForCWP = (sectorId: string): boolean => sectorId === controlledSector;
   const buttons = [...sectorsOfArray].reverse().map((sectors) => {
