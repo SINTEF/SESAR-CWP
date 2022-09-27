@@ -225,10 +225,6 @@ export default class RoleConfigurationStore {
       return '#ffffff';
     }
 
-    if (aircraft.controlledBy === this.configurationStore.currentCWP) {
-      return '#78e251';
-    }
-
     const listOfTentatives = this.roleConfigurations
       .get(this.configurationStore.currentCWP)?.tentativeAircrafts;
     if (listOfTentatives?.includes(aircraftId)) {
@@ -237,6 +233,10 @@ export default class RoleConfigurationStore {
 
     if (aircraft.nextSectorController !== 'NS' && aircraft.nextSectorController !== aircraft.controlledBy) {
       return '#CEFCBA';
+    }
+
+    if (aircraft.controlledBy === this.configurationStore.currentCWP) {
+      return '#78e251';
     }
 
     if (this.currentControlledSector && aircraft.isEnteringFlight(this.currentControlledSector)) {
