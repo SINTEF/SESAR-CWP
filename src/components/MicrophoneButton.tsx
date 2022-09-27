@@ -25,8 +25,10 @@ export default observer(function MicrophoneButton() {
 
   React.useEffect(() => {
     const keyDownEventListener = (event: KeyboardEvent): void => {
-      if (event.key === ',' && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey && !event.repeat) {
+      if (event.key === '.' || event.key === ',') {
         event.preventDefault();
+      }
+      if (event.key === '.' && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey && !event.repeat) {
         handleClick();
       }
     };
