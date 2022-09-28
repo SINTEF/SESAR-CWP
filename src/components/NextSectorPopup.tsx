@@ -38,17 +38,24 @@ export default observer(function NextSectorPopup(properties: {
   const submit = (): void => {
     if (controllerPlaceholder === 'OTHER') {
       setNextSectorController('All');
-      handlePublishPromise(tentativeFlight(controlledBy, 'All', assignedFlightId));
-    }
-    setNextSectorController(controllerPlaceholder);
-    if (configurationStore.currentCWP === 'All') {
-      handlePublishPromise(
-        tentativeFlight('All', controllerPlaceholder, assignedFlightId),
-      );
+      if (controlledBy === 'OTHER') {
+        handlePublishPromise(tentativeFlight('All', 'All', assignedFlightId));
+      } else {
+        handlePublishPromise(tentativeFlight(controlledBy, 'All', assignedFlightId));
+      }
     } else {
-      handlePublishPromise(
-        tentativeFlight(controlledBy, controllerPlaceholder, assignedFlightId),
-      );
+      setNextSectorController(controllerPlaceholder);
+      if (configurationStore.currentCWP === 'All') {
+        handlePublishPromise(
+          tentativeFlight('All', controllerPlaceholder, assignedFlightId),
+        );
+      } else if (controlledBy === 'OTHER') {
+        handlePublishPromise(tentativeFlight('All', controllerPlaceholder, assignedFlightId));
+      } else {
+        handlePublishPromise(
+          tentativeFlight(controlledBy, controllerPlaceholder, assignedFlightId),
+        );
+      }
     }
     close();
   };
