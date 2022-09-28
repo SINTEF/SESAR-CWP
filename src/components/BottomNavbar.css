@@ -21,7 +21,6 @@
   flex-shrink: 1;
 }
 .navbar.button-navbar button,
-.navbar.button-navbar button,
 .navbar.button-navbar button:focus {
   border-style: solid;
   border-top-color: rgb(180, 180, 180);

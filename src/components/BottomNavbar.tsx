@@ -116,7 +116,7 @@ const CurrentSectorFlightLabelsButton = observer(function CurrentSectorFlightLab
       onClick={(): void => cwpStore.toggleFlightLabelsForCurrentSector()}
       active={cwpStore.showFlightLabelsForCurrentSector}
       >
-    {currentCWP } FL
+    {currentCWP } Flight Labels
   </GenericButton>
   );
 });
@@ -130,7 +130,7 @@ const OtherSectorsFlightLabelsButton = observer(function OtherSectorsFlightLabel
       onClick={(): void => cwpStore.toggleFlightLabelsForOtherSectors()}
       active={cwpStore.showFlightLabelsForOtherSectors}
         >
-    Other FL
+    Other Flight Labels
   </GenericButton>
   );
 });

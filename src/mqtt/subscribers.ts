@@ -87,10 +87,6 @@ export function newFlightMilestonePositions(parameters: unknown, message: Buffer
   const protoMessage = FlightMilestonePositionMessage.fromBinary(message);
   aircraftStore.handleFlightNewMilestonePositions(protoMessage);
 }
-// export function newAvailabilityIntervalsMessage(parameters: unknown, message: Buffer): void {
-//   const protoMessage = AvailabilityIntervalsMessage.fromBinary(message);
-//   configurationStore.handleAvailabilityIntervalsMessage(protoMessage);
-// }
 export function newAvailabilitySchedule(parameters: unknown, message: Buffer): void {
   const protoMessage = AvailabilitySchedule.fromBinary(message);
   configurationStore.handleAvailabilityScheduleMessage(protoMessage);

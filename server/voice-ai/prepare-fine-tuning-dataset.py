@@ -16,8 +16,8 @@ def generate_variations(json):
 
     variations = list(exrex.generate(prompt))
 
-    # Select maximum 20 variations
-    variations = random.sample(variations, min(20, len(variations)))
+    # Select maximum 32 variations
+    variations = random.sample(variations, min(32, len(variations)))
 
     return [{'prompt': re.sub(r'\s+', ' ', variation).strip()+':', 'completion': json['completion']} for variation in variations]
 

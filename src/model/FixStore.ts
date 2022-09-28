@@ -28,7 +28,6 @@ export default class FixStore {
     }));
   }
 
-  // TODO #92: Implement. It's missing waypoints
   handleNewMilestoneMessage(message: FlightMilestonePositionMessage): void {
     const fixName = message.position?.objectId;
     if (!fixName) {

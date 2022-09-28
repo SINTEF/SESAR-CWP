@@ -113,7 +113,6 @@ export default function TableSectors({
   };
 
   const setHeightOfButton = (topFL:number, bottomFL: number): string => {
-    // const gridPosition = findGridPositionRow(topFL, bottomFL);
     let bottomKey = 1;
     let topKey = 1;
     for (const [key, value] of layerToKey.entries()) {
