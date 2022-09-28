@@ -47,25 +47,29 @@ export default observer(function AircraftPopup(properties: {
 
   const { current } = useMap();
 
-  if (!(aircraftsWithManuallyOpenedPopup.has(aircraftId)
-    || (altitude >= lowestBound && altitude <= highestBound
-      && showAllFlightLabels
-      && !aircraftsWithManuallyClosedPopup.has(aircraftId)
-    ))) {
+  if (!showAllFlightLabels) {
     return null;
   }
 
-  if (currentCWP !== 'All' && (!showFlightLabelsForCurrentSector || !showFlightLabelsForOtherSectors)) {
-    if (!showFlightLabelsForCurrentSector && !showFlightLabelsForOtherSectors) {
+  if (!aircraftsWithManuallyOpenedPopup.has(aircraftId)) {
+    if (altitude < lowestBound || altitude > highestBound
+      || aircraftsWithManuallyClosedPopup.has(aircraftId)
+    ) {
       return null;
     }
-    const inside = roleConfigurationStore.pointInCurrentControlledSector(latitude, longitude);
 
-    if (showFlightLabelsForCurrentSector && !inside) {
-      return null;
-    }
-    if (showFlightLabelsForOtherSectors && inside) {
-      return null;
+    if (currentCWP !== 'All' && (!showFlightLabelsForCurrentSector || !showFlightLabelsForOtherSectors)) {
+      if (!showFlightLabelsForCurrentSector && !showFlightLabelsForOtherSectors) {
+        return null;
+      }
+      const inside = roleConfigurationStore.pointInCurrentControlledSector(latitude, longitude);
+
+      if (showFlightLabelsForCurrentSector && !inside) {
+        return null;
+      }
+      if (showFlightLabelsForOtherSectors && inside) {
+        return null;
+      }
     }
   }
 
