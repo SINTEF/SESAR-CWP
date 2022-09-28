@@ -200,6 +200,25 @@ export default class RoleConfigurationStore {
     return undefined;
   }
 
+  get topFLNextSector(): number | undefined {
+    if (!this.nextControlledSector) {
+      return undefined;
+    }
+    const listOfSectorIds = this.roleConfigurations
+      .get(this.configurationStore.currentCWP)?.sectorsToControl;
+    if (listOfSectorIds) {
+      for (const sector of listOfSectorIds) {
+        const area = RoleConfigurationStore
+          .getAreaForSector(this.configurationStore
+            .areaOfIncludedAirspacesForNextConfiguration, sector);
+        if (area) {
+          return this.configurationStore.airspaceStore.airspaces.get(sector)?.topFlightLevel;
+        }
+      }
+    }
+    return undefined;
+  }
+
   get bottomFLcurrentSector(): number | undefined {
     if (!this.currentControlledSector) {
       return undefined;
@@ -211,6 +230,25 @@ export default class RoleConfigurationStore {
         const area = RoleConfigurationStore
           .getAreaForSector(this.configurationStore
             .areaOfIncludedAirspaces, sector);
+        if (area) {
+          return this.configurationStore.airspaceStore.airspaces.get(sector)?.bottomFlightLevel;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  get bottomFLNextSector(): number | undefined {
+    if (!this.nextControlledSector) {
+      return undefined;
+    }
+    const listOfSectorIds = this.roleConfigurations
+      .get(this.configurationStore.currentCWP)?.sectorsToControl;
+    if (listOfSectorIds) {
+      for (const sector of listOfSectorIds) {
+        const area = RoleConfigurationStore
+          .getAreaForSector(this.configurationStore
+            .areaOfIncludedAirspacesForNextConfiguration, sector);
         if (area) {
           return this.configurationStore.airspaceStore.airspaces.get(sector)?.bottomFlightLevel;
         }
@@ -322,6 +360,53 @@ export default class RoleConfigurationStore {
       }
       temporaryFixes.sort();
       return temporaryFixes;
+    }
+    return [];
+  }
+
+  get addedRemovedAircrafts(): [AircraftModel[], AircraftModel[]] | [] {
+    const currentSectorBounds = this.areaOfCurrentControlledSector?.map(
+      (point): Position => ([point.longitude, point.latitude]),
+    );
+    const nextSectorBounds = this.areaOfNextControlledSector?.map(
+      (point): Position => ([point.longitude, point.latitude]),
+    );
+    const topFlCurrent = this.topFLcurrentSector;
+    const bottomFLCurrent = this.bottomFLcurrentSector;
+    const topFLNext = this.topFLNextSector;
+    const bottomFLNext = this.bottomFLNextSector;
+    if (currentSectorBounds && nextSectorBounds) {
+      const currentPolygon = polygon([currentSectorBounds]);
+      const nextPolygon = polygon([nextSectorBounds]);
+      // const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'centroid' });
+      // const scaledCurrentSectorBounds = transformScale(currentPolygon, 0.75, { origin: 'centroid' });
+      const addedAircrafts: AircraftModel[] = [];
+      const removedAircrafts: AircraftModel[] = [];
+      for (const aircraft of this.aircraftStore.aircrafts) {
+        const inCurrentFL = topFlCurrent
+        && bottomFLCurrent && (aircraft[1].lastKnownAltitude <= topFlCurrent
+         && aircraft[1].lastKnownAltitude >= bottomFLCurrent);
+        const inNextFL = topFLNext && bottomFLNext
+        && (aircraft[1].lastKnownAltitude <= topFLNext
+         && aircraft[1].lastKnownAltitude >= bottomFLNext);
+        const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
+        const inCurrentSector = booleanPointInPolygon(position, currentPolygon);
+        const inNextSector = booleanPointInPolygon(position, nextPolygon);
+        if (!inCurrentSector && inNextSector && inNextFL) {
+          addedAircrafts.push(aircraft[1]);
+        }
+        if (inCurrentSector && !inNextSector && inCurrentFL) {
+          removedAircrafts.push(aircraft[1]);
+        }
+        if (inCurrentSector && inNextSector) {
+          if (inCurrentFL && !inNextFL) {
+            removedAircrafts.push(aircraft[1]);
+          } else if (!inCurrentFL && inNextFL) {
+            addedAircrafts.push(aircraft[1]);
+          }
+        }
+      }
+      return [addedAircrafts, removedAircrafts];
     }
     return [];
   }
