@@ -5,6 +5,7 @@ import type * as SpeechSDKType from 'microsoft-cognitiveservices-speech-sdk/dist
 import { ProcessingCommandStatus } from '../model/VoiceStore';
 import { voiceStore } from '../state';
 import HandleCommand from './commands';
+import philtre from './philtre';
 
 declare global {
   interface Window {
@@ -103,7 +104,7 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
     sender: SpeechSDKType.Recognizer, event: SpeechSDKType.SpeechRecognitionEventArgs,
   ): void => {
     const { result: { text } } = event;
-    voiceStore.setCurrentText(text);
+    voiceStore.setCurrentText(philtre(text));
   };
 
   recognizer.sessionStarted = (): void => {
@@ -123,7 +124,7 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
       voiceStore.setProcessingCommand(ProcessingCommandStatus.Processing);
 
       TextToCommand(shortFinalText).then((command) => {
-        HandleCommand(command);
+        HandleCommand(philtre(command));
       }).then(() => {
         voiceStore.setProcessingCommand(ProcessingCommandStatus.Success);
       }).catch((error) => {

@@ -16,8 +16,8 @@ def generate_variations(json):
 
     variations = list(exrex.generate(prompt))
 
-    # Select maximum 32 variations
-    variations = random.sample(variations, min(32, len(variations)))
+    # Select maximum 25 variations
+    variations = random.sample(variations, min(25, len(variations)))
 
     return [{'prompt': re.sub(r'\s+', ' ', variation).strip()+':', 'completion': json['completion']} for variation in variations]
 
@@ -29,7 +29,7 @@ with open('fine-tuning-dataset.txt', 'r') as f:
     lines = [line.strip() for line in lines]
     
     # Filter empty lines and lines starting with a #
-    lines = [line for line in lines if line and not line.startswith('#')]
+    lines = [line.lower() for line in lines if line and not line.startswith('#')]
 
 
     # Split each line with the token ":" first is prompt, second is completion
