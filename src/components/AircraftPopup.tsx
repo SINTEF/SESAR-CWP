@@ -35,28 +35,44 @@ export default observer(function AircraftPopup(properties: {
     setLocalAssignedFlightLevel,
   } = aircraft;
 
+  const { currentCWP } = configurationStore;
   const flightColor = roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
-  const showAllFlightLabels = cwpStore.showFlightLabels;
-
-  const bounds = configurationStore.extendedEdgesBounds;
-
-  const shouldShow = cwpStore.aircraftsWithManuallyOpenedPopup.has(aircraftId)
-    || (altitude >= lowestBound && altitude <= highestBound
-      && showAllFlightLabels
-      && !cwpStore.aircraftsWithManuallyClosedPopup.has(aircraftId)
-      // Airplanes far the sectors are not shown by default
-      && bounds !== undefined
-      && latitude >= bounds.minLat
-      && latitude <= bounds.maxLat
-      && longitude >= bounds.minLon
-      && longitude <= bounds.maxLon
-    );
+  const {
+    showFlightLabelsForCurrentSector,
+    showFlightLabelsForOtherSectors,
+    aircraftsWithManuallyOpenedPopup,
+    aircraftsWithManuallyClosedPopup,
+    showFlightLabels: showAllFlightLabels,
+  } = cwpStore;
 
   const { current } = useMap();
 
-  if (!shouldShow) {
+  if (!showAllFlightLabels) {
     return null;
   }
+
+  if (!aircraftsWithManuallyOpenedPopup.has(aircraftId)) {
+    if (altitude < lowestBound || altitude > highestBound
+      || aircraftsWithManuallyClosedPopup.has(aircraftId)
+    ) {
+      return null;
+    }
+
+    if (currentCWP !== 'All' && (!showFlightLabelsForCurrentSector || !showFlightLabelsForOtherSectors)) {
+      if (!showFlightLabelsForCurrentSector && !showFlightLabelsForOtherSectors) {
+        return null;
+      }
+      const inside = roleConfigurationStore.pointInCurrentControlledSector(latitude, longitude);
+
+      if (showFlightLabelsForCurrentSector && !inside) {
+        return null;
+      }
+      if (showFlightLabelsForOtherSectors && inside) {
+        return null;
+      }
+    }
+  }
+
   if (localAssignedFlightLevel === altitude.toFixed(0)) {
     setLocalAssignedFlightLevel(' ');
   }
@@ -80,7 +96,7 @@ export default observer(function AircraftPopup(properties: {
     }
     // eslint-disable-next-line unicorn/consistent-destructuring
     if (aircraft.controlledBy === configurationStore.currentCWP
-      || configurationStore.currentCWP === 'All') {
+      || currentCWP === 'All') {
       setCurrentAircraftId(aircraftId);
     }
   };

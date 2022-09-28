@@ -17,6 +17,10 @@ export default class CWPStore {
 
   showSectorLabels = true;
 
+  showFlightLabelsForCurrentSector = true;
+
+  showFlightLabelsForOtherSectors = true;
+
   showSFL = true;
 
   showFL = true;
@@ -46,8 +50,6 @@ export default class CWPStore {
   aircraftWithSpeedChangePopup: Set<string> = observable.set(undefined, { deep: false });
 
   activeMeasurements: Set<string> = observable.set(undefined, { deep: false });
-
-  coordinatesCurrentPolygon: number[][] | undefined = undefined;
 
   currentDistanceColor = '';
 
@@ -111,6 +113,22 @@ export default class CWPStore {
 
   toggleFL(): void {
     this.showFL = !this.showFL;
+  }
+
+  toggleFlightLabelsForCurrentSector(): void {
+    this.showFlightLabelsForCurrentSector = !this.showFlightLabelsForCurrentSector;
+  }
+
+  setFlightLabelsForCurrentSector(boolean: boolean): void {
+    this.showFlightLabelsForCurrentSector = boolean;
+  }
+
+  toggleFlightLabelsForOtherSectors(): void {
+    this.showFlightLabelsForOtherSectors = !this.showFlightLabelsForOtherSectors;
+  }
+
+  setFlightLabelsForOtherSectors(boolean: boolean): void {
+    this.showFlightLabelsForOtherSectors = boolean;
   }
 
   toggleFILT(): void {
@@ -297,10 +315,6 @@ export default class CWPStore {
 
   showFlACC(value: boolean): void {
     this.flightLevelNextAccActivated = value;
-  }
-
-  setCurrentPolygonCoordinates(coordinates: number[][]): void {
-    this.coordinatesCurrentPolygon = coordinates;
   }
 
   toggleShowNextSectorsConfiguration(): void {

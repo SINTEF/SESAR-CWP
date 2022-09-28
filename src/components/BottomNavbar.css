@@ -21,6 +21,7 @@
   flex-shrink: 1;
 }
 .navbar.button-navbar button,
+.navbar.button-navbar button,
 .navbar.button-navbar button:focus {
   border-style: solid;
   border-top-color: rgb(180, 180, 180);
@@ -55,6 +56,11 @@
   border-right-color: rgb(90, 90, 90);
   border-bottom-color: rgb(90, 90, 90);
   border-left-color: rgb(140, 140, 140);
+}
+
+.navbar.button-navbar button.active {
+  background-color: rgb(140, 140, 140);
+
 }
 
 #speed-vector-range {

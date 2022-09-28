@@ -4,7 +4,7 @@ import { Layer, Source } from 'react-map-gl';
 import type { SymbolLayout, SymbolPaint } from 'mapbox-gl';
 
 import {
-  aircraftStore, cwpStore, roleConfigurationStore,
+  configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
 
 const cwpLayerLayout: SymbolLayout = {
@@ -25,7 +25,7 @@ const cwpLayerPaint: SymbolPaint = {
 };
 
 export default observer(function ControllerLabel(/* properties */) {
-  const aircrafts = aircraftStore.aircraftsWithPosition;
+  const aircrafts = configurationStore.aircraftsWithinExtendedEdges;
 
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 
