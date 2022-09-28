@@ -1,6 +1,11 @@
-import { booleanPointInPolygon, polygon } from '@turf/turf';
+import {
+  booleanPointInPolygon,
+  point as turfPoint,
+  polygon as turfPolygon,
+} from '@turf/turf';
 import { makeAutoObservable, observable } from 'mobx';
 import type { Position } from '@turf/turf';
+import type turf from '@turf/turf';
 import type { ObservableMap } from 'mobx';
 
 import RoleConfigurationModel from './RoleConfigurationModel';
@@ -36,11 +41,13 @@ export default class RoleConfigurationStore {
       getControlledSector: false,
       aircraftStore: false,
       fixStore: false,
+      pointInCurrentControlledSector: false,
     }, { autoBind: true });
     this.configurationStore = configurationStore;
     this.aircraftStore = aircraftStore;
     this.fixStore = fixStore;
     this.getControlledSector = this.getControlledSector.bind(this);
+    this.pointInCurrentControlledSector = this.pointInCurrentControlledSector.bind(this);
   }
 
   get currentControlledSector(): string | undefined {
@@ -133,6 +140,25 @@ export default class RoleConfigurationStore {
       }
     }
     return undefined;
+  }
+
+  get areaOfCurrentControllerSectorAsTurfFeature(): turf.Feature<turf.Polygon> | undefined {
+    const area = this.areaOfCurrentControlledSector;
+    if (!area?.length) {
+      return undefined;
+    }
+    const edges = area.map((edge) => ([edge.longitude, edge.latitude]));
+    return turfPolygon([
+      [...edges, edges[0]],
+    ]);
+  }
+
+  pointInCurrentControlledSector(lat: number, lng: number) : boolean {
+    const feature = this.areaOfCurrentControllerSectorAsTurfFeature;
+    if (!feature) {
+      return false;
+    }
+    return booleanPointInPolygon(turfPoint([lng, lat]), feature);
   }
 
   getcolorBySectorId(sectorId: string): string {
@@ -251,7 +277,7 @@ export default class RoleConfigurationStore {
       const coordinates = this.areaOfCurrentControlledSector?.map((point): Position => (
         [point.longitude, point.latitude]),
       );
-      const boundsGeometry = polygon([coordinates]);
+      const boundsGeometry = turfPolygon([coordinates]);
       const temporaryAircrafts: AircraftModel[] = [];
       const topFL = this.topFLcurrentSector;
       const bottomFL = this.bottomFLcurrentSector;
@@ -311,7 +337,7 @@ export default class RoleConfigurationStore {
       const coordinates = this.areaOfCurrentControlledSector.map((point): Position => (
         [point.longitude, point.latitude]),
       );
-      const boundsGeometry = polygon([coordinates]);
+      const boundsGeometry = turfPolygon([coordinates]);
       const temporaryFixes: string[] = [];
       for (const fix of fixes) {
         const position: Position = [fix[1].longitude, fix[1].latitude];

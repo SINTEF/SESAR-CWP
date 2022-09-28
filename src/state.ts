@@ -23,6 +23,7 @@ export const cwpStore = new CWPStore({
 });
 export const configurationStore = new ConfigurationStore({
   cwpStore,
+  aircraftStore,
   airspaceStore,
   simulatorStore,
 });

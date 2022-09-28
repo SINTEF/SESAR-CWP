@@ -1,11 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
-import { aircraftStore } from '../state';
+import { configurationStore } from '../state';
 import AircraftMarker from './AircraftMarker';
 
 export default observer(function Aircrafts() {
-  const aircrafts = aircraftStore.aircraftsWithPosition;
+  const aircrafts = configurationStore.aircraftsWithinExtendedEdges;
 
   return (<>
     {aircrafts.map((aircraft) => {

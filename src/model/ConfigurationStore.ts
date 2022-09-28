@@ -1,7 +1,9 @@
 import {
-  bbox, bboxPolygon, buffer, polygon,
+  bbox, bboxPolygon,
+  buffer, polygon,
 } from '@turf/turf';
 import { makeAutoObservable, observable } from 'mobx';
+import type turf from '@turf/turf';
 import type { ObservableMap } from 'mobx';
 
 import ConfigurationModel from './ConfigurationModel';
@@ -14,6 +16,8 @@ import type {
   AvailabilitySchedule,
   CurrentAirspaceConfigurationMessage, NewAirspaceConfigurationMessage,
 } from '../proto/ProtobufAirTrafficSimulator';
+import type AircraftModel from './AircraftModel';
+import type AircraftStore from './AircraftStore';
 import type AirspaceStore from './AirspaceStore';
 import type CWPStore from './CwpStore';
 import type { IConfigurationTime } from './IConfigurationTime';
@@ -29,6 +33,8 @@ export default class ConfigurationStore {
   configurationPlan: ObservableMap<string, ConfigurationTime> = observable.map(
     undefined, { deep: false });
 
+  aircraftStore: AircraftStore;
+
   airspaceStore: AirspaceStore;
 
   simulatorStore: SimulatorStore;
@@ -38,19 +44,23 @@ export default class ConfigurationStore {
   currentCWP = '';
 
   constructor({
+    aircraftStore,
     airspaceStore,
     simulatorStore,
     cwpStore,
   }: {
+    aircraftStore: AircraftStore;
     airspaceStore: AirspaceStore,
     simulatorStore: SimulatorStore,
     cwpStore: CWPStore,
   }) {
     makeAutoObservable(this, {
+      aircraftStore: false,
       airspaceStore: false,
       simulatorStore: false,
       cwpStore: false,
     }, { autoBind: true });
+    this.aircraftStore = aircraftStore;
     this.airspaceStore = airspaceStore;
     this.simulatorStore = simulatorStore;
     this.cwpStore = cwpStore;
@@ -222,9 +232,7 @@ export default class ConfigurationStore {
       return undefined;
     }
     // use turf to calculate the bounds
-    const bounds = bbox(polygon([
-      [...edges, edges[0]],
-    ]));
+    const bounds = bbox(this.edgesTurfFeature);
 
     return {
       minLat: bounds[1],
@@ -245,7 +253,7 @@ export default class ConfigurationStore {
 
     const extendedBounds = bbox(buffer(bboxPolygon(
       [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat],
-    ), 100, { units: 'kilometers' }));
+    ), 60, { units: 'kilometers' }));
 
     return {
       minLat: extendedBounds[1],
@@ -253,6 +261,16 @@ export default class ConfigurationStore {
       minLon: extendedBounds[0],
       maxLon: extendedBounds[2],
     };
+  }
+
+  get edgesTurfFeature(): turf.Feature<turf.Polygon> | undefined {
+    const { edgesPolygon } = this;
+    if (!edgesPolygon?.length) {
+      return undefined;
+    }
+    return polygon([
+      [...edgesPolygon, edgesPolygon[0]],
+    ]);
   }
 
   get sortedConfigurationPlan(): IConfigurationTime[] {
@@ -340,5 +358,19 @@ export default class ConfigurationStore {
     }
 
     return false;
+  }
+
+  get aircraftsWithinExtendedEdges(): AircraftModel[] {
+    const bounds = this.extendedEdgesBounds;
+    const aircrafts = this.aircraftStore.aircraftsWithPosition;
+
+    if (!bounds) {
+      return aircrafts;
+    }
+
+    return aircrafts.filter((aircraft) => aircraft.lastKnownLatitude >= bounds.minLat
+      && aircraft.lastKnownLatitude <= bounds.maxLat
+      && aircraft.lastKnownLongitude >= bounds.minLon
+      && aircraft.lastKnownLongitude <= bounds.maxLon);
   }
 }
