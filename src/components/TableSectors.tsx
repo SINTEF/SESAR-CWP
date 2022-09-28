@@ -53,13 +53,7 @@ export default function TableSectors({
     [...bottomLayerList].map((value, index) => [index + 1, value]),
   );
 
-  const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
-  // const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
-  // .map((area) => area.bottomFlightLevel));
   const bottomLevel = Math.min(...sectorsOfArray.map((area) => area.bottomFlightLevel));
-  // const bottomLayer = new Set(sectorsOfArray
-  //   .filter((area) => area.bottomFlightLevel === bottomLevel)
-  //   .map((area) => area.topFlightLevel));
 
   const multicells = new Map<number, number>();
   let setSpan = 1;
