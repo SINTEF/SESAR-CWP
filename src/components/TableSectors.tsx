@@ -53,7 +53,14 @@ export default function TableSectors({
     [...bottomLayerList].map((value, index) => [index + 1, value]),
   );
 
+  const topLevel = Math.max(...sectorsOfArray.map((area) => area.topFlightLevel));
+  // const topLayer = new Set(sectorsOfArray.filter((area) => area.topFlightLevel === topLevel)
+  // .map((area) => area.bottomFlightLevel));
   const bottomLevel = Math.min(...sectorsOfArray.map((area) => area.bottomFlightLevel));
+  // const bottomLayer = new Set(sectorsOfArray
+  //   .filter((area) => area.bottomFlightLevel === bottomLevel)
+  //   .map((area) => area.topFlightLevel));
+
   const multicells = new Map<number, number>();
   let setSpan = 1;
   let temporaryHighestSpan = 1;
@@ -141,7 +148,7 @@ export default function TableSectors({
           style={{
             order: `${findGridPositionColumn(sectorId)}`,
             gridRow: `${setHeightOfButton(topFlightLevel, bottomFlightLevel)}`,
-            gridColumn: `span ${setWidthOfButton(bottomFlightLevel)} / auto `,
+            gridColumn: `auto /span ${setWidthOfButton(bottomFlightLevel)}`,
             backgroundColor: roleConfigurationStore.getcolorBySectorId(sectorId),
           }}
           onClick={(): void => {
@@ -164,6 +171,7 @@ export default function TableSectors({
     style = {{
       gridTemplateColumns: `repeat(${setSpan * 2}, ${width}px)`,
       gridTemplateRows: `repeat(${toplayerList.size}, calc(250px / ${toplayerList.size}))`,
+      gridAutoFlow: 'dense',
     }}
     >
       {buttons}

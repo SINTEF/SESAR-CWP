@@ -67,6 +67,9 @@ div#root {
     -webkit-appearance: slider-vertical;
     height: 80px;
 }
+.table-button{
+    overflow: hidden;
+}
 
 .sector-box {
     display: grid;
