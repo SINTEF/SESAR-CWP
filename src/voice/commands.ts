@@ -1,5 +1,6 @@
 import { getCurrentAircraftId } from '../model/CurrentAircraft';
 import { cwpStore } from '../state';
+import AltitudeFilterCommand from './AltitudeFilterCommand';
 import SectorConfigCommand from './SectorConfigCommand';
 import ThreeDViewCommand from './ThreeDViewCommand';
 
@@ -42,7 +43,7 @@ export default function HandleCommand(input: string): void {
         const currentSpeedVectorMinutes = cwpStore.speedVectorMinutes;
         cwpStore.setSpeedVectorMinutes(currentSpeedVectorMinutes === 0 ? 3 : 0);
       } else {
-        const length = Number.parseInt(commandArguments[0], 10);
+        const length = Math.max(Math.min(Number.parseInt(commandArguments[0], 10), 50), 0);
         if (Number.isNaN(length)) {
           const onOff = convertHumanStringToBoolean(commandArguments[0]);
           cwpStore.setSpeedVectorMinutes(onOff ? 3 : 0);
@@ -93,6 +94,40 @@ export default function HandleCommand(input: string): void {
       }
 
       break;
+    case /^altitudes?-filters?$/i.test(command):
+      AltitudeFilterCommand(commandArguments);
+      break;
+    case /^current-sector-flights?-labels?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleFlightLabelsForCurrentSector();
+      } else {
+        cwpStore.setFlightLabelsForCurrentSector(convertHumanStringToBoolean(commandArguments[0]));
+      }
+      break;
+    case /^other-sectors-flights?-labels?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleFlightLabelsForOtherSectors();
+      } else {
+        cwpStore.setFlightLabelsForOtherSectors(convertHumanStringToBoolean(commandArguments[0]));
+      }
+      break;
+
+    case /^flights?-lists?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleFL();
+      } else {
+        cwpStore.setFL(convertHumanStringToBoolean(commandArguments[0]));
+      }
+      break;
+
+    case /^sectors?-flights?-lists?$/i.test(command):
+      if (isToggleMode(commandArguments)) {
+        cwpStore.toggleSFL();
+      } else {
+        cwpStore.setSFL(convertHumanStringToBoolean(commandArguments[0]));
+      }
+      break;
+
     default:
       throw new Error(`Unknown command: ${command}`);
   }

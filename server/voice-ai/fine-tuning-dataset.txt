@@ -219,6 +219,33 @@ Stop showing the speed vector!: current-speed-vector off
 
 do not show sector names: sectors-labels off
 
+! (set|configure|change) (top|ceiling|high) (altitude|height) (filter)? (to)? 500: altitude-filter top 500
+! (set|configure|change) (top|ceiling|high) (altitude|height) (filter)? (to)? 1000: altitude-filter top 1000
+! (set|configure|change) (top|ceiling|high) (altitude|height) (filter)? (to)? the max: altitude-filter top 1000
+! (set|configure|change) (bottom|floor|low) (altitude|height) (filter)? (to)? 625: altitude-filter bottom 625
+! (set|configure|change) (bottom|floor|low) (altitude|height) (filter)? (to)? 400: altitude-filter bottom 400
+! (set|configure|change) (bottom|floor|low) (altitude|height) (filter)? (to)? the min: altitude-filter bottom 0
+
+! (set|configure|change) (altitude|height) (filter)? (between|both|range) 300 (and|to) 625 : altitude-filter between 300 625
+! (set|configure|change) (altitude|height) (filter)? (between|both|range) 460 (and|to) 725 : altitude-filter between 460 725
+! (set|configure|change) (altitude|height) (filter)? (between|both|range) 230 (and|to) 300 : altitude-filter between 230 300
+
+! (show|display|activate|turn on) (only)? flight labels for my (current)? sector: current-sector-flight-labels on
+! (hide|deactivate|turn off) (only)? flight labels for my (current)? sector: current-sector-flight-labels off
+! (toggle|switch) flight labels for my current sector: current-sector-flight-labels toggle
+
+! (show|display|activate|turn on) (only)? (flight)? labels for other sectors: other-sectors-flight-labels on
+! (hide|deactivate|turn off) (only)? (flight)? labels for my other sectors: other-sectors-flight-labels off
+
+! (show|display|activate|turn on) flights? (list|table): flights-list on
+! (hide|deactivate|turn off) flights? (list|table): flights-list off
+! (toggle|switch) flights? (list|table): flights-list toggle
+
+! (show|display|activate|turn on) sectors? flights? (list|table): sector-flights-list on
+! (hide|deactivate|turn off) sectors? flights? (list|table): sector-flights-list off
+! (toggle|switch) sectors? flights? (list|table): sector-flights-list toggle
+
+
 #### From 27th of September 2022 session ####
 
 £2.00.: invalid-command

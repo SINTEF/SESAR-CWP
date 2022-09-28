@@ -111,8 +111,16 @@ export default class CWPStore {
     this.showSFL = !this.showSFL;
   }
 
+  setSFL(boolean: boolean): void {
+    this.showSFL = boolean;
+  }
+
   toggleFL(): void {
     this.showFL = !this.showFL;
+  }
+
+  setFL(boolean: boolean): void {
+    this.showFL = boolean;
   }
 
   toggleFlightLabelsForCurrentSector(): void {
