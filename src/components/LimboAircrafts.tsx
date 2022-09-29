@@ -1,15 +1,15 @@
-// import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-// import { polygon, transformScale } from '@turf/turf';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { polygon, transformScale } from '@turf/turf';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Layer, Source } from 'react-map-gl';
-// import type { Position } from '@turf/turf';
+import type { Position } from '@turf/turf';
 import type { CirclePaint } from 'mapbox-gl';
 
 import {
-  cwpStore, roleConfigurationStore,
+  aircraftStore, cwpStore, roleConfigurationStore, simulatorStore,
 } from '../state';
-// import type AircraftModel from '../model/AircraftModel';
+import type AircraftModel from '../model/AircraftModel';
 
 const layerPaint: CirclePaint = {
   'circle-radius': 25,
@@ -18,16 +18,42 @@ const layerPaint: CirclePaint = {
 };
 
 export default observer(function LimboFlights(/* properties */) {
-  const listOfAddedAircrafts = roleConfigurationStore.addedRemovedAircrafts[0];
-  const listOfRemovedAircrafts = roleConfigurationStore.addedRemovedAircrafts[1];
+  const currentSectorBounds = roleConfigurationStore.areaOfCurrentControlledSector?.map(
+    (point): Position => ([point.longitude, point.latitude]),
+  );
+  const nextSectorBounds = roleConfigurationStore.areaOfNextControlledSector?.map(
+    (point): Position => ([point.longitude, point.latitude]),
+  );
+  const [listOfAddedAircrafts, setListOfAddedAircrafts] = React.useState<AircraftModel[]>([]);
+  const [listOfRemovedAircrafts, setListOfRemovedAircrafts] = React.useState<AircraftModel[]>([]);
+  React.useEffect(() => {
+    if (currentSectorBounds && nextSectorBounds) {
+      const currentPolygon = polygon([currentSectorBounds]);
+      const nextPolygon = polygon([nextSectorBounds]);
+      const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'centroid' });
+      const scaledCurrentSectorBounds = transformScale(currentPolygon, 0.75, { origin: 'centroid' });
+      const addedAircrafts: AircraftModel[] = [];
+      const removedAircrafts: AircraftModel[] = [];
+      for (const aircraft of aircraftStore.aircrafts) {
+        const position: Position = [aircraft[1].lastKnownLongitude, aircraft[1].lastKnownLatitude];
+        const inCurrentSector = booleanPointInPolygon(position, scaledCurrentSectorBounds);
+        const inNextSector = booleanPointInPolygon(position, scaledNextSectorBounds);
+        if (!inCurrentSector && inNextSector) {
+          addedAircrafts.push(aircraft[1]);
+        }
+        if (inCurrentSector && !inNextSector) {
+          removedAircrafts.push(aircraft[1]);
+        }
+      }
+      setListOfAddedAircrafts(addedAircrafts);
+      setListOfRemovedAircrafts(removedAircrafts);
+    }
+  }, [simulatorStore.timestamp]);
 
   if (!cwpStore.showLimboFlight) {
     return null;
   }
-  if (listOfAddedAircrafts === undefined || listOfRemovedAircrafts === undefined) {
-    return null;
-  }
-  // if (listOfAddedAircrafts.length === 0 && listOfRemovedAircrafts.length === 0) return null;
+  if (listOfAddedAircrafts.length === 0 && listOfRemovedAircrafts.length === 0) return null;
 
   const addedGeoJson = [
     ...listOfAddedAircrafts.map((aircraft) => ({
