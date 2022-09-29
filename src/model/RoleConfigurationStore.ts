@@ -405,7 +405,8 @@ export default class RoleConfigurationStore {
       const currentPolygon = polygon([currentSectorBounds]);
       const nextPolygon = polygon([nextSectorBounds]);
       // const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'centroid' });
-      // const scaledCurrentSectorBounds = transformScale(currentPolygon, 0.75, { origin: 'centroid' });
+      // const scaledCurrentSectorBounds =
+      // transformScale(currentPolygon, 0.75, { origin: 'centroid' });
       const addedAircrafts: AircraftModel[] = [];
       const removedAircrafts: AircraftModel[] = [];
       for (const aircraft of this.aircraftStore.aircrafts) {
