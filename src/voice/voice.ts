@@ -151,7 +151,14 @@ export async function StartListeningOnce(): Promise<void> {
       startupPromise = StartUp();
     }
 
-    const recognizer = await startupPromise;
+    let recognizer: SpeechSDKType.SpeechRecognizer;
+    try {
+      recognizer = await startupPromise;
+    } catch (error) {
+      startupPromise = undefined;
+      throw error;
+    }
+
     await new Promise<SpeechSDKType.SpeechRecognitionResult>((resolve, reject) => {
       recognizer.recognizeOnceAsync(resolve, reject);
     });
@@ -167,7 +174,13 @@ export async function StopListeningOnce(): Promise<void> {
     return;
   }
 
-  const recognizer = await startupPromise;
+  let recognizer: SpeechSDKType.SpeechRecognizer;
+  try {
+    recognizer = await startupPromise;
+  } catch (error) {
+    startupPromise = undefined;
+    throw error;
+  }
 
   stoppingPromise = new Promise<void>((resolve, reject) => {
     try {
