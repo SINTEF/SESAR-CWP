@@ -123,8 +123,8 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
     if (shortFinalText !== '') {
       voiceStore.setProcessingCommand(ProcessingCommandStatus.Processing);
 
-      TextToCommand(shortFinalText).then((command) => {
-        HandleCommand(philtre(command));
+      TextToCommand(philtre(shortFinalText)).then((command) => {
+        HandleCommand(command);
       }).then(() => {
         voiceStore.setProcessingCommand(ProcessingCommandStatus.Success);
       }).catch((error) => {
