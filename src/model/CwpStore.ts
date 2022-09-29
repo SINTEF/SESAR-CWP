@@ -211,6 +211,14 @@ export default class CWPStore {
     this.closeAllSubPopupsForAircraft(aircraftId);
   }
 
+  togglePopupForAircraft(aircraftId: string): void {
+    if (this.aircraftsWithManuallyOpenedPopup.has(aircraftId)) {
+      this.closePopupForAircraft(aircraftId);
+    } else {
+      this.openPopupForAircraft(aircraftId);
+    }
+  }
+
   closeAllSubPopupsForAircraft(aircraftId: string): void {
     this.closeLevelPopupForAircraft(aircraftId);
     this.closeNextSectorPopupForAircraft(aircraftId);

@@ -47,12 +47,9 @@ export default observer(function AircraftPopup(properties: {
 
   const { current } = useMap();
 
-  if (!showAllFlightLabels) {
-    return null;
-  }
-
   if (!aircraftsWithManuallyOpenedPopup.has(aircraftId)) {
-    if (altitude < lowestBound || altitude > highestBound
+    if (!showAllFlightLabels
+      || altitude < lowestBound || altitude > highestBound
       || aircraftsWithManuallyClosedPopup.has(aircraftId)
     ) {
       return null;

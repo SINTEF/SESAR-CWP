@@ -24,6 +24,10 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
 
   const pseudo = configurationStore.currentCWP === 'All' || cwpStore.pseudoPilot;
 
+  const onClick = (): void => {
+    cwpStore.togglePopupForAircraft(aircraftId);
+  };
+
   return (
     <Marker longitude={longitude} latitude={latitude} rotation={bearing}>
       <svg
@@ -39,7 +43,7 @@ export default observer(function AircraftMarker(properties: { aircraft: Aircraft
           paintOrder: 'stroke fill',
 
         }}
-        onClick={(): void => cwpStore.openPopupForAircraft(aircraftId)}
+        onClick={onClick}
       >
         {SVG_ICON_PATH}
       </svg>

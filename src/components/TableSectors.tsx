@@ -5,7 +5,7 @@ import React from 'react';
 import { Button, Card } from 'react-bootstrap';
 
 import { isDragging } from '../draggableState';
-import { airspaceStore, cwpStore, roleConfigurationStore } from '../state';
+import { cwpStore, roleConfigurationStore } from '../state';
 import type { ISectorModel } from '../model/ISectorModel';
 
 const findGridPositionColumn = (sectorName: string): number | string => {
