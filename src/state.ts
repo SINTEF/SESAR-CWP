@@ -30,6 +30,7 @@ export const configurationStore = new ConfigurationStore({
 export const roleConfigurationStore = new RoleConfigurationStore({
   configurationStore,
   aircraftStore,
+  cwpStore,
   fixStore,
 });
 export const voiceStore = new VoiceStore();

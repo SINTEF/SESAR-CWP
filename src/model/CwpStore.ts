@@ -1,4 +1,5 @@
 import { makeAutoObservable, observable } from 'mobx';
+import type { ObservableSet } from 'mobx';
 
 import AltitudeFilter from './AltitudeFilter';
 
@@ -75,6 +76,8 @@ export default class CWPStore {
 
   highligtedAircraftIdTimeoutId = 0;
 
+  disabledCWPIn3DView: ObservableSet<string> = observable.set(undefined, { deep: false });
+
   constructor({
     altitudeFilter,
   }: {
@@ -87,8 +90,10 @@ export default class CWPStore {
       altitudeFilter: false,
       highligtedAircraftIdTimeoutId: false,
       switchBackToAutomaticNextSectorsConfigurationTimeoutId: false,
+      isCWPDisabledIn3DView: false,
     }, { autoBind: true });
     this.altitudeFilter = new AltitudeFilter(altitudeFilter);
+    this.isCWPDisabledIn3DView = this.isCWPDisabledIn3DView.bind(this);
   }
 
   toggleFixes(): void {
@@ -365,5 +370,17 @@ export default class CWPStore {
       this.switchBackToAutomaticNextSectorsConfigurationTimeoutId = 0;
       this.setAutomaticNextSectorsConfiguration();
     }, 30_000);
+  }
+
+  toggleCWPIn3DView(cwp: string): void {
+    if (this.disabledCWPIn3DView.has(cwp)) {
+      this.disabledCWPIn3DView.delete(cwp);
+    } else {
+      this.disabledCWPIn3DView.add(cwp);
+    }
+  }
+
+  isCWPDisabledIn3DView(airspaceId: string): boolean {
+    return this.disabledCWPIn3DView.has(airspaceId);
   }
 }

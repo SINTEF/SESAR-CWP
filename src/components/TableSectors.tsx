@@ -1,8 +1,11 @@
+import classNames from 'classnames';
+import { observer } from 'mobx-react-lite';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import { Button, Card } from 'react-bootstrap';
 
 import { isDragging } from '../draggableState';
-import { cwpStore, roleConfigurationStore } from '../state';
+import { airspaceStore, cwpStore, roleConfigurationStore } from '../state';
 import type { ISectorModel } from '../model/ISectorModel';
 
 const findGridPositionColumn = (sectorName: string): number | string => {
@@ -12,7 +15,22 @@ const findGridPositionColumn = (sectorName: string): number | string => {
   return 'none';
 };
 
-export default function TableSectors({
+const mouseDownSector = (event: React.MouseEvent, sectorId: string): void => {
+  if (event.button !== 1 && event.button !== 2) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  const cwp = roleConfigurationStore.getCWPBySectorId(sectorId);
+  cwpStore.toggleCWPIn3DView(cwp);
+};
+
+const noContextMenu = (event: React.MouseEvent): void => {
+  event.preventDefault();
+  event.stopPropagation();
+};
+
+export default observer(function TableSectors({
   sectorsOfArray,
   controlledSector,
   nextSectorsConfiguration,
@@ -36,6 +54,7 @@ export default function TableSectors({
       setShowNextSectorsConfiguration(nextSectorsConfiguration);
     }
   };
+
   const ascendingSectors = [...sectorsOfArray];
   ascendingSectors.sort(
     (element1, element2) => element1.bottomFlightLevel - element2.bottomFlightLevel
@@ -133,10 +152,14 @@ export default function TableSectors({
       bottomFlightLevel, sectorId,
       topFlightLevel,
     } = sectors;
+    const cwp = roleConfigurationStore.getCWPBySectorId(sectorId);
     return (<Button
-          className={`table-button 
-          ${isSectorForCWP(sectorId) ? 'highlight-sector' : ''}
-          ${clickedSectorId === sectorId ? 'clicked-sector' : ''}`}
+          className={classNames({
+            'table-button': true,
+            'highlight-sector': isSectorForCWP(sectorId),
+            'clicked-sector': clickedSectorId === sectorId,
+            'disabled-sector': cwpStore.isCWPDisabledIn3DView(cwp),
+          })}
           key={sectorId}
           style={{
             order: `${findGridPositionColumn(sectorId)}`,
@@ -148,10 +171,15 @@ export default function TableSectors({
             if (isDragging()) return;
             clickedSectorButton(sectorId);
           }}
+          onMouseDown={(event: React.MouseEvent): void => {
+            if (isDragging()) return;
+            mouseDownSector(event, sectorId);
+          }}
+          onContextMenu={noContextMenu}
         >
       <Card.Body>
         <Card.Title className="sector-title">
-          {`${roleConfigurationStore.getCWPBySectorId(sectorId)}-${sectorId}` }
+          {`${cwp}-${sectorId}` }
         </Card.Title>
         <Card.Text className="sector-body">
           {`FL ${bottomFlightLevel}-${topFlightLevel}`}
@@ -170,4 +198,4 @@ export default function TableSectors({
       {buttons}
     </div>
   );
-}
+});

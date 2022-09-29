@@ -3,7 +3,7 @@ import React from 'react';
 import { Layer, Source } from 'react-map-gl';
 import type { FillExtrusionPaint, FillPaint } from 'mapbox-gl';
 
-import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
+import { cwpStore, roleConfigurationStore } from '../state';
 
 const sectorPaint: FillPaint = {
   'fill-color': ['get', 'color'],
@@ -31,9 +31,9 @@ const setHighlighted3DPolygon = (id: string): string => {
 };
 
 export default observer(function SectorPolygons(/* properties */) {
-  const sectorStore = configurationStore.areaOfAirspacesToDisplay;
+  const sectorStore = roleConfigurationStore.areaOfAirspacesToDisplayIn3DView;
   const sectorData = sectorStore
-    .filter((area) => area.sectorArea.length > 0);
+    .filter((sector) => sector.sectorArea.length > 0);
 
   sectorData
     .sort((a, b) => b.bottomFlightLevel - a.bottomFlightLevel

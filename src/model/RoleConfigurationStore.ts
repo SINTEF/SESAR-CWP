@@ -14,6 +14,7 @@ import type AircraftModel from './AircraftModel';
 import type AircraftStore from './AircraftStore';
 import type ConfigurationStore from './ConfigurationStore';
 import type CoordinatePair from './CoordinatePair';
+import type CWPStore from './CwpStore';
 import type FixStore from './FixStore';
 import type { ISectorModel } from './ISectorModel';
 
@@ -25,26 +26,32 @@ export default class RoleConfigurationStore {
 
   aircraftStore: AircraftStore;
 
+  cwpStore: CWPStore;
+
   fixStore: FixStore;
 
   constructor({
     configurationStore,
     aircraftStore,
+    cwpStore,
     fixStore,
   }: {
     configurationStore: ConfigurationStore,
     aircraftStore: AircraftStore,
+    cwpStore: CWPStore,
     fixStore: FixStore,
   }) {
     makeAutoObservable(this, {
       configurationStore: false,
       getControlledSector: false,
       aircraftStore: false,
+      cwpStore: false,
       fixStore: false,
       pointInCurrentControlledSector: false,
     }, { autoBind: true });
     this.configurationStore = configurationStore;
     this.aircraftStore = aircraftStore;
+    this.cwpStore = cwpStore;
     this.fixStore = fixStore;
     this.getControlledSector = this.getControlledSector.bind(this);
     this.pointInCurrentControlledSector = this.pointInCurrentControlledSector.bind(this);
@@ -436,5 +443,13 @@ export default class RoleConfigurationStore {
       return [addedAircrafts, removedAircrafts];
     }
     return [];
+  }
+
+  get areaOfAirspacesToDisplayIn3DView(): ISectorModel[] {
+    const areas = this.configurationStore.areaOfAirspacesToDisplay;
+    return areas.filter(({ sectorId }) => {
+      const cwp = this.getCWPBySectorId(sectorId);
+      return !this.cwpStore.isCWPDisabledIn3DView(cwp);
+    });
   }
 }

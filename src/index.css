@@ -109,6 +109,11 @@ div#root {
     outline: none;
 }
 
+.disabled-sector {
+    filter: grayscale(80%);
+    opacity: 0.7;
+}
+
 
 #table-of-config tr,
 #table-of-config td {
