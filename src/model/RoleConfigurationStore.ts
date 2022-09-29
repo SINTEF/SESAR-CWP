@@ -402,8 +402,8 @@ export default class RoleConfigurationStore {
     const topFLNext = this.topFLNextSector;
     const bottomFLNext = this.bottomFLNextSector;
     if (currentSectorBounds && nextSectorBounds) {
-      const currentPolygon = polygon([currentSectorBounds]);
-      const nextPolygon = polygon([nextSectorBounds]);
+      const currentPolygon = turfPolygon([currentSectorBounds]);
+      const nextPolygon = turfPolygon([nextSectorBounds]);
       // const scaledNextSectorBounds = transformScale(nextPolygon, 1.25, { origin: 'centroid' });
       // const scaledCurrentSectorBounds =
       // transformScale(currentPolygon, 0.75, { origin: 'centroid' });
