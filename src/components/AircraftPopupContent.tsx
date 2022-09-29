@@ -59,12 +59,20 @@ const SpeedAndWakeTurbulenceLabel = observer(({ aircraft }: SubContentProperties
     </td>
   );
 });
-const AssignedBearing = observer(({ aircraft }: SubContentProperties): JSX.Element => (
-  <td>
-    { aircraft.assignedBearing === -1 || aircraft.assignedBearing === undefined
-      ? 'BEG.S' : `${aircraft.assignedBearing}` }
-  </td>
-));
+const AssignedBearing = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+  const { assignedBearing } = aircraft;
+
+  if (assignedBearing === -1 || assignedBearing === undefined) {
+    return (<td>BEG.S</td>);
+  }
+
+  let displayedBearing = Math.round(assignedBearing) % 360;
+  if (displayedBearing < 1) {
+    displayedBearing = 360;
+  }
+
+  return (<td>{`${displayedBearing.toString().padStart(3, '0')}`}</td>);
+});
 
 const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const middleClickNextWaypoint = (event: React.MouseEvent<HTMLElement>): void => {

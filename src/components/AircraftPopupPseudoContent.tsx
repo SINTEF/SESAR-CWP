@@ -36,8 +36,13 @@ const Bearing = observer(({ aircraft }: SubContentProperties): JSX.Element => {
     cwpStore.openChangeBearingForAircraft(aircraft.aircraftId);
   };
 
+  let displayedBearing = Math.round(aircraft.lastKnownBearing) % 360;
+  if (displayedBearing < 1) {
+    displayedBearing = 360;
+  }
+
   return (<td onClick={onClick}>
-    H{Math.round(aircraft.lastKnownBearing)}
+    H{displayedBearing.toString().padStart(3, '0')}
   </td>);
 });
 
