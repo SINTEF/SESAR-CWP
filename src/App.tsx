@@ -35,7 +35,7 @@ export default function App(/* properties */): JSX.Element {
             <HugeNextText />
           </Allotment.Pane>
           <Allotment.Pane>
-            <Allotment onChange={onLayoutChange}>
+            <Allotment vertical={true} onChange={onLayoutChange}>
               <Allotment.Pane preferredSize={verticalSectorsPreferedSize}>
                 <SectorSideView />
               </Allotment.Pane>
