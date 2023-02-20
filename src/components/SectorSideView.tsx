@@ -24,22 +24,29 @@ export default observer(function SectorSideView() {
     airspaceStore,
   } = configurationStore;
 
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     currentControlledSector,
-    nextControlledSector,
+    nextControlledSectorByCWP,
+    currentControlledSectorByCWP,
   } = roleConfigurationStore;
   const { clickedSectorId, showClickedSector } = cwpStore;
 
   let timeToChange = 15;
   let timeDifferanse = 10_000;
 
-  const airspaceCurrent = clickedSectorId !== '' && showClickedSector ? airspaceStore.getAreaFromId(clickedSectorId) : areaOfIncludedAirspaces
+  const selectedCWP = roleConfigurationStore.getCWPBySectorId(clickedSectorId);
+  const firstSectorByCWP = currentControlledSectorByCWP(selectedCWP);
+  const firstAirspaceByCWP = firstSectorByCWP ? airspaceStore.getAreaFromId(firstSectorByCWP)
+    : null;
+  const airspaceCurrent = clickedSectorId !== '' && showClickedSector ? firstAirspaceByCWP : areaOfIncludedAirspaces
     .find(({ sectorId }) => sectorId === currentControlledSector);
-  if (!airspaceCurrent) {
-    return null;
+  let bottomFLCurrent = 0;
+  let topFLCurrent = 0;
+  if (airspaceCurrent) {
+    bottomFLCurrent = airspaceCurrent.bottomFlightLevel;
+    topFLCurrent = airspaceCurrent.topFlightLevel > 450 ? 450 : airspaceCurrent.topFlightLevel;
   }
-  const bottomFLCurrent = airspaceCurrent.bottomFlightLevel;
-  const topFLCurrent = airspaceCurrent.topFlightLevel > 450 ? 450 : airspaceCurrent.topFlightLevel;
   let bottomFLNext = bottomFLCurrent;
   let topFLNext = topFLCurrent;
 
@@ -47,10 +54,13 @@ export default observer(function SectorSideView() {
     const startTime = nextConfiguration[1];
     timeDifferanse = startTime - simulatorTime;
     const airspaceNext = areaOfIncludedAirspacesForNextConfiguration
-      .find(({ sectorId }) => sectorId === nextControlledSector);
+      .find(({ sectorId }) => sectorId === nextControlledSectorByCWP(selectedCWP));
     if (airspaceNext !== undefined) {
       bottomFLNext = airspaceNext.bottomFlightLevel;
       topFLNext = airspaceNext.topFlightLevel > 450 ? 450 : airspaceNext.topFlightLevel;
+    } else {
+      bottomFLNext = 0;
+      topFLNext = 0;
     }
   }
   if (timeDifferanse <= 900 && timeDifferanse > 0) {
