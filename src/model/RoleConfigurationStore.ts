@@ -70,6 +70,19 @@ export default class RoleConfigurationStore {
     return this.findCurrentSectorByCWP(currentCWP, nextConfigurationId);
   }
 
+  currentControlledSectorByCWP(cwp: string): string | undefined {
+    const { currentConfigurationId } = this.configurationStore;
+    return this.findCurrentSectorByCWP(cwp, currentConfigurationId);
+  }
+
+  nextControlledSectorByCWP(cwp: string): string | undefined {
+    const { nextConfigurationId } = this.configurationStore;
+    if (!nextConfigurationId) {
+      return undefined;
+    }
+    return this.findCurrentSectorByCWP(cwp, nextConfigurationId);
+  }
+
   getControlledSector(cwpRoleName: string, config: string): string {
     const configuration = this.roleConfigurations.get(cwpRoleName);
     if (!configuration) {
