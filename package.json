@@ -38,7 +38,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "optimize": "vite optimize",
-    "lint": "@biomejs/biome lint",
+    "lint": "npx @biomejs/biome lint",
     "protoc": "protoc --ts_out src/proto --proto_path src ProtobufAirTrafficSimulator.proto"
   },
   "browserslist": {
