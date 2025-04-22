@@ -4,7 +4,6 @@ import React from 'react';
 import { cwpStore } from '../state';
 
 export default observer(function SpeedVectorNavbarControl() {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     speedVectorMinutes, setSpeedVectorMinutes,
   } = cwpStore;

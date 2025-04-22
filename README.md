@@ -21,3 +21,12 @@ npm start
 ```bash
 npm run protoc
 ```
+
+## Biome linting
+https://biomejs.dev/ migrated from unicorn lint
+
+run `npx @biomejs/biome lint` to check linting
+
+To ignore a rule: `biome-ignore lint/suspicious/noDebugger: <explanation>`
+
+Recommend `biomejs.biome` extension

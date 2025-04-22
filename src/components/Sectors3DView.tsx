@@ -1,5 +1,4 @@
 import * as maplibregl from 'maplibre-gl';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import ReactMapGL, { NavigationControl } from 'react-map-gl';
 import type { Style } from 'mapbox-gl';

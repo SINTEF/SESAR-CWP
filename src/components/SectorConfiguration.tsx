@@ -22,7 +22,6 @@ function ChangeToLocaleTime(time: number): string {
 }
 
 export default observer(function SectorConfiguration() {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     listOfIntervals,
     areaOfIncludedAirspaces,
@@ -30,7 +29,6 @@ export default observer(function SectorConfiguration() {
     currentCWP,
   } = configurationStore;
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { findCurrentSectorByCWP } = roleConfigurationStore;
 
   const {

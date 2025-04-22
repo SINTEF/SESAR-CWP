@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import { Button, Card } from 'react-bootstrap';
 
@@ -39,7 +38,6 @@ export default observer(function TableSectors({
   controlledSector: string | undefined;
   nextSectorsConfiguration: boolean;
 }): JSX.Element {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     setClickedSectorId, clickedSectorId, setShowClickedSector, setShowNextSectorsConfiguration,
   } = cwpStore;
@@ -168,11 +166,11 @@ export default observer(function TableSectors({
             backgroundColor: roleConfigurationStore.getcolorBySectorId(sectorId),
           }}
           onClick={(): void => {
-            if (isDragging()) return;
+            if (isDragging()) { return; }
             clickedSectorButton(sectorId);
           }}
           onMouseDown={(event: React.MouseEvent): void => {
-            if (isDragging()) return;
+            if (isDragging()) { return; }
             mouseDownSector(event, sectorId);
           }}
           onContextMenu={noContextMenu}

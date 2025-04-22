@@ -25,8 +25,7 @@ const openai = new OpenAIApi(configuration);
 async function loadTrainingDataset(): Promise<Map<string, string>> {
   // Read file ./voice-ai/training-dataset.jsonl JSON lines
   const fileContent = await fs.readFile(
-    dirname(fileURLToPath(import.meta.url)) +
-    '/voice-ai/fine-tuning-dataset.jsonl',
+    `${dirname(fileURLToPath(import.meta.url))}/voice-ai/fine-tuning-dataset.jsonl`,
   );
   const lines = fileContent.toString().split('\n');
   const dataset = lines

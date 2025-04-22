@@ -28,7 +28,6 @@ function timeBeforeNextRunInMs(): number {
 }
 
 function runSimulationLogic(aircraft: AircraftModel): void {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     assignedBearing,
     assignedFlightId,

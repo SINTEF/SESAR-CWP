@@ -38,7 +38,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "optimize": "vite optimize",
-    "lint": "eslint src --ext .js --ext .ts --ext .jsx --ext .tsx",
+    "lint": "@biomejs/biome lint",
     "protoc": "protoc --ts_out src/proto --proto_path src ProtobufAirTrafficSimulator.proto"
   },
   "browserslist": {
@@ -54,6 +54,7 @@
     ]
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@protobuf-ts/plugin": "^2.9.6",
     "@types/mapbox__sphericalmercator": "^1.2.3",
     "@types/node": "^18.7.23",

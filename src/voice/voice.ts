@@ -101,7 +101,7 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
   const recognizer = new SpeechRecognizer(speechConfiguration, audioConfiguration);
 
   recognizer.recognizing = (
-    sender: SpeechSDKType.Recognizer, event: SpeechSDKType.SpeechRecognitionEventArgs,
+    _sender: SpeechSDKType.Recognizer, event: SpeechSDKType.SpeechRecognitionEventArgs,
   ): void => {
     const { result: { text } } = event;
     voiceStore.setCurrentText(philtre(text));
@@ -116,7 +116,7 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
   };
 
   recognizer.recognized = (
-    sender: SpeechSDKType.Recognizer, event: SpeechSDKType.SpeechRecognitionEventArgs,
+    _sender: SpeechSDKType.Recognizer, event: SpeechSDKType.SpeechRecognitionEventArgs,
   ): void => {
     const { result: { text } } = event;
     const shortFinalText = text?.trim() ?? '';
@@ -128,7 +128,7 @@ async function StartUp(): Promise<SpeechSDKType.SpeechRecognizer> {
       }).then(() => {
         voiceStore.setProcessingCommand(ProcessingCommandStatus.Success);
       }).catch((error) => {
-        // eslint-disable-next-line no-console
+        // biome-ignore lint/suspicious/noConsole: needed for now
         console.error('voice error', error);
         voiceStore.setProcessingCommand(ProcessingCommandStatus.Error);
       });

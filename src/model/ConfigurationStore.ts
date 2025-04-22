@@ -137,7 +137,6 @@ export default class ConfigurationStore {
 
   handleAvailabilityScheduleMessage(newAvailabilitySchedule: AvailabilitySchedule): void {
     this.configurationPlan.clear();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     for (const availabilityMessage of newAvailabilitySchedule.availabilityIntervals) {
       const { objectId, timeIntervals } = availabilityMessage;
       const timeIntervalsArray: TimeConfigurations[] = [];
@@ -171,7 +170,6 @@ export default class ConfigurationStore {
   getAreaOfIncludedAirpaces(configurationId: string): ISectorModel[] {
     const configuration = this.configurations.get(configurationId);
     // Force the mobx update whenever the airspaces change size (new airspaces are received)
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.airspaceStore.airspaces.size;
     if (!configuration) {
       return [];
@@ -265,7 +263,7 @@ export default class ConfigurationStore {
 
   get edgesTurfFeature(): turf.Feature<turf.Polygon> | undefined {
     const { edgesPolygon } = this;
-    if (!edgesPolygon?.length) {
+    if (edgesPolygon?.length === 0) {
       return undefined;
     }
     return polygon([

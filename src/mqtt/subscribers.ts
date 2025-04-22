@@ -26,80 +26,80 @@ import {
   simulatorStore,
 } from '../state';
 
-export function notFound(parameters: unknown, message: Buffer, url: string): void {
-  // eslint-disable-next-line no-console
+export function notFound(_parameters: unknown, message: Buffer, url: string): void {
+  // biome-ignore lint:  no-console
   console.warn('MQTT message received but no matching route found', url, message);
 }
 
 export function ignored(): void { }
 
-export function targetReport(parameters: unknown, message: Buffer): void {
+export function targetReport(_parameters: unknown, message: Buffer): void {
   const protoMessage = TargetReportMessage.fromBinary(message);
   aircraftStore.handleTargetReport(protoMessage);
 }
 
-export function newFlight(parameters: unknown, message: Buffer): void {
+export function newFlight(_parameters: unknown, message: Buffer): void {
   const protoMessage = NewFlightMessage.fromBinary(message);
   aircraftStore.handleNewFlight(protoMessage);
 }
 
-export function newAirspaceConfiguration(parameters: unknown, message: Buffer): void {
+export function newAirspaceConfiguration(_parameters: unknown, message: Buffer): void {
   const protoMessage = NewAirspaceConfigurationMessage
     .fromBinary(message);
   configurationStore.handleNewAirspaceConfiguration(protoMessage);
 }
-export function airspaces(parameters: unknown, message: Buffer): void {
+export function airspaces(_parameters: unknown, message: Buffer): void {
   const protoMessage = NewAirspaceMessage.fromBinary(message);
   airspaceStore.handleNewAirspace(protoMessage);
 }
-export function newPointMessage(parameters: unknown, message: Buffer): void {
+export function newPointMessage(_parameters: unknown, message: Buffer): void {
   const protoMessage = NewPointMessage.fromBinary(message);
   fixStore.handleNewPointMessage(protoMessage);
 }
-export function newAircraftMessage(parameters: unknown, message: Buffer): void {
+export function newAircraftMessage(_parameters: unknown, message: Buffer): void {
   const protoMessage = NewAircraftMessage.fromBinary(message);
   aircraftStore.handleNewAircraftMessage(protoMessage);
 }
-export function newAircraftTypeMessage(parameters: unknown, message: Buffer): void {
+export function newAircraftTypeMessage(_parameters: unknown, message: Buffer): void {
   const protoMessage = NewAircraftTypeMessage.fromBinary(message);
   aircraftStore.handleNewAircraftTypeMessage(protoMessage);
 }
-export function currentAirspaceConfiguration(parameters: unknown, message: Buffer): void {
+export function currentAirspaceConfiguration(_parameters: unknown, message: Buffer): void {
   const protoMessage = CurrentAirspaceConfigurationMessage
     .fromBinary(message);
   configurationStore.setCurrentConfiguration(protoMessage);
 }
-export function flightRoutes(parameters: unknown, message: Buffer): void {
+export function flightRoutes(_parameters: unknown, message: Buffer): void {
   const protoMessage = FlightRouteMessage.fromBinary(message);
   aircraftStore.handleNewFlightRoute(protoMessage);
 }
-export function airspaceAvailability(parameters: unknown, message: Buffer): void {
+export function airspaceAvailability(_parameters: unknown, message: Buffer): void {
   const protoMessage = AirspaceAvailabilityMessage.fromBinary(message);
   configurationStore.handleAvailabilityMessage(protoMessage);
 }
 
-export function newSimulatorTime(parameters: unknown, message: Buffer): void {
+export function newSimulatorTime(_parameters: unknown, message: Buffer): void {
   const protoMessage = SimulatorTime.fromBinary(message);
   simulatorStore.handleNewSimulatorTime(protoMessage);
 }
 
-export function newFlightMilestonePositions(parameters: unknown, message: Buffer): void {
+export function newFlightMilestonePositions(_parameters: unknown, message: Buffer): void {
   const protoMessage = FlightMilestonePositionMessage.fromBinary(message);
   aircraftStore.handleFlightNewMilestonePositions(protoMessage);
 }
-export function newAvailabilitySchedule(parameters: unknown, message: Buffer): void {
+export function newAvailabilitySchedule(_parameters: unknown, message: Buffer): void {
   const protoMessage = AvailabilitySchedule.fromBinary(message);
   configurationStore.handleAvailabilityScheduleMessage(protoMessage);
 }
-export function roleConfiguration(parameters: unknown, message: Buffer): void {
+export function roleConfiguration(_parameters: unknown, message: Buffer): void {
   const protoMessage = RoleConfigurationMessage.fromBinary(message);
   roleConfigurationStore.handleNewRoleConfigutationMessage(protoMessage);
 }
-export function airTrafficControllerMessage(parameters: unknown, message: Buffer): void {
+export function airTrafficControllerMessage(_parameters: unknown, message: Buffer): void {
   const protoMessage = AirTrafficControllerAssignmentMessage.fromBinary(message);
   roleConfigurationStore.handleNewAirTrafficControllerMessage(protoMessage);
 }
-export function flightEnteringAirspaceMessage(parameters: unknown, message: Buffer): void {
+export function flightEnteringAirspaceMessage(_parameters: unknown, message: Buffer): void {
   const protoMessage = FlightEnteringAirspaceMessage.fromBinary(message);
   aircraftStore.handleNewSectorInFlightMessage(protoMessage);
 }

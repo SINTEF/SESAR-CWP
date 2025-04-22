@@ -16,7 +16,7 @@ export default observer(function MicrophoneButton() {
     setLoading(true);
     ToggleListening().catch((error): void => {
       setHasErrorState(true);
-      // eslint-disable-next-line no-console
+      // biome-ignore lint/suspicious/noConsole: needed for now
       console.error(error);
     }).finally((): void => {
       setLoading(false);

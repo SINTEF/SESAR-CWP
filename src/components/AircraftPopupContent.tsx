@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 
 import { isDragging } from '../draggableState';
@@ -17,7 +16,7 @@ type SubContentProperties = {
 const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
   const { callSign, arrivalAirport } = aircraft;
   const setController = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     const { aircraftId, controlledBy, assignedFlightId } = aircraft;
 
     const listOfTentativeFlights = roleConfigurationStore
@@ -39,7 +38,7 @@ const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Ele
 
 export const Altitude = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const onClick = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
   };
   return (<td onClick={onClick}>
@@ -49,7 +48,7 @@ export const Altitude = observer(({ aircraft }: SubContentProperties): JSX.Eleme
 
 const SpeedAndWakeTurbulenceLabel = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const onClick = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.toggleSpeedVectorForAircraft(aircraft.aircraftId);
   };
 
@@ -92,7 +91,7 @@ const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
 
 export const NextSectorFL = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const openNSFLPopup = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.showNSFL(true);
     cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
   };
@@ -106,7 +105,7 @@ export const NextSectorFL = observer(({ aircraft }: SubContentProperties): JSX.E
 
 export const NextSectorController = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const onClick = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.openNextSectorPopupForAircraft(aircraft.aircraftId);
   };
   return (<td onClick={onClick}>
@@ -123,7 +122,7 @@ export const LocalAssignedFlightLevel = observer(({ aircraft }: SubContentProper
 
 export const NextACCFlightLevel = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const openNextACCPopup = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.showFlACC(true);
     cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
   };

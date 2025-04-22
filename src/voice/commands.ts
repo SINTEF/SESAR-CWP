@@ -16,7 +16,7 @@ function isToggleMode(commandArguments: string[]): boolean {
 }
 
 export default function HandleCommand(input: string): void {
-  // eslint-disable-next-line no-console
+  // biome-ignore lint/suspicious/noConsole: needed for now
   console.log('Command:', input);
   /** A command is a set of word separated by spaces. */
   const [command, ...commandArguments] = input.split(/\s+/);

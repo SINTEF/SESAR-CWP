@@ -16,7 +16,7 @@ function serializeForSimulator(...parameters: (string | number)[]): string {
 
 export function handlePublishPromise(promise: Promise<void>): void {
   promise.catch((error) => {
-    // eslint-disable-next-line no-console
+    // biome-ignore lint/suspicious/noConsole: needed for now
     console.error('Error while publishing MQTT message', error);
   });
 }

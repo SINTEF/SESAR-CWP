@@ -11,12 +11,11 @@ import { cwpStore } from '../state';
 export default observer(function AltitudeFilterPanel(/* properties */) {
   const { showFILT, altitudeFilter } = cwpStore;
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     lowestBound, highestBound, setLowBound, setHighBound,
   } = altitudeFilter;
 
-  if (!showFILT) return null;
+  if (!showFILT) { return null; }
 
   return (
     <Card className="card altitude-filter-panel">

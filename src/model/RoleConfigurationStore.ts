@@ -164,7 +164,7 @@ export default class RoleConfigurationStore {
 
   get areaOfCurrentControllerSectorAsTurfFeature(): turf.Feature<turf.Polygon> | undefined {
     const area = this.areaOfCurrentControlledSector;
-    if (!area?.length) {
+    if (area?.length === 0) {
       return undefined;
     }
     const edges = area.map((edge) => ([edge.longitude, edge.latitude]));

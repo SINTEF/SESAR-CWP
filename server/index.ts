@@ -85,7 +85,7 @@ server.route({
   method: 'GET',
   url: '/health',
   preHandler: undefined,
-  handler: async (request, reply) => {
+  handler: async (_request, reply) => {
     await reply.send({ status: 'ok' });
   },
 });

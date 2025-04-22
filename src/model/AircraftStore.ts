@@ -173,7 +173,7 @@ export default class AircraftStore {
       }
 
       if (!aircraft) {
-        // eslint-disable-next-line no-console
+        // biome-ignore lint/suspicious/noConsole: needed for now
         console.warn('Received milestone position for unknown aircraft', flightUniqueId);
         return;
       }
@@ -189,7 +189,7 @@ export default class AircraftStore {
     } = flightEnteringAirspaceMessage;
     const aircraft = this.aircrafts.get(flightUniqueId);
     if (!aircraft) {
-      // eslint-disable-next-line no-console
+      // biome-ignore lint/suspicious/noConsole: needed for now
       console.warn('Received sector in flight message for unknown aircraft', flightUniqueId);
       return;
     }

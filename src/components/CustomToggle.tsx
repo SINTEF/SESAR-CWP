@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 

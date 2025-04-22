@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { useMap } from 'react-map-gl';
@@ -25,7 +24,6 @@ export default observer(function AircraftPopup(properties: {
   const { aircraft, pseudo } = properties;
   const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     aircraftId,
     lastKnownLongitude: longitude,
@@ -91,7 +89,6 @@ export default observer(function AircraftPopup(properties: {
     if (isDragging()) {
       return;
     }
-    // eslint-disable-next-line unicorn/consistent-destructuring
     if (aircraft.controlledBy === configurationStore.currentCWP
       || currentCWP === 'All') {
       setCurrentAircraftId(aircraftId);
