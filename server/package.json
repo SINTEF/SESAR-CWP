@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .js --ext .ts",
+    "lint": "npx @biomejs/biome lint",
     "start": "ts-node --esm index.ts",
     "build": "tsc"
   },
@@ -25,14 +25,7 @@
     "pino": "^8.6.0"
   },
   "devDependencies": {
-    "eslint": "^8.23.1",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-simple-import-sort": "^8.0.0",
-    "eslint-plugin-unicorn": "^43.0.2",
+    "@biomejs/biome": "^1.9.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.3"
   }
