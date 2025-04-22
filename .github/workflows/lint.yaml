@@ -10,30 +10,43 @@ on:
 jobs:
   lint-web:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: "npm"
-          cache-dependency-path: "./package-lock.json"
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-lint-web-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-lint-web-
 
       - run: npm ci
       - run: npm run lint
-      # enable if we decide to have tests
-      #- run: npm test
+
   lint-server:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: "npm"
-          cache-dependency-path: "./server/package-lock.json"
+
+      - name: Cache npm (server)
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-lint-server-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-lint-server-
+
       - run: npm ci
         working-directory: server
       - run: npm run lint
