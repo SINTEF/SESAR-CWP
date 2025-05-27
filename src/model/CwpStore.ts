@@ -32,25 +32,27 @@ export default class CWPStore {
 
   showControllerSelection = true;
 
-  aircraftsWithSpeedVectors: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithSpeedVectors: ObservableSet<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithFlightRoutes: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithFlightRoutes: ObservableSet<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithManuallyOpenedPopup: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithManuallyOpenedPopup: ObservableSet<string> = observable
+    .set(undefined, { deep: false });
 
-  aircraftsWithManuallyClosedPopup: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithManuallyClosedPopup: ObservableSet<string> = observable
+    .set(undefined, { deep: false });
 
-  aircraftsWithLevelPopup: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithLevelPopup: ObservableSet<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithSectorPopup: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithSectorPopup: ObservableSet<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithBearingPopup: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithBearingPopup: ObservableSet<string> = observable.set(undefined, { deep: false });
 
-  aircraftsWithNextFixPopup: Set<string> = observable.set(undefined, { deep: false });
+  aircraftsWithNextFixPopup: ObservableSet<string> = observable.set(undefined, { deep: false });
 
-  aircraftWithSpeedChangePopup: Set<string> = observable.set(undefined, { deep: false });
+  aircraftWithSpeedChangePopup: ObservableSet<string> = observable.set(undefined, { deep: false });
 
-  activeMeasurements: Set<string> = observable.set(undefined, { deep: false });
+  activeMeasurements: ObservableSet<string> = observable.set(undefined, { deep: false });
 
   currentDistanceColor = '';
 
@@ -77,6 +79,10 @@ export default class CWPStore {
   highligtedAircraftIdTimeoutId = 0;
 
   disabledCWPIn3DView: ObservableSet<string> = observable.set(undefined, { deep: false });
+
+  // DIALOG
+
+  selectedAircraftIds: ObservableSet<string> = observable.set(undefined, { deep: false });
 
   constructor({
     altitudeFilter,
@@ -390,5 +396,13 @@ export default class CWPStore {
 
   isCWPDisabledIn3DView(airspaceId: string): boolean {
     return this.disabledCWPIn3DView.has(airspaceId);
+  }
+
+  toggleSelectedAircraftId(aircraftId: string): void {
+    if (this.selectedAircraftIds.has(aircraftId)) {
+      this.selectedAircraftIds.delete(aircraftId);
+    } else {
+      this.selectedAircraftIds.add(aircraftId);
+    }
   }
 }
