@@ -49,7 +49,6 @@ function ListOfLevels(
 }
 
 export default observer(function AircraftLevelPopup(properties: { aircraft: AircraftModel }) {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     aircraftId,
     assignedFlightId,

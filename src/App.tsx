@@ -7,7 +7,9 @@ import AircraftListElement from './components/AircraftListElement';
 import AltitudeFilterPanel from './components/AltitudeFilterPanel';
 import BottomNavbar from './components/BottomNavbar';
 import ControllerModal from './components/ControllerModal';
+import HugeNextText from './components/HugeNextText';
 import Draggable2DView from './components/Draggable2DView';
+// biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
 import Map from './components/Map';
 import SectorFlightList from './components/SectorFlightList';
 import Time from './components/Time';

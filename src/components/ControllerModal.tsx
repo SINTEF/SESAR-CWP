@@ -7,7 +7,6 @@ import {
 import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 
 export default observer(function ControllerModal() {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { showControllerSelection, toggleControllerSelection, setPseudoPilot } = cwpStore;
   const [selectedCWP, setSelectedCWP] = React.useState<string>('');
   const listOfControllers = roleConfigurationStore.listOfAllControllers;

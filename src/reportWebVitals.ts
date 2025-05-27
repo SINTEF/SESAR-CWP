@@ -11,7 +11,7 @@ const reportWebVitals = (onPerfEntry?: ReportHandler): void => {
       getLCP(onPerfEntry);
       getTTFB(onPerfEntry);
     }).catch((error) => {
-      // eslint-disable-next-line no-console
+      // biome-ignore lint/suspicious/noConsole: needed for now
       console.error(error);
     });
   }

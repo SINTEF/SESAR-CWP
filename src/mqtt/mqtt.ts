@@ -29,7 +29,7 @@ const client = createClient();
 client.addListener('connect', () => {
   client.subscribe(topics, (error) => {
     if (error) {
-      // eslint-disable-next-line no-console
+      // biome-ignore lint/suspicious/noConsole: needed for now
       console.error('Failed to subscribe to MQTT topics', error);
     }
   });
@@ -76,7 +76,7 @@ function processIncomingMessages(): void {
         try {
           router(topic, message);
         } catch (error) {
-          // eslint-disable-next-line no-console
+        // biome-ignore lint/suspicious/noConsole: needed for now
           console.error('Error while handling MQTT message', error);
         }
       }

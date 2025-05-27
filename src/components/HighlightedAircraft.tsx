@@ -14,7 +14,7 @@ const layerPaint: CirclePaint = {
 export default observer(function HighlightedAircrafts(/* properties */) {
   const selectedAircraft = aircraftStore.aircrafts.get(cwpStore.highlightedAircraftId);
 
-  if (!selectedAircraft) return null;
+  if (!selectedAircraft) { return null; }
   const geoJson: GeoJSON.FeatureCollection = {
     type: 'FeatureCollection',
     features:

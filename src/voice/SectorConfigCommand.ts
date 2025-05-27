@@ -38,7 +38,6 @@ function findSectorWithLargestIntersection(
   }
 
   // Find the sector with the largest area
-  // eslint-disable-next-line unicorn/no-array-reduce
   const largestSector = areas.reduce(
     (previous, current) => (previous.area > current.area ? previous : current));
   if (largestSector.area === 0) {
@@ -96,7 +95,6 @@ function findCloseSectorWithVerticalOverlap(
   }
 
   // Find the best by the distance and then largest overlap first, then lower bottomFlightLevel.
-  // eslint-disable-next-line unicorn/no-array-reduce
   const bestSector = otherSectorsWithHeight.reduce((previous, current) => {
     if (previous.distance < current.distance) {
       return previous;

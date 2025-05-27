@@ -36,7 +36,7 @@ export default class FixStore {
     const selectedFix = this.fixes.get(fixName);
     const aircraftId = message.flightUniqueId;
     const selectedAircraft = selectedFix?.sectorFlightList.get(aircraftId);
-    // eslint-disable-next-line no-console
+    // biome-ignore lint/suspicious/noConsole: needed for now
     console.log(selectedAircraft);
   }
 }

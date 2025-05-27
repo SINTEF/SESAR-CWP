@@ -30,7 +30,7 @@ export default observer(function FixesPoint(/* properties */) {
   const fixData = fixStore.fixes;
   const bounds = configurationStore.extendedEdgesBounds;
 
-  if (!cwpStore.showFixes) return null;
+  if (!cwpStore.showFixes) { return null; }
 
   // Get all points
   const points = [...fixData.values()].filter((fix) => bounds !== undefined

@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import { Form } from 'react-bootstrap';
 
@@ -20,7 +19,7 @@ type SubContentProperties = {
 const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
   const { callSign } = aircraft;
   const setController = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     const { aircraftId, controlledBy, assignedFlightId } = aircraft;
     aircraftStore.aircrafts.get(aircraftId)?.setController(configurationStore.currentCWP);
     handlePublishPromise(
@@ -32,7 +31,7 @@ const CallSign = observer(({ aircraft, colSpan }: SubContentProperties): JSX.Ele
 
 const Bearing = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const onClick = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.openChangeBearingForAircraft(aircraft.aircraftId);
   };
 
@@ -53,7 +52,7 @@ const SpeedAndWakeTurbulenceLabel = observer(({ aircraft }: SubContentProperties
     }
   };
   const onClick = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.toggleSpeedVectorForAircraft(aircraft.aircraftId);
   };
 
@@ -72,7 +71,7 @@ const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   };
 
   const onClick = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.openChangeNextFixForAircraft(aircraft.aircraftId);
   };
   const { nextFix, assignedBearing } = aircraft;
@@ -93,7 +92,7 @@ const AssignedBearing = observer(({ aircraft }: SubContentProperties): JSX.Eleme
 
 const AssignedFlightLevel = observer(({ aircraft }: SubContentProperties): JSX.Element => {
   const onClick = (): void => {
-    if (isDragging()) return;
+    if (isDragging()) { return; }
     cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
   };
 

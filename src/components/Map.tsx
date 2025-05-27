@@ -1,6 +1,5 @@
 import * as maplibregl from 'maplibre-gl';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-import React from 'react';
+import type React from 'react';
 import ReactMapGL, {
   FullscreenControl, NavigationControl,
 } from 'react-map-gl';
@@ -22,8 +21,7 @@ import SpeedVectors from './SpeedVectors';
 // Do not load the RTL plugin because it is unecessary
 try {
   // @ts-expect-error invalid type
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  maplibregl.setRTLTextPlugin('', () => { }, true);
+  maplibregl.setRTLTextPlugin('', () => {}, true);
 } catch { /* ignore error */ }
 
 const mapStyle: Style = {
@@ -47,11 +45,9 @@ const style: React.CSSProperties = {
 };
 
 const handleMapClick = (event: MapLayerMouseEvent): void => {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { currentDistanceColor, setCurrentDistanceColor } = cwpStore;
   if (currentDistanceColor !== '') {
     const coordinates = event.lngLat;
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     const { newMarker, getNumberOfMarkersForColour } = distanceLineStore;
     newMarker({
       lat: coordinates.lat,
@@ -72,10 +68,11 @@ const initialViewState: Partial<ViewState> = {
 };
 
 // Rough bounds of the area
-const maxBounds: mapboxgl.LngLatBoundsLike = [
-  4, 11, 15, 70,
-];
+// const maxBounds: mapboxgl.LngLatBoundsLike = [
+//   4, 11, 15, 70,
+// ];
 
+// biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
 export default function Map(): JSX.Element {
   return (
     <ReactMapGL

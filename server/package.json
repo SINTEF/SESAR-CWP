@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .js --ext .ts",
+    "lint": "npx @biomejs/biome lint",
     "start": "ts-node --esm index.ts",
     "build": "tsc"
   },
@@ -16,24 +16,17 @@
   "dependencies": {
     "@fastify/bearer-auth": "^8.0.1",
     "@fastify/cors": "^8.1.0",
-    "dotenv": "^16.0.2",
+    "dotenv": "^16.5.0",
     "expiry-map": "^2.0.0",
     "fastify": "^4.6.0",
     "got": "^12.5.0",
     "openai": "^3.0.0",
-    "p-memoize": "^7.1.0",
+    "p-memoize": "^7.1.1",
     "pino": "^8.6.0"
   },
   "devDependencies": {
-    "eslint": "^8.23.1",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-simple-import-sort": "^8.0.0",
-    "eslint-plugin-unicorn": "^43.0.2",
-    "ts-node": "^10.9.1",
+    "@biomejs/biome": "^1.9.4",
+    "ts-node": "^10.9.2",
     "typescript": "^4.8.3"
   }
 }

@@ -2,7 +2,6 @@ import './BottomNavbar.css';
 
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react';
 import { Navbar } from 'react-bootstrap';
 
@@ -14,7 +13,6 @@ import SpeedVectorNavbarControl from './SpeedVectorNavbarControl';
 
 const ControllerButton = observer(function ControllerButton() {
   const { currentCWP } = configurationStore;
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { toggleControllerSelection } = cwpStore;
   return (
     <button type="button" onClick={(): void => toggleControllerSelection()}>

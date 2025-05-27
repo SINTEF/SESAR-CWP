@@ -16,7 +16,6 @@ const colorNext = 'rgba(135,206,235)';
 export default observer(function SectorSideView() {
   const simulatorTime = simulatorStore.timestamp;
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     areaOfIncludedAirspaces,
     areaOfIncludedAirspacesForNextConfiguration,
@@ -24,7 +23,6 @@ export default observer(function SectorSideView() {
     airspaceStore,
   } = configurationStore;
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     // currentControlledSector,
     nextControlledSectorByCWP,

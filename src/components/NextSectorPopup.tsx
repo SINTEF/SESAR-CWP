@@ -9,7 +9,6 @@ import type AircraftModel from '../model/AircraftModel';
 export default observer(function NextSectorPopup(properties: {
   aircraft: AircraftModel,
 }) {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     aircraftId,
     assignedFlightId,

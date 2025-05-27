@@ -41,7 +41,7 @@ export default observer(function SectorFlightList(/* properties */) {
   const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>([]);
   const fixSelect = React.createRef<HTMLSelectElement>();
 
-  if (!cwpStore.showSFL) return null;
+  if (!cwpStore.showSFL) { return null; }
 
   const setFix = (value: string): void => {
     setSelectedValue(value);

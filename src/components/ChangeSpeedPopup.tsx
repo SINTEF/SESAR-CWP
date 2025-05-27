@@ -7,7 +7,6 @@ import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 
 export default observer(function ChangeNextFixPopup(properties: { aircraft: AircraftModel }) {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     aircraftId,
     assignedFlightId,
