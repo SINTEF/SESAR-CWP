@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import {
   Area, AreaChart, ReferenceArea, ReferenceLine,
-  ResponsiveContainer,
+  // ResponsiveContainer,
   XAxis, YAxis,
 } from 'recharts';
 
@@ -101,7 +101,7 @@ export default observer(function SectorSideView() {
     };
     flightData.push(d);
   }
-  let x1 : number | undefined = 0;
+  let x1: number | undefined = 0;
   let x2 = timeDifferanse > 900 ? undefined : Math.ceil(timeToChange);
   if (!sectorInCurrentConfig && !airspaceNext) {
     x1 = 0;
@@ -112,7 +112,8 @@ export default observer(function SectorSideView() {
   }
 
   return (
-    <ResponsiveContainer width="100%" height="80%">
+    // <ResponsiveContainer width="100%" height="80%">
+    <div>
       <AreaChart
         data={flightData}
         width={600}
@@ -135,10 +136,11 @@ export default observer(function SectorSideView() {
         <XAxis fontSize={'14px'} dataKey="time" />
         <YAxis fontSize={'14px'} domain={[200, 500]} tickCount={13} />
         <ReferenceArea
-        x1={x1}
-        x2={x2} y2={500} fill="#fff" fillOpacity={0.13} ifOverflow="extendDomain" />
+          x1={x1}
+          x2={x2} y2={500} fill="#fff" fillOpacity={0.13} ifOverflow="extendDomain" />
         <ReferenceLine x={timeDifferanse > 900 ? undefined : Math.ceil(timeToChange)} stroke="rgba(168,101,201)" />
       </AreaChart>
-    </ResponsiveContainer>
+    </div>
+    // </ResponsiveContainer>
   );
 });

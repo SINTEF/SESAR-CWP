@@ -7,9 +7,10 @@ import topics from './topics';
 
 function createClient(): mqtt.Client {
   const MQTT_BROKER_URL = import.meta.env.VITE_MQTT_BROKER_URL;
+  // const MQTT_BROKER_URL = 'wss://sesar.sintef.cloud';
 
   let brokerUrl: string;
-  if (MQTT_BROKER_URL && MQTT_BROKER_URL !== 'default') {
+  if (MQTT_BROKER_URL) {
     brokerUrl = MQTT_BROKER_URL;
   } else if (/^(localhost|127(?:\.\d{1,3}){2}.\d{1,3}|\[:{2}1])(:\d+)?$/.test(window.location.host)) {
     brokerUrl = 'ws://localhost:9001/mqtt';
@@ -96,7 +97,7 @@ export function publish(
   topic: string,
   message: string | { [key: string]: unknown },
   settings?: IClientPublishOptions,
-) : Promise<void> {
+): Promise<void> {
   const messageData = typeof message === 'string' ? message : JSON.stringify(message);
 
   return new Promise((resolve, reject) => {

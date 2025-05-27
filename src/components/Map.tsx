@@ -41,7 +41,7 @@ const mapStyle: Style = {
 const style: React.CSSProperties = {
   width: '100%',
   height: 'calc(100vh - 1.9rem)',
-  background: 'black',
+  background: 'grey',
 };
 
 const handleMapClick = (event: MapLayerMouseEvent): void => {
@@ -79,17 +79,19 @@ export default function Map(): JSX.Element {
       id='radar-map'
       style={style}
       initialViewState={initialViewState}
-      maxBounds={maxBounds}
+      // maxBounds={maxBounds}
       mapStyle={mapStyle}
+      // mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+      // mapStyle="https://maps.geoapify.com/v1/styles/dark-matter/style.json?apiKey=YOUR_API_KEY"
       attributionControl={false}
       mapLib={maplibregl}
       antialias
       onClick={handleMapClick}
       renderWorldCopies={false}
-      // If rotation and pitch should be disabled:
-      // maxPitch={0}
-      // pitchWithRotate={false}
-      // dragRotate={false}
+    // If rotation and pitch should be disabled:
+    // maxPitch={0}
+    // pitchWithRotate={false}
+    // dragRotate={false}
     >
       <DistanceMarkers />
       <DistanceMeasurements />
@@ -100,7 +102,7 @@ export default function Map(): JSX.Element {
       <ControllerLabel />
       <Aircrafts />
       <HighlightedAircraft />
-      <LimboAircrafts/>
+      <LimboAircrafts />
       <NavigationControl position="bottom-left" visualizePitch={true} />
       <FullscreenControl position="bottom-left" containerId="root" />
     </ReactMapGL>
