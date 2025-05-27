@@ -68,9 +68,9 @@ const initialViewState: Partial<ViewState> = {
 };
 
 // Rough bounds of the area
-const maxBounds: mapboxgl.LngLatBoundsLike = [
-  4, 11, 15, 70,
-];
+// const maxBounds: mapboxgl.LngLatBoundsLike = [
+//   4, 11, 15, 70,
+// ];
 
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
 export default function Map(): JSX.Element {

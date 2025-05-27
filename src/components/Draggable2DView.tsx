@@ -3,9 +3,6 @@ import React from 'react';
 import Draggable from 'react-draggable';
 
 import { isDragging, startDragging, stopDragging } from '../draggableState';
-import {
-  cwpStore,
-} from '../state';
 import SectorSideView from './SectorSideView';
 
 // function ChangeToLocaleTime(time: number): string {
@@ -20,11 +17,6 @@ import SectorSideView from './SectorSideView';
 // }
 
 export default observer(function Draggable2DView() {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const { selectedAircraftIds } = cwpStore;
-  // eslint-disable-next-line no-console
-  console.log(selectedAircraftIds);
-
   return (<Draggable
     bounds="parent" cancel="input"
     onStart={startDragging}
