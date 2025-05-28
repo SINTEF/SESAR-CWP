@@ -3,8 +3,8 @@ import React from "react";
 import Draggable from "react-draggable";
 
 import { isDragging, startDragging, stopDragging } from "../draggableState";
-import SectorSideView from "./SectorSideView";
 import { cwpStore } from "../state";
+import SectorSideView from "./SectorSideView/SectorSideView";
 
 // function ChangeToLocaleTime(time: number): string {
 //   const date = new Date(time * 1000);
