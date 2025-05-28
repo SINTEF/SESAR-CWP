@@ -1,19 +1,20 @@
-import './App.css';
+import "./App.css";
 
-import * as React from 'react';
+import * as React from "react";
 
 // import { throttle } from 'throttle-debounce';
-import AircraftListElement from './components/AircraftListElement';
-import AltitudeFilterPanel from './components/AltitudeFilterPanel';
-import BottomNavbar from './components/BottomNavbar';
-import ControllerModal from './components/ControllerModal';
-import HugeNextText from './components/HugeNextText';
-import Draggable2DView from './components/Draggable2DView';
+import AircraftListElement from "./components/AircraftListElement";
+import AltitudeFilterPanel from "./components/AltitudeFilterPanel";
+// import BottomNavbar from "./components/BottomNavbar";
+import ControllerModal from "./components/ControllerModal";
+// import HugeNextText from "./components/HugeNextText";
+import Draggable2DView from "./components/Draggable2DView";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
-import Map from './components/Map';
-import SectorFlightList from './components/SectorFlightList';
-import Time from './components/Time';
-import VoiceCommandFeedback from './components/VoiceCommandFeedback';
+import Map from "./components/Map";
+import SectorFlightList from "./components/SectorFlightList";
+// import Time from "./components/Time";
+import VoiceCommandFeedback from "./components/VoiceCommandFeedback";
+import ImageConfiguration from "./components/ImageConfiguration";
 
 // Might be reused for DIALOG
 // const onLayoutChange = throttle(166, (): void => {
@@ -23,19 +24,19 @@ import VoiceCommandFeedback from './components/VoiceCommandFeedback';
 // });
 
 export default function App(/* properties */): JSX.Element {
-  return (
-    <>
-      <main>
-        <Map />
-        <Draggable2DView />
-        <Time />
-        <SectorFlightList />
-        <AircraftListElement />
-        <ControllerModal />
-        <AltitudeFilterPanel />
-      </main>
-      <BottomNavbar />
-      <VoiceCommandFeedback />
-    </>
-  );
+	return (
+		<>
+			<main>
+				<Map />
+				<Draggable2DView />
+				<SectorFlightList />
+				<AircraftListElement />
+				<ControllerModal />
+				<AltitudeFilterPanel />
+				<ImageConfiguration />
+			</main>
+			{/* <BottomNavbar /> */}
+			<VoiceCommandFeedback />
+		</>
+	);
 }

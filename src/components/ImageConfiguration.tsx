@@ -1,15 +1,13 @@
-import "./BottomNavbar.css";
+import "./css-files/ImageConfiguration.css";
 
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Navbar } from "react-bootstrap";
 
 import { configurationStore, cwpStore } from "../state";
 import DistanceMeasurementDropdown from "./DistanceMeasurementDropdown";
-import MicrophoneButton from "./MicrophoneButton";
-import MqttIndicators from "./MqttIndicators";
 import SpeedVectorNavbarControl from "./SpeedVectorNavbarControl";
+import Time from "./Time";
 
 const ControllerButton = observer(function ControllerButton() {
 	const { currentCWP } = configurationStore;
@@ -87,7 +85,7 @@ const FixesButton = observer(function FixesButton() {
 			onClick={(): void => cwpStore.toggleFixes()}
 			active={cwpStore.showFixes}
 		>
-			Fixes
+			&#x25B2;
 		</GenericButton>
 	);
 });
@@ -148,23 +146,43 @@ const OtherSectorsFlightLabelsButton = observer(
 	},
 );
 
-export default function BottomNavBar(): JSX.Element {
+const OpenVerticalWindowButton = observer(function OpenVerticalWindowButton() {
 	return (
-		<Navbar className="navbar button-navbar">
-			<MicrophoneButton />
-			<FLButton />
-			<SFLButton />
-			<SectorLabelsButton />
-			<FlightLabelsButton />
-			<CurrentSectorFlightLabelsButton />
-			<OtherSectorsFlightLabelsButton />
-			<FixesButton />
-			<LimboFlightsButton />
-			<FilterButton />
-			<SpeedVectorNavbarControl />
-			<DistanceMeasurementDropdown />
-			<ControllerButton />
-			<MqttIndicators />
-		</Navbar>
+		<GenericButton
+			onClick={(): void => cwpStore.toggleVerticalWindow()}
+			active={cwpStore.showVerticalWindow}
+		>
+			VAW
+		</GenericButton>
+	);
+});
+
+export default function ImageConfiguration(): JSX.Element {
+	return (
+		<div className="navbar button-navbar">
+			<div className="image-configuration-section">
+				<Time />
+				<FLButton />
+				<SFLButton />
+				<FixesButton />
+				<SectorLabelsButton />
+				<OpenVerticalWindowButton />
+			</div>
+			<div className="image-configuration-section">
+				<SpeedVectorNavbarControl />
+			</div>
+			<div className="image-configuration-section">
+				<FlightLabelsButton />
+			</div>
+			<div className="image-configuration-section">
+				<CurrentSectorFlightLabelsButton />
+				<OtherSectorsFlightLabelsButton />
+				<LimboFlightsButton />
+				<FilterButton />
+				<DistanceMeasurementDropdown />
+				<ControllerButton />
+			</div>
+			{/* <MqttIndicators /> */}
+		</div>
 	);
 }

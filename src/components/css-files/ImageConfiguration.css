@@ -2,12 +2,12 @@
   position: absolute;
   top: 0;
   left: 0;
-  height: 1.9em;
+  height: auto;
   padding: 0;
-  background-color: #1a1a1a;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: flex-start;
+  align-items: start;
   z-index: 1;
 }
 
@@ -24,6 +24,14 @@
   text-overflow: clip;
   white-space: nowrap;
   flex-shrink: 1;
+}
+.image-configuration-section {
+  display: flex;
+  gap: 0.5rem;
+  background-color: #232323;
+  padding: 1rem;
+  margin-left: 0.3rem;
+  margin-top: 0.3rem;
 }
 
 .navbar.button-navbar button:focus {
