@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import {
 	CartesianGrid,
-	LabelList,
 	Line,
 	LineChart,
 	ResponsiveContainer,
@@ -15,8 +14,10 @@ import { aircraftStore, cwpStore, simulatorStore } from "../../state";
 import BottomLeftLabel from "./BottomLeftLabel";
 import { getAircraftsWithFlightRoutes } from "../../selectors/flightRouteSelectors";
 import { formatSimulatorTimeHM } from "../../utils";
+import CustomDotWithLabel from "./CustomDotWithLabel";
 
 export default observer(function SectorSideView() {
+	//const { selectedAircraftIds } = cwpStore;
 	const simulatorTime = simulatorStore.timestamp;
 
 	// Generate X ticks every 10 min
@@ -65,14 +66,25 @@ export default observer(function SectorSideView() {
 			})),
 	}));
 
+	// TODO: use selectedAircraftIds instead
 	const selectedAircraft =
-		flightRoutesData.length === 0 ? undefined : flightRoutesData[0]; // or however you select it
+		flightRoutesData.length === 0 ? undefined : flightRoutesData[0];
 
-	const data = selectedAircraft?.trajectories.map((t) => ({
-		timestamp: t.timestamp,
-		fl: t.flightLevel,
-		label: t.wayPoint ?? "",
-	}));
+	let labelIndex = 0;
+
+	const data = selectedAircraft?.trajectories
+		.slice() // copy to avoid mutating original
+		.sort((a, b) => a.timestamp - b.timestamp) // sort for alternating label to be correct
+		.map((t) => {
+			const label = t.wayPoint ?? "";
+			const item = {
+				timestamp: t.timestamp,
+				fl: t.flightLevel,
+				label,
+				labelIndex: label ? labelIndex++ : null, // add index
+			};
+			return item;
+		});
 
 	return (
 		<div>
@@ -143,11 +155,9 @@ export default observer(function SectorSideView() {
 						type="monotone"
 						dataKey="fl"
 						stroke="#ff6b6b"
-						dot={{ r: 3, fill: "#ff6b6b", stroke: "#cccccc", strokeWidth: 1 }}
+						dot={<CustomDotWithLabel />}
 						isAnimationActive={false}
-					>
-						<LabelList dataKey="label" position="top" />
-					</Line>
+					></Line>
 				</LineChart>
 			</ResponsiveContainer>
 			<BottomLeftLabel scale={0.7} />
