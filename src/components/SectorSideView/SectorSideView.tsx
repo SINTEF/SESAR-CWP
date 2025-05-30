@@ -17,6 +17,24 @@ import { getAircraftsWithFlightRoutes } from "../../selectors/flightRouteSelecto
 import { formatSimulatorTimeHM } from "../../utils";
 
 export default observer(function SectorSideView() {
+	const simulatorTime = simulatorStore.timestamp;
+
+	// Generate X ticks every 10 min
+	const xDomain = [simulatorTime, simulatorTime + 3600]; // 1 hour later
+	const xTicks = Array.from({ length: 7 }, (_, i) => xDomain[0] + i * 600);
+
+	// Generate Y ticks every 10
+	const yDomain = [250, 420];
+	const yTicks = Array.from(
+		{ length: Math.round((yDomain[1] - yDomain[0]) / 10) },
+		(_, i) => yDomain[0] + i * 10,
+	);
+	// Show Y tick labels every 50 (but not the first one)
+	const shouldShowLabel = (value: number) =>
+		value !== yDomain[0] && value % 50 === 0;
+	const yTickFormatter = (value: number) =>
+		shouldShowLabel(value) ? `F${value}` : "";
+
 	interface FlightData {
 		aircraftId: string;
 		callSign: string;
@@ -34,7 +52,12 @@ export default observer(function SectorSideView() {
 		aircraftId: aircraft.aircraftId,
 		callSign: aircraft.callSign,
 		trajectories: route.trajectory
-			.filter((trajectory) => trajectory.timestamp >= simulatorStore.timestamp)
+			// Get the trajectories only within the xDomain period (1h)
+			.filter(
+				(trajectory) =>
+					trajectory.timestamp >= xDomain[0] &&
+					trajectory.timestamp <= xDomain[1],
+			)
 			.map((t) => ({
 				wayPoint: t.objectId,
 				timestamp: t.timestamp,
@@ -50,20 +73,6 @@ export default observer(function SectorSideView() {
 		fl: t.flightLevel,
 		label: t.wayPoint ?? "",
 	}));
-
-	// Generate X ticks every 10 min
-	const xDomain = [simulatorStore.timestamp, simulatorStore.timestamp + 3600]; // 1 hour later
-	const xTicks = Array.from({ length: 7 }, (_, i) => xDomain[0] + i * 600);
-
-	// Generate Y ticks every 10
-	const yDomain = [250, 420];
-	const yTicks = Array.from(
-		{ length: Math.round((yDomain[1] - yDomain[0]) / 10) },
-		(_, i) => yDomain[0] + i * 10,
-	);
-	// Show Y tick labels every 50 (but not the first one)
-	const yTickFormatter = (value: number) =>
-		value !== yDomain[0] && value % 50 === 0 ? `F${value}` : "";
 
 	return (
 		<div>
@@ -89,11 +98,46 @@ export default observer(function SectorSideView() {
 						type="number"
 						ticks={xTicks}
 						tickFormatter={formatSimulatorTimeHM}
+						// Draw custom ticks to get lighter line colours
+						tick={({ x, y, payload }) => (
+							<g transform={`translate(${x},${y})`}>
+								<line y1={0} y2={-400} stroke="#cccccc" strokeWidth={1} />
+								<text y={15} textAnchor="middle" fill="#ccc" fontSize={12}>
+									{formatSimulatorTimeHM(payload.value)}
+								</text>
+							</g>
+						)}
 					/>
 					<YAxis
 						domain={yDomain}
 						ticks={yTicks}
 						tickFormatter={yTickFormatter}
+						// Draw custom ticks to get lighter line colours
+						tick={({ x, y, payload }) => {
+							return (
+								<g transform={`translate(${x},${y})`}>
+									{shouldShowLabel(payload.value) && (
+										<line
+											x1={0}
+											x2={450} // Adjust based on your chart width
+											stroke="#cccccc"
+											strokeWidth={1}
+										/>
+									)}
+									{shouldShowLabel(payload.value) && (
+										<text
+											x={-5}
+											textAnchor="end"
+											fill="#ccc"
+											fontSize={12}
+											dy={5}
+										>
+											{`F${payload.value}`}
+										</text>
+									)}
+								</g>
+							);
+						}}
 					/>
 					<Line
 						type="monotone"
