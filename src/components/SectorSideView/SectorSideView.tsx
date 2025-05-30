@@ -68,7 +68,9 @@ export default observer(function SectorSideView() {
 
 	// TODO: use selectedAircraftIds instead
 	const selectedAircraft =
-		flightRoutesData.length === 0 ? undefined : flightRoutesData[0];
+		flightRoutesData.length === 0
+			? undefined
+			: flightRoutesData[flightRoutesData.length - 1]; // For now just get the last one clicked
 
 	let labelIndex = 0;
 
