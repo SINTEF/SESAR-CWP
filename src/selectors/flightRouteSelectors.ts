@@ -18,9 +18,13 @@ export function getAircraftsWithFlightRoutes({
 	aircraftStore: AircraftStore;
 	cwpStore: CwpStore;
 }): FlightRouteWithAircraft[] {
-	const aircrafts = [...cwpStore.aircraftsWithFlightRoutes]
+	const { aircraftsWithFlightRoutes } = cwpStore;
+
+	// Load list of aircrafts that must have flightroutes
+	const aircrafts = [...aircraftsWithFlightRoutes]
 		.map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
-		.filter((a): a is AircraftModel => a !== undefined);
+		// Remove unfound aircrafts and aircrafts thare are not in the altitude range
+		.filter((aircraft): aircraft is AircraftModel => aircraft !== undefined);
 
 	return aircrafts
 		.map((aircraft) => ({
@@ -28,6 +32,9 @@ export function getAircraftsWithFlightRoutes({
 			route: aircraftStore.flightRoutes.get(aircraft.assignedFlightId),
 		}))
 		.filter(
-			(entry): entry is FlightRouteWithAircraft => entry.route !== undefined,
+			(
+				flightRoute,
+			): flightRoute is { aircraft: AircraftModel; route: FlightRoute } =>
+				flightRoute.route !== undefined,
 		);
 }

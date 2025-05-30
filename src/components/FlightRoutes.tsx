@@ -10,20 +10,9 @@ import type {
 
 import { aircraftStore, cwpStore, simulatorStore } from "../state";
 import type AircraftModel from "../model/AircraftModel";
-import type FlightRoute from "../model/FlightRoute";
 import type Trajectory from "../model/Trajectory";
 import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
-
-function timestampToTime(timestamp: number): string {
-	const date = new Date(timestamp * 1000);
-	return date.toLocaleTimeString("en-GB", {
-		timeZone: "UTC",
-		hour12: false,
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-	});
-}
+import { formatSimulatorTimeHMS } from "../utils";
 
 function buildGeoJsonFlightRoute(
 	aircraft: AircraftModel,
@@ -50,7 +39,7 @@ function buildGeoJsonFlightRoute(
 		},
 		properties: {
 			title: trajectory.objectId
-				? `${trajectory.objectId}\n${timestampToTime(trajectory.timestamp)}`
+				? `${trajectory.objectId}\n${formatSimulatorTimeHMS(trajectory.timestamp)}`
 				: undefined,
 		},
 	}));
