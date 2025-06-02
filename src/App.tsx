@@ -15,6 +15,7 @@ import SectorFlightList from "./components/SectorFlightList";
 // import Time from "./components/Time";
 import VoiceCommandFeedback from "./components/VoiceCommandFeedback";
 import ImageConfiguration from "./components/ImageConfiguration";
+import DypTable from "./components/DypTable";
 
 // Might be reused for DIALOG
 // const onLayoutChange = throttle(166, (): void => {
@@ -28,9 +29,10 @@ export default function App(/* properties */): JSX.Element {
 		<>
 			<main>
 				<Map />
+				<DypTable />
 				<Draggable2DView />
-				<SectorFlightList />
-				<AircraftListElement />
+				{/* <SectorFlightList /> */}
+				{/* <AircraftListElement /> */}
 				<ControllerModal />
 				<AltitudeFilterPanel />
 				<ImageConfiguration />

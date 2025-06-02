@@ -1,0 +1,58 @@
+.sector-flight-list-table {
+  background-color: #1c2b36;
+  width: 100%;
+  border-collapse: collapse;
+  color: #e0e0e0;
+  font-family: monospace;
+  font-size: 11px;
+  text-align: center;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sector-flight-list-table td {
+  border: 1px solid #3a4b5c;
+  padding: 6px;
+}
+
+.dyp-info-cell {
+  background-color: #3b5167;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.level-cell {
+  background-color: #2a3f55;
+  color: #90ee90;
+}
+
+.adep-ades-cell {
+  background-color: #2a3f55;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.time-cell {
+  background-color: #142433;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.waypoint-cell {
+  background-color: #223a5f;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.sector-cell {
+  background-color: #2b4b66;
+  font-size: 11px;
+}
+
+.footer-row td {
+  background-color: #112233;
+  font-weight: bold;
+  padding-top: 8px;
+}
