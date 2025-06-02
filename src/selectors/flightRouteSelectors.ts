@@ -1,6 +1,6 @@
+import { ObservableSet } from "mobx";
 import AircraftModel from "../model/AircraftModel";
 import AircraftStore from "../model/AircraftStore";
-import CwpStore from "../model/CwpStore";
 import FlightRoute from "../model/FlightRoute";
 
 interface FlightRouteWithAircraft {
@@ -13,15 +13,13 @@ interface FlightRouteWithAircraft {
  */
 export function getAircraftsWithFlightRoutes({
 	aircraftStore,
-	cwpStore,
+	selectedAircraftIds,
 }: {
 	aircraftStore: AircraftStore;
-	cwpStore: CwpStore;
+	selectedAircraftIds: ObservableSet<string>;
 }): FlightRouteWithAircraft[] {
-	const { aircraftsWithFlightRoutes } = cwpStore;
-
 	// Load list of aircrafts that must have flightroutes
-	const aircrafts = [...aircraftsWithFlightRoutes]
+	const aircrafts = [...selectedAircraftIds]
 		.map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
 		// Remove unfound aircrafts and aircrafts thare are not in the altitude range
 		.filter((aircraft): aircraft is AircraftModel => aircraft !== undefined);

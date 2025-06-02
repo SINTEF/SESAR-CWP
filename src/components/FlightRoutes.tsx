@@ -84,9 +84,10 @@ const layoutSymbol: SymbolLayout = {
 
 export default observer(function FlightRoutes() {
 	// Load data from states
+	const { aircraftsWithFlightRoutes } = cwpStore;
 	const flightRoutes = getAircraftsWithFlightRoutes({
 		aircraftStore,
-		cwpStore,
+		selectedAircraftIds: aircraftsWithFlightRoutes,
 	});
 
 	const features = flightRoutes.flatMap(({ aircraft, route }) =>

@@ -17,7 +17,7 @@ import { formatSimulatorTimeHM } from "../../utils";
 import CustomDotWithLabel from "./CustomDotWithLabel";
 
 export default observer(function SectorSideView() {
-	//const { selectedAircraftIds } = cwpStore;
+	const { selectedAircraftIds } = cwpStore;
 	const simulatorTime = simulatorStore.timestamp;
 
 	// Generate X ticks every 10 min
@@ -48,7 +48,7 @@ export default observer(function SectorSideView() {
 
 	const flightRoutesData: FlightData[] = getAircraftsWithFlightRoutes({
 		aircraftStore,
-		cwpStore,
+		selectedAircraftIds,
 	}).map(({ aircraft, route }) => ({
 		aircraftId: aircraft.aircraftId,
 		callSign: aircraft.callSign,
@@ -66,11 +66,10 @@ export default observer(function SectorSideView() {
 			})),
 	}));
 
-	// TODO: use selectedAircraftIds instead
 	const selectedAircraft =
 		flightRoutesData.length === 0
 			? undefined
-			: flightRoutesData[flightRoutesData.length - 1]; // For now just get the last one clicked
+			: flightRoutesData[flightRoutesData.length - 1]; // For now just get the last one clicked, but in the future show several
 
 	let labelIndex = 0;
 
