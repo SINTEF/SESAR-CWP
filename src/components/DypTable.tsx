@@ -11,23 +11,12 @@ import {
 	cwpStore,
 	fixStore,
 	roleConfigurationStore,
+	simulatorStore,
 } from "../state";
 import type AircraftModel from "../model/AircraftModel";
-
-function ChangeToLocaleTime(time: number): string {
-	const date = new Date(time * 1000);
-	const localeTime = date.toLocaleTimeString("en-GB", {
-		timeZone: "UTC",
-		hour12: false,
-		hour: "2-digit",
-		minute: "2-digit",
-	});
-	return localeTime;
-}
-function convertMetersToFlightLevel(altitude: number): number {
-	const feet = altitude * 3.280_84;
-	return Math.round(feet / 100);
-}
+import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
+import { ObservableSet } from "mobx";
+import { formatSimulatorTimeHM } from "../utils";
 
 const handleFlightClicked = (event: string): void => {
 	cwpStore.setHighlightedAircraftId(event);
@@ -42,7 +31,9 @@ export default observer(function DypTable(/* properties */) {
 	const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>(
 		[],
 	);
+	const simulatorTime = simulatorStore.timestamp;
 	const fixSelect = React.createRef<HTMLSelectElement>();
+	const xDomain = [simulatorTime, simulatorTime + 1800]; // 1 hour later
 
 	// if (!cwpStore.showSFL || selectedAircraftIds.size === 0) {
 	// 	return null;
@@ -52,9 +43,49 @@ export default observer(function DypTable(/* properties */) {
 	const latestSelectedAircraftData = aircraftStore.aircraftsWithPosition.find(
 		(aircraft) => aircraft.assignedFlightId === latestSelectedAircraft,
 	);
+	const lastestSelectedAircraftType =
+		latestSelectedAircraftData?.aircraftInfo.get(
+			latestSelectedAircraftData.aircraftId,
+		)?.aircraftType;
+	const latestSelectedAircraftClass =
+		latestSelectedAircraftData?.aircraftTypes.get(
+			lastestSelectedAircraftType || "",
+		)?.vehicleTypeId;
 	// if (!latestSelectedAircraftData || !latestSelectedAircraft) {
 	// 	return null;
 	// }
+	if (!latestSelectedAircraftData) {
+		return null;
+	}
+
+	const latestSelectedTrajectory = getAircraftsWithFlightRoutes({
+		aircraftStore,
+		selectedAircraftIds: [
+			latestSelectedAircraftData?.aircraftId,
+		] as unknown as ObservableSet<string>,
+	}).map(({ aircraft, route }) => ({
+		aircraftId: aircraft.aircraftId,
+		callSign: aircraft.callSign,
+		trajectories: route.trajectory
+			// Get the trajectories only within the xDomain period (1h)
+			.filter(
+				(trajectory) =>
+					trajectory.timestamp >= xDomain[0] &&
+					trajectory.timestamp <= xDomain[1],
+			)
+			.filter(
+				(trajectory) =>
+					trajectory.objectId !== undefined &&
+					trajectory.objectId !== null &&
+					trajectory.objectId !== "undefined" &&
+					trajectory.objectId !== "null",
+			)
+			.map((t) => ({
+				wayPoint: t.objectId,
+				timestamp: formatSimulatorTimeHM(t.timestamp),
+				flightLevel: 300, // TODO: Needed?
+			})),
+	}));
 
 	return (
 		<Draggable
@@ -63,25 +94,28 @@ export default observer(function DypTable(/* properties */) {
 			onStart={startDragging}
 			onStop={stopDragging}
 		>
-			<div className="sector-flight-list">
-				<Table className="sector-flight-list-table" bordered variant="dark">
+			<div className="dyp-flight-list">
+				<Table className="dyp-flight-list-table" bordered>
 					<tbody>
 						{/* Header Row */}
-						<tr>
+						<tr className="footer-row">
 							<td rowSpan={7} className="dyp-info-cell">
 								DYP INFO
 							</td>
 							<td colSpan={2} className="flight-info-cell">
 								<strong>
-									{latestSelectedAircraftData?.callsign || "AFL2638"}
+									{latestSelectedAircraftData?.callSign || "AFL2638"}
 								</strong>
 							</td>
-							<td>{latestSelectedAircraftData?.airline || "AEROFLOT"}</td>
+							<td>{latestSelectedAircraftClass || "AEROFLOT"}</td>
+							<td></td>
 							<td>{latestSelectedAircraftData?.transponderCode || "7347"}</td>
-							<td>{latestSelectedAircraftData?.aircraftType || "A321"}</td>
+							<td></td>
+							<td>{lastestSelectedAircraftType || "A321"}</td>
 							<td colSpan={2} className="time-cell">
 								{latestSelectedAircraftData?.currentTime || "08:57"}
 							</td>
+							<td></td>
 						</tr>
 
 						{/* Altitude and Route Info */}
@@ -89,20 +123,27 @@ export default observer(function DypTable(/* properties */) {
 							<td colSpan={2} className="level-cell">
 								{latestSelectedAircraftData?.lastKnownAltitude ?? "350"} - ---
 							</td>
-							<td rowSpan={5} className="adep-ades-cell">
+							<td rowSpan={3} className="adep-ades-cell">
 								{latestSelectedAircraftData?.departureAirport || "UUEE"} →{" "}
 								{latestSelectedAircraftData?.arrivalAirport || "LEBL"}
 							</td>
-							<td colSpan={2} className="assigned-fl-cell">
+							{latestSelectedTrajectory[0]?.trajectories
+								.slice(0, 7)
+								.map((trajectory, index) => (
+									<td rowSpan={2} key={`wp-${index}`} className="waypoint-cell">
+										<div>{trajectory.wayPoint}</div>
+										<div>{`${trajectory.timestamp}-${trajectory.flightLevel}`}</div>
+									</td>
+								))}
+							{/* <td colSpan={2} className="assigned-fl-cell">
 								{latestSelectedAircraftData?.assignedFlightLevel || "35"}
-							</td>
+							</td> */}
 						</tr>
 
 						<tr>
 							<td colSpan={2} className="level-cell">
 								--- --- k.--
 							</td>
-							<td colSpan={5}></td>
 						</tr>
 
 						<tr>
@@ -111,59 +152,6 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.lastKnownAltitude &&
 									Math.ceil(latestSelectedAircraftData?.lastKnownAltitude)}
 							</td>
-							<td colSpan={5}></td>
-						</tr>
-
-						{/* Waypoints */}
-						<tr>
-							{latestSelectedAircraftData?.routeWaypoints?.map((wp, index) => (
-								<td key={`wp-${index}`} className="waypoint-cell">
-									<div>{wp.name}</div>
-									<div>{`${wp.time}-${wp.level}`}</div>
-								</td>
-							)) || (
-								<>
-									<td>
-										KOLON
-										<br />
-										09:25-350
-									</td>
-									<td>
-										SOKDI
-										<br />
-										09:27-350
-									</td>
-									<td>
-										GANGU
-										<br />
-										09:30-350
-									</td>
-									<td>
-										PADKO
-										<br />
-										09:35-350
-									</td>
-									<td>
-										DIVKO
-										<br />
-										09:38-350
-									</td>
-									<td>
-										NILDU
-										<br />
-										09:47-270
-									</td>
-									<td>
-										BISBA
-										<br />
-										09:49-270
-									</td>
-								</>
-							)}
-						</tr>
-
-						{/* Sectors */}
-						<tr>
 							{latestSelectedAircraftData?.routeWaypoints?.map((wp, index) => (
 								<td key={`sec-${index}`} className="sector-cell">
 									<div>{wp.sector}</div>
@@ -171,32 +159,16 @@ export default observer(function DypTable(/* properties */) {
 								</td>
 							)) || (
 								<>
-									<td>
-										B2
-										<br />
-										35
-									</td>
-									<td>
-										M2
-										<br />
-										33
-									</td>
-									<td>
-										M1
-										<br />
-										27
-									</td>
-									<td>
-										XAL
-										<br />
-										27
-									</td>
-									<td></td>
-									<td></td>
-									<td></td>
+									<td>B2 35</td>
+									<td>M2 33</td>
+									<td>M1 27</td>
+									<td>XAL 27</td>
 								</>
 							)}
+							<td colSpan={5}></td>
 						</tr>
+
+						{/* Sectors */}
 
 						{/* Footer */}
 						<tr className="footer-row">
@@ -207,6 +179,7 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.frequency || "132.490"}
 							</td>
 							<td colSpan={4}>Texte :</td>
+							<td colSpan={4}></td>
 						</tr>
 					</tbody>
 				</Table>

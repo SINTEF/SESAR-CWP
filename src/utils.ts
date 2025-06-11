@@ -16,3 +16,8 @@ export function formatSimulatorTimeHM(timestamp: number): string {
 		minute: "2-digit",
 	});
 }
+
+export function convertMetersToFlightLevel(altitude: number): number {
+	const feet = altitude * 3.280_84;
+	return Math.round(feet / 100);
+}

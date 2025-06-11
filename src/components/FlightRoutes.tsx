@@ -58,19 +58,19 @@ function buildGeoJsonFlightRoute(
 }
 
 const paintLine: LinePaint = {
-	"line-color": "#FFB100",
+	"line-color": "#00FFFF",
 	"line-width": 1.5,
 };
 
 const paintCircle: CirclePaint = {
-	"circle-color": "#FFB100",
-	"circle-radius": 3,
+	"circle-color": "#00FFFF",
+	"circle-radius": 1.5,
 };
 
 const paintSymbol: SymbolPaint = {
-	"text-color": "#FFB100",
+	"text-color": "#00FFFF",
 	"text-halo-color": "#000",
-	"text-halo-width": 10,
+	"text-halo-width": 0,
 };
 
 const layoutSymbol: SymbolLayout = {

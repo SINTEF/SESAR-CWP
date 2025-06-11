@@ -6,19 +6,45 @@ import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
 import AircraftPopup from "./AircraftPopup";
 import type AircraftModel from "../model/AircraftModel";
 
-const ICON =
-	"M22 16.21v-1.895L14 8V4a2 2 0 0 0-4 0v4.105L2 14.42v1.789l8-2.81V18l-3 2v2l5-2 5 2v-2l-3-2v-4.685l8 2.895z";
 const SIZE = 20;
 
-const SVG_ICON_PATH = <path d={ICON} />;
+function computeOffsetPosition(
+	lat: number,
+	lon: number,
+	distanceMeters: number,
+	bearingDegrees: number,
+) {
+	const R = 6371000;
+	const bearingRad = (bearingDegrees * Math.PI) / 180;
+	const latRad = (lat * Math.PI) / 180;
+	const lonRad = (lon * Math.PI) / 180;
+
+	const lat2 = Math.asin(
+		Math.sin(latRad) * Math.cos(distanceMeters / R) +
+			Math.cos(latRad) * Math.sin(distanceMeters / R) * Math.cos(bearingRad),
+	);
+
+	const lon2 =
+		lonRad +
+		Math.atan2(
+			Math.sin(bearingRad) * Math.sin(distanceMeters / R) * Math.cos(latRad),
+			Math.cos(distanceMeters / R) - Math.sin(latRad) * Math.sin(lat2),
+		);
+
+	return {
+		lat: (lat2 * 180) / Math.PI,
+		lon: (lon2 * 180) / Math.PI,
+	};
+}
 
 export default observer(function AircraftMarker(properties: {
 	aircraft: AircraftModel;
 }) {
 	const {
-		lastKnownLongitude: longitude,
-		lastKnownLatitude: latitude,
+		lastKnownLongitude: lon,
+		lastKnownLatitude: lat,
 		lastKnownBearing: bearing,
+		lastKnownSpeed: speed,
 		aircraftId,
 	} = properties.aircraft;
 
@@ -26,28 +52,88 @@ export default observer(function AircraftMarker(properties: {
 		configurationStore.currentCWP === "All" || cwpStore.pseudoPilot;
 
 	const onClick = (): void => {
-		//cwpStore.togglePopupForAircraft(aircraftId); // To be removed
 		cwpStore.toggleSelectedAircraftId(aircraftId);
 	};
 
+	// Compute last 8 positions using time steps of 10 seconds each (80s total)
+	const history = Array.from({ length: 8 }, (_, i) => {
+		const timeAgo = (i + 1) * 4; // seconds ago
+		const distance = speed * timeAgo; // meters
+		return computeOffsetPosition(lat, lon, -distance, bearing); // negative = backward
+	});
+
 	return (
-		<Marker longitude={longitude} latitude={latitude} rotation={bearing}>
-			<svg
-				height={SIZE}
-				viewBox="0 0 24 24"
-				preserveAspectRatio="xMidYMid meet"
-				style={{
-					cursor: "pointer",
-					fill: roleConfigurationStore.getOriginalColorOfAircraft(aircraftId), // change depending on limbo or own flights
-					stroke: "black",
-					strokeWidth: 2.5,
-					paintOrder: "stroke fill",
-				}}
-				onClick={onClick}
-			>
-				{SVG_ICON_PATH}
-			</svg>
-			<AircraftPopup aircraft={properties.aircraft} pseudo={pseudo} />
-		</Marker>
+		<>
+			{history.map((pos, index) => {
+				const size = 3 + (6 - index) * 2;
+				// const opacity = 0.3 + (index / 8) * 0.5;
+				const opacity = 1;
+
+				return (
+					<Marker
+						key={`trail-${index}`}
+						longitude={pos.lon}
+						latitude={pos.lat}
+						onClick={
+							index !== 0
+								? () => cwpStore.toggleFlightRouteForAircraft(aircraftId)
+								: undefined
+						}
+					>
+						<svg
+							width={size}
+							height={size}
+							viewBox={`0 0 ${size} ${size}`}
+							style={{
+								transform: `translate(-${size / 2}px, -${size / 2}px)`,
+								opacity,
+							}}
+						>
+							<circle
+								cx={size / 2}
+								cy={size / 2}
+								r={size / 2}
+								// fill="none"
+								fill={
+									roleConfigurationStore.getOriginalColorOfAircraft(
+										aircraftId,
+									) === "#ffffff" ||
+									roleConfigurationStore.getOriginalColorOfAircraft(
+										aircraftId,
+									) === "#78e251"
+										? "none"
+										: roleConfigurationStore.getOriginalColorOfAircraft(
+												aircraftId,
+											)
+								}
+								stroke={roleConfigurationStore.getOriginalColorOfAircraft(
+									aircraftId,
+								)}
+								strokeWidth="0.6"
+
+								// onClick={()=> showTrajectory(aircraftId, properties.aircraft.trajectory)}
+							/>
+						</svg>
+					</Marker>
+				);
+			})}
+
+			<Marker longitude={lon} latitude={lat} rotation={bearing}>
+				<svg
+					height={SIZE}
+					viewBox="0 0 24 24"
+					preserveAspectRatio="xMidYMid meet"
+					style={{
+						cursor: "pointer",
+						fill: roleConfigurationStore.getOriginalColorOfAircraft(aircraftId),
+						stroke: "black",
+						strokeWidth: 2.5,
+						paintOrder: "stroke fill",
+					}}
+					onClick={onClick}
+				></svg>
+				<AircraftPopup aircraft={properties.aircraft} pseudo={pseudo} />
+			</Marker>
+		</>
 	);
 });

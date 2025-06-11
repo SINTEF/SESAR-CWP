@@ -6,7 +6,7 @@ import type { ViewState } from "react-map-gl";
 
 import { cwpStore, distanceLineStore } from "../state";
 import Aircrafts from "./Aircrafts";
-import ControllerLabel from "./ControllerLabel";
+// import ControllerLabel from "./ControllerLabel";
 import DistanceMarkers from "./DistanceMarkers";
 import DistanceMeasurements from "./DistanceMeasurements";
 import FixesPoint from "./FixesPoint";
@@ -118,7 +118,7 @@ export default function Map(): JSX.Element {
 			<FixesPoint />
 			<FlightRoutes />
 			<SpeedVectors />
-			<ControllerLabel />
+			{/* <ControllerLabel /> */}
 			<Aircrafts />
 			<HighlightedAircraft />
 			<LimboAircrafts />
