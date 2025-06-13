@@ -1,339 +1,357 @@
-import {
-  action, computed, makeObservable, observable,
-} from 'mobx';
-import type { ObservableMap } from 'mobx';
+import { action, computed, makeObservable, observable } from "mobx";
+import type { ObservableMap } from "mobx";
 
-import {
-  WakeTurbulenceCategory,
-} from '../proto/ProtobufAirTrafficSimulator';
-import convertTimestamp from './convertTimestamp';
-import FlightInSectorModel from './FlightInSectorModel';
-import type { Timestamp } from '../proto/google/protobuf/timestamp';
+import { WakeTurbulenceCategory } from "../proto/ProtobufAirTrafficSimulator";
+import convertTimestamp from "./convertTimestamp";
+import FlightInSectorModel from "./FlightInSectorModel";
+import type { Timestamp } from "../proto/google/protobuf/timestamp";
 import type {
-  FlightEnteringAirspaceMessage,
-  FlightMilestonePositionMessage,
-  NewFlightMessage,
-  TargetReportMessage,
-} from '../proto/ProtobufAirTrafficSimulator';
-import type AircraftInfo from './AircraftInfo';
-import type AircraftType from './AircraftType';
-import type SimulatorStore from './SimulatorStore';
+	FlightEnteringAirspaceMessage,
+	FlightMilestonePositionMessage,
+	NewFlightMessage,
+	TargetReportMessage,
+} from "../proto/ProtobufAirTrafficSimulator";
+import type AircraftInfo from "./AircraftInfo";
+import type AircraftType from "./AircraftType";
+import type SimulatorStore from "./SimulatorStore";
 
 function convertToFlightMeters(alt: number): number {
-  const feet = alt * 3.280_84;
-  return feet / 100;
+	const feet = alt * 3.280_84;
+	return feet / 100;
 }
 
 function convertMSToKnots(speed: number): number {
-  return speed * 1.943_844_492_440_6;
+	return speed * 1.943_844_492_440_6;
 }
 
 export default class AircraftModel {
-  aircraftId: string;
+	aircraftId: string;
 
-  assignedFlightId: string;
+	assignedFlightId: string;
 
-  callSign: string;
+	callSign: string;
 
-  lastKnownLongitude = 0;
+	lastKnownLongitude = 0;
 
-  lastKnownLatitude = 0;
+	lastKnownLatitude = 0;
 
-  lastKnownAltitude = 0;
+	lastKnownAltitude = 0;
 
-  lastKnownBearing = 0;
+	lastKnownBearing = 0;
 
-  lastKnownSpeed = 0;
+	lastKnownSpeed = 0;
 
-  arrivalAirport: string;
+	arrivalAirport: string;
 
-  departureAirport: string;
+	departureAirport: string;
 
-  lastTargetReportTime = 0;
+	lastTargetReportTime = 0;
 
-  controlledBy = 'OTHER';
+	controlledBy = "OTHER";
 
-  nextSectorController = 'NS';
+	nextSectorController = "NS";
 
-  milestoneTargetTimestamp = 0;
+	milestoneTargetTimestamp = 0;
 
-  milestoneTargetObjectId: string | undefined;
+	milestoneTargetObjectId: string | undefined;
 
-  assignedFlightLevel = 'FL.S';
+	assignedFlightLevel = "FL.S";
 
-  assignedBearing: number | undefined;
+	assignedBearing: number | undefined;
 
-  assignedSpeed: number | undefined;
+	assignedSpeed: number | undefined;
 
-  nextSectorFL = 'NSFL';
+	nextSectorFL = "NSFL";
 
-  nextACCFL = 'COO';
+	nextACCFL = "COO";
 
-  localAssignedFlightLevel = '';
+	localAssignedFlightLevel = "";
 
-  aircraftInfo: ObservableMap<string, AircraftInfo>;
+	aircraftInfo: ObservableMap<string, AircraftInfo>;
 
-  aircraftTypes: ObservableMap<string, AircraftType>;
+	aircraftTypes: ObservableMap<string, AircraftType>;
 
-  flightInSectorTimes: ObservableMap<string, FlightInSectorModel> = observable.map(
-    undefined, { deep: false });
+	flightInSectorTimes: ObservableMap<string, FlightInSectorModel> =
+		observable.map(undefined, { deep: false });
 
-  simulatorStore: SimulatorStore;
+	simulatorStore: SimulatorStore;
 
-  constructor({
-    aircraftId,
-    assignedFlightId,
-    callSign,
-    arrivalAirport,
-    departureAirport,
-    aircraftInfo,
-    aircraftTypes,
-    simulatorStore,
-  }: {
-    aircraftId: string;
-    assignedFlightId: string;
-    callSign: string;
-    arrivalAirport: string;
-    departureAirport: string;
-    aircraftInfo: ObservableMap<string, AircraftInfo>;
-    aircraftTypes: ObservableMap<string, AircraftType>;
-    simulatorStore: SimulatorStore;
-  }) {
-    makeObservable(this, {
-      aircraftId: false,
-      assignedFlightId: false,
-      callSign: false,
-      milestoneTargetTimestamp: false,
-      aircraftInfo: false,
-      aircraftTypes: false,
-      simulatorStore: false,
-      flightInSectorTimes: observable,
-      lastKnownLongitude: observable,
-      lastKnownLatitude: observable,
-      lastKnownAltitude: observable,
-      lastKnownBearing: observable,
-      lastKnownSpeed: observable,
-      arrivalAirport: observable,
-      departureAirport: observable,
-      controlledBy: observable,
-      nextSectorController: observable,
-      milestoneTargetObjectId: observable,
-      assignedFlightLevel: observable,
-      assignedBearing: observable,
-      assignedSpeed: observable,
-      localAssignedFlightLevel: observable,
-      nextSectorFL: observable,
-      nextACCFL: observable,
+	positionHistory: Array<{ lat: number; lon: number }> = [];
 
-      nextFix: computed,
-      wakeTurbulenceCategory: computed,
-      speedAndWakeTurbulenceLabel: computed,
+	constructor({
+		aircraftId,
+		assignedFlightId,
+		callSign,
+		arrivalAirport,
+		departureAirport,
+		aircraftInfo,
+		aircraftTypes,
+		simulatorStore,
+	}: {
+		aircraftId: string;
+		assignedFlightId: string;
+		callSign: string;
+		arrivalAirport: string;
+		departureAirport: string;
+		aircraftInfo: ObservableMap<string, AircraftInfo>;
+		aircraftTypes: ObservableMap<string, AircraftType>;
+		simulatorStore: SimulatorStore;
+	}) {
+		makeObservable(this, {
+			aircraftId: false,
+			assignedFlightId: false,
+			callSign: false,
+			milestoneTargetTimestamp: false,
+			aircraftInfo: false,
+			aircraftTypes: false,
+			simulatorStore: false,
+			flightInSectorTimes: observable,
+			lastKnownLongitude: observable,
+			lastKnownLatitude: observable,
+			lastKnownAltitude: observable,
+			lastKnownBearing: observable,
+			lastKnownSpeed: observable,
+			arrivalAirport: observable,
+			departureAirport: observable,
+			controlledBy: observable,
+			nextSectorController: observable,
+			milestoneTargetObjectId: observable,
+			assignedFlightLevel: observable,
+			assignedBearing: observable,
+			assignedSpeed: observable,
+			localAssignedFlightLevel: observable,
+			nextSectorFL: observable,
+			nextACCFL: observable,
+			positionHistory: observable,
 
-      handleTargetReport: action.bound,
-      handleTargetMilestone: action.bound,
-      setController: action.bound,
-      setAssignedFlightLevel: action.bound,
-      setNextSectorController: action.bound,
-      setAssignedBearing: action.bound,
-      setAssignedSpeed: action.bound,
-      setLocalAssignedFlightLevel: action.bound,
-      setNextSectorFL: action.bound,
-      setNextACCFL: action.bound,
-    });
+			nextFix: computed,
+			wakeTurbulenceCategory: computed,
+			speedAndWakeTurbulenceLabel: computed,
 
-    this.aircraftId = aircraftId;
-    this.assignedFlightId = assignedFlightId;
-    this.callSign = callSign;
-    this.arrivalAirport = arrivalAirport;
-    this.departureAirport = departureAirport;
-    this.aircraftInfo = aircraftInfo;
-    this.aircraftTypes = aircraftTypes;
-    this.simulatorStore = simulatorStore;
-  }
+			handleTargetReport: action.bound,
+			handleTargetMilestone: action.bound,
+			setController: action.bound,
+			setAssignedFlightLevel: action.bound,
+			setNextSectorController: action.bound,
+			setAssignedBearing: action.bound,
+			setAssignedSpeed: action.bound,
+			setLocalAssignedFlightLevel: action.bound,
+			setNextSectorFL: action.bound,
+			setNextACCFL: action.bound,
+		});
 
-  handleTargetReport(targetReport: TargetReportMessage): void {
-    // Ignore target reports that are older than the previous one
-    // This is because MQTT doesn't guarantie the order of the received messages
-    // We could use a MQTT broker that is a message queue with an order, like RabbitMQ
-    const {
-      time, altitude, latitude, longitude, bearing, speed,
-    } = targetReport;
-    if (!time) {
-      throw new Error('Missing time in target report message');
-    }
-    const timestamp = convertTimestamp(time);
-    if (timestamp < this.lastTargetReportTime) {
-      return;
-    }
-    this.lastTargetReportTime = timestamp;
-    const altitudeInFlightMeters = convertToFlightMeters(altitude);
-    if (altitudeInFlightMeters !== this.lastKnownAltitude) {
-      this.lastKnownAltitude = altitudeInFlightMeters;
-    }
-    if (latitude !== this.lastKnownLatitude) {
-      this.lastKnownLatitude = latitude;
-    }
-    if (longitude !== this.lastKnownLongitude) {
-      this.lastKnownLongitude = longitude;
-    }
-    // Round because we had a lot of invisible updates
-    const roundedBearing = Math.round(bearing * 10) / 10;
-    if (roundedBearing !== this.lastKnownBearing) {
-      this.lastKnownBearing = roundedBearing;
-    }
-    if (speed !== this.lastKnownSpeed) {
-      this.lastKnownSpeed = speed;
-    }
-  }
+		this.aircraftId = aircraftId;
+		this.assignedFlightId = assignedFlightId;
+		this.callSign = callSign;
+		this.arrivalAirport = arrivalAirport;
+		this.departureAirport = departureAirport;
+		this.aircraftInfo = aircraftInfo;
+		this.aircraftTypes = aircraftTypes;
+		this.simulatorStore = simulatorStore;
+	}
 
-  handleTargetMilestone(milestone: FlightMilestonePositionMessage): void {
-    const { timeStampSent, position } = milestone;
-    if (!timeStampSent) {
-      throw new Error('Missing timeStampSent in flight milestone message');
-    }
-    const timestamp = convertTimestamp(timeStampSent);
-    if (timestamp < this.milestoneTargetTimestamp) {
-      // Ignore older milestones
-      return;
-    }
-    this.milestoneTargetTimestamp = timestamp;
-    if (position) {
-      this.milestoneTargetObjectId = position.objectId;
-    }
-  }
+	handleTargetReport(targetReport: TargetReportMessage): void {
+		// Ignore target reports that are older than the previous one
+		// This is because MQTT doesn't guarantie the order of the received messages
+		// We could use a MQTT broker that is a message queue with an order, like RabbitMQ
+		const { time, altitude, latitude, longitude, bearing, speed } =
+			targetReport;
+		if (!time) {
+			throw new Error("Missing time in target report message");
+		}
+		const timestamp = convertTimestamp(time);
+		if (timestamp < this.lastTargetReportTime) {
+			return;
+		}
+		this.lastTargetReportTime = timestamp;
+		const altitudeInFlightMeters = convertToFlightMeters(altitude);
+		if (altitudeInFlightMeters !== this.lastKnownAltitude) {
+			this.lastKnownAltitude = altitudeInFlightMeters;
+		}
+		if (latitude !== this.lastKnownLatitude) {
+			this.lastKnownLatitude = latitude;
+			this.positionHistory.unshift({ lat: latitude, lon: longitude });
+			if (this.positionHistory.length > 8) {
+				this.positionHistory.pop();
+			}
+		}
+		if (longitude !== this.lastKnownLongitude) {
+			this.lastKnownLongitude = longitude;
+		}
 
-  setController(controller: string): void {
-    this.controlledBy = controller;
-  }
+		// Round because we had a lot of invisible updates
+		const roundedBearing = Math.round(bearing * 10) / 10;
+		if (roundedBearing !== this.lastKnownBearing) {
+			this.lastKnownBearing = roundedBearing;
+		}
+		if (speed !== this.lastKnownSpeed) {
+			this.lastKnownSpeed = speed;
+		}
+	}
 
-  get nextFix(): string {
-    const simulatorTimestamp = this.simulatorStore.timestamp;
-    if (this.milestoneTargetObjectId && this.milestoneTargetTimestamp >= simulatorTimestamp) {
-      return this.milestoneTargetObjectId;
-    }
+	handleTargetMilestone(milestone: FlightMilestonePositionMessage): void {
+		const { timeStampSent, position } = milestone;
+		if (!timeStampSent) {
+			throw new Error("Missing timeStampSent in flight milestone message");
+		}
+		const timestamp = convertTimestamp(timeStampSent);
+		if (timestamp < this.milestoneTargetTimestamp) {
+			// Ignore older milestones
+			return;
+		}
+		this.milestoneTargetTimestamp = timestamp;
+		if (position) {
+			this.milestoneTargetObjectId = position.objectId;
+		}
+	}
 
-    return this.arrivalAirport ?? 'UNKNOWN';
-  }
+	setController(controller: string): void {
+		this.controlledBy = controller;
+	}
 
-  handleNewFlightUpdate(newFlight: NewFlightMessage): void {
-    const {
-      flightUniqueId, callSign, arrivalAirport, departureAirport,
-    } = newFlight;
+	get nextFix(): string {
+		const simulatorTimestamp = this.simulatorStore.timestamp;
+		if (
+			this.milestoneTargetObjectId &&
+			this.milestoneTargetTimestamp >= simulatorTimestamp
+		) {
+			return this.milestoneTargetObjectId;
+		}
 
-    this.assignedFlightId = flightUniqueId;
-    this.callSign = callSign;
-    this.arrivalAirport = arrivalAirport;
-    this.departureAirport = departureAirport;
-  }
+		return this.arrivalAirport ?? "UNKNOWN";
+	}
 
-  get wakeTurbulenceCategory(): WakeTurbulenceCategory {
-    const aircraftInfo = this.aircraftInfo.get(this.aircraftId);
-    if (!aircraftInfo) {
-      return WakeTurbulenceCategory.WTC_UNKNOWN;
-    }
+	handleNewFlightUpdate(newFlight: NewFlightMessage): void {
+		const { flightUniqueId, callSign, arrivalAirport, departureAirport } =
+			newFlight;
 
-    const { wakeTurbulenceCategory } = aircraftInfo;
+		this.assignedFlightId = flightUniqueId;
+		this.callSign = callSign;
+		this.arrivalAirport = arrivalAirport;
+		this.departureAirport = departureAirport;
+	}
 
-    if (wakeTurbulenceCategory !== WakeTurbulenceCategory.WTC_UNKNOWN) {
-      return wakeTurbulenceCategory;
-    }
+	get wakeTurbulenceCategory(): WakeTurbulenceCategory {
+		const aircraftInfo = this.aircraftInfo.get(this.aircraftId);
+		if (!aircraftInfo) {
+			return WakeTurbulenceCategory.WTC_UNKNOWN;
+		}
 
-    const { aircraftType } = aircraftInfo;
-    const aircraftTypeInfo = this.aircraftTypes.get(aircraftType);
-    if (!aircraftTypeInfo) {
-      return WakeTurbulenceCategory.WTC_UNKNOWN;
-    }
+		const { wakeTurbulenceCategory } = aircraftInfo;
 
-    return aircraftTypeInfo.wakeTurbulenceCategory;
-  }
+		if (wakeTurbulenceCategory !== WakeTurbulenceCategory.WTC_UNKNOWN) {
+			return wakeTurbulenceCategory;
+		}
 
-  get speedAndWakeTurbulenceLabel(): string {
-    const { wakeTurbulenceCategory, lastKnownSpeed } = this;
-    const speed = Math.floor(convertMSToKnots(lastKnownSpeed));
+		const { aircraftType } = aircraftInfo;
+		const aircraftTypeInfo = this.aircraftTypes.get(aircraftType);
+		if (!aircraftTypeInfo) {
+			return WakeTurbulenceCategory.WTC_UNKNOWN;
+		}
 
-    switch (wakeTurbulenceCategory) {
-      case WakeTurbulenceCategory.WTC_LIGHT:
-        return `L${speed}`;
-      case WakeTurbulenceCategory.LOWER_MEDIUM:
-      case WakeTurbulenceCategory.UPPER_MEDIUM:
-        return `M${speed}`;
-      case WakeTurbulenceCategory.LOWER_HEAVY:
-      case WakeTurbulenceCategory.UPPER_HEAVY:
-      case WakeTurbulenceCategory.JUMBO:
-      case WakeTurbulenceCategory.WTC_ALL:
-        return `H${speed}`;
-      case WakeTurbulenceCategory.WTC_UNKNOWN:
-        return `${speed}`;
-      default:
-        return `${speed}`;
-    }
-  }
+		return aircraftTypeInfo.wakeTurbulenceCategory;
+	}
 
-  handleSectorInFlightMessage(message: FlightEnteringAirspaceMessage): void {
-    const {
-      sectorId, entryPosition, exitPosition, entryWaypointId, exitWaypointId,
-    } = message;
-    const flightInSector = new FlightInSectorModel({
-      sectorId,
-      entryPosition,
-      exitPosition,
-      entryWaypointId,
-      exitWaypointId,
-    });
-    const listsSectorHasFlight = this.flightInSectorTimes;
-    if (listsSectorHasFlight) {
-      for (const element of listsSectorHasFlight) {
-        if (element[1].sectorId === sectorId) {
-          element[1] = flightInSector;
-          return;
-        }
-        if (element[1]?.entryPosition?.time && entryPosition?.time
-      && element[1]?.entryPosition?.time < entryPosition?.time) {
-          listsSectorHasFlight.delete(element[0]);
-        }
-      }
-      listsSectorHasFlight.set(sectorId, flightInSector);
-    }
-  }
+	get speedAndWakeTurbulenceLabel(): string {
+		const { wakeTurbulenceCategory, lastKnownSpeed } = this;
+		const speed = Math.floor(convertMSToKnots(lastKnownSpeed));
 
-  isEnteringFlight(controlledSector : string) : boolean {
-    const flightEntering = this.flightInSectorTimes.get(controlledSector);
-    let flightEnteringTime : Timestamp | undefined;
-    if (flightEntering) {
-      flightEnteringTime = flightEntering.entryPosition?.time;
-    }
-    if (flightEntering && flightEnteringTime
-    && convertTimestamp(flightEnteringTime) >= this.simulatorStore.timestamp) {
-      return true;
-    }
-    return false;
-  }
+		switch (wakeTurbulenceCategory) {
+			case WakeTurbulenceCategory.WTC_LIGHT:
+				return `L${speed}`;
+			case WakeTurbulenceCategory.LOWER_MEDIUM:
+			case WakeTurbulenceCategory.UPPER_MEDIUM:
+				return `M${speed}`;
+			case WakeTurbulenceCategory.LOWER_HEAVY:
+			case WakeTurbulenceCategory.UPPER_HEAVY:
+			case WakeTurbulenceCategory.JUMBO:
+			case WakeTurbulenceCategory.WTC_ALL:
+				return `H${speed}`;
+			case WakeTurbulenceCategory.WTC_UNKNOWN:
+				return `${speed}`;
+			default:
+				return `${speed}`;
+		}
+	}
+	get last8positions(): Array<{ lat: number; lon: number }> {
+		return this.positionHistory;
+	}
 
-  setAssignedFlightLevel(assignedFlightLevel: string): void {
-    this.assignedFlightLevel = assignedFlightLevel;
-  }
+	handleSectorInFlightMessage(message: FlightEnteringAirspaceMessage): void {
+		const {
+			sectorId,
+			entryPosition,
+			exitPosition,
+			entryWaypointId,
+			exitWaypointId,
+		} = message;
+		const flightInSector = new FlightInSectorModel({
+			sectorId,
+			entryPosition,
+			exitPosition,
+			entryWaypointId,
+			exitWaypointId,
+		});
+		const listsSectorHasFlight = this.flightInSectorTimes;
+		if (listsSectorHasFlight) {
+			for (const element of listsSectorHasFlight) {
+				if (element[1].sectorId === sectorId) {
+					element[1] = flightInSector;
+					return;
+				}
+				if (
+					element[1]?.entryPosition?.time &&
+					entryPosition?.time &&
+					element[1]?.entryPosition?.time < entryPosition?.time
+				) {
+					listsSectorHasFlight.delete(element[0]);
+				}
+			}
+			listsSectorHasFlight.set(sectorId, flightInSector);
+		}
+	}
 
-  setAssignedBearing(assignedBearing: number): void {
-    this.assignedBearing = assignedBearing === -1 ? undefined : assignedBearing;
-  }
+	isEnteringFlight(controlledSector: string): boolean {
+		const flightEntering = this.flightInSectorTimes.get(controlledSector);
+		let flightEnteringTime: Timestamp | undefined;
+		if (flightEntering) {
+			flightEnteringTime = flightEntering.entryPosition?.time;
+		}
+		if (
+			flightEntering &&
+			flightEnteringTime &&
+			convertTimestamp(flightEnteringTime) >= this.simulatorStore.timestamp
+		) {
+			return true;
+		}
+		return false;
+	}
 
-  setAssignedSpeed(assignedSpeed: number): void {
-    this.assignedSpeed = assignedSpeed === -1 ? undefined : assignedSpeed;
-  }
+	setAssignedFlightLevel(assignedFlightLevel: string): void {
+		this.assignedFlightLevel = assignedFlightLevel;
+	}
 
-  setLocalAssignedFlightLevel(localAssignedFlightLevel: string): void {
-    this.localAssignedFlightLevel = localAssignedFlightLevel;
-  }
+	setAssignedBearing(assignedBearing: number): void {
+		this.assignedBearing = assignedBearing === -1 ? undefined : assignedBearing;
+	}
 
-  setNextSectorController(nextSectorController: string): void {
-    this.nextSectorController = nextSectorController;
-  }
+	setAssignedSpeed(assignedSpeed: number): void {
+		this.assignedSpeed = assignedSpeed === -1 ? undefined : assignedSpeed;
+	}
 
-  setNextSectorFL(nextSectorFL: string): void {
-    this.nextSectorFL = nextSectorFL;
-  }
+	setLocalAssignedFlightLevel(localAssignedFlightLevel: string): void {
+		this.localAssignedFlightLevel = localAssignedFlightLevel;
+	}
 
-  setNextACCFL(nextACCFL: string): void {
-    this.nextACCFL = nextACCFL;
-  }
+	setNextSectorController(nextSectorController: string): void {
+		this.nextSectorController = nextSectorController;
+	}
+
+	setNextSectorFL(nextSectorFL: string): void {
+		this.nextSectorFL = nextSectorFL;
+	}
+
+	setNextACCFL(nextACCFL: string): void {
+		this.nextACCFL = nextACCFL;
+	}
 }
