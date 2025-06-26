@@ -26,7 +26,7 @@ const fixNameLayout: SymbolLayout = {
 export default observer(function FixesPoint(/* properties */) {
 	// Load required data
 	const fixData = fixStore.fixes;
-	const bounds = configurationStore.extendedEdgesBounds;
+	// const bounds = configurationStore.extendedEdgesBounds; // TODO: Change bounds
 
 	if (!cwpStore.showFixes) {
 		return null;
@@ -34,14 +34,14 @@ export default observer(function FixesPoint(/* properties */) {
 
 	// Get all points
 	const points = [...fixData.values()]
-		.filter(
-			(fix) =>
-				bounds !== undefined &&
-				fix.latitude >= bounds.minLat &&
-				fix.latitude <= bounds.maxLat &&
-				fix.longitude >= bounds.minLon &&
-				fix.longitude <= bounds.maxLon,
-		)
+		// .filter(
+		// 	(fix) =>
+		// 		bounds !== undefined &&
+		// 		fix.latitude >= bounds.minLat &&
+		// 		fix.latitude <= bounds.maxLat &&
+		// 		fix.longitude >= bounds.minLon &&
+		// 		fix.longitude <= bounds.maxLon,
+		// )
 		// Compute an easy to use location array
 		.map((fix) => ({ fix, coordinates: [fix.longitude, fix.latitude] }));
 	// Filter the points out of the edge sector, if we have an edge sector

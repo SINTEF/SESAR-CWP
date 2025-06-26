@@ -3,7 +3,7 @@ import React from "react";
 import { Marker } from "react-map-gl";
 
 import {
-	aircraftStore,
+	// aircraftStore,
 	configurationStore,
 	cwpStore,
 	roleConfigurationStore,
@@ -24,7 +24,7 @@ export default observer(function AircraftMarker(properties: {
 		lastKnownLongitude: lon,
 		lastKnownLatitude: lat,
 		lastKnownBearing: bearing,
-		lastKnownSpeed: speed,
+		// lastKnownSpeed: speed,
 		aircraftId,
 		positionHistory,
 	} = properties.aircraft;
@@ -42,7 +42,6 @@ export default observer(function AircraftMarker(properties: {
 			{history.map((pos, index) => {
 				const size = 3 + (6 - index) * 2;
 				const opacity = 1;
-				console.log(index);
 				return (
 					<Marker
 						key={`trail-${index}`}
