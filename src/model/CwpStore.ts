@@ -34,6 +34,8 @@ export default class CWPStore {
 
 	showControllerSelection = true;
 
+	showSpeedVectors = false;
+
 	aircraftsWithSpeedVectors: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
@@ -448,5 +450,8 @@ export default class CWPStore {
 		} else {
 			this.selectedAircraftIds.add(aircraftId);
 		}
+	}
+	toggleShowSpeedVectors(): void {
+		this.showSpeedVectors = !this.showSpeedVectors;
 	}
 }

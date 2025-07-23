@@ -3,13 +3,22 @@ import React from "react";
 import { cwpStore } from "../state";
 
 export default observer(function SpeedVectorNavbarControl() {
-	const { speedVectorMinutes, setSpeedVectorMinutes } = cwpStore;
+	const {
+		speedVectorMinutes,
+		setSpeedVectorMinutes,
+		showSpeedVectors,
+		toggleShowSpeedVectors,
+	} = cwpStore;
 
 	const predefinedValues = [1, 2, 3, 4, 6, 9];
 
 	return (
 		<div className="speed-vector-navbar">
-			<button type="button" className="active">
+			<button
+				type="button"
+				className={`${showSpeedVectors ? "active" : ""}`}
+				onClick={() => toggleShowSpeedVectors()}
+			>
 				W
 			</button>
 			{predefinedValues.map((val) => (

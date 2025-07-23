@@ -3,7 +3,12 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Layer, Source } from "react-map-gl";
 
-import { aircraftStore, cwpStore, roleConfigurationStore } from "../state";
+import {
+	aircraftStore,
+	configurationStore,
+	cwpStore,
+	roleConfigurationStore,
+} from "../state";
 import type AircraftModel from "../model/AircraftModel";
 
 const degreesToRad = Math.PI / 180;
@@ -102,16 +107,21 @@ const paintCircle = {
 export default observer(function SpeedVectors() {
 	const aircraftIds = cwpStore.aircraftsWithSpeedVectors;
 	const { lowestBound, highestBound } = cwpStore.altitudeFilter;
-	const { speedVectorMinutes } = cwpStore;
+	const { speedVectorMinutes, showSpeedVectors } = cwpStore;
 
-	const aircrafts = [...aircraftIds]
-		.map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
-		.filter(
-			(aircraft): aircraft is AircraftModel =>
-				aircraft !== undefined &&
-				aircraft.lastKnownAltitude > lowestBound &&
-				aircraft.lastKnownAltitude < highestBound,
-		);
+	if (!showSpeedVectors) {
+		return null;
+	}
+
+	const aircrafts = configurationStore.aircraftsWithinExtendedEdges;
+	// .map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
+	// .filter(
+	// 	(aircraft): aircraft is AircraftModel =>
+	// 		aircraft !== undefined &&
+	// 		aircraft.lastKnownAltitude > lowestBound &&
+	// 		aircraft.lastKnownAltitude < highestBound,
+	// );
+
 	const speedVectors = aircrafts.flatMap((aircraft) =>
 		buildGeoJsonSpeedVector(aircraft, speedVectorMinutes),
 	);
