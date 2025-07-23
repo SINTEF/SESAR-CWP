@@ -46,6 +46,17 @@ const FLButton = observer(function FLButton() {
 	);
 });
 
+const NSFLButton = observer(function NSFLButton() {
+	return (
+		<GenericButton
+			onClick={(): void => cwpStore.toggleFL()} // Not correct but might be useful?
+			active={cwpStore.showFL}
+		>
+			NSFL
+		</GenericButton>
+	);
+});
+
 const SFLButton = observer(function SFLButton() {
 	return (
 		<GenericButton
@@ -57,13 +68,46 @@ const SFLButton = observer(function SFLButton() {
 	);
 });
 
+const N_AButton = observer(function N_AButton() {
+	return (
+		<GenericButton
+			onClick={(): void => cwpStore.toggleSFL()}
+			active={cwpStore.showSFL} // Not correct but might be useful?
+		>
+			N_A
+		</GenericButton>
+	);
+});
+
 const SectorLabelsButton = observer(function SectorLabelsButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleSectorLabels()}
+			active={cwpStore.showSectorLabels} // Not sure if this is correct but might be useful?
+		>
+			Sectors
+		</GenericButton>
+	);
+});
+
+const AirwaysButton = observer(function AirwaysButton() {
+	return (
+		<GenericButton
+			onClick={(): void => cwpStore.toggleSectorLabels()} // Not correct but might be useful?
 			active={cwpStore.showSectorLabels}
 		>
-			Sector Labels
+			Airways
+		</GenericButton>
+	);
+});
+
+const ResetButton = observer(function ResetButton() {
+	const resetAllToggles = (): void => {
+		cwpStore.setShowSpeedVectors(false);
+	};
+	return (
+		<GenericButton onClick={(): void => resetAllToggles()} active={true}>
+			RESET
 		</GenericButton>
 	);
 });
@@ -162,16 +206,28 @@ export default function ImageConfiguration(): JSX.Element {
 		<div className="navbar button-navbar">
 			<div className="image-configuration-section">
 				<Time />
-				<FLButton />
-				<SFLButton />
-				<FixesButton />
-				<SectorLabelsButton />
-				<OpenVerticalWindowButton />
+				<div>
+					<ResetButton />
+				</div>
+				<div className="button-group">
+					<FixesButton />
+					<AirwaysButton />
+					<SectorLabelsButton />
+				</div>
+				<div>
+					<OpenVerticalWindowButton />
+				</div>
+				<div>
+					<NSFLButton />
+				</div>
+				<div>
+					<N_AButton />
+				</div>
 			</div>
 			<div className="image-configuration-section">
 				<SpeedVectorNavbarControl />
 			</div>
-			<div className="image-configuration-section">
+			{/* <div className="image-configuration-section">
 				<FlightLabelsButton />
 			</div>
 			<div className="image-configuration-section">
@@ -181,7 +237,7 @@ export default function ImageConfiguration(): JSX.Element {
 				<FilterButton />
 				<DistanceMeasurementDropdown />
 				<ControllerButton />
-			</div>
+			</div> */}
 			{/* <MqttIndicators /> */}
 		</div>
 	);

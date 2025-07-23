@@ -454,4 +454,7 @@ export default class CWPStore {
 	toggleShowSpeedVectors(): void {
 		this.showSpeedVectors = !this.showSpeedVectors;
 	}
+	setShowSpeedVectors(value: boolean): void {
+		this.showSpeedVectors = value;
+	}
 }
