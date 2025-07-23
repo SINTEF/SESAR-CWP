@@ -79,42 +79,6 @@ export const Altitude = observer(
 	},
 );
 
-const AssignedBearing = observer(
-	({ aircraft }: SubContentProperties): JSX.Element => {
-		const { assignedBearing } = aircraft;
-
-		if (assignedBearing === -1 || assignedBearing === undefined) {
-			return <td>h...</td>;
-		}
-
-		let displayedBearing = Math.round(assignedBearing) % 360;
-		if (displayedBearing < 1) {
-			displayedBearing = 360;
-		}
-
-		return <td>{`${displayedBearing.toString().padStart(3, "0")}`}</td>;
-	},
-);
-
-const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
-	const middleClickNextWaypoint = (
-		event: React.MouseEvent<HTMLElement>,
-	): void => {
-		// if (event.button === 1) {
-		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
-		// }
-	};
-
-	const { nextFix, assignedBearing } = aircraft;
-	const showNextFix = assignedBearing === -1 || assignedBearing === undefined;
-
-	return (
-		<td onMouseDown={middleClickNextWaypoint}>
-			{showNextFix ? nextFix : "--"}
-		</td>
-	);
-});
-
 export const NextSectorFL = observer(
 	({ aircraft }: SubContentProperties): JSX.Element => {
 		const openNSFLPopup = (): void => {
@@ -166,44 +130,25 @@ export const NextACCFlightLevel = observer(
 	},
 );
 
-export default observer(function AircraftPopupContent(properties: {
+export default observer(function AircraftContentSmall(properties: {
 	aircraft: AircraftModel;
 	flightColor: string;
 }) {
 	const { aircraft, flightColor } = properties;
-	const currentSector = roleConfigurationStore.currentControlledSector;
 	return (
 		<table className="flight-popup-container">
 			<tbody style={{ color: flightColor }}>
 				<tr>
 					<td>{Math.round(aircraft.lastKnownSpeed)}</td>
-					{/* <SpeedAndWakeTurbulenceLabel aircraft={aircraft} /> */}
 				</tr>
 				<tr>
 					<CallSign aircraft={aircraft} colSpan={1} />
-					<td>00</td>
-					<td>Moon</td>
 				</tr>
 				<tr>
 					<Altitude aircraft={aircraft} />
-					{/* <NextACCFlightLevel aircraft={aircraft} />  Is this something we need? */}
-					<NextSectorFL aircraft={aircraft} />
-					{/* <td>
-						{" "}
-						{aircraft.flightInSectorTimes?.get(currentSector)?.entryWaypointId}
-					</td> */}
-					<NextFix aircraft={aircraft} />
-					<AssignedBearing aircraft={aircraft} />
 				</tr>
 				<tr>
 					<td>EFL</td>
-					<td>
-						{currentSector &&
-							aircraft.flightInSectorTimes?.get(currentSector)?.exitWaypointId}
-					</td>
-					{/* <NextSectorController aircraft={aircraft} /> */}
-					{/* <LocalAssignedFlightLevel aircraft={aircraft} /> */}
-					<td>{aircraft.arrivalAirport}</td>
 				</tr>
 			</tbody>
 		</table>
