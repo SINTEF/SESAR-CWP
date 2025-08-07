@@ -1,9 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
-import {
-  Form,
-  Table,
-} from 'react-bootstrap';
 import Draggable from 'react-draggable';
 
 import { startDragging, stopDragging } from '../draggableState';
@@ -98,59 +94,58 @@ export default observer(function SectorFlightList(/* properties */) {
                 onStart={startDragging}
                 onStop={stopDragging}
             >
-      <div className="sector-flight-list">
-        <Table className="sector-flight-list-table" hover bordered variant="dark">
+      <div className="absolute bottom-[3.45em] left-[50px] text-[8px] outline-none uppercase max-h-[150px] overflow-y-scroll font-mono z-[500]">
+        <table className="table table-xs border border-gray-600">
           <thead>
             <tr>
-              <th colSpan={3}>
+              <th colSpan={3} className="border border-gray-600 p-2">
                 <input
-                className='input-filter'
-                style={{ width: '10em !important' }}
+                className='input input-sm bg-base-200 w-40'
                 name="filter"
                 value={filter}
                 placeholder="Search by callsign..."
                 onChange={(event): void => setFilter(event.target.value)}
               />
               </th>
-              <th colSpan={6} style={{ fontSize: '10px' }}>
-                <div className='fix-selector-container' >
-                  <div className='drop-down-container'><div className="SFL-text">SFL &nbsp;</div>
+              <th colSpan={6} className="border border-gray-600 p-2 text-xs">
+                <div className='flex justify-between items-center w-full h-12' >
+                  <div className='flex items-center gap-2'><div className="font-bold">SFL &nbsp;</div>
                     {/* <input placeholder='Type here'></input> */}
 
-                    <Form.Select ref={fixSelect} className='fix-selector' size='sm' onChange={(event: { target: { value: string; }; }): void => setFix(event.target.value)}>
+                    <select ref={fixSelect} className='select select-sm bg-base-200' onChange={(event: { target: { value: string; }; }): void => setFix(event.target.value)}>
                       <option value='ALL' hidden>Select COP</option>
                       <option value='ALL'>ALL</option>
                       {listOfFixes.map((fix) => (
                         <option key={fix} value={fix}>{fix}</option>))}
-                    </Form.Select>
-                    <div className='number-of-flight'><span>&nbsp;:</span><span>{listOfAircraft.length} &#35;</span></div>
+                    </select>
+                    <div className='flex items-center'><span>&nbsp;:</span><span>{listOfAircraft.length} &#35;</span></div>
 
                   </div>
-                  <div className='up-down-arrows'><div onClick={(): void => arrowClicked('up')}>&#x25B2;&nbsp;</div><div onClick={(): void => arrowClicked('down')}>&#x25BC;</div></div>
+                  <div className='flex flex-col cursor-pointer'><div onClick={(): void => arrowClicked('up')}>&#x25B2;&nbsp;</div><div onClick={(): void => arrowClicked('down')}>&#x25BC;</div></div>
 
                 </div>
               </th>
             </tr>
             <tr>
-              <th>
+              <th className="border border-gray-600 p-2">
                 FIX
               </th>
-              <th>
+              <th className="border border-gray-600 p-2">
                 ETO
               </th>
-              <th>
+              <th className="border border-gray-600 p-2">
                 C/S
               </th>
-              <th>
+              <th className="border border-gray-600 p-2">
                 PEL
               </th>
-              <th>
+              <th className="border border-gray-600 p-2">
                 COO
               </th>
-              <th>
+              <th className="border border-gray-600 p-2">
                 PLV
               </th>
-              <th>
+              <th className="border border-gray-600 p-2">
                 OUT
               </th>
             </tr>
@@ -165,30 +160,34 @@ export default observer(function SectorFlightList(/* properties */) {
                 const enteringFL = currentSector ? aircraftData.flightInSectorTimes?.get(currentSector)?.entryPosition?.altitude : '';
                 return (
                   <tr
+                  className="hover:bg-gray-700 cursor-pointer"
                   style={{
                     color: roleConfigurationStore
                       .getOriginalColorOfAircraft(aircraftData.aircraftId),
-                  }} key={aircraftData.assignedFlightId}
+                  }} 
+                  key={aircraftData.assignedFlightId}
                   id={aircraftData.assignedFlightId}
                   onClick={(event): void => handleFlightClicked(event.currentTarget.id)}>
-                    <td>
+                    <td className="border border-gray-600 p-2">
                       {enteringFix}
                     </td>
-                    <td>
+                    <td className="border border-gray-600 p-2">
                       {enteringToTime}
                     </td>
-                    <td>
+                    <td className="border border-gray-600 p-2">
                       {aircraftData.callSign}
                     </td>
                     <td
+                    className="border border-gray-600 p-2"
                     style={{
                       color: roleConfigurationStore
                         .getOriginalColorOfAircraft(aircraftData.aircraftId),
                     }} >
                       {enteringFL ? convertMetersToFlightLevel(enteringFL) : ''}
                     </td>
-                    <td>{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
+                    <td className="border border-gray-600 p-2">{aircraftData.nextACCFL === 'COO' ? '' : aircraftData.nextACCFL}</td>
                     <td
+                    className="border border-gray-600 p-2"
                     style={{
                       color: roleConfigurationStore
                         .getOriginalColorOfAircraft(aircraftData.aircraftId),
@@ -196,7 +195,7 @@ export default observer(function SectorFlightList(/* properties */) {
                   >
                       {Math.ceil(aircraftData.lastKnownAltitude)}
                     </td>
-                    <td>
+                    <td className="border border-gray-600 p-2">
                       {exitingFix}
                     </td>
                   </tr>
@@ -204,7 +203,7 @@ export default observer(function SectorFlightList(/* properties */) {
               },
               )}
           </tbody>
-        </Table>
+        </table>
       </div>
     </Draggable>
 

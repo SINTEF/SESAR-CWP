@@ -2,8 +2,6 @@
  * Time component that can be dragged around.
  */
 
-import "./Time.css";
-
 import { observer } from "mobx-react-lite";
 import React from "react";
 import Draggable from "react-draggable";
@@ -17,7 +15,7 @@ export default observer(function Time() {
 
 	return (
 		// <Draggable bounds="parent">
-		<div className="time">{time}</div>
+		<div className="font-mono right-1/2 rounded-sm text-white font-bold text-2xl px-2 py-0.5">{time}</div>
 		// </Draggable>
 	);
 });

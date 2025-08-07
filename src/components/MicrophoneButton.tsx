@@ -59,16 +59,28 @@ export default observer(function MicrophoneButton() {
     text = '🎙 Speak';
   }
 
-  return (<button
-    type="button" onClick={handleClick}
-    className={classNames({
-      'microphone-button': true,
-      'microphone-button-is-listening': listening,
-      'microphone-button-is-processing': processing,
-      'microphone-button-is-error': error,
-      'microphone-button-is-success': success,
-    })}
-  >
-    {text}
-  </button>);
+  const getButtonClass = () => {
+    const baseClass = "h-full text-white text-xs rounded-none border overflow-hidden whitespace-nowrap shrink focus:outline-none focus:shadow-none";
+    
+    if (listening) {
+      return `${baseClass} bg-[#dc3545] border-[#dc3545]`;
+    } else if (processing) {
+      return `${baseClass} bg-blue-900/50 border-blue-900/50`;
+    } else if (error) {
+      return `${baseClass} bg-red-800/50 border-red-800/50`;
+    } else if (success) {
+      return `${baseClass} bg-green-800/50 border-green-800/50`;
+    }
+    return `${baseClass} bg-[#1e3a5f] border-[#2a5d8f] hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6] focus:border-[#3f77b2]`;
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={getButtonClass()}
+    >
+      {text}
+    </button>
+  );
 });

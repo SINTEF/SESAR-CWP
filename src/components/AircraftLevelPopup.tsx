@@ -1,7 +1,6 @@
 import classnames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Button } from 'react-bootstrap';
 
 import {
   changeFlightLevelOfAircraft,
@@ -31,18 +30,19 @@ function ListOfLevels(
 
   for (let index = 560; index > 200; index -= 10) {
     const isWithinRange = hasLevel && index >= bottomFlightLevel && index <= topFlightLevel;
-    rows.push(<Button
+    rows.push(<button
         key={index}
         onClick={(): void => onClick(index)}
-        className={classnames({
-          'flight-level-element': true,
-          'flight-level-within-range': isWithinRange,
-        })}
-        variant="secondary" size="sm"
-        data-level={index}
-        active={index === value}>
+        className={classnames(
+          'btn btn-ghost btn-sm text-xs',
+          {
+            'text-green-400 font-bold': isWithinRange,
+            'btn-active': index === value,
+          }
+        )}
+        data-level={index}>
       {index}
-    </Button>);
+    </button>);
   }
 
   return (<>{rows}</>);
@@ -136,18 +136,18 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
 
   return (
     <div
-      className={classnames({
-        pending: false,
-        accepted,
-        other: false,
-        'level-popup': true,
-      })}
+      className={classnames(
+        'w-[150px] h-fit bg-gray-700/50 rounded-sm p-1',
+        {
+          'border-2 border-green-400': accepted,
+        }
+      )}
     >
-      <div className="level-popup-header">
+      <div className="text-center font-bold">
         {callSign}
       </div>
-      <div className="level-popup-main">
-        <div className="levels-container" ref={listOfLevelsReference}>
+      <div className="flex">
+        <div className="w-1/2 text-center snap-y snap-mandatory h-52 overflow-y-scroll scrollbar-hide" ref={listOfLevelsReference}>
           <ListOfLevels
             value={flightLevel}
             onClick={setFlightLevel}
@@ -155,20 +155,20 @@ export default observer(function AircraftLevelPopup(properties: { aircraft: Airc
             bottomFlightLevel={bottomFlightLevel}
             />
         </div>
-        <div className="levels-slider">
-          <Button onClick={(): void => FlightLevelChange('up')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11165;</Button>
-          <input className="level-range" type="range"
+        <div className="w-1/2 flex flex-col">
+          <button onClick={(): void => FlightLevelChange('up')} className="btn btn-ghost btn-xs text-xs">⮝</button>
+          <input className="range range-vertical flex-grow w-full" type="range"
                 value={flightLevel}
                 onChange={(event): void => setFlightLevel(
                   Number.parseInt(event.target.value, 10) || 0)}
                 step={sliderStep} min={flightLevelMin} max={flightLevelMax}
               />
-          <Button onClick={(): void => FlightLevelChange('down')} size="sm" variant="secondary" className="arrow-button justify-content-center">&#11167;</Button>
+          <button onClick={(): void => FlightLevelChange('down')} className="btn btn-ghost btn-xs text-xs">⮟</button>
         </div>
       </div>
-      <div className="submit-cancel-buttons">
-        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
-        <Button onClick={setFLCP} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Apply</Button>
+      <div className="flex gap-0.5 mt-1">
+        <button onClick={close} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Cancel</button>
+        <button onClick={setFLCP} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Apply</button>
       </div>
     </div>
   );

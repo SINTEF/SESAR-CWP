@@ -1,9 +1,6 @@
-import "./BottomNavbar.css";
-
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Navbar } from "react-bootstrap";
 
 import { configurationStore, cwpStore } from "../state";
 import DistanceMeasurementDropdown from "./DistanceMeasurementDropdown";
@@ -15,7 +12,11 @@ const ControllerButton = observer(function ControllerButton() {
 	const { currentCWP } = configurationStore;
 	const { toggleControllerSelection } = cwpStore;
 	return (
-		<button type="button" onClick={(): void => toggleControllerSelection()}>
+		<button 
+			type="button" 
+			onClick={(): void => toggleControllerSelection()}
+			className="h-full text-white text-xs bg-[#1e3a5f] rounded-none border border-[#2a5d8f] overflow-hidden whitespace-nowrap shrink hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6] focus:outline-none focus:shadow-none focus:border-[#3f77b2]"
+		>
 			{currentCWP || "Controller"}
 		</button>
 	);
@@ -31,7 +32,16 @@ function GenericButton({
 	active: boolean;
 }): JSX.Element {
 	return (
-		<button type="button" onClick={onClick} className={classNames({ active })}>
+		<button 
+			type="button" 
+			onClick={onClick} 
+			className={classNames(
+				"h-full text-white text-xs bg-[#1e3a5f] rounded-none border border-[#2a5d8f] overflow-hidden whitespace-nowrap shrink",
+				"hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6]",
+				"focus:outline-none focus:shadow-none focus:border-[#3f77b2]",
+				active && "bg-[#4b90db] border-[#6bb3f0]"
+			)}
+		>
 			{children}
 		</button>
 	);
@@ -150,7 +160,7 @@ const OtherSectorsFlightLabelsButton = observer(
 
 export default function BottomNavBar(): JSX.Element {
 	return (
-		<Navbar className="navbar button-navbar">
+		<div className="absolute top-0 left-0 h-[1.9em] p-0 bg-[#1a1a1a] flex flex-row justify-start z-[1]">
 			<MicrophoneButton />
 			<FLButton />
 			<SFLButton />
@@ -165,6 +175,6 @@ export default function BottomNavBar(): JSX.Element {
 			<DistanceMeasurementDropdown />
 			<ControllerButton />
 			<MqttIndicators />
-		</Navbar>
+		</div>
 	);
 }

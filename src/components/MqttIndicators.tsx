@@ -4,9 +4,8 @@
  * This component does not use mobx, to make things as lightweight as possible.
  */
 
-import './MqttIndicators.css';
-
 import React, { Component } from 'react';
+import classNames from 'classnames';
 
 import {
   onConnect, onDisconnect, onPacketReceive, onPacketSend,
@@ -132,10 +131,19 @@ export default class MqttIndicators extends Component<unknown, {
   render(): JSX.Element {
     const { connected, receiving, sending } = this.state;
     return (
-      <div className="mqtt-indicators">
-        <div className={connected ? 'connected' : ''} />
-        <div className={receiving ? 'receiving' : ''} />
-        <div className={sending ? 'sending' : ''} />
+      <div className="flex flex-col justify-around items-center h-full ml-auto p-1 justify-self-end">
+        <div className={classNames(
+          "w-1.5 h-1.5 rounded-full",
+          connected ? "bg-[#86ce00]" : "bg-gray-700"
+        )} />
+        <div className={classNames(
+          "w-1.5 h-1.5 rounded-full",
+          receiving ? "bg-[#ff5e00]" : "bg-gray-700"
+        )} />
+        <div className={classNames(
+          "w-1.5 h-1.5 rounded-full",
+          sending ? "bg-[#3d86e6]" : "bg-gray-700"
+        )} />
       </div>
     );
   }

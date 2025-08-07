@@ -1,3 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Maplibre popup customizations for draggable popup */
+@layer components {
+  .maplibregl-popup-content {
+    @apply rounded-none p-0 shadow-none relative;
+  }
+}
+
 :root {
     --sesar-font: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
@@ -35,184 +46,17 @@ div#root {
     flex-grow: 1;
 }
 
-/* Accordion for sector configurations */
-.sector-configuration-accordion .accordion-item {
-    border-color: #404040;
-}
+/* Custom styles that cannot be easily converted to Tailwind */
 
-.sector-configuration-accordion .accordion-button,
-.sector-configuration-accordion .accordion-button:not(.collapsed) {
-    box-shadow: inset 0 -1px 0 #404040;
-}
-
-.sector-configuration-accordion .sector-title {
-    font-size: 10px !important;
-}
-
-.sector-configuration-accordion .sector-body {
-    font-size: 8px !important;
-}
-
-.sector-configuration-accordion .span3 {
-    display: inline-table;
-    margin: 0px;
-    flex-wrap: nowrap;
-}
-
-.sector-configuration-body .btn:focus {
-    box-shadow: none;
-}
-
-.flight-popup input[type="range"]{
+/* Range input styles - keeping for vertical slider */
+input[type="range"].range-vertical {
     -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
     height: 80px;
 }
-.table-button{
-    overflow: hidden;
-}
-
-.sector-box {
-    display: grid;
-    width: 450px;
-    height: 250px;
-    gap: 0px;
-}
-
-.accordion-body {
-    position: relative;
-}
-
-#table-of-config {
-    width: 450px;
-    position: relative;
-    left: -5px;
-
-}
-
-.highlight-sector {
-    border: 6px solid rgba(250, 250, 250, 0.5) !important;
-    /* z-index: -1; */
 
 
-}
 
-.no-highlight-sector {
-    border: none;
-}
-
-.clicked-sector {
-    outline: 3.5px dotted rgba(250, 250, 250, 0.6) !important;
-    z-index: 1;
-}
-
-.no-clicked-sector {
-    outline: none;
-}
-
-.disabled-sector {
-    filter: grayscale(80%);
-    opacity: 0.7;
-}
-
-
-#table-of-config tr,
-#table-of-config td {
-    padding: 1px !important;
-    margin: 1px !important;
-}
-
-.control-panel {
-    position: absolute;
-    top: 72px;
-    z-index: 34;
-    right: 50%;
-    width: 500px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    padding: 0;
-    margin: 0;
-    font-size: 13px;
-    line-height: 2;
-    color: #000;
-    outline: none;
-    text-transform: uppercase;
-}
-
-.timeline-rectangle {
-    background-color: #4472c4;
-    height: 250px;
-    width: 15px;
-    position: absolute;
-    right: 1px;
-    top: 10px;
-    z-index: 0;
-}
-
-.timeline-rectangle-0 {
-    background-color: #4472c4;
-    height: 282px;
-    width: 15px;
-    position: absolute;
-    right: 1px;
-    top: 0px;
-    z-index: 0;
-}
-
-.timeline-rectangle-1 {
-    background-color: #4472c4;
-    height: 282px;
-    float: right;
-    width: 15px;
-    position: absolute;
-    right: 1px;
-    top: 0;
-    z-index: 0;
-}
-
-.moveable-timeline-rectangle {
-    color: #fff;
-    font-size: 12px;
-    width: 4rem;
-    height: 20px;
-    position: absolute;
-    right: -1.5rem;
-    background-color: #ed7d31;
-    z-index: 20;
-    border: solid #b66129 2px;
-    font-family: var(--sesar-font-mono);
-    text-align: center;
-    line-height: 16px;
-}
-
-.accordion-button:not(.collapsed) {
-    background-color: #222 !important;
-    color: #fff !important;
-    z-index: 1;
-}
-
-/* Aircraft list */
-
-.aircraft-list {
-    font-family: var(--sesar-font-mono);
-    position: absolute;
-    top: 0;
-    left: 5;
-    width: 250px;
-    margin: 8px;
-    font-size: 10px;
-    line-height: 2;
-    outline: none;
-    text-transform: uppercase;
-    max-height: 250px;
-    overflow-y: scroll;
-}
-
-.sector-flight-list-table thead,
-.aircraft-list-table thead {
-    position: sticky;
-    top: 0px;
-    z-index: 1;
-
-}
 /* Webkit scrollbar dark mode */
 
 ::-webkit-scrollbar {
@@ -313,90 +157,8 @@ div#root {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,0 0,100 50,50'/></svg>");
 }
 
-/* For Sector Flight List */
-.sector-flight-list {
-    position: absolute;
-    bottom: 3.45em;
-    left: 50px;
-    /* width: 500px; */
-    /* padding: 10px 14px 14px 14px;
-    margin-bottom: 50px;
-    margin-left: 40px;
-    line-height: 2; */
-    font-size: xx-small;
-    outline: none;
-    text-transform: uppercase;
-    max-height: 150px;
-    overflow-y: scroll;
-    transform: translate(0px, 0px);
-    font-family: var(--sesar-font-mono);
-    z-index: 500;
-}
 
-.fix-selector {
-    align-self: center;
-    font-size: 10px !important;
-    color: #fff !important;
-    width: 12em !important;
-    height: 3em;
-    z-index: 1;
-    background-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-.fix-selector-container {
-    display: inline-flex;
-    justify-content: space-between;
-    justify-items: center;
-    align-items: start;
-    align-content:flex-start;
-    font-size: 10px !important;
-    color: #fff !important;
-    width: 100%;
-    height: 3em;
-}
-
-.fix-selector-container option {
-    background-color: #404040 !important;
-}
-
-.drop-down-container {
-    display: inline-flex;
-    justify-content: start;
-    width: 100%;
-
-}
-
-.up-down-arrows {
-    display: inline-flex;
-    justify-content: end;
-    align-self: flex-end;
-    align-items: flex-end;
-    align-content: flex-end;
-    width: 4em !important;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-.SFL-text{
-    display: inline-flex;
-    align-self: center;
-}
-
-
-.number-of-flight {
-    display: inline-flex;
-    justify-content: space-around;
-    justify-self: flex-end;
-    align-self: center;
-    /* width: 3em; */
-}
-
-/* .sector-flight-list::-webkit-scrollbar {
-    display: inline-block;
-    width: 10px;
-} */
-
-/* For popup on flights */
+/* Mapbox/Maplibre popup styles */
 .mapboxgl-popup-close-button {
     color: white;
 }
@@ -405,71 +167,10 @@ div#root {
     max-width: none;
     width: fit-content;
     height: fit-content;
-    /* width:20px; */
     font-size: 0.8em;
     z-index: 0;
 }
 
-.flight-popup-main .btn {
-    padding: 0rem 0.2rem 0rem 1.5rem;
-    margin: 0;
-    background: none;
-    border: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-    line-height: 1em;
-    font-family: var(--sesar-font-mono);
-    font-size: 0.8rem;
-}
-
-.flight-popup-main {
-    /** Disable text selection */
-    user-select: none;
-}
-
-.flight-popup-children {
-    padding-top: 3px;
-}
-
-.flight-popup-container {
-    border-spacing: 0;
-    width: 100%;
-    max-width: 100%;
-}
-
-.flight-popup-container tr {
-    width: 33.333333%;
-}
-
-
-.flight-popup td {
-    line-height: 1.4em;
-    margin: 0;
-    padding: 0 0.25rem 0 0.25rem;
-}
-
-.flight-popup button.btn {
-    box-shadow: none;
-}
-
-.flight-popup button.btn:active {
-    color: black;
-}
-
-.flight-popup .flight-popup-main {
-    background: rgba(90, 90, 90, 0.5);
-    border-radius: 1.5px;
-}
-
-.flight-popup {
-    backdrop-filter: blur(1.5px);
-    /* color: white; */
-    padding: 0;
-    margin: 0;
-    z-index: 0;
-    font-size: 0.7rem;
-}
 
 .mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
     border-top-color: rgb(34, 34, 34);
@@ -481,261 +182,12 @@ div#root {
     display: none;
 }
 
-/* For level pop up */
-
-.level-popup {
-    width: 150px;
-    height: fit-content;
-}
-
-.level-popup.accepted {
-    border-color: rgb(120, 226, 81);
-}
-
-.level-popup-header {
-    text-align: center;
-}
-
-.level-popup-main {
-    display: flex;
-}
-
-.level-popup-main .levels-container {
-    width: 50%;
-    text-align: center;
-}
-
-.level-popup-main .levels-slider {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-}
-
-.level-popup-main .level-range {
-    flex-grow: 1;
-}
-
-.level-popup .levels-container .btn {
-    background: transparent;
-    border-color: transparent;
-}
-
-.level-popup .levels-container .btn:hover,
-.level-popup .levels-container .btn.active,
-.level-popup .levels-container .btn:active {
-    background: #444;
-}
-
-.level-range {
-    width: 100%;
-}
-
-.levels-container {
-    scroll-snap-type: y mandatory;
-    height: 13em;
-    overflow-y: scroll;
-}
-
-.levels-container::-webkit-scrollbar {
-    display: none;
-}
-
-.flight-level-element {
-    font-size: 12px !important;
-}
-.flight-level-within-range {
-    color: lightgreen !important;
-    font-weight: bold;
-}
-
-.child {
-    /* scroll-snap-align: start; */
-    font-size: small;
-}
-
-.arrow-button {
-    font-size: 6px !important;
-}
-
-.apply-cancel-wrapper {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-left: -10px;
-    width: 2em !important;
-
-}
-
-.apply-cancel-button {
-    font-size: 8.5px !important;
-    align-items: center;
-    padding: -3px -5px !important;
-    border-radius: 5px;
-}
-
-/* For Next Sector Popup */
-.next-sector-popup .mapboxgl-popup-content button.btn {
-    box-shadow: none;
-}
-
-.next-sector-popup .mapboxgl-popup-content button.btn:active {
-    color: black;
-}
-
-.next-sector-popup .mapboxgl-popup-content {
-    background: rgba(90, 90, 90, 0.5);
-    border-radius: 1.5px;
-    padding: 0;
-    margin: 0;
-    height: 3em;
-    width: 250px !important;
-    z-index: 0;
-}
-
-.change-bearing,
-.change-next-fix,
-.next-sector-popup,
-.change-speed,
-.level-popup {
-    background: rgba(90, 90, 90, 0.5);
-    border-radius: 1.5px;
-    padding: 0.2rem;
-    width: 124px;
-    z-index: 0;
-    position: relative;
-}
-
-.change-speed {
-    width: 110px;
-}
-
-.submit-cancel-buttons {
-    display: flex;
-    flex-direction: row;
-    gap: 2px;
-    margin-top: 3px;
-    justify-content: space-between;
-}
-
-.submit-cancel-button.btn {
-    flex-grow: 1;
-    height: 1.9rem;
-    font-size: x-small;
-    align-items: center;
-    padding: 0;
-    border-radius: 0px;
-    border-width: 2px;
-    border-style: outset;
-    border-color: rgb(118, 118, 118);
-    color: white;
-    background-color: rgb(170, 170, 170);
 
 
-}
 
-.submit-cancel-wrapper {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-right: -10px;
-    margin-left: -10px;
-    width: 15em !important;
 
-}
 
-.dropdown-button {
-    width: 6em !important;
-    height: 3em !important;
-    font-size: 8.0px !important;
-    line-height: 0em !important;
-    margin: 0;
-    padding: 0 !important;
-    color: #000 !important;
-    background-color: #fff !important;
-    position: relative;
-    border-radius: 0px !important;
-}
-
-.next-sector-popup .gutter-2 {
-    line-height: 1.4em;
-    margin: 0;
-    padding: 0 0 0 0;
-}
-
-.controller-modal .modal-header {
-    border-bottom: none;
-    padding-bottom: 0.5rem;
-}
-
-.controller-modal .modal-body {
-    padding-bottom: 1.5rem;
-    text-align: center;
-}
-
-.controller-modal .btn-group {
-    flex-wrap: wrap;
-    gap: 0.333rem;
-}
-
-.controller-modal .btn-group .btn {
-    border-top-left-radius: 0.2rem !important;
-    border-top-right-radius: 0.2rem !important;
-    border-bottom-left-radius: 0.2rem !important;
-    border-bottom-right-radius: 0.2rem !important;
-    width: 25%;
-}
-
-/* Pseudo popup */
-
-.choose-next-controller {
-    background-color: rgba(90, 90, 90, 0.5);
-}
-
-.input-filter-popup {
-    background: transparent;
-    color: white;
-    width: 6.2em !important;
-}
-
-.input-filter-bearing {
-    background: transparent;
-    color: white;
-    width: 4.4em !important;
-}
-
-/* Sector configuration time toggle container */
-
-.toggle-countdown-container {
-    display: flex;
-    direction: column;
-    flex-wrap: wrap;
-    position: absolute;
-    justify-content: center;
-    align-self: center;
-    top: 0;
-    right: 60%;
-    width: 12em;
-    background: rgba(90, 90, 90, 0.8);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    font-size: 11px;
-    line-height: 2;
-    color: #000;
-    outline: none;
-    z-index: 500;
-}
-
-.toggle-countdown-container-next {
-    background: rgba(255, 0, 0, 0.8);
-}
-
-.time-to-change {
-    color: #0ff;
-    text-align: center;
-}
-
-.toggle-sectors-button {
-    width: 100%
-}
-
-/* COMPASS */
+/* COMPASS - Map control styles only */
 
 #map-3d>* .maplibregl-ctrl-group .maplibregl-ctrl-compass {
     position: absolute;
@@ -745,13 +197,6 @@ div#root {
     height: 3em;
     z-index: 0;
     border: 0;
-}
-
-.compass {
-    position: absolute;
-    right: 16.5em;
-    top: 23em;
-
 }
 
 .mapboxgl-ctrl-top-right .maplibregl-ctrl-top-right {
@@ -771,114 +216,6 @@ button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
     background-size: 120% 120%;
 }
 
-.reset-button {
-    position: absolute;
-    z-index: 2147483637;
-    bottom: 11.5em;
-    left: 5.8em;
-    width: 3em;
-    height: 3em;
-    border: none;
-    background: transparent;
-    outline: none;
-}
-
-.north-button {
-    position: absolute;
-    bottom: 16em;
-    left: 4.8em;
-    width: 5em;
-    height: 3em;
-    background-color: transparent;
-    border: 0;
-    background-image: url('../saveDirectionArrow.png');
-    background-size: 100% 100%;
-    transform: rotate(90deg);
-
-
-}
-
-.south-button {
-    position: absolute;
-    left: 4.8em;
-    bottom: 7em;
-    width: 5em;
-    height: 3em;
-    background-color: transparent;
-    border: 0;
-    background-image: url('../saveDirectionArrow.png');
-    background-size: 100% 100%;
-    transform: rotate(-90deg);
-
-
-}
-
-.east-button {
-    position: absolute;
-    left: 9.2em;
-    bottom: 11.5em;
-    width: 5em;
-    height: 3em;
-    background-color: transparent;
-    border: 0;
-    background-image: url('../saveDirectionArrow.png');
-    background-size: 100% 100%;
-    transform: rotate(180deg);
-
-}
-
-.west-button {
-    position: absolute;
-    left: 0.5em;
-    bottom: 11.5em;
-    width: 5em;
-    height: 3em;
-    background-color: transparent;
-    border: 0;
-    background-image: url('../saveDirectionArrow.png');
-    background-size: 100% 100%;
-}
-
-.chevron-degrees-button {
-    width: 3em;
-    height: 3em;
-    background-image: url('../arrow_chevron.png');
-    background-color: transparent;
-    border: 0;
-    background-size: 100% 100%;
-}
-
-.chevron-north {
-    position: absolute;
-    bottom: 19em;
-    left: 5.8em;
-    transform: rotate(90deg);
-}
-
-.chevron-south {
-    position: absolute;
-    left: 5.8em;
-    bottom: 4em;
-    transform: rotate(-90deg);
-}
-
-.chevron-west {
-    position: absolute;
-    left: -1.5em;
-    bottom: 11.5em;
-    width: 3em;
-    height: 3em;
-}
-
-.chevron-east {
-    position: absolute;
-    left: 13.2em;
-    bottom: 11.5em;
-    transform: rotate(180deg);
-    width: 3em;
-    height: 3em;
-}
-
 /* Make the control buttons of the maps dark */
 .maplibregl-ctrl-group {
     filter: invert() hue-rotate(180deg);
@@ -892,17 +229,6 @@ button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
     filter: hue-rotate(180deg);
 }
 
-.huge-next-text {
-    position: absolute;
-    bottom: 0.5rem;
-    right: 0.5rem;
-    font-size: 2.5rem;
-    color: rgba(250, 250, 250, 0.5);
-    z-index: 100;
-    user-select: none;
-    text-align: right;
-
-}
 
 html .btn {
     font-family: var(--sesar-font);

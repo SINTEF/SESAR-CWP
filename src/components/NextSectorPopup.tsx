@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Button, Dropdown } from 'react-bootstrap';
 
 import { handlePublishPromise, tentativeFlight } from '../mqtt/publishers';
 import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
@@ -29,10 +28,8 @@ export default observer(function NextSectorPopup(properties: {
   }
   const close = (): void => cwpStore.closeNextSectorPopupForAircraft(aircraftId);
 
-  const handleSelect = (value: string | null): void => {
-    if (value) {
-      setControllerPlaceholder(value);
-    }
+  const handleSelect = (value: string): void => {
+    setControllerPlaceholder(value);
   };
   const submit = (): void => {
     if (controllerPlaceholder === 'OTHER') {
@@ -60,25 +57,27 @@ export default observer(function NextSectorPopup(properties: {
   };
 
   return (
-    <div
-      className="next-sector-popup"
-    >
+    <div className="bg-gray-700/50 rounded-sm p-1 w-[124px] relative">
       <div>
-        <Dropdown onSelect={handleSelect}>
-          <Dropdown.Toggle className="btn btn-light dropdown-button">
+        <div className="dropdown dropdown-bottom">
+          <label tabIndex={0} className="btn btn-xs w-24 h-12 text-xs leading-0 m-0 p-0 bg-white text-black rounded-none">
             {controllerPlaceholder === 'All' ? 'Master' : controllerPlaceholder}
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
+          </label>
+          <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 max-h-60 overflow-y-auto">
             {sortedListOfAllControllers.map(
-              (name) => (<Dropdown.Item eventKey={name} key={name}>{name === 'All' ? 'Master' : name}</Dropdown.Item>))}
-            {/* <Dropdown.Item eventKey={'All'} key={'All'}>Master</Dropdown.Item> */}
-          </Dropdown.Menu>
-        </Dropdown>
+              (name) => (
+                <li key={name}>
+                  <a onClick={() => handleSelect(name)}>
+                    {name === 'All' ? 'Master' : name}
+                  </a>
+                </li>
+              ))}
+          </ul>
+        </div>
       </div>
-      <div className="submit-cancel-buttons">
-        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
-        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      <div className="flex gap-0.5 mt-1 justify-between">
+        <button onClick={close} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Cancel</button>
+        <button onClick={submit} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Submit</button>
       </div>
     </div>
   );

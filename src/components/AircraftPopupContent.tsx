@@ -173,7 +173,7 @@ export default observer(function AircraftPopupContent(properties: {
 	const { aircraft, flightColor } = properties;
 	const currentSector = roleConfigurationStore.currentControlledSector;
 	return (
-		<table className="flight-popup-container">
+		<table className="border-spacing-0 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
 				<tr>
 					<td>{Math.round(aircraft.lastKnownSpeed)}</td>

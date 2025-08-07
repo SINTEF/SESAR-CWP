@@ -10,7 +10,7 @@ export default observer(function HugeNextText() {
     return null;
   }
 
-  return (<div className="huge-next-text">
+  return (<div className="absolute bottom-2 right-2 text-[2.5rem] text-white/50 z-[100] select-none text-right">
     <span>NEXT SECTORS</span>
   </div>);
 });

@@ -89,14 +89,7 @@ export default observer(function SectorSideView() {
 
 	return (
 		<div>
-			<div
-				style={{
-					fontSize: "12px",
-					fontWeight: "bold",
-					margin: "8px",
-					color: "#ffffff",
-				}}
-			>
+			<div className="text-xs font-bold m-2 text-white">
 				Vertical Window | {selectedAircraft?.callSign}
 			</div>
 			<ResponsiveContainer width="100%" height={400}>

@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Button } from 'react-bootstrap';
 
 import { changeNextWaypointOfAircraft, handlePublishPromise } from '../mqtt/publishers';
 import { configurationStore, cwpStore, fixStore } from '../state';
@@ -64,17 +63,17 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   };
 
   return (
-    <div className="change-next-fix">
+    <div className="bg-gray-700/50 rounded-sm p-1 w-[124px] relative">
       <div>
-        Next Fix:
-        <input className="input-filter-popup"
+        <div className="text-sm mb-2">Next Fix:</div>
+        <input className="input input-bordered input-xs bg-transparent text-white w-[6.2em]"
           value={changedFix}
           onChange={(event): void => setChangedFix(event.target.value)}
         />
       </div>
-      <div className="submit-cancel-buttons">
-        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
-        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      <div className="flex gap-0.5 mt-1 justify-between">
+        <button onClick={close} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Cancel</button>
+        <button onClick={submit} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Submit</button>
       </div>
     </div>
   );

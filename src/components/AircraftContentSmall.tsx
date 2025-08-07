@@ -136,7 +136,7 @@ export default observer(function AircraftContentSmall(properties: {
 }) {
 	const { aircraft, flightColor } = properties;
 	return (
-		<table className="flight-popup-container">
+		<table className="border-spacing-0 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
 				<tr>
 					<td>{Math.round(aircraft.lastKnownSpeed)}</td>

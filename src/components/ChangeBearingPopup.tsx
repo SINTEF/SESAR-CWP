@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Button } from 'react-bootstrap';
 
 import { changeBearingOfAircraft, handlePublishPromise, persistACCBearing } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
@@ -38,17 +37,17 @@ export default observer(function ChangeBearingPopup(properties: { aircraft: Airc
   };
 
   return (
-    <div className="change-bearing">
+    <div className="bg-gray-700/50 rounded-sm p-1 w-[124px] relative">
       <form onSubmit={(event):void => { event.preventDefault(); submit(); }}>
-        New Bearing:
-        <input className="input-filter-bearing"
+        <div className="text-sm mb-2">New Bearing:</div>
+        <input className="input input-bordered input-xs bg-transparent text-white w-[4.4em]"
             type="text" inputMode="numeric" pattern="-?[0-9]*"
             value={newBearing}
             onChange={(event): void => setNewBearing(event.target.value)}/>
       </form>
-      <div className="submit-cancel-buttons">
-        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
-        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      <div className="flex gap-0.5 mt-1 justify-between">
+        <button onClick={close} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Cancel</button>
+        <button onClick={submit} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Submit</button>
       </div>
     </div>
   );
