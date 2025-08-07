@@ -40,22 +40,22 @@ export default observer(function ControllerModal() {
   return (
     <>
       {/* Modal backdrop */}
-      <div 
-        className={`modal ${showControllerSelection ? 'modal-open' : ''}`}
+      <div
+        className="modal modal-open"
         onClick={secondSelection ? () => toggleControllerSelection() : undefined}
       >
         <div className="modal-box max-w-2xl" onClick={(e) => e.stopPropagation()}>
           {/* Modal header */}
           <h3 className="font-bold text-lg mb-4">Choose Controller</h3>
           {secondSelection && (
-            <button 
+            <button
               className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
               onClick={() => toggleControllerSelection()}
             >
               ✕
             </button>
           )}
-          
+
           {/* Modal body */}
           <div className="py-4">
             {isLoading ? (
@@ -65,7 +65,7 @@ export default observer(function ControllerModal() {
                 <br/>
               </div>
             ) : null}
-            
+
             {/* Controllers group */}
             <div className="flex flex-wrap gap-2 mb-4">
               {controllersWithoutAll.map((name) => (
@@ -78,7 +78,7 @@ export default observer(function ControllerModal() {
                 </button>
               ))}
             </div>
-            
+
             {/* Pseudo pilots group */}
             {pseudoPilots.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
@@ -93,7 +93,7 @@ export default observer(function ControllerModal() {
                 ))}
               </div>
             )}
-            
+
             {/* Master button */}
             <div className="flex flex-wrap gap-2">
               <button
