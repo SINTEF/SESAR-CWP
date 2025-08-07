@@ -17,9 +17,9 @@ export default observer(function VoiceCommandFeedback() {
   const success = processingCommand === ProcessingCommandStatus.Success;
 
   const getBackgroundColor = () => {
-    if (processing) return 'bg-blue-900/50';
-    if (error) return 'bg-red-700/50';
-    if (success) return 'bg-green-700/50';
+    if (processing) { return 'bg-blue-900/50'; }
+    if (error) { return 'bg-red-700/50'; }
+    if (success) { return 'bg-green-700/50'; }
     return 'bg-black/50';
   };
 

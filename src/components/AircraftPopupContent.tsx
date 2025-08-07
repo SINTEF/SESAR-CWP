@@ -98,7 +98,7 @@ const AssignedBearing = observer(
 
 const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
 	const middleClickNextWaypoint = (
-		event: React.MouseEvent<HTMLElement>,
+		_event: React.MouseEvent<HTMLElement>,
 	): void => {
 		// if (event.button === 1) {
 		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);

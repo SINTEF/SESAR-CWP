@@ -16,21 +16,21 @@ import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors"
 import { ObservableSet } from "mobx";
 import { formatSimulatorTimeHM } from "../utils";
 
-const handleFlightClicked = (event: string): void => {
+const _handleFlightClicked = (event: string): void => {
 	cwpStore.setHighlightedAircraftId(event);
 };
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function DypTable(/* properties */) {
 	const { selectedAircraftIds } = cwpStore;
-	const currentSector = roleConfigurationStore.currentControlledSector;
-	const [filter, setFilter] = useState("");
-	const [valueSelected, setSelectedValue] = useState("");
-	const listOfFixes = roleConfigurationStore.listOfFixesInPolygon;
-	const [listOfAircraft, setListOfAircraft] = React.useState<AircraftModel[]>(
+	const _currentSector = roleConfigurationStore.currentControlledSector;
+	const [_filter, _setFilter] = useState("");
+	const [_valueSelected, _setSelectedValue] = useState("");
+	const _listOfFixes = roleConfigurationStore.listOfFixesInPolygon;
+	const [_listOfAircraft, _setListOfAircraft] = React.useState<AircraftModel[]>(
 		[],
 	);
 	const simulatorTime = simulatorStore.timestamp;
-	const fixSelect = React.createRef<HTMLSelectElement>();
+	const _fixSelect = React.createRef<HTMLSelectElement>();
 	const xDomain = [simulatorTime, simulatorTime + 1800]; // 1 hour later
 
 	// if (!cwpStore.showSFL || selectedAircraftIds.size === 0) {

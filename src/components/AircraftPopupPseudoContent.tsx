@@ -115,7 +115,7 @@ const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
 	);
 });
 
-const AssignedBearing = observer(
+const _AssignedBearing = observer(
 	({ aircraft }: SubContentProperties): JSX.Element => (
 		<td>
 			{aircraft.assignedBearing === -1 || aircraft.assignedBearing === undefined
@@ -148,7 +148,7 @@ const AssignedSpeed = observer(
 	),
 );
 
-const HideAircraft = observer(
+const _HideAircraft = observer(
 	({ aircraft }: SubContentProperties): JSX.Element => {
 		const [confirm, setConfirm] = React.useState(false);
 		const [doubleConfirm, setDoubleConfirm] = React.useState(false);

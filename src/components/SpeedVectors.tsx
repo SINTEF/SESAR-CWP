@@ -105,8 +105,8 @@ const paintCircle = {
 };
 
 export default observer(function SpeedVectors() {
-	const aircraftIds = cwpStore.aircraftsWithSpeedVectors;
-	const { lowestBound, highestBound } = cwpStore.altitudeFilter;
+	const _aircraftIds = cwpStore.aircraftsWithSpeedVectors;
+	// const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const { speedVectorMinutes, showSpeedVectors } = cwpStore;
 
 	if (!showSpeedVectors) {

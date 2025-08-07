@@ -7,7 +7,7 @@ import DistanceMeasurementDropdown from "./DistanceMeasurementDropdown";
 import SpeedVectorNavbarControl from "./SpeedVectorNavbarControl";
 import Time from "./Time";
 
-const ControllerButton = observer(function ControllerButton() {
+const _ControllerButton = observer(function ControllerButton() {
 	const { currentCWP } = configurationStore;
 	const { toggleControllerSelection } = cwpStore;
 	return (
@@ -46,7 +46,7 @@ function GenericButton({
 	);
 }
 
-const FLButton = observer(function FLButton() {
+const _FLButton = observer(function FLButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleFL()}
@@ -68,7 +68,7 @@ const NSFLButton = observer(function NSFLButton() {
 	);
 });
 
-const SFLButton = observer(function SFLButton() {
+const _SFLButton = observer(function SFLButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleSFL()}
@@ -123,7 +123,7 @@ const ResetButton = observer(function ResetButton() {
 	);
 });
 
-const FlightLabelsButton = observer(function FlightLabelsButton() {
+const _FlightLabelsButton = observer(function FlightLabelsButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleFlightLabels()}
@@ -145,7 +145,7 @@ const FixesButton = observer(function FixesButton() {
 	);
 });
 
-const LimboFlightsButton = observer(function LimboFlightsButton() {
+const _LimboFlightsButton = observer(function LimboFlightsButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleLimboFlights()}
@@ -156,7 +156,7 @@ const LimboFlightsButton = observer(function LimboFlightsButton() {
 	);
 });
 
-const FilterButton = observer(function FilterButton() {
+const _FilterButton = observer(function FilterButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleFILT()}
@@ -167,7 +167,7 @@ const FilterButton = observer(function FilterButton() {
 	);
 });
 
-const CurrentSectorFlightLabelsButton = observer(
+const _CurrentSectorFlightLabelsButton = observer(
 	function CurrentSectorFlightLabelsButton() {
 		const { currentCWP } = configurationStore;
 		if (!currentCWP || currentCWP === "All") {
@@ -184,7 +184,7 @@ const CurrentSectorFlightLabelsButton = observer(
 	},
 );
 
-const OtherSectorsFlightLabelsButton = observer(
+const _OtherSectorsFlightLabelsButton = observer(
 	function OtherSectorsFlightLabelsButton() {
 		const { currentCWP } = configurationStore;
 		if (!currentCWP || currentCWP === "All") {

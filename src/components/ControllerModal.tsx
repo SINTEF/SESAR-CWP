@@ -35,7 +35,7 @@ export default observer(function ControllerModal() {
 
   const isLoading = listOfAll.length === 1;
 
-  if (!showControllerSelection) return null;
+  if (!showControllerSelection) { return null; }
 
   return (
     <>

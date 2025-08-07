@@ -20,7 +20,7 @@ export default observer(function AircraftPopup(properties: {
 	aircraft: AircraftModel;
 	pseudo: boolean;
 }) {
-	const { aircraft, pseudo } = properties; // Not removing 'pseudo' yet as it might be used for the TA
+	const { aircraft, /* pseudo */ } = properties; // Not removing 'pseudo' yet as it might be used for the TA
 	const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const [isHovered, setIsHovered] = React.useState(false);
 	const {
