@@ -21,7 +21,7 @@ type SubContentProperties = {
 };
 
 const CallSign = observer(
-	({ aircraft, colSpan }: SubContentProperties) => {
+	({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
 		const { callSign } = aircraft;
 		const setController = (): void => {
 			if (isDragging()) {
@@ -64,7 +64,7 @@ const CallSign = observer(
 );
 
 export const Altitude = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const onClick = (): void => {
 			if (isDragging()) {
 				return;
@@ -80,7 +80,7 @@ export const Altitude = observer(
 );
 
 export const NextSectorFL = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const openNSFLPopup = (): void => {
 			if (isDragging()) {
 				return;
@@ -93,7 +93,7 @@ export const NextSectorFL = observer(
 );
 
 export const NextSectorController = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const onClick = (): void => {
 			if (isDragging()) {
 				return;
@@ -111,13 +111,13 @@ export const NextSectorController = observer(
 );
 
 export const LocalAssignedFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => (
+	({ aircraft }: SubContentProperties): JSX.Element => (
 		<td>{aircraft.localAssignedFlightLevel}</td>
 	),
 );
 
 export const NextACCFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const openNextACCPopup = (): void => {
 			if (isDragging()) {
 				return;

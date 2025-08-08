@@ -12,9 +12,4 @@ export default defineConfig({
     },
     target: ['es2020'],
   },
-  resolve: {
-    alias: {
-      mqtt: 'mqtt/dist/mqtt.js',
-    },
-  },
 });

@@ -8,7 +8,7 @@ import type DistanceMarker from '../model/DistanceMarker';
 
 const MapDistanceMarker = observer((properties: {
   marker: DistanceMarker,
-}) => {
+}): JSX.Element => {
   const { marker } = properties;
 
   const {

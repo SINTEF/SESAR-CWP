@@ -1,15 +1,15 @@
-import type { ReportHandler } from 'web-vitals';
+import type { Metric } from 'web-vitals';
 
-const reportWebVitals = (onPerfEntry?: ReportHandler): void => {
+const reportWebVitals = (onPerfEntry?: (metric: Metric) => void): void => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
     import('web-vitals').then(({
-      getCLS, getFID, getFCP, getLCP, getTTFB,
+      onCLS, onINP, onFCP, onLCP, onTTFB,
     }) => {
-      getCLS(onPerfEntry);
-      getFID(onPerfEntry);
-      getFCP(onPerfEntry);
-      getLCP(onPerfEntry);
-      getTTFB(onPerfEntry);
+      onCLS(onPerfEntry);
+      onINP(onPerfEntry);
+      onFCP(onPerfEntry);
+      onLCP(onPerfEntry);
+      onTTFB(onPerfEntry);
     }).catch((error) => {
       // biome-ignore lint/suspicious/noConsole: needed for now
       console.error(error);

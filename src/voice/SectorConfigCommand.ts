@@ -1,8 +1,8 @@
 import {
-  area as turfArea, centerOfMass, intersect, polygon,
+  area as turfArea, centerOfMass, intersect, polygon, featureCollection,
 } from '@turf/turf';
+import type { Feature, Polygon, Position } from 'geojson';
 import { transaction } from 'mobx';
-import type { Feature, Polygon, Position } from '@turf/turf';
 
 import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 import type { ISectorModel } from '../model/ISectorModel';
@@ -11,7 +11,13 @@ function convertISectorModelToTurfPolygon(sector: ISectorModel): Feature<Polygon
   const coordinates = sector.sectorArea.map((coord): Position => [
     coord.longitude, coord.latitude,
   ]);
-  return polygon([coordinates]);
+  // Ensure polygon is closed - polygon() now requires first and last coordinates to be the same
+  const closedCoordinates = coordinates.length > 0 && 
+    (coordinates[0][0] !== coordinates[coordinates.length - 1][0] || 
+     coordinates[0][1] !== coordinates[coordinates.length - 1][1])
+    ? [...coordinates, coordinates[0]]
+    : coordinates;
+  return polygon([closedCoordinates]);
 }
 
 function computeCenterOfMass(sector: ISectorModel): Position {
@@ -26,7 +32,7 @@ function findSectorWithLargestIntersection(
   // Compute the area of the intersection of sectorPolygon and above for each sector in above
   const areas = otherSectors.map((s) => {
     const aboveSectorPolygon = convertISectorModelToTurfPolygon(s);
-    const intersection = intersect(sectorPolygon, aboveSectorPolygon);
+    const intersection = intersect(featureCollection([sectorPolygon, aboveSectorPolygon]));
     if (intersection === null) {
       return { sector: s, area: 0 };
     }

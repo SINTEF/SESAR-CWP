@@ -3,9 +3,8 @@ import {
 	point as turfPoint,
 	polygon as turfPolygon,
 } from "@turf/turf";
+import type { Feature, Polygon, Position } from "geojson";
 import { makeAutoObservable, observable } from "mobx";
-import type { Position } from "@turf/turf";
-import type turf from "@turf/turf";
 import type { ObservableMap } from "mobx";
 
 import RoleConfigurationModel from "./RoleConfigurationModel";
@@ -186,10 +185,10 @@ export default class RoleConfigurationStore {
 	}
 
 	get areaOfCurrentControllerSectorAsTurfFeature():
-		| turf.Feature<turf.Polygon>
+		| Feature<Polygon>
 		| undefined {
 		const area = this.areaOfCurrentControlledSector;
-		if (area?.length === 0) {
+		if (!area || area.length === 0) {
 			return undefined;
 		}
 		const edges = area.map((edge) => [edge.longitude, edge.latitude]);

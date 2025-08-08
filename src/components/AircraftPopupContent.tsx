@@ -6,7 +6,7 @@ import {
 	acceptFlight,
 	handlePublishPromise,
 	persistFrontendFlightController,
-} from "../mqtt/publishers";
+} from "../mqtt-client/publishers";
 import {
 	aircraftStore,
 	configurationStore,
@@ -21,7 +21,7 @@ type SubContentProperties = {
 };
 
 const CallSign = observer(
-	({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
+	({ aircraft, colSpan }: SubContentProperties) => {
 		const { callSign } = aircraft;
 		const setController = (): void => {
 			if (isDragging()) {
@@ -64,7 +64,7 @@ const CallSign = observer(
 );
 
 export const Altitude = observer(
-	({ aircraft }: SubContentProperties): JSX.Element => {
+	({ aircraft }: SubContentProperties) => {
 		const onClick = (): void => {
 			if (isDragging()) {
 				return;
@@ -80,7 +80,7 @@ export const Altitude = observer(
 );
 
 const AssignedBearing = observer(
-	({ aircraft }: SubContentProperties): JSX.Element => {
+	({ aircraft }: SubContentProperties) => {
 		const { assignedBearing } = aircraft;
 
 		if (assignedBearing === -1 || assignedBearing === undefined) {
@@ -96,7 +96,7 @@ const AssignedBearing = observer(
 	},
 );
 
-const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
+const NextFix = observer(({ aircraft }: SubContentProperties) => {
 	const middleClickNextWaypoint = (
 		_event: React.MouseEvent<HTMLElement>,
 	): void => {
@@ -116,7 +116,7 @@ const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
 });
 
 export const NextSectorFL = observer(
-	({ aircraft }: SubContentProperties): JSX.Element => {
+	({ aircraft }: SubContentProperties) => {
 		const openNSFLPopup = (): void => {
 			if (isDragging()) {
 				return;
@@ -129,7 +129,7 @@ export const NextSectorFL = observer(
 );
 
 export const NextSectorController = observer(
-	({ aircraft }: SubContentProperties): JSX.Element => {
+	({ aircraft }: SubContentProperties) => {
 		const onClick = (): void => {
 			if (isDragging()) {
 				return;
@@ -147,13 +147,13 @@ export const NextSectorController = observer(
 );
 
 export const LocalAssignedFlightLevel = observer(
-	({ aircraft }: SubContentProperties): JSX.Element => (
+	({ aircraft }: SubContentProperties) => (
 		<td>{aircraft.localAssignedFlightLevel}</td>
 	),
 );
 
 export const NextACCFlightLevel = observer(
-	({ aircraft }: SubContentProperties): JSX.Element => {
+	({ aircraft }: SubContentProperties) => {
 		const openNextACCPopup = (): void => {
 			if (isDragging()) {
 				return;

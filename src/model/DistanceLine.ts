@@ -1,4 +1,4 @@
-import { length as turfLength, lineString, radiansToDistance } from '@turf/turf';
+import { length as turfLength, lineString, radiansToLength } from '@turf/turf';
 import {
   makeAutoObservable, observable,
 } from 'mobx';
@@ -12,7 +12,7 @@ export function getLength(coordinates: number[][]): string {
   }
   const line = lineString(coordinates);
   const lineLength = turfLength(line, { units: 'radians' });
-  const lengthToNautical = radiansToDistance(lineLength, 'nauticalmiles');
+  const lengthToNautical = radiansToLength(lineLength, 'nauticalmiles');
   return `${lengthToNautical.toFixed(3)} NM`;
 }
 

@@ -91,7 +91,7 @@ const initialViewState: Partial<ViewState> = {
 // ];
 
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
-export default function Map() {
+export default function Map(): JSX.Element {
 	return (
 		<ReactMapGL
 			id="radar-map"
@@ -104,6 +104,7 @@ export default function Map() {
 			mapStyle={mapStyle}
 			attributionControl={false}
 			mapLib={maplibregl}
+			antialias
 			onClick={handleMapClick}
 			renderWorldCopies={false}
 			// If rotation and pitch should be disabled:

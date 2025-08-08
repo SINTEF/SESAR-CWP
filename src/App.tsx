@@ -22,7 +22,7 @@ import DypTable from "./components/DypTable";
 //   window.dispatchEvent(new Event('resize'));
 // });
 
-export default function App(/* properties */): JSX.Element {
+export default function App(/* properties */) {
 	return (
 		<>
 			<main>

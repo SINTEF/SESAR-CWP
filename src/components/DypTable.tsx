@@ -107,11 +107,11 @@ export default observer(function DypTable(/* properties */) {
 							</td>
 							<td className="bg-base-200 p-1.5 border-2 border-base-100">{latestSelectedAircraftClass || "AEROFLOT"}</td>
 							<td className="bg-base-200 p-1.5 border-2 border-base-100"></td>
-							<td className="bg-base-200 p-1.5 border-2 border-base-100">{latestSelectedAircraftData?.transponderCode || "7347"}</td>
+							<td className="bg-base-200 p-1.5 border-2 border-base-100">{(latestSelectedAircraftData as any)?.transponderCode || "7347"}</td>
 							<td className="bg-base-200 p-1.5 border-2 border-base-100"></td>
 							<td className="bg-base-200 p-1.5 border-2 border-base-100">{lastestSelectedAircraftType || "A321"}</td>
 							<td colSpan={2} className="bg-slate-900 text-xs font-bold p-1.5 border-2 border-base-100">
-								{latestSelectedAircraftData?.currentTime || "08:57"}
+								{(latestSelectedAircraftData as any)?.currentTime || "08:57"}
 							</td>
 							<td className="bg-base-200 p-1.5 border-2 border-base-100"></td>
 						</tr>
@@ -150,7 +150,7 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.lastKnownAltitude &&
 									Math.ceil(latestSelectedAircraftData?.lastKnownAltitude)}
 							</td>
-							{latestSelectedAircraftData?.routeWaypoints?.map((wp, index) => (
+							{(latestSelectedAircraftData as any)?.routeWaypoints?.map((wp: any, index: number) => (
 								<td key={`sec-${index}`} className="bg-slate-700 text-xs p-1.5 border-2 border-base-100">
 									<div>{wp.sector}</div>
 									<div>{wp.level}</div>
@@ -174,7 +174,7 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.nextSectorController || "none"}
 							</td>
 							<td colSpan={2} className="bg-gray-900 p-1.5 border-2 border-base-100">
-								{latestSelectedAircraftData?.frequency || "132.490"}
+								{(latestSelectedAircraftData as any)?.frequency || "132.490"}
 							</td>
 							<td colSpan={4} className="bg-gray-900 p-1.5 border-2 border-base-100">Texte :</td>
 							<td colSpan={4} className="bg-gray-900 p-1.5 border-2 border-base-100"></td>

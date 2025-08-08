@@ -3,7 +3,7 @@ import { useMap } from 'react-map-gl/maplibre';
 
 import { initialViewState } from './Sectors3DView';
 
-export default function Compass() {
+export default function Compass(): JSX.Element {
   const { current: map } = useMap();
 
   const rotationButtonClicked = (rotation: string): void => {
