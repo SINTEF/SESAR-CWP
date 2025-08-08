@@ -58,12 +58,15 @@
   width: 100%;
 }
 
-/* Maplibre popup customizations for draggable popup */
-@utility maplibregl-popup-content {
+/* Maplibre/Mapbox popup customizations for draggable popup */
+.maplibregl-popup-content,
+.mapboxgl-popup-content {
   border-radius: 0;
   padding: 0;
   box-shadow: none;
   position: relative;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 :root {
@@ -259,6 +262,8 @@ input[type="range"].range-vertical {
 .mapboxgl-ctrl-top-right .maplibregl-ctrl-top-right {
     z-index: -1;
 }
+.maplibregl-popup-content mapboxgl-popup-content {
+    background-color: transparent;}
 
 #map-3d>* .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
 button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {

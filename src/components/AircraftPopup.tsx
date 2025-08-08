@@ -15,12 +15,13 @@ import DraggablePopup from "./DraggablePopup";
 import NextSectorPopup from "./NextSectorPopup";
 import type AircraftModel from "../model/AircraftModel";
 import AircraftContentSmall from "./AircraftContentSmall";
+import ATCMenu from "./ATCMenu";
 
 export default observer(function AircraftPopup(properties: {
 	aircraft: AircraftModel;
 	pseudo: boolean;
 }) {
-	const { aircraft, /* pseudo */ } = properties; // Not removing 'pseudo' yet as it might be used for the TA
+	const { aircraft /* pseudo */ } = properties; // Not removing 'pseudo' yet as it might be used for the TA
 	const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const [isHovered, setIsHovered] = React.useState(false);
 	const {
@@ -91,7 +92,7 @@ export default observer(function AircraftPopup(properties: {
 		});
 	}
 
-	const height = 65;
+	const height = 70;
 	const width = isHovered ? 150 : 60; // Width of the popup changes based on hover state
 
 	const Content = isHovered ? AircraftPopupContent : AircraftContentSmall;
@@ -145,6 +146,7 @@ export default observer(function AircraftPopup(properties: {
 					<NextSectorPopup aircraft={aircraft} />
 					<ChangeSpeedPopup aircraft={aircraft} />
 					<ChangeBearingPopup aircraft={aircraft} />
+					<ATCMenu aircraft={aircraft} />
 				</div>
 			</div>
 		</DraggablePopup>

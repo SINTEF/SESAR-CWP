@@ -104,7 +104,6 @@ export default class ConfigurationStore {
 		if (!endTime) {
 			throw new Error("Missing end time");
 		}
-
 		if (this.configurationPlan.has(airspaceId)) {
 			this.configurationPlan
 				.get(airspaceId)
@@ -213,16 +212,17 @@ export default class ConfigurationStore {
 		const areas = references
 			.map((reference): ISectorModel | undefined => {
 				const { volumeId, bottomFlightLevel, topFlightLevel } = reference;
-				const airspace = this.airspaceStore.getAreaFromId(volumeId);
-				if (!airspace) {
-					// Probably not received yet
-					return undefined;
-				}
+				// const airspace = this.airspaceStore.getAreaFromId(volumeId);
+				// console.log(airspace, "airspace");
+				// if (!airspace) {
+				// 	// Probably not received yet
+				// 	return undefined;
+				// }
 				return {
 					sectorId: volumeId,
 					bottomFlightLevel,
 					topFlightLevel,
-					sectorArea: [...airspace.sectorArea],
+					sectorArea: [], // MISSING
 				};
 			})
 			.filter((area): area is ISectorModel => area !== undefined);

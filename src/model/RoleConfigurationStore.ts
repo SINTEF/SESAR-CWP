@@ -119,7 +119,7 @@ export default class RoleConfigurationStore {
 	}
 
 	handleNewRoleConfigutationMessage(newConfig: RoleConfigurationMessage): void {
-		const { roleName } = newConfig;
+		const { roleName, sectorToControl } = newConfig;
 		const cwpRole = this.roleConfigurations.get(roleName);
 		if (!cwpRole) {
 			this.roleConfigurations.set(
@@ -128,28 +128,38 @@ export default class RoleConfigurationStore {
 					cwpRoleName: roleName,
 				}),
 			);
+			this.roleConfigurations
+				.get(roleName)
+				?.replaceSectorsToControl([sectorToControl]);
 		}
+		// setControlledSector(roleName, newConfig., [
+		// 	newConfig.sectorToControl,
+		// ]);
+		// cwpRole.addSectorsToControl(newConfig.sectorToControl);
 		const { tentativeFlights } = newConfig;
 		cwpRole?.addTentativeAircraft(tentativeFlights);
 	}
 
 	findCurrentSectorByCWP(cwp: string, config: string): string | undefined {
-		const listOfSectorIds = this.roleConfigurations.get(cwp)?.sectorsToControl;
-		const includedAirspaces =
-			this.configurationStore.getAreaOfIncludedAirpaces(config);
-		if (listOfSectorIds) {
-			for (const sector of listOfSectorIds) {
-				const area = RoleConfigurationStore.getAreaForSector(
-					includedAirspaces,
-					sector,
-				);
-				if (area) {
-					return sector;
-				}
-			}
-		}
-		return undefined;
+		const listOfSectorIds = this.roleConfigurations.get(cwp)?.sectorToControl;
+		return listOfSectorIds && listOfSectorIds[0]; // This is changed and might need to be rearranged
 	}
+	// console.log(this.roleConfigurations.get(cwp)?.sectorToControl, cwp);
+	// 	const includedAirspaces =
+	// 		this.configurationStore.getAreaOfIncludedAirpaces(config); // These are the sectors
+	// 	if (listOfSectorIds) {
+	// 		for (const sector of listOfSectorIds) {
+	// 			const area = RoleConfigurationStore.getAreaForSector(
+	// 				includedAirspaces,
+	// 				sector,
+	// 			);
+	// 			if (area) {
+	// 				return sector;
+	// 			}
+	// 		}
+	// 	}
+	// 	return undefined;
+	// }
 
 	private static getAreaForSector(
 		areas: ISectorModel[],
@@ -169,7 +179,7 @@ export default class RoleConfigurationStore {
 	get areaOfCurrentControlledSector(): CoordinatePair[] | undefined {
 		const listOfSectorIds = this.roleConfigurations.get(
 			this.configurationStore.currentCWP,
-		)?.sectorsToControl;
+		)?.sectorToControl;
 		if (listOfSectorIds) {
 			for (const sector of listOfSectorIds) {
 				const area = RoleConfigurationStore.getAreaForSector(
@@ -188,11 +198,12 @@ export default class RoleConfigurationStore {
 		| Feature<Polygon>
 		| undefined {
 		const area = this.areaOfCurrentControlledSector;
-		if (!area || area.length === 0) {
+		if (area && area?.length > 0) {
+			const edges = area.map((edge) => [edge.longitude, edge.latitude]);
+			return turfPolygon([[...edges, edges[0]]]);
+		} else {
 			return undefined;
 		}
-		const edges = area.map((edge) => [edge.longitude, edge.latitude]);
-		return turfPolygon([[...edges, edges[0]]]);
 	}
 
 	pointInCurrentControlledSector(lat: number, lng: number): boolean {
@@ -228,6 +239,7 @@ export default class RoleConfigurationStore {
 	handleNewAirTrafficControllerMessage(
 		newAirTrafficControllerMessage: AirTrafficControllerAssignmentMessage,
 	): void {
+		console.log(newAirTrafficControllerMessage.airTrafficControllerId); // Not getting here
 		const roleName = `CWP${newAirTrafficControllerMessage.airTrafficControllerId}`;
 		const controllingSectors = newAirTrafficControllerMessage.sectorIds;
 		this.roleConfigurations.set(
@@ -248,7 +260,7 @@ export default class RoleConfigurationStore {
 		}
 		const listOfSectorIds = this.roleConfigurations.get(
 			this.configurationStore.currentCWP,
-		)?.sectorsToControl;
+		)?.sectorToControl;
 		if (listOfSectorIds) {
 			for (const sector of listOfSectorIds) {
 				const area = RoleConfigurationStore.getAreaForSector(
@@ -269,7 +281,7 @@ export default class RoleConfigurationStore {
 		}
 		const listOfSectorIds = this.roleConfigurations.get(
 			this.configurationStore.currentCWP,
-		)?.sectorsToControl;
+		)?.sectorToControl;
 		if (listOfSectorIds) {
 			for (const sector of listOfSectorIds) {
 				const area = RoleConfigurationStore.getAreaForSector(
@@ -291,7 +303,7 @@ export default class RoleConfigurationStore {
 		}
 		const listOfSectorIds = this.roleConfigurations.get(
 			this.configurationStore.currentCWP,
-		)?.sectorsToControl;
+		)?.sectorToControl;
 		if (listOfSectorIds) {
 			for (const sector of listOfSectorIds) {
 				const area = RoleConfigurationStore.getAreaForSector(
@@ -313,7 +325,7 @@ export default class RoleConfigurationStore {
 		}
 		const listOfSectorIds = this.roleConfigurations.get(
 			this.configurationStore.currentCWP,
-		)?.sectorsToControl;
+		)?.sectorToControl;
 		if (listOfSectorIds) {
 			for (const sector of listOfSectorIds) {
 				const area = RoleConfigurationStore.getAreaForSector(
@@ -335,7 +347,7 @@ export default class RoleConfigurationStore {
 		}
 		const listOfSectorIds = this.roleConfigurations.get(
 			this.configurationStore.currentCWP,
-		)?.sectorsToControl;
+		)?.sectorToControl;
 		if (listOfSectorIds) {
 			for (const sector of listOfSectorIds) {
 				const area = RoleConfigurationStore.getAreaForSector(
@@ -354,15 +366,17 @@ export default class RoleConfigurationStore {
 	getOriginalColorOfAircraft(aircraftId: string): string {
 		const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
 		if (!aircraft) {
-			return "#ffffff";
+			return "#555555"; // Default color is grey
 		}
-
-		const listOfTentatives = this.roleConfigurations // Is this the same as anticipated?
+		const listOfTentatives = this.roleConfigurations // Is this the same as anticipated? No I think this was used when one handed over to another ATC
 			.get(this.configurationStore.currentCWP)?.tentativeAircrafts;
 		if (listOfTentatives?.includes(aircraftId)) {
 			return "#78e251"; // Green?
 		}
-
+		// console.log(this.aircraftsEnteringCurrentSector);
+		if (this.aircraftsEnteringCurrentSector.includes(aircraft)) {
+			return "#78e251"; // Green?
+		}
 		if (
 			aircraft.nextSectorController !== "NS" &&
 			aircraft.nextSectorController !== aircraft.controlledBy
@@ -371,9 +385,8 @@ export default class RoleConfigurationStore {
 		}
 
 		if (aircraft.controlledBy === this.configurationStore.currentCWP) {
-			return "#ffffff";
+			return "#ffff00";
 		}
-
 		if (
 			this.currentControlledSector &&
 			aircraft.isEnteringFlight(this.currentControlledSector)
@@ -386,6 +399,10 @@ export default class RoleConfigurationStore {
 	}
 
 	get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
+		console.log(
+			this.areaOfCurrentControlledSector,
+			"Area of current controlled sector",
+		);
 		if (this.areaOfCurrentControlledSector !== undefined) {
 			const coordinates = this.areaOfCurrentControlledSector?.map(
 				(point): Position => [point.longitude, point.latitude],
