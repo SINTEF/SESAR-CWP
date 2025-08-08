@@ -4,7 +4,8 @@
     "includes": [
       "src/**/*",
       "!src/proto/**/*",
-      "!src/proto/**/*"
+      "!src/proto/**/*",
+      "server/**/*.ts"
     ],
     "rules": {
       "a11y": {},
