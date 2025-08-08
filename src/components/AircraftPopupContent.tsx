@@ -29,31 +29,28 @@ const CallSign = observer(
 			}
 			const { aircraftId, controlledBy, assignedFlightId } = aircraft;
 
-			const listOfTentativeFlights =
-				roleConfigurationStore.roleConfigurations.get(
-					configurationStore.currentCWP,
-				)?.tentativeAircrafts;
-			if (listOfTentativeFlights?.includes(aircraftId)) {
-				roleConfigurationStore.roleConfigurations
-					.get(configurationStore.currentCWP)
-					?.removeTentativeAircraft(aircraftId);
+			if (cwpStore.ATCMenuAircraftId === aircraftId) {
+				cwpStore.setATCMenuAircraftId("");
+				return;
 			}
-			aircraftStore.aircrafts
-				.get(aircraftId)
-				?.setController(configurationStore.currentCWP);
-			handlePublishPromise(
-				acceptFlight(
-					controlledBy,
-					configurationStore.currentCWP,
-					assignedFlightId,
-				),
-			);
-			handlePublishPromise(
-				persistFrontendFlightController(
-					aircraftId,
-					configurationStore.currentCWP,
-				),
-			);
+			cwpStore.setATCMenuAircraftId(aircraftId);
+
+			// const listOfTentativeFlights =
+			// 	roleConfigurationStore.roleConfigurations.get(
+			// 		configurationStore.currentCWP,
+			// 	)?.tentativeAircrafts;
+
+			// if (listOfTentativeFlights?.includes(aircraftId)) {
+			// 	roleConfigurationStore.roleConfigurations
+			// 		.get(configurationStore.currentCWP)
+			// 		?.removeTentativeAircraft(aircraftId);
+			// }
+			// handlePublishPromise(
+			// 	persistFrontendFlightController(
+			// 		aircraftId,
+			// 		configurationStore.currentCWP,
+			// 	),
+			// );
 		};
 		return (
 			<td onClick={setController} colSpan={colSpan}>
@@ -196,8 +193,14 @@ export default observer(function AircraftPopupContent(properties: {
 					<AssignedBearing aircraft={aircraft} />
 				</tr>
 				<tr>
-					<td>EFL</td>
 					<td>
+						x
+						{currentSector &&
+							aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
+								?.altitude}
+					</td>
+					<td>
+						x
 						{currentSector &&
 							aircraft.flightInSectorTimes?.get(currentSector)?.exitWaypointId}
 					</td>

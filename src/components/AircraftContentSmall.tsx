@@ -29,25 +29,22 @@ const CallSign = observer(
 			}
 			const { aircraftId, controlledBy, assignedFlightId } = aircraft;
 
-			const listOfTentativeFlights =
-				roleConfigurationStore.roleConfigurations.get(
-					configurationStore.currentCWP,
-				)?.tentativeAircrafts;
-			if (listOfTentativeFlights?.includes(aircraftId)) {
-				roleConfigurationStore.roleConfigurations
-					.get(configurationStore.currentCWP)
-					?.removeTentativeAircraft(aircraftId);
+			if (cwpStore.ATCMenuAircraftId === aircraftId) {
+				cwpStore.setATCMenuAircraftId("");
+				return;
 			}
-			aircraftStore.aircrafts
-				.get(aircraftId)
-				?.setController(configurationStore.currentCWP);
-			handlePublishPromise(
-				acceptFlight(
-					controlledBy,
-					configurationStore.currentCWP,
-					assignedFlightId,
-				),
-			);
+			cwpStore.setATCMenuAircraftId(aircraftId);
+
+			// const listOfTentativeFlights =
+			// 	roleConfigurationStore.roleConfigurations.get(
+			// 		configurationStore.currentCWP,
+			// 	)?.tentativeAircrafts;
+
+			// if (listOfTentativeFlights?.includes(aircraftId)) {
+			// 	roleConfigurationStore.roleConfigurations
+			// 		.get(configurationStore.currentCWP)
+			// 		?.removeTentativeAircraft(aircraftId);
+			// }
 			handlePublishPromise(
 				persistFrontendFlightController(
 					aircraftId,
@@ -135,6 +132,8 @@ export default observer(function AircraftContentSmall(properties: {
 	flightColor: string;
 }) {
 	const { aircraft, flightColor } = properties;
+	const currentSector = roleConfigurationStore.currentControlledSector;
+
 	return (
 		<table className="border-spacing-0 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
@@ -148,7 +147,12 @@ export default observer(function AircraftContentSmall(properties: {
 					<Altitude aircraft={aircraft} />
 				</tr>
 				<tr>
-					<td>EFL</td>
+					<td>
+						x
+						{currentSector &&
+							aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
+								?.altitude}
+					</td>
 				</tr>
 			</tbody>
 		</table>

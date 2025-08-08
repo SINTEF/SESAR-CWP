@@ -11,8 +11,8 @@ const _ControllerButton = observer(function ControllerButton() {
 	const { currentCWP } = configurationStore;
 	const { toggleControllerSelection } = cwpStore;
 	return (
-		<button 
-			type="button" 
+		<button
+			type="button"
 			onClick={(): void => toggleControllerSelection()}
 			className="h-full text-white text-xs bg-[#1e3a5f] rounded-none border border-[#2a5d8f] overflow-hidden whitespace-nowrap shrink hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6] focus:outline-none focus:shadow-none focus:border-[#3f77b2]"
 		>
@@ -31,14 +31,14 @@ function GenericButton({
 	active: boolean;
 }): JSX.Element {
 	return (
-		<button 
-			type="button" 
-			onClick={onClick} 
+		<button
+			type="button"
+			onClick={onClick}
 			className={classNames(
 				"h-full text-white text-xs bg-[#1e3a5f] rounded-none border border-[#2a5d8f] overflow-hidden whitespace-nowrap shrink",
 				"hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6]",
-				"focus:outline-none focus:shadow-none focus:border-[#3f77b2]",
-				active && "bg-[#4b90db] border-[#6bb3f0]"
+				"focus:outline-none focus:shadow-none focus:border-[#3f77b2] p-1.5",
+				active && "bg-[#4b90db] border-[#6bb3f0]",
 			)}
 		>
 			{children}
@@ -228,14 +228,14 @@ export default function ImageConfiguration(): JSX.Element {
 				<div>
 					<OpenVerticalWindowButton />
 				</div>
-				<div>
+				{/* <div>
 					<NSFLButton />
 				</div>
 				<div>
 					<N_AButton />
-				</div>
+				</div> */}
 			</div>
-			<div className="flex gap-2 bg-[#232323] p-4 ml-1 mt-1 items-center">
+			<div className="flex gap-4 bg-[#232323] p-4 ml-1 mt-1 items-center">
 				<SpeedVectorNavbarControl />
 			</div>
 			{/* <div className="image-configuration-section">

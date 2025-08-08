@@ -97,6 +97,8 @@ export default class CWPStore {
 
 	showLimboFlight = false;
 
+	ATCMenuAircraftId = "";
+
 	showNextSectorsConfiguration: ShowNextConfiguration =
 		ShowNextConfiguration.Automatic;
 
@@ -456,5 +458,11 @@ export default class CWPStore {
 	}
 	setShowSpeedVectors(value: boolean): void {
 		this.showSpeedVectors = value;
+	}
+	setATCMenuAircraftId(aircraftId: string): void {
+		this.ATCMenuAircraftId = aircraftId;
+	}
+	clearATCMenuAircraftId(): void {
+		this.ATCMenuAircraftId = "";
 	}
 }
