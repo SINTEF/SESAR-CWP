@@ -1,5 +1,3 @@
-import "./css-files/ImageConfiguration.css";
-
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -9,11 +7,15 @@ import DistanceMeasurementDropdown from "./DistanceMeasurementDropdown";
 import SpeedVectorNavbarControl from "./SpeedVectorNavbarControl";
 import Time from "./Time";
 
-const ControllerButton = observer(function ControllerButton() {
+const _ControllerButton = observer(function ControllerButton() {
 	const { currentCWP } = configurationStore;
 	const { toggleControllerSelection } = cwpStore;
 	return (
-		<button type="button" onClick={(): void => toggleControllerSelection()}>
+		<button 
+			type="button" 
+			onClick={(): void => toggleControllerSelection()}
+			className="h-full text-white text-xs bg-[#1e3a5f] rounded-none border border-[#2a5d8f] overflow-hidden whitespace-nowrap shrink hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6] focus:outline-none focus:shadow-none focus:border-[#3f77b2]"
+		>
 			{currentCWP || "Controller"}
 		</button>
 	);
@@ -29,13 +31,22 @@ function GenericButton({
 	active: boolean;
 }): JSX.Element {
 	return (
-		<button type="button" onClick={onClick} className={classNames({ active })}>
+		<button 
+			type="button" 
+			onClick={onClick} 
+			className={classNames(
+				"h-full text-white text-xs bg-[#1e3a5f] rounded-none border border-[#2a5d8f] overflow-hidden whitespace-nowrap shrink",
+				"hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6]",
+				"focus:outline-none focus:shadow-none focus:border-[#3f77b2]",
+				active && "bg-[#4b90db] border-[#6bb3f0]"
+			)}
+		>
 			{children}
 		</button>
 	);
 }
 
-const FLButton = observer(function FLButton() {
+const _FLButton = observer(function FLButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleFL()}
@@ -57,7 +68,7 @@ const NSFLButton = observer(function NSFLButton() {
 	);
 });
 
-const SFLButton = observer(function SFLButton() {
+const _SFLButton = observer(function SFLButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleSFL()}
@@ -112,7 +123,7 @@ const ResetButton = observer(function ResetButton() {
 	);
 });
 
-const FlightLabelsButton = observer(function FlightLabelsButton() {
+const _FlightLabelsButton = observer(function FlightLabelsButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleFlightLabels()}
@@ -134,7 +145,7 @@ const FixesButton = observer(function FixesButton() {
 	);
 });
 
-const LimboFlightsButton = observer(function LimboFlightsButton() {
+const _LimboFlightsButton = observer(function LimboFlightsButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleLimboFlights()}
@@ -145,7 +156,7 @@ const LimboFlightsButton = observer(function LimboFlightsButton() {
 	);
 });
 
-const FilterButton = observer(function FilterButton() {
+const _FilterButton = observer(function FilterButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleFILT()}
@@ -156,7 +167,7 @@ const FilterButton = observer(function FilterButton() {
 	);
 });
 
-const CurrentSectorFlightLabelsButton = observer(
+const _CurrentSectorFlightLabelsButton = observer(
 	function CurrentSectorFlightLabelsButton() {
 		const { currentCWP } = configurationStore;
 		if (!currentCWP || currentCWP === "All") {
@@ -173,7 +184,7 @@ const CurrentSectorFlightLabelsButton = observer(
 	},
 );
 
-const OtherSectorsFlightLabelsButton = observer(
+const _OtherSectorsFlightLabelsButton = observer(
 	function OtherSectorsFlightLabelsButton() {
 		const { currentCWP } = configurationStore;
 		if (!currentCWP || currentCWP === "All") {
@@ -203,13 +214,13 @@ const OpenVerticalWindowButton = observer(function OpenVerticalWindowButton() {
 
 export default function ImageConfiguration(): JSX.Element {
 	return (
-		<div className="navbar button-navbar">
-			<div className="image-configuration-section">
+		<div className="absolute top-0 left-0 h-auto p-0 flex flex-col justify-start items-start z-[1]">
+			<div className="flex gap-2 bg-[#232323] p-4 ml-1 mt-1 items-center">
 				<Time />
 				<div>
 					<ResetButton />
 				</div>
-				<div className="button-group">
+				<div className="flex">
 					<FixesButton />
 					<AirwaysButton />
 					<SectorLabelsButton />
@@ -224,7 +235,7 @@ export default function ImageConfiguration(): JSX.Element {
 					<N_AButton />
 				</div>
 			</div>
-			<div className="image-configuration-section">
+			<div className="flex gap-2 bg-[#232323] p-4 ml-1 mt-1 items-center">
 				<SpeedVectorNavbarControl />
 			</div>
 			{/* <div className="image-configuration-section">

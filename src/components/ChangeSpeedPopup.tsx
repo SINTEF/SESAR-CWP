@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Button } from 'react-bootstrap';
 
 import { changeSpeedOfAircraft, handlePublishPromise, persistSpeedAircraft } from '../mqtt/publishers';
 import { configurationStore, cwpStore } from '../state';
@@ -41,17 +40,17 @@ export default observer(function ChangeNextFixPopup(properties: { aircraft: Airc
   };
 
   return (
-    <div className="change-speed">
+    <div className="bg-gray-700/50 rounded-sm p-1 w-[110px] relative">
       <form onSubmit={(event):void => { event.preventDefault(); submit(); }}>
-        New Speed:
-        <input className="input-filter-popup"
+        <div className="text-sm mb-2">New Speed:</div>
+        <input className="input input-bordered input-xs bg-transparent text-white w-[6.2em]"
             type="text" inputMode="numeric" pattern="[0-9]*"
             value={newSpeed}
             onChange={(event): void => setNewSpeed(event.target.value)}/>
       </form>
-      <div className="submit-cancel-buttons">
-        <Button onClick={close} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Cancel</Button>
-        <Button onClick={submit} className="btn btn-light submit-cancel-button" size="sm" variant="secondary">Submit</Button>
+      <div className="flex gap-0.5 mt-1 justify-between">
+        <button onClick={close} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Cancel</button>
+        <button onClick={submit} className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2">Submit</button>
       </div>
     </div>
   );

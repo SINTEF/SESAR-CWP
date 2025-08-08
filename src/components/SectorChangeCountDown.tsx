@@ -38,17 +38,16 @@ export default observer(function SectorChangeCountDown(/* properties */) {
       throw new Error('Invalid showNextSectorsConfiguration');
   }
   return (<Draggable bounds="parent" cancel="button, input">
-    <div className={
-      classnames({
-        'toggle-countdown-container': true,
-        'toggle-countdown-container-next': shouldShowNextConfiguration,
-      })}>
-      <div className="time-to-change">
+    <div className={classnames(
+      "flex flex-col flex-wrap absolute justify-center self-center top-0 right-[60%] w-[12em] shadow-md text-[11px] leading-loose text-black outline-none z-[500]",
+      shouldShowNextConfiguration ? "bg-red-500/80" : "bg-gray-500/80"
+    )}>
+      <div className="text-cyan-400 text-center">
         Sector change countdown:
         {' '}
         {ChangeCountDownTime(timeToNextConfiguration)}
       </div>
-      <button onClick={toggleShowNextSectorsConfiguration} className="toggle-sectors-button">
+      <button onClick={toggleShowNextSectorsConfiguration} className="w-full">
         {buttonText}
       </button>
     </div>

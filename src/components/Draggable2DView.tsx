@@ -29,16 +29,16 @@ export default observer(function Draggable2DView() {
 			onStart={startDragging}
 			onStop={stopDragging}
 		>
-			<div className="control-panel">
+			<div className="absolute top-[72px] z-[34] right-1/2 w-[500px] shadow-md p-0 m-0 text-[13px] leading-8">
 				<div
-					className="sector-configuration-accordion"
+					className="w-full h-full"
 					style={{ height: "100%", width: "100%", background: "#313131" }}
 				>
 					<SectorSideView />
 
 					<div key={`${1}:${1}`}>
 						<div
-							className="accordion-header"
+							className="w-full"
 							onClickCapture={(event): void => {
 								if (isDragging()) {
 									event.stopPropagation();

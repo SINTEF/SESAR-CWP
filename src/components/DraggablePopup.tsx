@@ -1,5 +1,3 @@
-import './DraggablePopup.css';
-
 import React from 'react';
 import { DraggableCore } from 'react-draggable';
 import { Popup } from 'react-map-gl';
@@ -152,15 +150,14 @@ export default class DraggablePopup extends
     return (
       <Popup {...otherProperties} style={{
         zIndex,
-      }} className="draggable-popup">
+        maxWidth: 'inherit',
+      }} className="max-w-none">
         <div
-          className={`draggable-popup-core ${className ?? ''}`}
+          className={`absolute z-[2] ${className ?? ''}`}
           onMouseDown={onClick}
           style={{
             top: `${offsetY}px`,
             left: `${offsetX}px`,
-            /* width: `${coreWidth}px`, */
-            /* height: `${coreHeight}px`, */
           }}
         >
           <DraggableCore
@@ -173,14 +170,14 @@ export default class DraggablePopup extends
           </DraggableCore>
         </div>
         <div
-          className="draggable-popup-line"
+          className="absolute z-[1] h-[1.5px] bg-white/50 origin-left"
           style={{
             display: displayLine ? 'block' : 'none',
             top: 0,
             left: 0,
             width: `${width}px`,
             transform: `rotate(${angle}rad)`,
-            background: color,
+            background: color || 'rgba(255,255,255,0.5)',
           }}
         />
       </Popup>

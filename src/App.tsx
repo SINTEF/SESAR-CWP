@@ -1,5 +1,3 @@
-import "./App.css";
-
 import * as React from "react";
 
 // import { throttle } from 'throttle-debounce';

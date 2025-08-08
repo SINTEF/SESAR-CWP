@@ -9,10 +9,8 @@ const BottomLeftLabel: React.FC<BottomLeftLabelProps> = ({ scale = 1 }) => {
 
   return (
     <div
+      className="absolute bottom-0 left-0"
       style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
         width: size,
         height: size,
       }}

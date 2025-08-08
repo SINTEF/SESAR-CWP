@@ -251,7 +251,6 @@ export default class ConfigurationStore {
 
 	get edgesPolygon(): [number, number][] {
 		const edges = this.configurations.get(this.currentConfigurationId)?.edges;
-		console.log(this.configurations.get(this.currentConfigurationId));
 		if (!edges) {
 			return [];
 		}

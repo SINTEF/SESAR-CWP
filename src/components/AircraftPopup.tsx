@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Button } from "react-bootstrap";
 import { useMap } from "react-map-gl";
 
 import { isDragging } from "../draggableState";
@@ -21,7 +20,7 @@ export default observer(function AircraftPopup(properties: {
 	aircraft: AircraftModel;
 	pseudo: boolean;
 }) {
-	const { aircraft, pseudo } = properties; // Not removing 'pseudo' yet as it might be used for the TA
+	const { aircraft, /* pseudo */ } = properties; // Not removing 'pseudo' yet as it might be used for the TA
 	const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const [isHovered, setIsHovered] = React.useState(false);
 	const {
@@ -112,7 +111,7 @@ export default observer(function AircraftPopup(properties: {
 
 	return (
 		<DraggablePopup
-			className="flight-popup"
+			className="text-xs p-0 m-0 backdrop-blur-[1.5px]"
 			style={{ color: flightColor }}
 			color={flightColor}
 			offset={{ x: 0, y: 0 }}
@@ -132,7 +131,7 @@ export default observer(function AircraftPopup(properties: {
 				onMouseLeave={(): void => setIsHovered(false)}
 			>
 				<div
-					className="flight-popup-main"
+					className="bg-gray-500/50 rounded-sm select-none"
 					style={{
 						width: `${width}px`,
 						height: `${height}px`,
@@ -141,7 +140,7 @@ export default observer(function AircraftPopup(properties: {
 				>
 					<Content flightColor={flightColor} aircraft={aircraft} />
 				</div>
-				<div className="flight-popup-children">
+				<div className="pt-1">
 					<AircraftLevelPopup aircraft={aircraft} />
 					<ChangeNextFixPopup aircraft={aircraft} />
 					<NextSectorPopup aircraft={aircraft} />

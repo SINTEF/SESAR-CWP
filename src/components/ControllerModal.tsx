@@ -1,8 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import * as React from 'react';
-import {
-  Modal, Spinner, ToggleButton, ToggleButtonGroup,
-} from 'react-bootstrap';
 
 import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 
@@ -38,47 +35,77 @@ export default observer(function ControllerModal() {
 
   const isLoading = listOfAll.length === 1;
 
-  return (
-    <Modal
-      show={showControllerSelection}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      className="controller-modal"
-      centered
-      onHide={(): void => toggleControllerSelection()}
-      keyboard={secondSelection}
-      backdrop={secondSelection ? true : 'static'}
-    >
-      <Modal.Header closeButton={secondSelection}>
-        <Modal.Title>
-          Choose Controller
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        { isLoading ? (
-          <div>
-            <Spinner animation="border" variant="light" />
-            <br/>
-            <br/>
-          </div>
-        ) : null}
-        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
-          {controllersWithoutAll.map(
-            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
-        </ToggleButtonGroup>
-        <br/>
-        <br/>
-        <ToggleButtonGroup onChange={handleSelect} name="pseudo-pilot-radio" value={selectedCWP}>
-          {pseudoPilots.map(
-            (name) => (<ToggleButton value={name} id={name} key={name}>{name}</ToggleButton>))}
-        </ToggleButtonGroup>
-        <br/>
-        <br/>
-        <ToggleButtonGroup onChange={handleSelect} name="controllers-radio" value={selectedCWP}>
-          <ToggleButton value="All" id="All" key="All">Master</ToggleButton>
-        </ToggleButtonGroup>
-      </Modal.Body>
-    </Modal>
+  if (!showControllerSelection) { return null; }
 
+  return (
+    <>
+      {/* Modal backdrop */}
+      <div
+        className="modal modal-open"
+        onClick={secondSelection ? () => toggleControllerSelection() : undefined}
+      >
+        <div className="modal-box max-w-2xl" onClick={(e) => e.stopPropagation()}>
+          {/* Modal header */}
+          <h3 className="font-bold text-lg mb-4">Choose Controller</h3>
+          {secondSelection && (
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={() => toggleControllerSelection()}
+            >
+              ✕
+            </button>
+          )}
+
+          {/* Modal body */}
+          <div className="py-4">
+            {isLoading ? (
+              <div className="flex flex-col items-center">
+                <span className="loading loading-spinner loading-lg text-primary"></span>
+                <br/>
+                <br/>
+              </div>
+            ) : null}
+
+            {/* Controllers group */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {controllersWithoutAll.map((name) => (
+                <button
+                  key={name}
+                  onClick={() => handleSelect(name)}
+                  className={`btn ${selectedCWP === name ? 'btn-primary' : 'btn-outline'}`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+
+            {/* Pseudo pilots group */}
+            {pseudoPilots.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {pseudoPilots.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => handleSelect(name)}
+                    className={`btn ${selectedCWP === name ? 'btn-primary' : 'btn-outline'}`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Master button */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleSelect('All')}
+                className={`btn ${selectedCWP === 'All' ? 'btn-primary' : 'btn-outline'}`}
+              >
+                Master
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 });

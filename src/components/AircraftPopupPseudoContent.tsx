@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Form } from "react-bootstrap";
 
 import { isDragging } from "../draggableState";
 import {
@@ -116,7 +115,7 @@ const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
 	);
 });
 
-const AssignedBearing = observer(
+const _AssignedBearing = observer(
 	({ aircraft }: SubContentProperties): JSX.Element => (
 		<td>
 			{aircraft.assignedBearing === -1 || aircraft.assignedBearing === undefined
@@ -149,7 +148,7 @@ const AssignedSpeed = observer(
 	),
 );
 
-const HideAircraft = observer(
+const _HideAircraft = observer(
 	({ aircraft }: SubContentProperties): JSX.Element => {
 		const [confirm, setConfirm] = React.useState(false);
 		const [doubleConfirm, setDoubleConfirm] = React.useState(false);
@@ -214,10 +213,11 @@ const HideAircraft = observer(
 		if (confirm) {
 			return (
 				<>
-					<Form.Check
+					<input
+						type="checkbox"
+						className="toggle toggle-sm"
 						checked={doubleConfirm}
 						onChange={(event): void => setDoubleConfirm(event.target.checked)}
-						type="switch"
 						id="hide-switch"
 					/>
 					{timer < 0 ? null : <strong style={{ color: "red" }}>{timer}</strong>}
@@ -234,10 +234,10 @@ export default observer(function AircraftPopupPseudoContent({
 }: SubContentProperties): JSX.Element {
 	// const isMaster = configurationStore.currentCWP === "All";
 	return (
-		<table className="flight-popup-container flight-popup-pseudo-container">
+		<table className="border-spacing-0 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
 				<tr>
-					<div>{aircraft.lastKnownSpeed}</div>
+					<td>{aircraft.lastKnownSpeed}</td>
 				</tr>
 				<tr>
 					<CallSign aircraft={aircraft} colSpan={1} />

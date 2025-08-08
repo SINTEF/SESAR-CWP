@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-import { Table } from "react-bootstrap";
 import Draggable from "react-draggable";
 
 import { startDragging, stopDragging } from "../draggableState";
@@ -39,14 +38,13 @@ export default observer(function AircraftListElement(/* properties */) {
 			onStart={startDragging}
 			onStop={stopDragging}
 		>
-			<div className="aircraft-list">
-				<Table className="aircraft-list-table" hover bordered variant="dark">
+			<div className="font-mono absolute top-0 left-1 w-64 m-2 text-xs leading-8 uppercase max-h-64 overflow-y-scroll">
+				<table className="table table-xs table-pin-rows bg-base-300 border-2 border-base-100">
 					<thead>
 						<tr>
-							<th colSpan={2}>
+							<th colSpan={2} className="bg-base-200">
 								<input
-									className="input-filter"
-									style={{ width: "126px", fontSize: "9.5px" }}
+									className="input input-xs input-bordered w-32 text-xs"
 									name="filter"
 									value={filter}
 									placeholder="Search by callsign..."
@@ -55,13 +53,13 @@ export default observer(function AircraftListElement(/* properties */) {
 									}
 								/>
 							</th>
-							<th colSpan={2}>FL Sector : {currentSector ?? ""}</th>
+							<th colSpan={2} className="bg-base-200">FL Sector : {currentSector ?? ""}</th>
 						</tr>
 						<tr>
-							<th>C/S</th>
-							<th>PLV</th>
-							<th>OUT</th>
-							<th>Time</th>
+							<th className="bg-base-200">C/S</th>
+							<th className="bg-base-200">PLV</th>
+							<th className="bg-base-200">OUT</th>
+							<th className="bg-base-200">Time</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -93,6 +91,7 @@ export default observer(function AircraftListElement(/* properties */) {
 										onClick={(): void =>
 											handleFlightClicked(aircraftData.assignedFlightId)
 										}
+										className="hover:bg-base-100 cursor-pointer"
 									>
 										<td>
 											<b>{aircraftData.callSign}</b>
@@ -104,7 +103,7 @@ export default observer(function AircraftListElement(/* properties */) {
 								);
 							})}
 					</tbody>
-				</Table>
+				</table>
 			</div>
 		</Draggable>
 	);
