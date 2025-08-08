@@ -1,20 +1,20 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Layer, Source } from "react-map-gl";
-import type { CirclePaint, SymbolLayout, SymbolPaint } from "mapbox-gl";
+import { Layer, Source } from "react-map-gl/maplibre";
+import type { CircleLayerSpecification, SymbolLayerSpecification } from "maplibre-gl";
 
 import { configurationStore, cwpStore, fixStore } from "../state";
 
-const fixLayerPaint: CirclePaint = {
+const fixLayerPaint: CircleLayerSpecification['paint'] = {
 	"circle-radius": 2.5,
 	"circle-color": "#fff",
 };
 
-const fixNamePaint: SymbolPaint = {
+const fixNamePaint: SymbolLayerSpecification['paint'] = {
 	"text-color": "#fff",
 };
 
-const fixNameLayout: SymbolLayout = {
+const fixNameLayout: SymbolLayerSpecification['layout'] = {
 	"text-field": ["get", "title"],
 	"text-allow-overlap": true,
 	"text-font": ["IBM Plex Mono"],

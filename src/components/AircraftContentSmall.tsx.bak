@@ -21,7 +21,7 @@ type SubContentProperties = {
 };
 
 const CallSign = observer(
-	({ aircraft, colSpan }: SubContentProperties) => {
+	({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
 		const { callSign } = aircraft;
 		const setController = (): void => {
 			if (isDragging()) {
@@ -29,22 +29,25 @@ const CallSign = observer(
 			}
 			const { aircraftId, controlledBy, assignedFlightId } = aircraft;
 
-			if (cwpStore.ATCMenuAircraftId === aircraftId) {
-				cwpStore.setATCMenuAircraftId("");
-				return;
+			const listOfTentativeFlights =
+				roleConfigurationStore.roleConfigurations.get(
+					configurationStore.currentCWP,
+				)?.tentativeAircrafts;
+			if (listOfTentativeFlights?.includes(aircraftId)) {
+				roleConfigurationStore.roleConfigurations
+					.get(configurationStore.currentCWP)
+					?.removeTentativeAircraft(aircraftId);
 			}
-			cwpStore.setATCMenuAircraftId(aircraftId);
-
-			// const listOfTentativeFlights =
-			// 	roleConfigurationStore.roleConfigurations.get(
-			// 		configurationStore.currentCWP,
-			// 	)?.tentativeAircrafts;
-
-			// if (listOfTentativeFlights?.includes(aircraftId)) {
-			// 	roleConfigurationStore.roleConfigurations
-			// 		.get(configurationStore.currentCWP)
-			// 		?.removeTentativeAircraft(aircraftId);
-			// }
+			aircraftStore.aircrafts
+				.get(aircraftId)
+				?.setController(configurationStore.currentCWP);
+			handlePublishPromise(
+				acceptFlight(
+					controlledBy,
+					configurationStore.currentCWP,
+					assignedFlightId,
+				),
+			);
 			handlePublishPromise(
 				persistFrontendFlightController(
 					aircraftId,
@@ -61,7 +64,7 @@ const CallSign = observer(
 );
 
 export const Altitude = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const onClick = (): void => {
 			if (isDragging()) {
 				return;
@@ -77,7 +80,7 @@ export const Altitude = observer(
 );
 
 export const NextSectorFL = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const openNSFLPopup = (): void => {
 			if (isDragging()) {
 				return;
@@ -90,7 +93,7 @@ export const NextSectorFL = observer(
 );
 
 export const NextSectorController = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const onClick = (): void => {
 			if (isDragging()) {
 				return;
@@ -108,13 +111,13 @@ export const NextSectorController = observer(
 );
 
 export const LocalAssignedFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => (
+	({ aircraft }: SubContentProperties): JSX.Element => (
 		<td>{aircraft.localAssignedFlightLevel}</td>
 	),
 );
 
 export const NextACCFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const openNextACCPopup = (): void => {
 			if (isDragging()) {
 				return;
@@ -132,8 +135,6 @@ export default observer(function AircraftContentSmall(properties: {
 	flightColor: string;
 }) {
 	const { aircraft, flightColor } = properties;
-	const currentSector = roleConfigurationStore.currentControlledSector;
-
 	return (
 		<table className="border-spacing-0 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
@@ -147,12 +148,7 @@ export default observer(function AircraftContentSmall(properties: {
 					<Altitude aircraft={aircraft} />
 				</tr>
 				<tr>
-					<td>
-						x
-						{currentSector &&
-							aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-								?.altitude}
-					</td>
+					<td>EFL</td>
 				</tr>
 			</tbody>
 		</table>

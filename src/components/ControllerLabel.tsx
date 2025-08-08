@@ -1,13 +1,12 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Layer, Source } from 'react-map-gl';
-import type { SymbolLayout, SymbolPaint } from 'mapbox-gl';
-
+import { Layer, Source } from 'react-map-gl/maplibre';
+import type { SymbolLayerSpecification } from 'maplibre-gl';
 import {
   configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
 
-const cwpLayerLayout: SymbolLayout = {
+const cwpLayerLayout: SymbolLayerSpecification['layout'] = {
   'text-field': ['get', 'title'],
   'text-allow-overlap': true,
   'text-font': [
@@ -18,7 +17,7 @@ const cwpLayerLayout: SymbolLayout = {
   'text-anchor': 'bottom',
 };
 
-const cwpLayerPaint: SymbolPaint = {
+const cwpLayerPaint: SymbolLayerSpecification['paint'] = {
   'text-color': ['get', 'description'],
   'text-halo-color': '#000',
   'text-halo-width': 2,

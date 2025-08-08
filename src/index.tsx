@@ -3,7 +3,7 @@ import 'allotment/dist/style.css';
 import '@fontsource/ibm-plex-sans';
 import '@fontsource/ibm-plex-mono';
 import './index.css';
-import './mqtt';
+import './mqtt-client';
 import './voice/voice';
 import './frontendSimulationLogic';
 

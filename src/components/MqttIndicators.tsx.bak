@@ -128,7 +128,7 @@ export default class MqttIndicators extends Component<Record<string, never>, {
     }
   }
 
-  render() {
+  render(): JSX.Element {
     const { connected, receiving, sending } = this.state;
     return (
       <div className="flex flex-col justify-around items-center h-full ml-auto p-1 justify-self-end">

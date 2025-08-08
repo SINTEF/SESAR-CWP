@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { useMap } from "react-map-gl";
+import { useMap } from "react-map-gl/maplibre";
 
 import { isDragging } from "../draggableState";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
@@ -86,8 +86,7 @@ export default observer(function AircraftPopup(properties: {
 
 	function onWheel<T>(event: T): void {
 		const map = current?.getMap();
-		// @ts-expect-error - .wheel is an undocumented function that takes wheel events
-		(map?.scrollZoom.wheel as (event: T) => void)({
+		(map?.scrollZoom.wheel as unknown as (event: T) => void)({
 			...event,
 			preventDefault: () => {},
 		});
@@ -115,7 +114,7 @@ export default observer(function AircraftPopup(properties: {
 			className="text-xs p-0 m-0 backdrop-blur-[1.5px]"
 			style={{ color: flightColor }}
 			color={flightColor}
-			offset={{ x: 0, y: 0 }}
+			offset={{ x: 0, y: 0 } as any}
 			size={{ width: 110, height }}
 			anchor="top"
 			longitude={longitude}

@@ -1,11 +1,11 @@
 import { transaction } from 'mobx';
 import mqtt from 'mqtt';
-import type { IClientPublishOptions } from 'mqtt';
+import type { IClientPublishOptions, MqttClient } from 'mqtt';
 
 import router from './router';
 import topics from './topics';
 
-function createClient(): mqtt.Client {
+function createClient(): MqttClient {
   const MQTT_BROKER_URL = import.meta.env.VITE_MQTT_BROKER_URL;
   // const MQTT_BROKER_URL = 'wss://sesar.sintef.cloud';
 
@@ -26,7 +26,7 @@ function createClient(): mqtt.Client {
 
 const client = createClient();
 
-client.addListener('connect', () => {
+client.on('connect', () => {
   client.subscribe(topics, (error) => {
     if (error) {
       // biome-ignore lint/suspicious/noConsole: needed for now
@@ -42,26 +42,26 @@ export function onConnect(callback: MqttOnCallback): MqttOffCallback {
   if (client.connected) {
     callback();
   }
-  client.addListener('connect', callback);
-  return () => client.removeListener('connect', callback);
+  client.on('connect', callback);
+  return () => client.off('connect', callback);
 }
 
 export function onDisconnect(callback: MqttOffCallback): MqttOffCallback {
   if (!client.connected) {
     callback();
   }
-  client.addListener('close', callback);
-  return () => client.removeListener('close', callback);
+  client.on('close', callback);
+  return () => client.off('close', callback);
 }
 
 export function onPacketReceive(callback: MqttOnCallback): MqttOffCallback {
-  client.addListener('packetreceive', callback);
-  return () => client.removeListener('packetreceive', callback);
+  client.on('packetreceive', callback);
+  return () => client.off('packetreceive', callback);
 }
 
 export function onPacketSend(callback: MqttOnCallback): MqttOffCallback {
-  client.addListener('packetsend', callback);
-  return () => client.removeListener('packetsend', callback);
+  client.on('packetsend', callback);
+  return () => client.off('packetsend', callback);
 }
 
 let incomingMessagesQueue: { topic: string, message: Buffer }[] = [];
@@ -86,7 +86,7 @@ function processIncomingMessages(): void {
   incomingMessagesQueue = [];
 }
 
-client.addListener('message', (topic: string, message: Buffer) => {
+client.on('message', (topic: string, message: Buffer) => {
   incomingMessagesQueue.push({ topic, message });
   if (incomingMessagesBatchId === 0) {
     incomingMessagesBatchId = window.setTimeout(processIncomingMessages, 100);

@@ -18,7 +18,7 @@ import {
   handlePublishPromise,
   persistACCBearing, persistACCFlightLevel, persistAssignedFlightLevel,
   persistNextSectorFlightLevel, persistSpeedAircraft,
-} from './mqtt/publishers';
+} from './mqtt-client/publishers';
 import { aircraftStore } from './state';
 import type AircraftModel from './model/AircraftModel';
 

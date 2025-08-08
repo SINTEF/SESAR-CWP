@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
-import { handlePublishPromise, tentativeFlight } from '../mqtt/publishers';
+import { handlePublishPromise, tentativeFlight } from '../mqtt-client/publishers';
 import { configurationStore, cwpStore, roleConfigurationStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 

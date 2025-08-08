@@ -1,37 +1,34 @@
-import * as turf from '@turf/turf';
+import { centroid } from '@turf/turf';
+import type { Feature, Geometry } from 'geojson';
 import { computed } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Layer, Source } from 'react-map-gl';
-import type { Feature, Geometry } from '@turf/turf';
-import type {
-  FillPaint, LinePaint, SymbolLayout, SymbolPaint,
-} from 'mapbox-gl';
-
+import { Layer, Source } from 'react-map-gl/maplibre';
+import type { LineLayerSpecification, FillLayerSpecification, SymbolLayerSpecification } from 'maplibre-gl';
 import {
   airspaceStore, configurationStore, cwpStore, roleConfigurationStore,
 } from '../state';
 
-const sectorOutlinePaint: LinePaint = {
+const sectorOutlinePaint: LineLayerSpecification['paint'] = {
   'line-color': ['get', 'color'],
   'line-width': 1.5,
   'line-dasharray': [2, 2],
 };
-const sectorOutlineBackgroundPaint: LinePaint = {
+const sectorOutlineBackgroundPaint: LineLayerSpecification['paint'] = {
   'line-color': '#000',
   'line-width': 3,
 };
-const sectorNamesPaint: SymbolPaint = {
+const sectorNamesPaint: SymbolLayerSpecification['paint'] = {
   'text-color': '#99ff99',
   'text-halo-color': '#000',
   'text-halo-width': 2,
 };
-const sectorHighlightPaint: FillPaint = {
+const sectorHighlightPaint: FillLayerSpecification['paint'] = {
   'fill-color': '#fff',
   'fill-opacity': 0.2,
 };
 
-const sectorNameslayout: SymbolLayout = {
+const sectorNameslayout: SymbolLayerSpecification['layout'] = {
   'text-field': ['get', 'title'],
   'text-allow-overlap': true,
   'text-radial-offset': 0.3,
@@ -53,7 +50,7 @@ export default observer(function SectorPolygons(/* properties */) {
       && area.sectorArea.length > 0,
     );
 
-  const sectorNamesText: SymbolLayout = {
+  const sectorNamesText: SymbolLayerSpecification['layout'] = {
     ...sectorNameslayout,
     visibility: showSectorLabels ? 'visible' : 'none',
   };
@@ -103,7 +100,7 @@ export default observer(function SectorPolygons(/* properties */) {
   const coeff = 0.001;
   const sectorsLength = sectors.length;
   for (const feature of sectors) {
-    const centroidPt = turf.centroid<{ title: string }>(feature);
+    const centroidPt = centroid<{ title: string }>(feature);
     const index = centroidPoints.length;
     // Add some little offset to avoid overlapping
     centroidPt.geometry.coordinates[0] += (index * sectorsLength - sectorsLength / 2) * coeff;

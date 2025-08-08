@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useRef } from "react";
 import Draggable from "react-draggable";
 
 import { isDragging, startDragging, stopDragging } from "../draggableState";
@@ -18,18 +18,21 @@ import SectorSideView from "./SectorSideView/SectorSideView";
 // }
 
 export default observer(function Draggable2DView() {
+	const nodeRef = useRef<HTMLDivElement>(null);
+	
 	if (!cwpStore.showVerticalWindow) {
 		return null;
 	}
 
 	return (
 		<Draggable
+			nodeRef={nodeRef}
 			bounds="parent"
 			cancel="input"
 			onStart={startDragging}
 			onStop={stopDragging}
 		>
-			<div className="absolute top-[72px] z-[34] right-1/2 w-[500px] shadow-md p-0 m-0 text-[13px] leading-8">
+			<div ref={nodeRef} className="absolute top-[72px] z-[34] right-1/2 w-[500px] shadow-md p-0 m-0 text-[13px] leading-8">
 				<div
 					className="w-full h-full"
 					style={{ height: "100%", width: "100%", background: "#313131" }}

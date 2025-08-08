@@ -1,16 +1,15 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Layer, Source } from 'react-map-gl';
-import type { FillExtrusionPaint, FillPaint } from 'mapbox-gl';
-
+import { Layer, Source } from 'react-map-gl/maplibre';
+import type { FillLayerSpecification, FillExtrusionLayerSpecification } from 'maplibre-gl';
 import { cwpStore, roleConfigurationStore } from '../state';
 
-const sectorPaint: FillPaint = {
+const sectorPaint: FillLayerSpecification['paint'] = {
   'fill-color': ['get', 'color'],
   'fill-opacity': 0.4,
 };
 
-const sectorFillPaint: FillExtrusionPaint = {
+const sectorFillPaint: FillExtrusionLayerSpecification['paint'] = {
   'fill-extrusion-color': ['get', 'color'],
   'fill-extrusion-height': ['get', 'height'],
   'fill-extrusion-base': ['get', 'base_height'],

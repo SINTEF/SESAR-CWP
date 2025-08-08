@@ -1,11 +1,10 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Layer, Source } from 'react-map-gl';
-import type { CirclePaint } from 'mapbox-gl';
-
+import { Layer, Source } from 'react-map-gl/maplibre';
+import type { CircleLayerSpecification } from 'maplibre-gl';
 import { aircraftStore, cwpStore } from '../state';
 
-const layerPaint: CirclePaint = {
+const layerPaint: CircleLayerSpecification['paint'] = {
   'circle-radius': 25,
   'circle-color': '#FFF9A6',
   'circle-blur': 0.9,

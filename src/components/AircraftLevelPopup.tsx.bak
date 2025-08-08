@@ -20,11 +20,11 @@ function ListOfLevels(
     topFlightLevel: number | undefined,
     bottomFlightLevel: number | undefined,
   },
-) {
+): JSX.Element {
   const {
     value, onClick, topFlightLevel, bottomFlightLevel,
   } = properties;
-  const rows = [];
+  const rows: JSX.Element[] = [];
 
   const hasLevel = topFlightLevel !== undefined && bottomFlightLevel !== undefined;
 

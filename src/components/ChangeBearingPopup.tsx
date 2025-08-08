@@ -2,7 +2,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 
-import { changeBearingOfAircraft, handlePublishPromise, persistACCBearing } from '../mqtt/publishers';
+import { changeBearingOfAircraft, handlePublishPromise, persistACCBearing } from '../mqtt-client/publishers';
 import { configurationStore, cwpStore } from '../state';
 import type AircraftModel from '../model/AircraftModel';
 

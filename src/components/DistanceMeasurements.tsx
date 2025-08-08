@@ -1,27 +1,25 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { Layer, Source } from 'react-map-gl';
-import type {
-  LineLayout, LinePaint, SymbolLayout, SymbolPaint,
-} from 'mapbox-gl';
+import { Layer, Source } from 'react-map-gl/maplibre';
+import type { LineLayerSpecification, SymbolLayerSpecification } from 'maplibre-gl';
 
 import { distanceLineStore } from '../state';
 
-const linePaint: LinePaint = {
+const linePaint: LineLayerSpecification['paint'] = {
   'line-color': ['get', 'color'],
   'line-width': 2.5,
 };
 
-const lineLayout: LineLayout = {
+const lineLayout: LineLayerSpecification['layout'] = {
   'line-join': 'round',
 };
-const measureNamePaint: SymbolPaint = {
+const measureNamePaint: SymbolLayerSpecification['paint'] = {
   'text-color': ['get', 'color'],
   'text-halo-color': '#000',
   'text-halo-width': 2,
 };
 
-const measureLinesLayout: SymbolLayout = {
+const measureLinesLayout: SymbolLayerSpecification['layout'] = {
   'symbol-placement': 'line',
   'text-field': ['get', 'length'],
   'text-allow-overlap': false,
@@ -34,7 +32,7 @@ const measureLinesLayout: SymbolLayout = {
   'text-anchor': 'center',
 };
 
-const measurePointsLayout: SymbolLayout = {
+const measurePointsLayout: SymbolLayerSpecification['layout'] = {
   'symbol-placement': 'point',
   'text-field': ['get', 'length'],
   'text-allow-overlap': true,

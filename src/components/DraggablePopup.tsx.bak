@@ -35,8 +35,6 @@ function getNextZIndex(): number {
 
 export default class DraggablePopup extends
   React.Component<DraggablePopupProperties, DraggablePopupState> {
-  private nodeRef = React.createRef<HTMLDivElement>();
-
   constructor(properties: DraggablePopupProperties) {
     super(properties);
 
@@ -90,7 +88,7 @@ export default class DraggablePopup extends
     stopDragging();
   }
 
-  render() {
+  render(): JSX.Element {
     const {
       className, children, offset, color, size, cancel, ...otherProperties
     } = this.props;
@@ -163,15 +161,12 @@ export default class DraggablePopup extends
           }}
         >
           <DraggableCore
-            nodeRef={this.nodeRef}
             onStart={(event): void => this.onDragStart(event)}
             onDrag={(event): void => this.onDrag(event)}
             onStop={(): void => DraggablePopup.onStop()}
             cancel={cancel}
           >
-            <div ref={this.nodeRef}>
-              {children}
-            </div>
+            {children}
           </DraggableCore>
         </div>
         <div
