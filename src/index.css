@@ -6,7 +6,7 @@
   /* Custom fonts */
   --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   --font-mono: "IBM Plex Mono", "Roboto Mono", Monaco, "Courier New", Courier, monospace;
-  
+
   /* Custom colors */
   --color-sesar-dark: #222;
   --color-sesar-darker: #303030;
@@ -16,7 +16,7 @@
   --color-sesar-orange: #ed7d31;
   --color-sesar-green: #00bc8c;
   --color-sesar-cyan: #3498db;
-  
+
   /* DaisyUI theme colors (dark theme) */
   --color-primary: #375a7f;
   --color-secondary: #444;
@@ -29,7 +29,7 @@
   --color-success: #00bc8c;
   --color-warning: #f39c12;
   --color-error: #e74c3c;
-  
+
   /* Custom z-index */
   --z-max: 2147483637;
 }
@@ -219,11 +219,13 @@ input[type="range"].range-vertical {
 
 
 /* Mapbox/Maplibre popup styles */
-.mapboxgl-popup-close-button {
+.mapboxgl-popup-close-button,
+.maplibregl-popup-close-button {
     color: white;
 }
 
-.mapboxgl-popup {
+.mapboxgl-popup,
+.maplibregl-popup {
     max-width: none;
     width: fit-content;
     height: fit-content;
@@ -232,20 +234,12 @@ input[type="range"].range-vertical {
 }
 
 
-.mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
-    border-top-color: rgb(34, 34, 34);
+.mapboxgl-popup-anchor-top>.mapboxgl-popup-tip,
+.maplibregl-popup-anchor-top>.maplibregl-popup-tip,
+.mapboxgl-popup-anchor-bottom>.mapboxgl-popup-tip,
+.maplibregl-popup-anchor-bottom>.maplibregl-popup-tip {
     display: none;
 }
-
-.mapboxgl-popup-anchor-bottom>.mapboxgl-popup-tip {
-    border-top-color: rgb(34, 34, 34);
-    display: none;
-}
-
-
-
-
-
 
 /* COMPASS - Map control styles only */
 
@@ -259,11 +253,12 @@ input[type="range"].range-vertical {
     border: 0;
 }
 
-.mapboxgl-ctrl-top-right .maplibregl-ctrl-top-right {
+.mapboxgl-ctrl-top-right, .maplibregl-ctrl-top-right {
     z-index: -1;
 }
-.maplibregl-popup-content mapboxgl-popup-content {
-    background-color: transparent;}
+.maplibregl-popup-content, .mapboxgl-popup-content {
+    background-color: transparent;
+}
 
 #map-3d>* .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
 button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
