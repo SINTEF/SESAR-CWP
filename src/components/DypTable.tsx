@@ -116,7 +116,7 @@ export default observer(function DypTable(/* properties */) {
 							</td>
 							<td className="bg-slate-800 px-1 py-1.5"></td>
 							<td className="bg-slate-800 px-1 py-1.5">
-								{latestSelectedAircraftData?.transponderCode || "7347"}
+								{(latestSelectedAircraftData as any)?.transponderCode || "7347"}
 							</td>
 							<td className="bg-slate-800 px-1 py-1.5"></td>
 							<td className="bg-slate-800 px-1 py-1.5">
@@ -126,7 +126,7 @@ export default observer(function DypTable(/* properties */) {
 								colSpan={2}
 								className="bg-[#182937] text-[10px] font-bold px-1 py-1.5"
 							>
-								{latestSelectedAircraftData?.currentTime || "08:57"}
+								{(latestSelectedAircraftData as any)?.currentTime || "08:57"}
 							</td>
 							<td className="bg-slate-800 px-1 py-1.5 border border-slate-700"></td>
 						</tr>
@@ -178,7 +178,7 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.lastKnownAltitude &&
 									Math.ceil(latestSelectedAircraftData?.lastKnownAltitude)}
 							</td>
-							{latestSelectedAircraftData?.routeWaypoints?.map((wp, index) => (
+							{(latestSelectedAircraftData as any)?.routeWaypoints?.map((wp: any, index: number) => (
 								<td
 									key={`sec-${index}`}
 									className="text-[10px] px-1 py-1 border border-slate-700"
@@ -206,7 +206,7 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.nextSectorController || "none"}
 							</td>
 							<td colSpan={2} className="px-1 py-1.5">
-								{latestSelectedAircraftData?.frequency || "132.490"}
+								{(latestSelectedAircraftData as any)?.frequency || "132.490"}
 							</td>
 							<td colSpan={4} className="px-1 py-1.5">
 								Texte :

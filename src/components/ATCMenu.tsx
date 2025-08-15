@@ -5,7 +5,7 @@ import {
 	acceptFlight,
 	handlePublishPromise,
 	persistFrontendFlightController,
-} from "../mqtt/publishers";
+} from "../mqtt-client/publishers";
 import { aircraftStore, configurationStore, cwpStore } from "../state";
 import type AircraftModel from "../model/AircraftModel";
 

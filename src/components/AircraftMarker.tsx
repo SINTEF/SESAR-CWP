@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Marker } from "react-map-gl";
+import { Marker } from "react-map-gl/maplibre";
 
 import {
 	// aircraftStore,

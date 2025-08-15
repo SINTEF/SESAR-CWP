@@ -24,7 +24,7 @@ type SubContentProperties = {
 };
 
 const CallSign = observer(
-	({ aircraft, colSpan }: SubContentProperties) => {
+	({ aircraft, colSpan }: SubContentProperties): JSX.Element => {
 		const { callSign } = aircraft;
 		const setController = (): void => {
 			if (isDragging()) {
@@ -50,7 +50,7 @@ const CallSign = observer(
 	},
 );
 
-const Bearing = observer(({ aircraft }: SubContentProperties) => {
+const Bearing = observer(({ aircraft }: SubContentProperties): JSX.Element => {
 	const onClick = (): void => {
 		if (isDragging()) {
 			return;
@@ -69,7 +69,7 @@ const Bearing = observer(({ aircraft }: SubContentProperties) => {
 });
 
 const SpeedAndWakeTurbulenceLabel = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const handleSpeedClick = (event: React.MouseEvent<HTMLElement>): void => {
 			if (event.button === 1) {
 				cwpStore.openChangeSpeedForAircraft(aircraft.aircraftId);
@@ -90,7 +90,7 @@ const SpeedAndWakeTurbulenceLabel = observer(
 	},
 );
 
-const NextFix = observer(({ aircraft }: SubContentProperties) => {
+const NextFix = observer(({ aircraft }: SubContentProperties): JSX.Element => {
 	const middleClickNextWaypoint = (
 		event: React.MouseEvent<HTMLElement>,
 	): void => {
@@ -116,7 +116,7 @@ const NextFix = observer(({ aircraft }: SubContentProperties) => {
 });
 
 const _AssignedBearing = observer(
-	({ aircraft }: SubContentProperties) => (
+	({ aircraft }: SubContentProperties): JSX.Element => (
 		<td>
 			{aircraft.assignedBearing === -1 || aircraft.assignedBearing === undefined
 				? "BEG.S"
@@ -126,7 +126,7 @@ const _AssignedBearing = observer(
 );
 
 const AssignedFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const onClick = (): void => {
 			if (isDragging()) {
 				return;
@@ -139,7 +139,7 @@ const AssignedFlightLevel = observer(
 );
 
 const AssignedSpeed = observer(
-	({ aircraft }: SubContentProperties) => (
+	({ aircraft }: SubContentProperties): JSX.Element => (
 		<td>
 			{aircraft.assignedSpeed === -1 || aircraft.assignedSpeed === undefined
 				? "S.S"
@@ -149,7 +149,7 @@ const AssignedSpeed = observer(
 );
 
 const _HideAircraft = observer(
-	({ aircraft }: SubContentProperties) => {
+	({ aircraft }: SubContentProperties): JSX.Element => {
 		const [confirm, setConfirm] = React.useState(false);
 		const [doubleConfirm, setDoubleConfirm] = React.useState(false);
 		const [timer, setTimer] = React.useState(-1);
@@ -231,7 +231,7 @@ const _HideAircraft = observer(
 export default observer(function AircraftPopupPseudoContent({
 	aircraft,
 	flightColor,
-}: SubContentProperties) {
+}: SubContentProperties): JSX.Element {
 	// const isMaster = configurationStore.currentCWP === "All";
 	return (
 		<table className="border-spacing-0 w-full max-w-full">

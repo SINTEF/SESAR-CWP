@@ -1,6 +1,6 @@
 import { bbox, bboxPolygon, buffer, polygon } from "@turf/turf";
+import type { Feature, Polygon } from "geojson";
 import { makeAutoObservable, observable } from "mobx";
-import type turf from "@turf/turf";
 import type { ObservableMap } from "mobx";
 
 import ConfigurationModel from "./ConfigurationModel";
@@ -269,8 +269,12 @@ export default class ConfigurationStore {
 		if (edges.length === 0) {
 			return undefined;
 		}
+		const turfFeature = this.edgesTurfFeature;
+		if (!turfFeature) {
+			return undefined;
+		}
 		// use turf to calculate the bounds
-		const bounds = bbox(this.edgesTurfFeature);
+		const bounds = bbox(turfFeature);
 
 		return {
 			minLat: bounds[1],
@@ -293,18 +297,23 @@ export default class ConfigurationStore {
 			return undefined;
 		}
 
-		const extendedBounds = bbox(
-			buffer(
-				bboxPolygon([
-					bounds.minLon,
-					bounds.minLat,
-					bounds.maxLon,
-					bounds.maxLat,
-				]),
-				60,
-				{ units: "kilometers" },
-			),
+		const bufferedPolygon = buffer(
+			bboxPolygon([
+				bounds.minLon,
+				bounds.minLat,
+				bounds.maxLon,
+				bounds.maxLat,
+			]),
+			60,
+			{ units: "kilometers" },
 		);
+		
+		// buffer can return undefined for invalid geometries
+		if (!bufferedPolygon) {
+			return bounds;
+		}
+		
+		const extendedBounds = bbox(bufferedPolygon);
 
 		return {
 			minLat: extendedBounds[1],
@@ -314,7 +323,7 @@ export default class ConfigurationStore {
 		};
 	}
 
-	get edgesTurfFeature(): turf.Feature<turf.Polygon> | undefined {
+	get edgesTurfFeature(): Feature<Polygon> | undefined {
 		const { edgesPolygon } = this;
 		if (edgesPolygon?.length === 0) {
 			return undefined;

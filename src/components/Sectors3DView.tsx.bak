@@ -39,7 +39,7 @@ const maxBounds: maplibregl.LngLatBoundsLike = [
   4, 11, 15, 70,
 ];
 
-export default function Sectors3DView() {
+export default function Sectors3DView(): JSX.Element {
   return (
     <ReactMapGL
       id='map-3d'
@@ -49,6 +49,7 @@ export default function Sectors3DView() {
       mapStyle={mapStyle}
       attributionControl={false}
       mapLib={maplibregl}
+      antialias
       maxPitch={75}
       renderWorldCopies={false}
     >

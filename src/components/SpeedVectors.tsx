@@ -1,7 +1,8 @@
-import SphericalMercator from "@mapbox/sphericalmercator";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { Layer, Source } from "react-map-gl";
+import { Layer, Source } from "react-map-gl/maplibre";
+// @ts-expect-error - ESM/CJS interop issue with @mapbox/sphericalmercator
+import { SphericalMercator } from "@mapbox/sphericalmercator";
 
 import {
 	aircraftStore,

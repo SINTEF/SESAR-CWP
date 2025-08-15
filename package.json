@@ -2,34 +2,35 @@
   "name": "sesar-cwp",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
-    "@fontsource/ibm-plex-mono": "^4.5.11",
-    "@fontsource/ibm-plex-sans": "^4.5.12",
-    "@mapbox/sphericalmercator": "^1.2.0",
-    "@protobuf-ts/runtime": "^2.9.6",
-    "@turf/boolean-point-in-polygon": "^6.5.0",
-    "@turf/turf": "^6.5.0",
-    "allotment": "^1.20.3",
+    "@fontsource/ibm-plex-mono": "^5.2.6",
+    "@fontsource/ibm-plex-sans": "^5.2.6",
+    "@mapbox/sphericalmercator": "^2.0.1",
+    "@protobuf-ts/runtime": "^2.11.1",
+    "@turf/boolean-point-in-polygon": "^7.2.0",
+    "@turf/turf": "^7.2.0",
+    "allotment": "^1.20.4",
     "classnames": "^2.5.1",
     "crypto-browserify": "^3.12.1",
     "daisyui": "^5.0.50",
     "https-browserify": "^1.0.0",
-    "maplibre-gl": "^2.4.0",
-    "microsoft-cognitiveservices-speech-sdk": "^1.43.1",
+    "maplibre-gl": "^5.6.2",
+    "microsoft-cognitiveservices-speech-sdk": "^1.45.0",
     "mobx": "^6.13.7",
     "mobx-react-lite": "^4.1.0",
-    "mqtt": "^4.3.7",
+    "mqtt": "^5.14.0",
     "os-browserify": "^0.3.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-draggable": "^4.4.6",
-    "react-map-gl": "^7.0.19",
-    "recharts": "^2.15.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-draggable": "^4.5.0",
+    "react-map-gl": "^8.0.4",
+    "recharts": "^3.1.2",
     "rlite-router": "^2.0.3",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "throttle-debounce": "^5.0.2",
-    "web-vitals": "^3.0.2"
+    "web-vitals": "^5.1.0"
   },
   "scripts": {
     "start": "vite",
@@ -37,7 +38,8 @@
     "preview": "vite preview",
     "optimize": "vite optimize",
     "lint": "npx @biomejs/biome lint",
-    "protoc": "protoc --ts_out src/proto --proto_path src ProtobufAirTrafficSimulator.proto"
+    "protoc": "protoc --ts_out src/proto --proto_path src ProtobufAirTrafficSimulator.proto",
+    "typecheck": "tsc --noEmit"
   },
   "browserslist": {
     "production": [
@@ -52,17 +54,16 @@
     ]
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@protobuf-ts/plugin": "^2.9.6",
+    "@biomejs/biome": "^2.1.4",
+    "@protobuf-ts/plugin": "^2.11.1",
     "@types/mapbox__sphericalmercator": "^1.2.3",
-    "@types/node": "^18.7.23",
-    "@types/react-dom": "^18.0.6",
+    "@types/node": "^24.2.0",
+    "@types/react-dom": "^19.1.7",
     "@types/throttle-debounce": "^5.0.2",
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3",
-    "vite": "^4.5.12"
+    "@vitejs/plugin-react": "^5.0.0",
+    "@tailwindcss/vite": "^4.1.11",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.1"
   }
 }
