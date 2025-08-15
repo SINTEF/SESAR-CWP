@@ -1,9 +1,11 @@
+import { ObservableSet } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import Draggable from "react-draggable";
-
 import { startDragging, stopDragging } from "../draggableState";
+import type AircraftModel from "../model/AircraftModel";
 import convertTimestamp from "../model/convertTimestamp";
+import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
 import {
 	aircraftStore,
 	cwpStore,
@@ -11,9 +13,6 @@ import {
 	roleConfigurationStore,
 	simulatorStore,
 } from "../state";
-import type AircraftModel from "../model/AircraftModel";
-import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
-import { ObservableSet } from "mobx";
 import { formatSimulatorTimeHM } from "../utils";
 
 const _handleFlightClicked = (event: string): void => {
@@ -21,6 +20,7 @@ const _handleFlightClicked = (event: string): void => {
 };
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function DypTable(/* properties */) {
+	const draggableRef = React.createRef<HTMLDivElement>();
 	const { selectedAircraftIds } = cwpStore;
 	const _currentSector = roleConfigurationStore.currentControlledSector;
 	const [_filter, _setFilter] = useState("");
@@ -91,8 +91,12 @@ export default observer(function DypTable(/* properties */) {
 			cancel="input"
 			onStart={startDragging}
 			onStop={stopDragging}
+			nodeRef={draggableRef}
 		>
-			<div className="absolute bottom-14 left-12 text-[11px] leading-tight uppercase font-mono z-[500]">
+			<div
+				className="absolute bottom-14 left-12 text-[11px] leading-tight uppercase font-mono z-[500]"
+				ref={draggableRef}
+			>
 				<table className="border border-[#182937] border-collapse text-[#ffffff] text-center h-full bg-[#315070]">
 					<tbody>
 						{/* Header Row */}
@@ -178,15 +182,17 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.lastKnownAltitude &&
 									Math.ceil(latestSelectedAircraftData?.lastKnownAltitude)}
 							</td>
-							{(latestSelectedAircraftData as any)?.routeWaypoints?.map((wp: any, index: number) => (
-								<td
-									key={`sec-${index}`}
-									className="text-[10px] px-1 py-1 border border-slate-700"
-								>
-									<div className="font-semibold">{wp.sector}</div>
-									<div className="opacity-90">{wp.level}</div>
-								</td>
-							)) || (
+							{(latestSelectedAircraftData as any)?.routeWaypoints?.map(
+								(wp: any, index: number) => (
+									<td
+										key={`sec-${index}`}
+										className="text-[10px] px-1 py-1 border border-slate-700"
+									>
+										<div className="font-semibold">{wp.sector}</div>
+										<div className="opacity-90">{wp.level}</div>
+									</td>
+								),
+							) || (
 								<>
 									<td className="text-[10px] px-1 py-1">B2 35</td>
 									<td className="text-[10px] px-1 py-1">M2 33</td>
