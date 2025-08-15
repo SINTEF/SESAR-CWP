@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Marker } from "react-map-gl/maplibre";
-
+import type AircraftModel from "../model/AircraftModel";
 import {
 	// aircraftStore,
 	configurationStore,
@@ -9,9 +9,7 @@ import {
 	roleConfigurationStore,
 } from "../state";
 import AircraftPopup from "./AircraftPopup";
-import type AircraftModel from "../model/AircraftModel";
 
-const SIZE = 20;
 /**
  * AircraftMarker component displays a marker for an aircraft on the map.
  * It shows the aircraft's last known position and a trail of its previous positions.
@@ -32,9 +30,6 @@ export default observer(function AircraftMarker(properties: {
 	const pseudo =
 		configurationStore.currentCWP === "All" || cwpStore.pseudoPilot;
 
-	const onClick = (): void => {
-		cwpStore.toggleSelectedAircraftId(aircraftId);
-	};
 	const history = positionHistory.slice(0, 8);
 
 	return (
@@ -47,9 +42,7 @@ export default observer(function AircraftMarker(properties: {
 						key={`trail-${index}`}
 						longitude={pos.lon}
 						latitude={pos.lat}
-						style={{
-							cursor: "pointer",
-						}}
+						className="cursor-pointer"
 						onClick={
 							index !== 0
 								? () => cwpStore.toggleFlightRouteForAircraft(aircraftId)
@@ -95,19 +88,6 @@ export default observer(function AircraftMarker(properties: {
 			})}
 
 			<Marker longitude={lon} latitude={lat} rotation={bearing}>
-				<svg
-					height={SIZE}
-					viewBox="0 0 24 24"
-					preserveAspectRatio="xMidYMid meet"
-					style={{
-						cursor: "pointer",
-						fill: roleConfigurationStore.getOriginalColorOfAircraft(aircraftId),
-						stroke: "black",
-						strokeWidth: 2.5,
-						paintOrder: "stroke fill",
-					}}
-					onClick={onClick}
-				></svg>
 				<AircraftPopup aircraft={properties.aircraft} pseudo={pseudo} />
 			</Marker>
 		</>

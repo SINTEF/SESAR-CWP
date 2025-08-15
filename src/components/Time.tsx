@@ -3,8 +3,7 @@
  */
 
 import { observer } from "mobx-react-lite";
-import React from "react";
-import Draggable from "react-draggable";
+import type React from "react";
 
 import { simulatorStore } from "../state";
 import { formatSimulatorTimeHMS } from "../utils";
@@ -14,8 +13,8 @@ export default observer(function Time() {
 	const time = formatSimulatorTimeHMS(simulatorStore.timestamp);
 
 	return (
-		// <Draggable bounds="parent">
-		<div className="font-mono right-1/2 rounded-sm text-white font-bold text-2xl px-2 py-0.5">{time}</div>
-		// </Draggable>
+		<div className="font-mono right-1/2 rounded-sm text-white font-bold text-2xl px-2 py-0.5">
+			{time}
+		</div>
 	);
 });

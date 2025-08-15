@@ -3,19 +3,19 @@ import React from "react";
 import { useMap } from "react-map-gl/maplibre";
 
 import { isDragging } from "../draggableState";
+import type AircraftModel from "../model/AircraftModel";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
+import AircraftContentSmall from "./AircraftContentSmall";
 import AircraftLevelPopup from "./AircraftLevelPopup";
 import AircraftPopupContent from "./AircraftPopupContent";
+import ATCMenu from "./ATCMenu";
 // import AircraftPopupPseudoContent from "./AircraftPopupPseudoContent";
 import ChangeBearingPopup from "./ChangeBearingPopup";
 import ChangeNextFixPopup from "./ChangeNextFixPopup";
 import ChangeSpeedPopup from "./ChangeSpeedPopup";
-import DraggablePopup from "./DraggablePopup";
+import DraggablePopup, { DraggablePopupProperties } from "./DraggablePopup";
 import NextSectorPopup from "./NextSectorPopup";
-import type AircraftModel from "../model/AircraftModel";
-import AircraftContentSmall from "./AircraftContentSmall";
-import ATCMenu from "./ATCMenu";
 
 export default observer(function AircraftPopup(properties: {
 	aircraft: AircraftModel;
@@ -114,7 +114,7 @@ export default observer(function AircraftPopup(properties: {
 			className="text-xs p-0 m-0 backdrop-blur-[1.5px]"
 			style={{ color: flightColor }}
 			color={flightColor}
-			offset={{ x: 0, y: 0 } as any}
+			offset={{ x: 0, y: 0 } as DraggablePopupProperties["offset"]}
 			size={{ width: 110, height }}
 			anchor="top"
 			longitude={longitude}

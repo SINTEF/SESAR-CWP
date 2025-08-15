@@ -21,6 +21,7 @@ function ChangeToLocaleTime(time: number): string {
 }
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function AircraftListElement(/* properties */) {
+	const draggableRef = React.useRef<HTMLDivElement>(null);
 	const currentSector = roleConfigurationStore.currentControlledSector;
 	const [filter, setFilter] = useState("");
 	const listOfAircraftsInSector =
@@ -37,8 +38,12 @@ export default observer(function AircraftListElement(/* properties */) {
 			cancel="input"
 			onStart={startDragging}
 			onStop={stopDragging}
+			nodeRef={draggableRef}
 		>
-			<div className="font-mono absolute top-0 left-1 w-64 m-2 text-xs leading-8 uppercase max-h-64 overflow-y-scroll">
+			<div
+				className="font-mono absolute top-0 left-1 w-64 m-2 text-xs leading-8 uppercase max-h-64 overflow-y-scroll"
+				ref={draggableRef}
+			>
 				<table className="table table-xs table-pin-rows bg-base-300 border-2 border-base-100">
 					<thead>
 						<tr>
@@ -53,7 +58,9 @@ export default observer(function AircraftListElement(/* properties */) {
 									}
 								/>
 							</th>
-							<th colSpan={2} className="bg-base-200">FL Sector : {currentSector ?? ""}</th>
+							<th colSpan={2} className="bg-base-200">
+								FL Sector : {currentSector ?? ""}
+							</th>
 						</tr>
 						<tr>
 							<th className="bg-base-200">C/S</th>

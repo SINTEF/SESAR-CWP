@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Draggable from "react-draggable";
 
 import { startDragging, stopDragging } from "../draggableState";
+import type AircraftModel from "../model/AircraftModel";
 import convertTimestamp from "../model/convertTimestamp";
 import {
 	aircraftStore,
@@ -10,7 +11,6 @@ import {
 	fixStore,
 	roleConfigurationStore,
 } from "../state";
-import type AircraftModel from "../model/AircraftModel";
 
 function ChangeToLocaleTime(time: number): string {
 	const date = new Date(time * 1000);
@@ -32,6 +32,7 @@ const handleFlightClicked = (event: string): void => {
 };
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function SectorFlightList(/* properties */) {
+	const draggableRef = React.createRef<HTMLDivElement>();
 	const currentSector = roleConfigurationStore.currentControlledSector;
 	const [filter, setFilter] = useState("");
 	const [valueSelected, setSelectedValue] = useState("");
@@ -110,8 +111,12 @@ export default observer(function SectorFlightList(/* properties */) {
 			cancel="input"
 			onStart={startDragging}
 			onStop={stopDragging}
+			nodeRef={draggableRef}
 		>
-			<div className="absolute bottom-[3.45em] left-[50px] text-[8px] outline-none uppercase max-h-[150px] overflow-y-scroll font-mono z-[500]">
+			<div
+				className="absolute bottom-[3.45em] left-[50px] text-[8px] outline-none uppercase max-h-[150px] overflow-y-scroll font-mono z-[500]"
+				ref={draggableRef}
+			>
 				<table className="table table-xs border border-gray-600">
 					<thead>
 						<tr>
