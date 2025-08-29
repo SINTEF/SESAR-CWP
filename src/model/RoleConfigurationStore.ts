@@ -1,13 +1,8 @@
-import {
-	booleanPointInPolygon,
-	point as turfPoint,
-	polygon as turfPolygon,
-} from "@turf/turf";
+import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
+import { point as turfPoint, polygon as turfPolygon } from "@turf/helpers";
 import type { Feature, Polygon, Position } from "geojson";
-import { makeAutoObservable, observable } from "mobx";
 import type { ObservableMap } from "mobx";
-
-import RoleConfigurationModel from "./RoleConfigurationModel";
+import { makeAutoObservable, observable } from "mobx";
 import type {
 	AirTrafficControllerAssignmentMessage,
 	RoleConfigurationMessage,
@@ -19,6 +14,7 @@ import type CoordinatePair from "./CoordinatePair";
 import type CWPStore from "./CwpStore";
 import type FixStore from "./FixStore";
 import type { ISectorModel } from "./ISectorModel";
+import RoleConfigurationModel from "./RoleConfigurationModel";
 
 export default class RoleConfigurationStore {
 	roleConfigurations: ObservableMap<string, RoleConfigurationModel> =
