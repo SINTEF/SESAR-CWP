@@ -1,13 +1,10 @@
-import { bbox, bboxPolygon, buffer, polygon } from "@turf/turf";
+import { bbox } from "@turf/bbox";
+import { bboxPolygon } from "@turf/bbox-polygon";
+import { buffer } from "@turf/buffer";
+import { polygon } from "@turf/helpers";
 import type { Feature, Polygon } from "geojson";
-import { makeAutoObservable, observable } from "mobx";
 import type { ObservableMap } from "mobx";
-
-import ConfigurationModel from "./ConfigurationModel";
-import ConfigurationTime from "./ConfigurationTime";
-import convertTimestamp from "./convertTimestamp";
-import { ShowNextConfiguration } from "./CwpStore";
-import TimeConfigurations from "./TimeConfigurations";
+import { makeAutoObservable, observable } from "mobx";
 import type {
 	AirspaceAvailabilityMessage,
 	AvailabilityIntervalsMessage,
@@ -18,10 +15,15 @@ import type {
 import type AircraftModel from "./AircraftModel";
 import type AircraftStore from "./AircraftStore";
 import type AirspaceStore from "./AirspaceStore";
+import ConfigurationModel from "./ConfigurationModel";
+import ConfigurationTime from "./ConfigurationTime";
 import type CWPStore from "./CwpStore";
+import { ShowNextConfiguration } from "./CwpStore";
+import convertTimestamp from "./convertTimestamp";
 import type { IConfigurationTime } from "./IConfigurationTime";
 import type { ISectorModel } from "./ISectorModel";
 import type SimulatorStore from "./SimulatorStore";
+import TimeConfigurations from "./TimeConfigurations";
 
 export default class ConfigurationStore {
 	currentConfigurationId = "";
@@ -298,21 +300,16 @@ export default class ConfigurationStore {
 		}
 
 		const bufferedPolygon = buffer(
-			bboxPolygon([
-				bounds.minLon,
-				bounds.minLat,
-				bounds.maxLon,
-				bounds.maxLat,
-			]),
+			bboxPolygon([bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat]),
 			60,
 			{ units: "kilometers" },
 		);
-		
+
 		// buffer can return undefined for invalid geometries
 		if (!bufferedPolygon) {
 			return bounds;
 		}
-		
+
 		const extendedBounds = bbox(bufferedPolygon);
 
 		return {

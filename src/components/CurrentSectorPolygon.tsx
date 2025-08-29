@@ -1,17 +1,22 @@
+import { centroid } from "@turf/centroid";
+import { polygon } from "@turf/helpers";
+import type { Position } from "geojson";
+import type {
+	FillLayerSpecification,
+	LineLayerSpecification,
+	SymbolLayerSpecification,
+} from "maplibre-gl";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { Layer, Source } from "react-map-gl/maplibre";
-import type { LineLayerSpecification, FillLayerSpecification, SymbolLayerSpecification } from "maplibre-gl";
-import { polygon, centroid } from "@turf/turf";
-import type { Position } from "geojson";
 
 import { configurationStore, roleConfigurationStore } from "../state";
 
-const sectorOutlinePaint: LineLayerSpecification['paint'] = {
+const sectorOutlinePaint: LineLayerSpecification["paint"] = {
 	"line-color": "#333333",
 	"line-width": 2.5,
 };
-const sectorFillPaint: FillLayerSpecification['paint'] = {
+const sectorFillPaint: FillLayerSpecification["paint"] = {
 	"fill-color": "#3d3d3d",
 	"fill-opacity": 0.6,
 };
@@ -72,7 +77,7 @@ export default observer(function SectorPolygons(/* properties */) {
 		features: setCentroidPoint(geoJson) ?? [],
 	};
 
-	const sectorNameslayout: SymbolLayerSpecification['layout'] = {
+	const sectorNameslayout: SymbolLayerSpecification["layout"] = {
 		"text-field": ["get", "title"],
 		"text-allow-overlap": true,
 		"text-radial-offset": 0.3,
@@ -90,7 +95,7 @@ export default observer(function SectorPolygons(/* properties */) {
 		"text-font": ["IBM Plex Mono Bold"],
 		"text-size": 40,
 	};
-	const sectorNamesPaint: SymbolLayerSpecification['paint'] = {
+	const sectorNamesPaint: SymbolLayerSpecification["paint"] = {
 		"text-color": "#fff",
 	};
 
