@@ -32,6 +32,11 @@ export default observer(function AircraftMarker(properties: {
 
 	const history = positionHistory.slice(0, 8);
 
+	const onClickOnAircraft = (): void => {
+		cwpStore.toggleFlightRouteForAircraft(aircraftId);
+		cwpStore.toggleSelectedAircraftId(aircraftId);
+	};
+
 	return (
 		<>
 			{history.map((pos, index) => {
@@ -43,11 +48,7 @@ export default observer(function AircraftMarker(properties: {
 						longitude={pos.lon}
 						latitude={pos.lat}
 						className="cursor-pointer"
-						onClick={
-							index !== 0
-								? () => cwpStore.toggleFlightRouteForAircraft(aircraftId)
-								: undefined
-						}
+						onClick={() => onClickOnAircraft()}
 					>
 						<svg
 							width={size}

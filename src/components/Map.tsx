@@ -1,10 +1,14 @@
+import type { MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import * as maplibregl from "maplibre-gl";
 import React from "react";
-import ReactMapGL, { FullscreenControl, NavigationControl } from "react-map-gl/maplibre";
-import type { MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import type { ViewState } from "react-map-gl/maplibre";
+import ReactMapGL, {
+	FullscreenControl,
+	NavigationControl,
+} from "react-map-gl/maplibre";
 
 import { cwpStore, distanceLineStore } from "../state";
+import Agenda from "./Agenda";
 import Aircrafts from "./Aircrafts";
 // import ControllerLabel from "./ControllerLabel";
 import DistanceMarkers from "./DistanceMarkers";
@@ -121,6 +125,7 @@ export default function Map() {
 			<Aircrafts />
 			<HighlightedAircraft />
 			<LimboAircrafts />
+			<Agenda />
 			<NavigationControl position="bottom-left" visualizePitch={true} />
 			<FullscreenControl position="bottom-left" containerId="root" />
 		</ReactMapGL>
