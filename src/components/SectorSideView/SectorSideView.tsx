@@ -9,11 +9,10 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-
-import { aircraftStore, cwpStore, simulatorStore } from "../../state";
-import BottomLeftLabel from "./BottomLeftLabel";
 import { getAircraftsWithFlightRoutes } from "../../selectors/flightRouteSelectors";
-import { formatSimulatorTimeHM } from "../../utils";
+import { aircraftStore, cwpStore, simulatorStore } from "../../state";
+import { convertMetersToFlightLevel, formatSimulatorTimeHM } from "../../utils";
+import BottomLeftLabel from "./BottomLeftLabel";
 import CustomDotWithLabel from "./CustomDotWithLabel";
 
 export default observer(function SectorSideView() {
@@ -42,7 +41,7 @@ export default observer(function SectorSideView() {
 		trajectories: {
 			wayPoint: string | undefined;
 			timestamp: number;
-			flightLevel: number;
+			flightLevel: number | undefined;
 		}[];
 	}
 
@@ -62,7 +61,9 @@ export default observer(function SectorSideView() {
 			.map((t) => ({
 				wayPoint: t.objectId,
 				timestamp: t.timestamp,
-				flightLevel: 300, // TODO: where to get altitude from???
+				flightLevel: t.trajectoryCoordinate.altitude
+					? convertMetersToFlightLevel(t.trajectoryCoordinate.altitude)
+					: undefined, // Convert altitude in feet to flight level
 			})),
 	}));
 

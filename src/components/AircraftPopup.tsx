@@ -22,7 +22,7 @@ export default observer(function AircraftPopup(properties: {
 	pseudo: boolean;
 }) {
 	const { aircraft /* pseudo */ } = properties; // Not removing 'pseudo' yet as it might be used for the TA
-	const { lowestBound, highestBound } = cwpStore.altitudeFilter;
+	// const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const [isHovered, setIsHovered] = React.useState(false);
 	const {
 		aircraftId,
@@ -36,49 +36,51 @@ export default observer(function AircraftPopup(properties: {
 	const { currentCWP } = configurationStore;
 	const flightColor =
 		roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
-	const {
-		showFlightLabelsForCurrentSector,
-		showFlightLabelsForOtherSectors,
-		aircraftsWithManuallyOpenedPopup,
-		aircraftsWithManuallyClosedPopup,
-		showFlightLabels: showAllFlightLabels,
-	} = cwpStore;
+	// const {
+	// 	showFlightLabelsForCurrentSector,
+	// 	showFlightLabelsForOtherSectors,
+	// 	aircraftsWithManuallyOpenedPopup,
+	// 	aircraftsWithManuallyClosedPopup,
+	// 	showFlightLabels: showAllFlightLabels,
+	// } = cwpStore;
 
 	const { current } = useMap();
 
-	if (!aircraftsWithManuallyOpenedPopup.has(aircraftId)) {
-		if (
-			!showAllFlightLabels ||
-			altitude < lowestBound ||
-			altitude > highestBound ||
-			aircraftsWithManuallyClosedPopup.has(aircraftId)
-		) {
-			return null;
-		}
+	// Hiding logic for the popup for now as all popups are set to be shown as far as I know
 
-		if (
-			currentCWP !== "All" &&
-			(!showFlightLabelsForCurrentSector || !showFlightLabelsForOtherSectors)
-		) {
-			if (
-				!showFlightLabelsForCurrentSector &&
-				!showFlightLabelsForOtherSectors
-			) {
-				return null;
-			}
-			const inside = roleConfigurationStore.pointInCurrentControlledSector(
-				latitude,
-				longitude,
-			);
+	// if (!aircraftsWithManuallyOpenedPopup.has(aircraftId)) {
+	// 	if (
+	// 		!showAllFlightLabels ||
+	// 		altitude < lowestBound ||
+	// 		altitude > highestBound ||
+	// 		aircraftsWithManuallyClosedPopup.has(aircraftId)
+	// 	) {
+	// 		return null;
+	// 	}
 
-			if (showFlightLabelsForCurrentSector && !inside) {
-				return null;
-			}
-			if (showFlightLabelsForOtherSectors && inside) {
-				return null;
-			}
-		}
-	}
+	// 	if (
+	// 		currentCWP !== "All" &&
+	// 		(!showFlightLabelsForCurrentSector || !showFlightLabelsForOtherSectors)
+	// 	) {
+	// 		if (
+	// 			!showFlightLabelsForCurrentSector &&
+	// 			!showFlightLabelsForOtherSectors
+	// 		) {
+	// 			return null;
+	// 		}
+	// 		const inside = roleConfigurationStore.pointInCurrentControlledSector(
+	// 			latitude,
+	// 			longitude,
+	// 		);
+
+	// 		if (showFlightLabelsForCurrentSector && !inside) {
+	// 			return null;
+	// 		}
+	// 		if (showFlightLabelsForOtherSectors && inside) {
+	// 			return null;
+	// 		}
+	// 	}
+	// }
 
 	if (localAssignedFlightLevel === altitude.toFixed(0)) {
 		setLocalAssignedFlightLevel(" ");
