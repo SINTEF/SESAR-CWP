@@ -4,7 +4,6 @@ import React from "react";
 
 import { configurationStore, cwpStore } from "../state";
 import DistanceMeasurementDropdown from "./DistanceMeasurementDropdown";
-import MicrophoneButton from "./MicrophoneButton";
 import MqttIndicators from "./MqttIndicators";
 import SpeedVectorNavbarControl from "./SpeedVectorNavbarControl";
 
@@ -161,7 +160,6 @@ const OtherSectorsFlightLabelsButton = observer(
 export default function BottomNavBar() {
 	return (
 		<div className="absolute top-0 left-0 h-[1.9em] p-0 bg-[#1a1a1a] flex flex-row justify-start z-[1]">
-			<MicrophoneButton />
 			<FLButton />
 			<SFLButton />
 			<SectorLabelsButton />
