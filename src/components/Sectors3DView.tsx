@@ -1,10 +1,9 @@
+import type { StyleSpecification } from 'maplibre-gl';
 import * as maplibregl from 'maplibre-gl';
 import React from 'react';
 import ReactMapGL, { NavigationControl } from 'react-map-gl/maplibre';
-import type { StyleSpecification } from 'maplibre-gl';
 import type { ViewState } from 'react-map-gl/maplibre';
 
-import SectorsVoiceControl from '../voice/SectorsVoiceControl';
 import Compass from './Compass';
 import Polygons3D from './Polygons3D';
 
@@ -55,7 +54,6 @@ export default function Sectors3DView() {
       <Polygons3D />
       <NavigationControl visualizePitch={true} />
       <Compass/>
-      <SectorsVoiceControl />
     </ReactMapGL>
   );
 }

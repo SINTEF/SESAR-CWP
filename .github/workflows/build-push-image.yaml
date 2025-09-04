@@ -8,7 +8,6 @@ on:
 env:
   REGISTRY: ghcr.io
   FRONTEND_IMAGE_NAME: sintef/sesar-cwp
-  SERVER_IMAGE_NAME: sintef/sesar-cwp-server
   GITOPS_REPOSITORY: SINTEF/infrastructure-as-code-sustainable-communication-technologies
 
 jobs:
@@ -52,56 +51,15 @@ jobs:
           build-args: |
             NODE_OPTIONS=--max-old-space-size=6000
             MQTT_BROKER_URL=${{ secrets.MQTT_BROKER_URL }}
-            VOICE_SERVER_BEARER_TOKEN=${{ secrets.VOICE_SERVER_BEARER_TOKEN }}
-            VOICE_SERVER_ENDPOINT=${{ secrets.VOICE_SERVER_ENDPOINT }}
             BUILDTIME=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.revision'] }}
   
-  build-server-image:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for main image
-        id: meta-main
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.SERVER_IMAGE_NAME }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            type=sha
-
-      - name: Build demonstrator docker image
-
-        uses: docker/build-push-action@v2
-        with:
-          context: ./server
-          push: true
-          tags: ${{ steps.meta-main.outputs.tags }}
-          labels: ${{ steps.meta-main.outputs.labels }}
-
   deploy:
     if: contains(github.ref, 'heads')
     runs-on: ubuntu-latest
     needs:
       - build-frontend-image
-      - build-server-image
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -111,7 +69,6 @@ jobs:
       - name: Patch version
         run: |
           yq --inplace '.image.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/sesar/image-tag.yaml
-          yq --inplace '.sesar-server.image.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/sesar/image-tag.yaml
       - name: Commit and push
         run: |
           git config user.email "114478573+sintef-sct-ci-machine-account@users.noreply.github.com"
