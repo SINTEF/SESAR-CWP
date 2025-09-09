@@ -4,7 +4,10 @@ import { useMap } from "react-map-gl/maplibre";
 
 import { isDragging } from "../draggableState";
 import type AircraftModel from "../model/AircraftModel";
-import { setCurrentAircraftId } from "../model/CurrentAircraft";
+import {
+	getCurrentAircraftId,
+	setCurrentAircraftId,
+} from "../model/CurrentAircraft";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
 import AircraftContentSmall from "./AircraftContentSmall";
 import AircraftLevelPopup from "./AircraftLevelPopup";
@@ -23,7 +26,6 @@ export default observer(function AircraftPopup(properties: {
 }) {
 	const { aircraft /* pseudo */ } = properties; // Not removing 'pseudo' yet as it might be used for the TA
 	// const { lowestBound, highestBound } = cwpStore.altitudeFilter;
-	const [isHovered, setIsHovered] = React.useState(false);
 	const {
 		aircraftId,
 		lastKnownLongitude: longitude,
@@ -32,7 +34,15 @@ export default observer(function AircraftPopup(properties: {
 		localAssignedFlightLevel,
 		setLocalAssignedFlightLevel,
 	} = aircraft;
-
+	const {
+		setHoveredFlightLabelId,
+		hoveredFlightLabelId,
+		hoveredMarkerAircraftId,
+		removeHoveredFlightLabelId,
+		selectedAircraftIds,
+	} = cwpStore;
+	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
+	const isHoveredLabel = cwpStore.hoveredFlightLabelId === aircraftId;
 	const { currentCWP } = configurationStore;
 	const flightColor =
 		roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
@@ -95,27 +105,28 @@ export default observer(function AircraftPopup(properties: {
 	}
 
 	const height = 70;
-	const width = isHovered ? 150 : 60; // Width of the popup changes based on hover state
+	const width = isHoveredLabel ? 150 : 60; // Width of the popup changes based on hover state
 
-	const Content = isHovered ? AircraftPopupContent : AircraftContentSmall;
+	const Content = isHoveredLabel ? AircraftPopupContent : AircraftContentSmall;
 
 	const onClick = (): void => {
 		if (isDragging()) {
 			return;
 		}
-		if (
-			aircraft.controlledBy === configurationStore.currentCWP ||
-			currentCWP === "All"
-		) {
-			setCurrentAircraftId(aircraftId);
-		}
+		// if (
+		// 	aircraft.controlledBy === configurationStore.currentCWP ||
+		// 	currentCWP === "All"
+		// ) {
+		// 	setCurrentAircraftId(aircraftId);
+		// }
+		setCurrentAircraftId(aircraftId);
 	};
 
 	return (
 		<DraggablePopup
 			className="text-xs p-0 m-0 backdrop-blur-[1.5px]"
 			style={{ color: flightColor }}
-			color={flightColor}
+			color={isHoveredMarker ? "#00FFFF" : flightColor}
 			offset={{ x: 0, y: 0 } as DraggablePopupProperties["offset"]}
 			size={{ width: 110, height }}
 			anchor="top"
@@ -129,16 +140,21 @@ export default observer(function AircraftPopup(properties: {
 		>
 			<div
 				onClick={onClick}
-				onMouseEnter={(): void => setIsHovered(true)}
-				onMouseLeave={(): void => setIsHovered(false)}
+				onMouseEnter={(): void => setHoveredFlightLabelId(aircraftId)}
+				onMouseLeave={(): void => removeHoveredFlightLabelId()}
 			>
 				<div
 					className="bg-gray-500/50 rounded-sm select-none"
-					style={{
-						width: `${width}px`,
-						height: `${height}px`,
-					}}
+					// style={{
+					// 	width: `${width}px`,
+					// 	height: `${height}px`,
+					// }}
 					onWheel={onWheel}
+					style={
+						selectedAircraftIds.has(aircraft.aircraftId)
+							? { borderColor: "#00ffff", borderWidth: "0.5px" }
+							: { borderColor: "transparent", borderWidth: "0px" }
+					}
 				>
 					<Content flightColor={flightColor} aircraft={aircraft} />
 				</div>

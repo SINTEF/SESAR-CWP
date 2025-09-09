@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Marker } from "react-map-gl/maplibre";
 import type AircraftModel from "../model/AircraftModel";
+import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import {
 	// aircraftStore,
 	configurationStore,
@@ -26,15 +27,34 @@ export default observer(function AircraftMarker(properties: {
 		aircraftId,
 		positionHistory,
 	} = properties.aircraft;
-
+	const {
+		hoveredMarkerAircraftId,
+		setHoveredMarkerAircraftId,
+		setFlightRouteForAircraft,
+		toggleSelectedAircraftId,
+		removeHoveredMarkerAircraftId,
+		selectedAircraftIds,
+	} = cwpStore;
 	const pseudo =
 		configurationStore.currentCWP === "All" || cwpStore.pseudoPilot;
-
+	const isHovered = hoveredMarkerAircraftId === aircraftId;
 	const history = positionHistory.slice(0, 8);
 
 	const onClickOnAircraft = (): void => {
-		cwpStore.toggleFlightRouteForAircraft(aircraftId);
-		cwpStore.toggleSelectedAircraftId(aircraftId);
+		setFlightRouteForAircraft(aircraftId, true);
+		toggleSelectedAircraftId(aircraftId);
+		setCurrentAircraftId(aircraftId);
+	};
+
+	const onHoverOnAircraft = (): void => {
+		setFlightRouteForAircraft(aircraftId, true);
+		setHoveredMarkerAircraftId(aircraftId);
+	};
+	const onHoverOffAircraft = (): void => {
+		if (!cwpStore.selectedAircraftIds.has(aircraftId)) {
+			cwpStore.setFlightRouteForAircraft(aircraftId, false);
+		}
+		removeHoveredMarkerAircraftId();
 	};
 
 	return (
@@ -61,28 +81,37 @@ export default observer(function AircraftMarker(properties: {
 								top: "50%",
 								opacity,
 							}}
+							onMouseEnter={onHoverOnAircraft}
+							onMouseLeave={onHoverOffAircraft}
 						>
-							<circle
-								cx="50%"
-								cy="50%"
-								r={size / 2}
-								fill={
-									roleConfigurationStore.getOriginalColorOfAircraft(
-										aircraftId,
-									) === "#ffffff" ||
-									roleConfigurationStore.getOriginalColorOfAircraft(
-										aircraftId,
-									) === "#78e251"
-										? "none"
-										: roleConfigurationStore.getOriginalColorOfAircraft(
-												aircraftId,
-											)
-								}
-								stroke={roleConfigurationStore.getOriginalColorOfAircraft(
-									aircraftId,
-								)}
-								strokeWidth="0.6"
-							/>
+							{selectedAircraftIds.has(aircraftId) && index === 0 ? (
+								<polygon
+									points={`
+                ${size / 2},0
+                ${size},${size / 4}
+                ${size},${(3 * size) / 4}
+                ${size / 2},${size}
+                0,${(3 * size) / 4}
+                0,${size / 4}
+              `}
+									fill={"#00ffff"}
+								></polygon>
+							) : (
+								<circle
+									cx="50%"
+									cy="50%"
+									r={size / 2}
+									fill={isHovered ? "#00ffff" : "none"}
+									stroke={
+										isHovered
+											? "#00ffff"
+											: roleConfigurationStore.getOriginalColorOfAircraft(
+													aircraftId,
+												)
+									}
+									strokeWidth="0.6"
+								/>
+							)}
 						</svg>
 					</Marker>
 				);

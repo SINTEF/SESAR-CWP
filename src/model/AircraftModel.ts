@@ -1,9 +1,5 @@
-import { action, computed, makeObservable, observable } from "mobx";
 import type { ObservableMap } from "mobx";
-
-import { WakeTurbulenceCategory } from "../proto/ProtobufAirTrafficSimulator";
-import convertTimestamp from "./convertTimestamp";
-import FlightInSectorModel from "./FlightInSectorModel";
+import { action, computed, makeObservable, observable } from "mobx";
 import type { Timestamp } from "../proto/google/protobuf/timestamp";
 import type {
 	FlightEnteringAirspaceMessage,
@@ -11,8 +7,11 @@ import type {
 	NewFlightMessage,
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
+import { WakeTurbulenceCategory } from "../proto/ProtobufAirTrafficSimulator";
 import type AircraftInfo from "./AircraftInfo";
 import type AircraftType from "./AircraftType";
+import convertTimestamp from "./convertTimestamp";
+import FlightInSectorModel from "./FlightInSectorModel";
 import type SimulatorStore from "./SimulatorStore";
 
 function convertToFlightMeters(alt: number): number {

@@ -1,5 +1,5 @@
-import { makeAutoObservable, observable } from "mobx";
 import type { ObservableSet } from "mobx";
+import { makeAutoObservable, observable } from "mobx";
 
 import AltitudeFilter from "./AltitudeFilter";
 
@@ -115,6 +115,9 @@ export default class CWPStore {
 	selectedAircraftIds: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
+
+	hoveredMarkerAircraftId: string | null = null;
+	hoveredFlightLabelId: string | null = null;
 
 	constructor({
 		altitudeFilter,
@@ -464,5 +467,18 @@ export default class CWPStore {
 	}
 	clearATCMenuAircraftId(): void {
 		this.ATCMenuAircraftId = "";
+	}
+
+	setHoveredMarkerAircraftId(aircraftId: string): void {
+		this.hoveredMarkerAircraftId = aircraftId;
+	}
+	setHoveredFlightLabelId(aircraftId: string): void {
+		this.hoveredFlightLabelId = aircraftId;
+	}
+	removeHoveredFlightLabelId(): void {
+		this.hoveredFlightLabelId = null;
+	}
+	removeHoveredMarkerAircraftId(): void {
+		this.hoveredMarkerAircraftId = null;
 	}
 }

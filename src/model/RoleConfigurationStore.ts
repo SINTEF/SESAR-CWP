@@ -362,15 +362,20 @@ export default class RoleConfigurationStore {
 	getOriginalColorOfAircraft(aircraftId: string): string {
 		const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
 		if (!aircraft) {
-			return "#555555"; // Default color is grey
+			return "grey"; // Default color is grey
 		}
-		const listOfTentatives = this.roleConfigurations // Is this the same as anticipated? No I think this was used when one handed over to another ATC
-			.get(this.configurationStore.currentCWP)?.tentativeAircrafts;
+		if (aircraft.controlledBy === this.configurationStore.currentCWP) {
+			return "#ffffff";
+		}
+		const listOfTentatives = this.roleConfigurations.get(
+			this.configurationStore.currentCWP,
+		)?.tentativeAircrafts;
 		if (listOfTentatives?.includes(aircraftId)) {
-			return "#78e251"; // Green?
+			return "#ff0000"; // Green?
 		}
 		// console.log(this.aircraftsEnteringCurrentSector);
 		if (this.aircraftsEnteringCurrentSector.includes(aircraft)) {
+			// Anticipated flights
 			return "#78e251"; // Green?
 		}
 		if (
@@ -379,19 +384,15 @@ export default class RoleConfigurationStore {
 		) {
 			return "#CEFCBA"; // Grey?
 		}
-
-		if (aircraft.controlledBy === this.configurationStore.currentCWP) {
-			return "#ffff00";
-		}
 		if (
 			this.currentControlledSector &&
 			aircraft.isEnteringFlight(this.currentControlledSector)
 		) {
 			// Is this also anticipated flight?
-			return "#78e251"; // Green?"
+			return "#ff00ff"; // Not in use?"
 		}
 
-		return "#ffffff"; // What is the default flight color?
+		return "grey"; // What is the default flight color?
 	}
 
 	get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
@@ -450,9 +451,14 @@ export default class RoleConfigurationStore {
 
 	get aircraftsEnteringCurrentSector(): AircraftModel[] {
 		const currentSector = this.currentControlledSector;
+		console.log(currentSector, "Current Sector");
 		const listOfAircraftsInSector = this.listOfFlightsInCurrentSector;
 		const listOfAircraftsEnteringSector = currentSector
 			? this.aircraftStore.aircraftsWithRecentTargetReport.map((aircraft) => {
+					console.log(
+						aircraft.flightInSectorTimes?.get(currentSector),
+						aircraft.callSign,
+					);
 					if (aircraft.flightInSectorTimes?.get(currentSector) !== undefined) {
 						return aircraft;
 					}
