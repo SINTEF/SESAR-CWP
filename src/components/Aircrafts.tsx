@@ -1,5 +1,4 @@
 import { observer } from 'mobx-react-lite';
-import React from 'react';
 
 import { configurationStore } from '../state';
 import AircraftMarker from './AircraftMarker';

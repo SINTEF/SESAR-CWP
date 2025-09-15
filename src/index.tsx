@@ -6,7 +6,6 @@ import './index.css';
 import './mqtt-client';
 import './frontendSimulationLogic';
 
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import App from './App';

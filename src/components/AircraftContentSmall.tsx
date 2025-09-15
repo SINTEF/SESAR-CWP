@@ -1,10 +1,7 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
 import { isDragging } from "../draggableState";
 import type AircraftModel from "../model/AircraftModel";
-import { getCurrentAircraftId } from "../model/CurrentAircraft";
 import {
-	acceptFlight,
 	handlePublishPromise,
 	persistFrontendFlightController,
 } from "../mqtt-client/publishers";

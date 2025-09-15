@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useRef } from "react";
+import { useRef } from "react";
 import Draggable from "react-draggable";
 
 import { isDragging, startDragging, stopDragging } from "../draggableState";

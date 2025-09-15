@@ -1,11 +1,9 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
 import {
 	CartesianGrid,
 	Line,
 	LineChart,
 	ResponsiveContainer,
-	Tooltip,
 	XAxis,
 	YAxis,
 } from "recharts";

@@ -1,4 +1,4 @@
-import React from "react";
+
 
 import CurrentSectorPolygon from "./CurrentSectorPolygon";
 import SectorEdgesPolygon from "./SectorEdgesPolygon";

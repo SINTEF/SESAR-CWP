@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import Draggable from "react-draggable";
 import { startDragging, stopDragging } from "../draggableState";
 import type AircraftModel from "../model/AircraftModel";
-import convertTimestamp from "../model/convertTimestamp";
 import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
 import {
 	aircraftStore,
 	cwpStore,
-	fixStore,
 	roleConfigurationStore,
 	simulatorStore,
 } from "../state";
