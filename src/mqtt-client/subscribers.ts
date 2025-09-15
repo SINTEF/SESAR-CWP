@@ -208,6 +208,5 @@ export function flightConflictMessage(
 	message: Buffer,
 ): void {
 	const protoMessage = FlightConflictUpdateMessage.fromBinary(message);
-	console.log(protoMessage);
 	aircraftStore.handleNewConflictMessage(protoMessage);
 }

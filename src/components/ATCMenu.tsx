@@ -56,7 +56,7 @@ export default observer(function ATCMenu(properties: {
 							: "ASSUME"}
 					</button>
 					<button
-						onClick={() => console.log("TODO: What does integre do?")}
+						onClick={() => {}}
 						className="btn btn-sm w-full btn-secondary"
 					>
 						INTEGRE

@@ -92,7 +92,7 @@ export default class DraggablePopup extends
 
   render() {
     const {
-      className, children, offset, color, size, cancel, ...otherProperties
+      className, children, color, size, cancel, ...otherProperties
     } = this.props;
     const { offsetX, offsetY, zIndex } = this.state;
 

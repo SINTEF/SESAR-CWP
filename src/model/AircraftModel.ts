@@ -77,6 +77,14 @@ export default class AircraftModel {
 
 	positionHistory: Array<{ lat: number; lon: number }> = [];
 
+	transponderCode = "";
+
+	currentTime = "";
+
+	routeWaypoints: Array<{ sector: string; level: string }> = [];
+
+	frequency = "";
+
 	constructor({
 		aircraftId,
 		assignedFlightId,
@@ -122,6 +130,10 @@ export default class AircraftModel {
 			nextSectorFL: observable,
 			nextACCFL: observable,
 			positionHistory: observable,
+			transponderCode: observable,
+			currentTime: observable,
+			routeWaypoints: observable,
+			frequency: observable,
 
 			nextFix: computed,
 			wakeTurbulenceCategory: computed,

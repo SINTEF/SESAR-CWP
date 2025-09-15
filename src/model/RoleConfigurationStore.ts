@@ -235,7 +235,6 @@ export default class RoleConfigurationStore {
 	handleNewAirTrafficControllerMessage(
 		newAirTrafficControllerMessage: AirTrafficControllerAssignmentMessage,
 	): void {
-		console.log(newAirTrafficControllerMessage.airTrafficControllerId); // Not getting here
 		const roleName = `CWP${newAirTrafficControllerMessage.airTrafficControllerId}`;
 		const controllingSectors = newAirTrafficControllerMessage.sectorIds;
 		this.roleConfigurations.set(

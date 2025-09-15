@@ -8,7 +8,7 @@ import {
 	getCurrentAircraftId,
 	setCurrentAircraftId,
 } from "../model/CurrentAircraft";
-import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
+import { cwpStore, roleConfigurationStore } from "../state";
 import AircraftContentSmall from "./AircraftContentSmall";
 import AircraftLevelPopup from "./AircraftLevelPopup";
 import AircraftPopupContent from "./AircraftPopupContent";
@@ -35,14 +35,11 @@ export default observer(function AircraftPopup(properties: {
 	} = aircraft;
 	const {
 		setHoveredFlightLabelId,
-		hoveredFlightLabelId,
-		hoveredMarkerAircraftId,
 		removeHoveredFlightLabelId,
 		selectedAircraftIds,
 	} = cwpStore;
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
 	const isHoveredLabel = cwpStore.hoveredFlightLabelId === aircraftId;
-	const { currentCWP } = configurationStore;
 	const flightColor =
 		roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
 	// const {
@@ -104,7 +101,7 @@ export default observer(function AircraftPopup(properties: {
 	}
 
 	const height = 70;
-	const width = isHoveredLabel ? 150 : 60; // Width of the popup changes based on hover state
+	const _width = isHoveredLabel ? 150 : 60; // Width of the popup changes based on hover state
 
 	const Content = isHoveredLabel ? AircraftPopupContent : AircraftContentSmall;
 
@@ -112,12 +109,6 @@ export default observer(function AircraftPopup(properties: {
 		if (isDragging()) {
 			return;
 		}
-		// if (
-		// 	aircraft.controlledBy === configurationStore.currentCWP ||
-		// 	currentCWP === "All"
-		// ) {
-		// 	setCurrentAircraftId(aircraftId);
-		// }
 		setCurrentAircraftId(aircraftId);
 	};
 

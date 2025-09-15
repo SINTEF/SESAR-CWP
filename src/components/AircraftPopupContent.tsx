@@ -27,7 +27,7 @@ const CallSign = observer(({ aircraft, colSpan }: SubContentProperties) => {
 		if (isDragging()) {
 			return;
 		}
-		const { aircraftId, controlledBy, assignedFlightId } = aircraft;
+		const { aircraftId } = aircraft;
 
 		if (cwpStore.ATCMenuAircraftId === aircraftId) {
 			cwpStore.setATCMenuAircraftId("");

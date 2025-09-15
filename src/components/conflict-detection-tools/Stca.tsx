@@ -1,10 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 
-interface StcaProps {
-	message: string;
-}
-
 const BLINK_INTERVAL = 500; // ms
 
 export default observer(function Stca() {

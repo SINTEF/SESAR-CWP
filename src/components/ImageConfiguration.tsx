@@ -57,7 +57,7 @@ const _FLButton = observer(function FLButton() {
 	);
 });
 
-const NSFLButton = observer(function NSFLButton() {
+const _NSFLButton = observer(function NSFLButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleFL()} // Not correct but might be useful?
@@ -79,7 +79,7 @@ const _SFLButton = observer(function SFLButton() {
 	);
 });
 
-const N_AButton = observer(function N_AButton() {
+const _N_AButton = observer(function N_AButton() {
 	return (
 		<GenericButton
 			onClick={(): void => cwpStore.toggleSFL()}
