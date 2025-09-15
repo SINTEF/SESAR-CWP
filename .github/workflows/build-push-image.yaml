@@ -19,10 +19,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -30,7 +30,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for main image
         id: meta-main
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
           tags: |
@@ -42,7 +42,7 @@ jobs:
 
       - name: Build demonstrator docker image
 
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: ./
           push: true
@@ -54,7 +54,7 @@ jobs:
             BUILDTIME=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.revision'] }}
-  
+
   deploy:
     if: contains(github.ref, 'heads')
     runs-on: ubuntu-latest
@@ -62,7 +62,7 @@ jobs:
       - build-frontend-image
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           repository: ${{ env.GITOPS_REPOSITORY }}
           ssh-key: ${{secrets.GITOPS_REPOSITORY_SSH_KEY}}
