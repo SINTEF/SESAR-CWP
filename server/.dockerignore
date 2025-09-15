@@ -1,6 +1,0 @@
-node_modules
-.env
-.gitignore
-error.log
-dist
-voice-ai/fine-tuning-dataset.jsonl
