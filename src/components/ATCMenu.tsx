@@ -1,13 +1,13 @@
 /* ATCMenu.tsx */
 import { observer } from "mobx-react-lite";
 import React from "react";
+import type AircraftModel from "../model/AircraftModel";
 import {
 	acceptFlight,
 	handlePublishPromise,
 	persistFrontendFlightController,
 } from "../mqtt-client/publishers";
 import { aircraftStore, configurationStore, cwpStore } from "../state";
-import type AircraftModel from "../model/AircraftModel";
 
 export default observer(function ATCMenu(properties: {
 	aircraft: AircraftModel;
@@ -43,10 +43,28 @@ export default observer(function ATCMenu(properties: {
 		}
 	};
 
+	const handleTrfClick = (aircraftId: string): void => {
+		aircraftStore.aircrafts.get(aircraftId)?.setController("NS"); // Setting transfering to next sector as NS for DIALOG
+		// change controlledBy to no longer currentCWP
+	};
+
+	const handleIntegreClick = (aircraftId: string): void => {
+		//aircraftStore.aircrafts.get(aircraftId)?.setCallSignBold(true);
+		// What does integre mean?
+	};
+
 	return (
 		<div className="bg-gray-800 p-4 w-36 text-gray-200 font-sans flex flex-col items-center">
 			<div className="space-y-2 w-full">
 				<div className="space-y-2 w-full">
+					{controlledBy === configurationStore.currentCWP && (
+						<button
+							onClick={() => handleTrfClick(aircraftId)}
+							className="btn btn-sm w-full btn-secondary"
+						>
+							TRF 130.165
+						</button>
+					)}
 					<button
 						onClick={toggleAssumeFlight}
 						className={`btn btn-sm w-full ${controlledBy === configurationStore.currentCWP ? "btn-disabled" : "btn-primary"}`}
@@ -56,7 +74,7 @@ export default observer(function ATCMenu(properties: {
 							: "ASSUME"}
 					</button>
 					<button
-						onClick={() => {}}
+						onClick={() => handleIntegreClick(aircraftId)} // Changing callsign to bold font
 						className="btn btn-sm w-full btn-secondary"
 					>
 						INTEGRE

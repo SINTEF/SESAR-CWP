@@ -14,50 +14,61 @@ import {
 	cwpStore,
 	roleConfigurationStore,
 } from "../state";
+import { convertMetersToFlightLevel } from "../utils";
 import Stca from "./conflict-detection-tools/Stca";
 
 type SubContentProperties = {
 	aircraft: AircraftModel;
+	flightColor?: string;
 	colSpan?: number;
 };
 
-const CallSign = observer(({ aircraft, colSpan }: SubContentProperties) => {
-	const { callSign } = aircraft;
-	const setController = (): void => {
-		if (isDragging()) {
-			return;
-		}
-		const { aircraftId } = aircraft;
+export const CallSign = observer(
+	({ flightColor, aircraft, colSpan }: SubContentProperties) => {
+		const { callSign, controlledBy } = aircraft;
 
-		if (cwpStore.ATCMenuAircraftId === aircraftId) {
-			cwpStore.setATCMenuAircraftId("");
-			return;
-		}
-		cwpStore.setATCMenuAircraftId(aircraftId);
+		const openATCMenu = (): void => {
+			if (isDragging()) {
+				return;
+			}
+			const { aircraftId } = aircraft;
 
-		// const listOfTentativeFlights =
-		// 	roleConfigurationStore.roleConfigurations.get(
-		// 		configurationStore.currentCWP,
-		// 	)?.tentativeAircrafts;
+			if (cwpStore.ATCMenuAircraftId === aircraftId) {
+				cwpStore.setATCMenuAircraftId("");
+				return;
+			}
+			cwpStore.setATCMenuAircraftId(aircraftId);
 
-		// if (listOfTentativeFlights?.includes(aircraftId)) {
-		// 	roleConfigurationStore.roleConfigurations
-		// 		.get(configurationStore.currentCWP)
-		// 		?.removeTentativeAircraft(aircraftId);
-		// }
-		handlePublishPromise(
-			persistFrontendFlightController(
-				aircraftId,
-				configurationStore.currentCWP,
-			),
+			// handlePublishPromise(
+			// 	persistFrontendFlightController(
+			// 		aircraftId,
+			// 		configurationStore.currentCWP,
+			// 	),
+			// );
+		};
+		const getColor = (aircraft: AircraftModel): string => {
+			if (controlledBy === "NS") {
+				// Setting transfering to next sector as NS for DIALOG
+				return "grey";
+			}
+			if (aircraft.nextSectorController === configurationStore.currentCWP) {
+				// Not yet controlled by current CWP but transferred by another CWP
+				return "white";
+			}
+			return flightColor ? flightColor : "grey";
+		};
+
+		return (
+			<td
+				style={{ color: getColor(aircraft) }}
+				onClick={openATCMenu}
+				colSpan={colSpan}
+			>
+				{callSign}
+			</td>
 		);
-	};
-	return (
-		<td onClick={setController} colSpan={colSpan}>
-			{callSign}
-		</td>
-	);
-});
+	},
+);
 
 export const Altitude = observer(({ aircraft }: SubContentProperties) => {
 	const onClick = (): void => {
@@ -138,7 +149,7 @@ export default observer(function AircraftContentSmall(properties: {
 					</td>
 				</tr>
 				<tr>
-					<CallSign aircraft={aircraft} colSpan={1} />
+					<CallSign flightColor={flightColor} aircraft={aircraft} colSpan={1} />
 				</tr>
 				<tr>
 					<Altitude aircraft={aircraft} />
@@ -147,8 +158,13 @@ export default observer(function AircraftContentSmall(properties: {
 					<td>
 						x
 						{currentSector &&
-							aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-								?.altitude}
+						aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
+							?.altitude !== null
+							? convertMetersToFlightLevel(
+									aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
+										?.altitude as number,
+								)
+							: ""}
 					</td>
 				</tr>
 			</tbody>

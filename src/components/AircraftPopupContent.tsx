@@ -14,6 +14,8 @@ import {
 	cwpStore,
 	roleConfigurationStore,
 } from "../state";
+import { convertMetersToFlightLevel } from "../utils";
+import { Altitude, CallSign, NextSectorFL } from "./AircraftContentSmall";
 import Stca from "./conflict-detection-tools/Stca";
 
 type SubContentProperties = {
@@ -21,72 +23,23 @@ type SubContentProperties = {
 	colSpan?: number;
 };
 
-const CallSign = observer(({ aircraft, colSpan }: SubContentProperties) => {
-	const { callSign } = aircraft;
-	const setController = (): void => {
-		if (isDragging()) {
-			return;
+export const AssignedBearing = observer(
+	({ aircraft }: SubContentProperties) => {
+		const { assignedBearing } = aircraft;
+
+		if (assignedBearing === -1 || assignedBearing === undefined) {
+			return <td>h...</td>;
 		}
 		const { aircraftId } = aircraft;
 
-		if (cwpStore.ATCMenuAircraftId === aircraftId) {
-			cwpStore.setATCMenuAircraftId("");
-			return;
+		let displayedBearing = Math.round(assignedBearing) % 360;
+		if (displayedBearing < 1) {
+			displayedBearing = 360;
 		}
-		cwpStore.setATCMenuAircraftId(aircraftId);
 
-		// const listOfTentativeFlights =
-		// 	roleConfigurationStore.roleConfigurations.get(
-		// 		configurationStore.currentCWP,
-		// 	)?.tentativeAircrafts;
-
-		// if (listOfTentativeFlights?.includes(aircraftId)) {
-		// 	roleConfigurationStore.roleConfigurations
-		// 		.get(configurationStore.currentCWP)
-		// 		?.removeTentativeAircraft(aircraftId);
-		// }
-		// handlePublishPromise(
-		// 	persistFrontendFlightController(
-		// 		aircraftId,
-		// 		configurationStore.currentCWP,
-		// 	),
-		// );
-	};
-	return (
-		<td onClick={setController} colSpan={colSpan}>
-			{callSign}
-		</td>
-	);
-});
-
-export const Altitude = observer(({ aircraft }: SubContentProperties) => {
-	const onClick = (): void => {
-		if (isDragging()) {
-			return;
-		}
-		cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
-	};
-	return (
-		<td onClick={onClick}>
-			{Number.parseFloat(aircraft.lastKnownAltitude.toFixed(0))} -
-		</td>
-	);
-});
-
-const AssignedBearing = observer(({ aircraft }: SubContentProperties) => {
-	const { assignedBearing } = aircraft;
-
-	if (assignedBearing === -1 || assignedBearing === undefined) {
-		return <td>h...</td>;
-	}
-
-	let displayedBearing = Math.round(assignedBearing) % 360;
-	if (displayedBearing < 1) {
-		displayedBearing = 360;
-	}
-
-	return <td>{`${displayedBearing.toString().padStart(3, "0")}`}</td>;
-});
+		return <td>{`${displayedBearing.toString().padStart(3, "0")}`}</td>;
+	},
+);
 
 const NextFix = observer(({ aircraft }: SubContentProperties) => {
 	const middleClickNextWaypoint = (
@@ -107,55 +60,6 @@ const NextFix = observer(({ aircraft }: SubContentProperties) => {
 	);
 });
 
-export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
-	const openNSFLPopup = (): void => {
-		if (isDragging()) {
-			return;
-		}
-		cwpStore.showNSFL(true);
-		cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
-	};
-	return <td onClick={openNSFLPopup}>{aircraft.nextSectorFL}</td>;
-});
-
-export const NextSectorController = observer(
-	({ aircraft }: SubContentProperties) => {
-		const onClick = (): void => {
-			if (isDragging()) {
-				return;
-			}
-			cwpStore.openNextSectorPopupForAircraft(aircraft.aircraftId);
-		};
-		return (
-			<td onClick={onClick}>
-				{aircraft.nextSectorController === "All"
-					? "Master"
-					: aircraft.nextSectorController}
-			</td>
-		);
-	},
-);
-
-export const LocalAssignedFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => (
-		<td>{aircraft.localAssignedFlightLevel}</td>
-	),
-);
-
-export const NextACCFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => {
-		const openNextACCPopup = (): void => {
-			if (isDragging()) {
-				return;
-			}
-			cwpStore.showFlACC(true);
-			cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
-		};
-
-		return <td onClick={openNextACCPopup}>{aircraft.nextACCFL}</td>;
-	},
-);
-
 export default observer(function AircraftPopupContent(properties: {
 	aircraft: AircraftModel;
 	flightColor: string;
@@ -174,7 +78,7 @@ export default observer(function AircraftPopupContent(properties: {
 					</td>
 				</tr>
 				<tr>
-					<CallSign aircraft={aircraft} colSpan={1} />
+					<CallSign flightColor={flightColor} aircraft={aircraft} colSpan={1} />
 					<td>00</td>
 					<td className="h-1 w-1">
 						<svg
@@ -206,8 +110,13 @@ export default observer(function AircraftPopupContent(properties: {
 					<td>
 						x
 						{currentSector &&
-							aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-								?.altitude}
+						aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
+							?.altitude !== null
+							? convertMetersToFlightLevel(
+									aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
+										?.altitude as number,
+								)
+							: ""}
 					</td>
 					<td>
 						x
