@@ -10,7 +10,6 @@ import ReactMapGL, {
 import { cwpStore, distanceLineStore } from "../state";
 import Agenda from "./Agenda";
 import Aircrafts from "./Aircrafts";
-// import ControllerLabel from "./ControllerLabel";
 import DistanceMarkers from "./DistanceMarkers";
 import DistanceMeasurements from "./DistanceMeasurements";
 import FixesPoint from "./FixesPoint";
@@ -121,7 +120,6 @@ export default function Map() {
 			<FixesPoint />
 			<FlightRoutes />
 			<SpeedVectors />
-			{/* <ControllerLabel /> */}
 			<Aircrafts />
 			<HighlightedAircraft />
 			<LimboAircrafts />

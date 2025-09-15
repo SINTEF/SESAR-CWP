@@ -249,7 +249,6 @@ export default function ImageConfiguration() {
 				<DistanceMeasurementDropdown />
 				<ControllerButton />
 			</div> */}
-			{/* <MqttIndicators /> */}
 		</div>
 	);
 }

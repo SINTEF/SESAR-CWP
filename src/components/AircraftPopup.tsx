@@ -13,7 +13,6 @@ import AircraftContentSmall from "./AircraftContentSmall";
 import AircraftLevelPopup from "./AircraftLevelPopup";
 import AircraftPopupContent from "./AircraftPopupContent";
 import ATCMenu from "./ATCMenu";
-// import AircraftPopupPseudoContent from "./AircraftPopupPseudoContent";
 import ChangeBearingPopup from "./ChangeBearingPopup";
 import ChangeNextFixPopup from "./ChangeNextFixPopup";
 import ChangeSpeedPopup from "./ChangeSpeedPopup";
