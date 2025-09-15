@@ -396,10 +396,6 @@ export default class RoleConfigurationStore {
 	}
 
 	get listOfFlightsInCurrentSector(): AircraftModel[] | [] {
-		console.log(
-			this.areaOfCurrentControlledSector,
-			"Area of current controlled sector",
-		);
 		if (this.areaOfCurrentControlledSector !== undefined) {
 			const coordinates = this.areaOfCurrentControlledSector?.map(
 				(point): Position => [point.longitude, point.latitude],
@@ -451,14 +447,9 @@ export default class RoleConfigurationStore {
 
 	get aircraftsEnteringCurrentSector(): AircraftModel[] {
 		const currentSector = this.currentControlledSector;
-		console.log(currentSector, "Current Sector");
 		const listOfAircraftsInSector = this.listOfFlightsInCurrentSector;
 		const listOfAircraftsEnteringSector = currentSector
 			? this.aircraftStore.aircraftsWithRecentTargetReport.map((aircraft) => {
-					console.log(
-						aircraft.flightInSectorTimes?.get(currentSector),
-						aircraft.callSign,
-					);
 					if (aircraft.flightInSectorTimes?.get(currentSector) !== undefined) {
 						return aircraft;
 					}

@@ -4,6 +4,7 @@ import {
 	// AvailabilityIntervalsMessage,
 	AvailabilitySchedule,
 	CurrentAirspaceConfigurationMessage,
+	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
 	FlightMilestonePositionMessage,
 	FlightRouteMessage,
@@ -135,7 +136,6 @@ export function flightEnteringAirspaceMessage(
 	message: Buffer,
 ): void {
 	const protoMessage = FlightEnteringAirspaceMessage.fromBinary(message);
-	console.log(protoMessage);
 	aircraftStore.handleNewSectorInFlightMessage(protoMessage);
 }
 
@@ -201,4 +201,13 @@ export function frontendFlightHidden(
 ): void {
 	const hidden = message.toString() === "true";
 	aircraftStore.handleFrontendFlightHidden(flightId, hidden);
+}
+
+export function flightConflictMessage(
+	parameters: unknown,
+	message: Buffer,
+): void {
+	const protoMessage = FlightConflictUpdateMessage.fromBinary(message);
+	console.log(protoMessage);
+	aircraftStore.handleNewConflictMessage(protoMessage);
 }

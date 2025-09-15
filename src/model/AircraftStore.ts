@@ -1,6 +1,7 @@
-import type { ObservableMap } from "mobx";
+import type { ObservableMap, ObservableSet } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
 import type {
+	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
 	FlightMilestonePositionMessage,
 	FlightRouteMessage,
@@ -42,6 +43,10 @@ export default class AircraftStore {
 	hiddenFlights: Set<string> = observable.set(undefined, { deep: false });
 
 	simulatorStore: SimulatorStore;
+
+	stcaConflictIds: ObservableSet<string> = observable.set(undefined, {
+		deep: false,
+	});
 
 	constructor({
 		simulatorStore,
@@ -288,6 +293,52 @@ export default class AircraftStore {
 			this.hiddenFlights.add(aircraftId);
 		} else {
 			this.hiddenFlights.delete(aircraftId);
+		}
+	}
+
+	handleNewConflictMessage(
+		flightConflictUpdate: FlightConflictUpdateMessage,
+	): void {
+		const flight1 = flightConflictUpdate.flightId;
+		const flight2 = flightConflictUpdate.conflictingFlightId;
+		if (!flight1 || !flight2) {
+			return;
+		}
+		switch (flightConflictUpdate.conflictUpdate) {
+			case 0: // New conflict
+				switch (flightConflictUpdate.conflictType) {
+					case 0: // STCA Conflict
+						this.stcaConflictIds.add(flight1);
+						this.stcaConflictIds.add(flight2);
+						break;
+					case 1: // TCT Conflict
+						// TCT Conflict
+						break;
+					case 2: // MTCD Conflict
+						// MTCD Conflict
+						break;
+					default:
+						// Handle unexpected conflictType values
+						break;
+				}
+				break;
+			default:
+				switch (flightConflictUpdate.conflictType) {
+					case 0: // STCA Conflict cleared
+						this.stcaConflictIds.delete(flight1);
+						this.stcaConflictIds.delete(flight2);
+						break;
+					case 1: // TCT Conflict
+						// TCT Conflict
+						break;
+					case 2: // MTCD Conflict
+						// MTCD Conflict
+						break;
+					default:
+						// Handle unexpected conflictType values
+						break;
+				}
+				break;
 		}
 	}
 }

@@ -94,7 +94,8 @@ export default observer(function AircraftMarker(properties: {
                 0,${(3 * size) / 4}
                 0,${size / 4}
               `}
-									fill={"#00ffff"}
+									fill="transparent"
+									stroke={"#00ffff"}
 								></polygon>
 							) : (
 								<circle

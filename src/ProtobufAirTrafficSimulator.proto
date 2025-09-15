@@ -655,6 +655,29 @@ message AddTentativeFlightMessage {
   string flightId                         = 3; // The id of the tentative flight.
   google.protobuf.Timestamp timeStamp     = 4; // The time for when the tentative happened.
 }
+// The type of conflict.
+enum ConflictType {
+  STCA = 0; // Short term conflict alert, based on current radar speed, direction.
+  TCT  = 1; // Tactical conflict tool, based on trajectory prediction.
+  MTCD = 2; // Medium term conflict detection, based on flight plans.
+}
+
+// The type of update
+enum ConflictUpdate {
+  New     = 0; // A new alert which is just automatically detected.
+  Cleared = 1; // An existing alert is automatically cleared.
+}
+
+message FlightConflictUpdateMessage {
+  string flightId                      = 1;
+  string callSign                      = 2;
+  string conflictingFlightId           = 3;
+  string conflictingFlightCallSign     = 4;
+  ConflictType conflictType            = 5;
+  ConflictUpdate conflictUpdate        = 6;
+  Position4D flightPosition            = 7;
+  Position4D conflictingFlightPosition = 8;
+}
 // ###################################################################################
 // * Messages, end.                                                                  |
 //  ##################################################################################

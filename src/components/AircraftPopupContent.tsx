@@ -14,6 +14,7 @@ import {
 	cwpStore,
 	roleConfigurationStore,
 } from "../state";
+import Stca from "./conflict-detection-tools/Stca";
 
 type SubContentProperties = {
 	aircraft: AircraftModel;
@@ -165,8 +166,12 @@ export default observer(function AircraftPopupContent(properties: {
 		<table className="border-spacing-0 m-1 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
 				<tr>
-					<td>{Math.round(aircraft.lastKnownSpeed)}</td>
-					{/* <SpeedAndWakeTurbulenceLabel aircraft={aircraft} /> */}
+					<td className="flex flex-row">
+						{Math.round(aircraft.lastKnownSpeed)}
+					</td>
+					<td>
+						{aircraftStore.stcaConflictIds.has(aircraft.aircraftId) && <Stca />}
+					</td>
 				</tr>
 				<tr>
 					<CallSign aircraft={aircraft} colSpan={1} />
