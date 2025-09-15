@@ -48,14 +48,7 @@ export default observer(function Draggable2DView() {
 								}
 							}}
 						></div>
-						{/* <div className="accordion-body sector-configuration-body"> */}
-						{/* <div style={{ height: '100%', width: '100%', background: 'black' }}> */}
-						{/* <SectorSideView /> */}
-						{/* </div> */}
-						{/* <VerticalSectorTimeline id={`${1}`} start={0} end={10} current={timestamp} /> */}
-						{/* </div> */}
 					</div>
-					{/* ))} */}
 				</div>
 			</div>
 		</Draggable>

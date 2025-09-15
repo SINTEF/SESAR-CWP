@@ -19,7 +19,7 @@ const MapDistanceMarker = observer((properties: {
     marker.setLatLng(event.lngLat.lat, event.lngLat.lng);
   }
 
-  function onClick(event: any): void {
+  function onClick(event: MapEvent): void {
     distanceLineStore.removeMarker(key);
     event.originalEvent?.stopPropagation();
   }
