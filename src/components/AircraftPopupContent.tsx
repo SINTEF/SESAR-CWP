@@ -1,13 +1,8 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
 
-import { isDragging } from "../draggableState";
 import type AircraftModel from "../model/AircraftModel";
-import {
-	aircraftStore,
-	cwpStore,
-	roleConfigurationStore,
-} from "../state";
+import { aircraftStore, cwpStore, roleConfigurationStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 import { Altitude, CallSign, NextSectorFL } from "./AircraftContentSmall";
 import Stca from "./conflict-detection-tools/Stca";
@@ -19,12 +14,11 @@ type SubContentProperties = {
 
 export const AssignedBearing = observer(
 	({ aircraft }: SubContentProperties) => {
-		const { assignedBearing } = aircraft;
+		const { assignedBearing /* aircraftId */ } = aircraft;
 
 		if (assignedBearing === -1 || assignedBearing === undefined) {
 			return <td>h...</td>;
 		}
-		const { aircraftId } = aircraft;
 
 		let displayedBearing = Math.round(assignedBearing) % 360;
 		if (displayedBearing < 1) {

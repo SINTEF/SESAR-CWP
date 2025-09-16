@@ -1,6 +1,6 @@
 /* ATCMenu.tsx */
 import { observer } from "mobx-react-lite";
-import type AircraftModel from "../models/AircraftModel";
+import type AircraftModel from "../model/AircraftModel";
 import {
 	acceptFlight,
 	handlePublishPromise,
