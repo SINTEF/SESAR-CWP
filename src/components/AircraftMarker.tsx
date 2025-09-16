@@ -10,6 +10,41 @@ import {
 } from "../state";
 import AircraftPopup from "./AircraftPopup";
 
+// Memoized function to calculate hexagon points - cached for performance
+// Using numeric keys with bit shifting for optimal performance
+const hexPointsCache = new Map<number, string>();
+const getRegularHexPoints = (
+	size: number,
+	inset = 1,
+	strokeWidth = 2,
+): string => {
+	// Create a numeric key using bit shifting
+	// size: 0-255 (8 bits), inset: 0-15 (4 bits), strokeWidth*10: 0-63 (6 bits)
+	const cacheKey =
+		(size << 10) | (inset << 6) | (Math.round(strokeWidth * 10) & 0x3f);
+	const cached = hexPointsCache.get(cacheKey);
+	if (cached) {
+		return cached;
+	}
+
+	const cx = size / 2;
+	const cy = size / 2;
+	const margin = inset + strokeWidth / 2;
+	const r = Math.max(0, size / 2 - margin);
+	const anglesDeg = [-90, -30, 30, 90, 150, 210]; // pointy-top hex
+	const points = anglesDeg
+		.map((deg) => {
+			const rad = (deg * Math.PI) / 180;
+			const x = cx + r * Math.cos(rad);
+			const y = cy + r * Math.sin(rad);
+			return `${x.toFixed(2)},${y.toFixed(2)}`;
+		})
+		.join(" ");
+
+	hexPointsCache.set(cacheKey, points);
+	return points;
+};
+
 /**
  * AircraftMarker component displays a marker for an aircraft on the map.
  * It shows the aircraft's last known position and a trail of its previous positions.
@@ -59,7 +94,7 @@ export default observer(function AircraftMarker(properties: {
 	return (
 		<>
 			{history.map((pos, index) => {
-				const size = 3 + (6 - index) * 2;
+				const size = 8 + (6 - index) * 2;
 				const opacity = 1;
 				return (
 					<Marker
@@ -85,39 +120,33 @@ export default observer(function AircraftMarker(properties: {
 						>
 							{selectedAircraftIds.has(aircraftId) && index === 0 ? (
 								<polygon
-									points={`
-                ${size / 2},0
-                ${size},${size / 4}
-                ${size},${(3 * size) / 4}
-                ${size / 2},${size}
-                0,${(3 * size) / 4}
-                0,${size / 4}
-              `}
+									points={getRegularHexPoints(size, 1, 1.5)}
+									transform={`rotate(${bearing} ${size / 2} ${size / 2})`}
 									fill="transparent"
 									stroke={"#00ffff"}
+									strokeWidth="1.5"
 								></polygon>
-							) : (
-								<circle
-									cx="50%"
-									cy="50%"
-									r={size / 2}
-									fill={isHovered ? "#00ffff" : "none"}
-									stroke={
-										isHovered
-											? "#00ffff"
-											: roleConfigurationStore.getOriginalColorOfAircraft(
-													aircraftId,
-												)
-									}
-									strokeWidth="0.6"
-								/>
-							)}
+							) : null}
+							<circle
+								cx="50%"
+								cy="50%"
+								r={(size - 5) / 2 - 2}
+								fill={isHovered ? "#00ffff" : "none"}
+								stroke={
+									isHovered
+										? "#00ffff"
+										: roleConfigurationStore.getOriginalColorOfAircraft(
+												aircraftId,
+											)
+								}
+								strokeWidth="1"
+							/>
 						</svg>
 					</Marker>
 				);
 			})}
 
-			<Marker longitude={lon} latitude={lat} rotation={bearing}>
+			<Marker longitude={lon} latitude={lat}>
 				<AircraftPopup aircraft={properties.aircraft} pseudo={pseudo} />
 			</Marker>
 		</>
