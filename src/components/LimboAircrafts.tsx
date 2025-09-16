@@ -2,7 +2,6 @@
 
 import type { CircleLayerSpecification } from "maplibre-gl";
 import { observer } from "mobx-react-lite";
-import React from "react";
 import { Layer, Source } from "react-map-gl/maplibre";
 import { cwpStore, roleConfigurationStore } from "../state";
 

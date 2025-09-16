@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { configurationStore, cwpStore } from "../state";
-import DistanceMeasurementDropdown from "./DistanceMeasurementDropdown";
 import SpeedVectorNavbarControl from "./SpeedVectorNavbarControl";
 import Time from "./Time";
 

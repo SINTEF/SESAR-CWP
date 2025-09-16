@@ -3,7 +3,6 @@
  */
 
 import { observer } from "mobx-react-lite";
-import type React from "react";
 
 import { simulatorStore } from "../state";
 import { formatSimulatorTimeHMS } from "../utils";

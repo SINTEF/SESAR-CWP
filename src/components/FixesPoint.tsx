@@ -1,9 +1,8 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
 import { Layer, Source } from "react-map-gl/maplibre";
 import type { CircleLayerSpecification, SymbolLayerSpecification } from "maplibre-gl";
 
-import { configurationStore, cwpStore, fixStore } from "../state";
+import { cwpStore, fixStore } from "../state";
 
 const fixLayerPaint: CircleLayerSpecification['paint'] = {
 	"circle-radius": 2.5,

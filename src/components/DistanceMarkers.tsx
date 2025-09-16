@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
-import React from 'react';
 import { Marker } from 'react-map-gl/maplibre';
-import type { MapEvent, MarkerDragEvent } from 'react-map-gl/maplibre';
+import type { MarkerEvent, MarkerDragEvent } from 'react-map-gl/maplibre';
 
 import { distanceLineStore } from '../state';
 import type DistanceMarker from '../model/DistanceMarker';
@@ -19,9 +18,11 @@ const MapDistanceMarker = observer((properties: {
     marker.setLatLng(event.lngLat.lat, event.lngLat.lng);
   }
 
-  function onClick(event: MapEvent): void {
+  function onClick(event: MarkerEvent<MouseEvent>): void {
     distanceLineStore.removeMarker(key);
-    event.originalEvent?.stopPropagation();
+    if (event.originalEvent && 'stopPropagation' in event.originalEvent) {
+      event.originalEvent.stopPropagation();
+    }
   }
 
   return (
