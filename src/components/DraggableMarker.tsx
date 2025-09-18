@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { Marker, MarkerDragEvent } from "react-map-gl/maplibre";
+import { set } from "mobx";
+import { useRef, useState } from "react";
+import type { DraggableEvent } from "react-draggable";
+import { DraggableCore } from "react-draggable";
+import { Popup } from "react-map-gl/maplibre";
 import { useDragging } from "../contexts/DraggingContext";
 import { cwpStore } from "../state";
 
@@ -13,6 +16,9 @@ interface DraggableMarkerProps {
 	onClick?: () => void;
 }
 
+const DEFAULT_OFFSET_X = -12;
+const DEFAULT_OFFSET_Y = -12;
+
 export default function DraggableMarker({
 	longitude,
 	latitude,
@@ -22,7 +28,12 @@ export default function DraggableMarker({
 	onMouseLeave,
 	onClick,
 }: DraggableMarkerProps) {
-	const [dragOffset, setDragOffset] = useState({ lng: 0, lat: 0 });
+	const nodeRef = useRef<HTMLDivElement>(null);
+
+	// Initialize with 0 offset, but preserve across re-renders
+	const [offsetX, setOffsetX] = useState(DEFAULT_OFFSET_X);
+	const [offsetY, setOffsetY] = useState(DEFAULT_OFFSET_Y);
+	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 	const [isDragging, setIsDragging] = useState(false);
 	const {
 		isDragging: isAnyDragging,
@@ -30,53 +41,91 @@ export default function DraggableMarker({
 		stopDragging,
 	} = useDragging();
 
-	const onDragStart = (): void => {
+	const handleDragStart = (event: DraggableEvent): void => {
+		if (!("clientX" in event && "clientY" in event)) {
+			return;
+		}
+		const { clientX, clientY } = event;
+		setDragStart({
+			x: clientX - offsetX,
+			y: clientY - offsetY,
+		});
 		setIsDragging(true);
 		startDragging();
 	};
 
-	const onDrag = (event: MarkerDragEvent): void => {
-		const { lngLat } = event;
-		const offset = {
-			lng: lngLat.lng - longitude,
-			lat: lngLat.lat - latitude,
-		};
-		setDragOffset(offset);
+	const handleDrag = (event: DraggableEvent): void => {
+		if (!("clientX" in event && "clientY" in event)) {
+			return;
+		}
+		const { clientX, clientY } = event;
+		setOffsetX(clientX - dragStart.x);
+		setOffsetY(clientY - dragStart.y);
 	};
 
-	const onDragEnd = (): void => {
+	const handleDragStop = (): void => {
 		setIsDragging(false);
-		setDragOffset({ lng: 0, lat: 0 });
+		setOffsetX(DEFAULT_OFFSET_X);
+		setOffsetY(DEFAULT_OFFSET_Y);
 		stopDragging();
-		if (!cwpStore.selectedAircraftIds.has(aircraftId)) {
-			cwpStore.setFlightRouteForAircraft(aircraftId, false);
+
+		if (offsetX >= -24 && offsetX <= 24 && offsetY >= -24 && offsetY <= 24) {
+			console.log("on it");
+		} else {
+			console.log("out");
+			setTimeout(() => {
+				console.log("out", onMouseLeave, isAnyDragging);
+				onMouseLeave?.();
+			}, 500);
 		}
-		cwpStore.removeHoveredMarkerAircraftId();
+	};
+
+	const localOnMouseEnter = (): void => {
+		if (onMouseEnter && !isDragging && !isAnyDragging) {
+			onMouseEnter();
+		}
+	};
+	const localOnMouseLeave = (): void => {
+		if (onMouseLeave && !isDragging && !isAnyDragging) {
+			onMouseLeave();
+			console.log("prout");
+		}
 	};
 
 	return (
-		<Marker
-			longitude={longitude + dragOffset.lng}
-			latitude={latitude + dragOffset.lat}
-			draggable={true}
-			className={
-				isDragging
-					? "disable-animation-marker z-1000"
-					: isAnyDragging
-						? "z-10"
-						: "z-10"
-			}
-			onDragStart={onDragStart}
-			onDrag={onDrag}
-			onDragEnd={onDragEnd}
+		<Popup
+			longitude={longitude}
+			latitude={latitude}
+			closeOnClick={false}
+			closeButton={false}
+			focusAfterOpen={false}
+			anchor="bottom"
+			className="max-w-none z-1000"
 		>
 			<div
-				onMouseEnter={onMouseEnter}
-				onMouseLeave={onMouseLeave}
-				onClick={onClick}
+				className={`absolute ${isDragging ? "cursor-grabbing" : "cursor-grab"} ${
+					isDragging
+						? "disable-animation-marker z-1000"
+						: isAnyDragging
+							? "z-10"
+							: "z-10"
+				}`}
+				style={{
+					top: `${offsetY}px`,
+					left: `${offsetX}px`,
+				}}
+				onMouseEnter={localOnMouseEnter}
+				onMouseLeave={localOnMouseLeave}
 			>
-				{children}
+				<DraggableCore
+					nodeRef={nodeRef}
+					onStart={handleDragStart}
+					onDrag={handleDrag}
+					onStop={handleDragStop}
+				>
+					<div ref={nodeRef}>{children}</div>
+				</DraggableCore>
 			</div>
-		</Marker>
+		</Popup>
 	);
 }

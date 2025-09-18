@@ -94,6 +94,7 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 
 	// Calculate line geometry
 	const planeIconIntersectRadius = 15;
+	const LINE_START_OFFSET_PX = 6; // distance from (0,0) to start drawing the line
 	const coreWidth = size.width;
 	const coreHeight = size.height;
 	const popupIsLower = offsetY > -coreHeight / 2;
@@ -139,6 +140,11 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 		adjustedLineX * adjustedLineX + adjustedLineY * adjustedLineY,
 	);
 	const lineAngle = Math.atan2(adjustedLineY, adjustedLineX);
+
+	// Compute start offset along the line direction
+	const lineStartX = Math.cos(lineAngle) * LINE_START_OFFSET_PX;
+	const lineStartY = Math.sin(lineAngle) * LINE_START_OFFSET_PX;
+	const adjustedLineLength = Math.max(lineLength - LINE_START_OFFSET_PX, 0);
 
 	// Check if plane icon and popup intersect
 	const planeIconBounds = {
@@ -194,9 +200,9 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 				className="absolute z-[1] h-[1.5px] bg-white/50 origin-left pointer-events-none"
 				style={{
 					display: displayLine ? "block" : "none",
-					top: 0,
-					left: 0,
-					width: `${lineLength}px`,
+					top: `${lineStartY}px`,
+					left: `${lineStartX}px`,
+					width: `${adjustedLineLength}px`,
 					transform: `rotate(${lineAngle}rad)`,
 					background: color || "rgba(255,255,255,0.5)",
 				}}

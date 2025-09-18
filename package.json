@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@fontsource/ibm-plex-mono": "^5.2.6",
-    "@fontsource/ibm-plex-sans": "^5.2.7",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.8",
     "@mapbox/sphericalmercator": "^2.0.1",
     "@protobuf-ts/runtime": "^2.11.1",
     "@turf/bbox": "^7.2.0",
@@ -13,10 +13,11 @@
     "@turf/boolean-point-in-polygon": "^7.2.0",
     "@turf/buffer": "^7.2.0",
     "@turf/length": "^7.2.0",
+    "@turf/centroid": "^7.2.0",
     "allotment": "^1.20.4",
     "classnames": "^2.5.1",
-    "daisyui": "^5.1.12",
-    "maplibre-gl": "^5.7.1",
+    "daisyui": "^5.1.13",
+    "maplibre-gl": "^5.7.2",
     "mobx": "^6.13.7",
     "mobx-react-lite": "^4.1.0",
     "mqtt": "^5.14.1",
@@ -25,7 +26,7 @@
     "react-draggable": "^4.5.0",
     "react-is": "^19.1.1",
     "react-map-gl": "^8.0.4",
-    "recharts": "^3.2.0",
+    "recharts": "^3.2.1",
     "rlite-router": "^2.0.3",
     "web-vitals": "^5.1.0"
   },
@@ -55,12 +56,12 @@
     "@protobuf-ts/plugin": "^2.11.1",
     "@tailwindcss/vite": "^4.1.13",
     "@types/mapbox__sphericalmercator": "^1.2.3",
-    "@types/node": "^24.4.0",
+    "@types/node": "^24.5.2",
     "@types/react-dom": "^19.1.9",
     "@types/throttle-debounce": "^5.0.2",
-    "@vitejs/plugin-react": "^5.0.2",
+    "@vitejs/plugin-react": "^5.0.3",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
-    "vite": "^7.1.5"
+    "vite": "^7.1.6"
   }
 }

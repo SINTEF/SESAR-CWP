@@ -154,7 +154,7 @@ export default observer(function AircraftMarker(properties: {
 				);
 			})}
 
-			<DraggableMarker
+			{/* <DraggableMarker
 				longitude={lon}
 				latitude={lat}
 				aircraftId={aircraftId}
@@ -163,7 +163,7 @@ export default observer(function AircraftMarker(properties: {
 				onClick={onClickOnAircraft}
 			>
 				<div className="w-6 h-6 bg-pink-400/90" />
-			</DraggableMarker>
+			</DraggableMarker> */}
 		</>
 	);
 });
