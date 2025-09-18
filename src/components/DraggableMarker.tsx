@@ -59,7 +59,13 @@ export default function DraggableMarker({
 			longitude={longitude + dragOffset.lng}
 			latitude={latitude + dragOffset.lat}
 			draggable={true}
-			className={isDragging ? "z-1000" : isAnyDragging ? "z-10" : "z-10"}
+			className={
+				isDragging
+					? "disable-animation-marker z-1000"
+					: isAnyDragging
+						? "z-10"
+						: "z-10"
+			}
 			onDragStart={onDragStart}
 			onDrag={onDrag}
 			onDragEnd={onDragEnd}

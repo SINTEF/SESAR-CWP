@@ -111,7 +111,7 @@ export default function Map() {
 	return (
 		<div
 			className={
-				isMoving || isDragging
+				isMoving /*|| isDragging*/
 					? "radar-map-container map-is-moving"
 					: "radar-map-container"
 			}
