@@ -6,7 +6,7 @@ import ReactMapGL, {
 	FullscreenControl,
 	NavigationControl,
 } from "react-map-gl/maplibre";
-
+import { useDragging } from "../contexts/DraggingContext";
 import { cwpStore, distanceLineStore } from "../state";
 import Agenda from "./Agenda";
 import Aircrafts from "./Aircrafts";
@@ -95,37 +95,60 @@ const initialViewState: Partial<ViewState> = {
 
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
 export default function Map() {
+	const [isMoving, setIsMoving] = React.useState(false);
+	const { isDragging } = useDragging();
+	const onMoveStart = (): void => {
+		if (!isMoving) {
+			setIsMoving(true);
+		}
+	};
+	const onMoveEnd = (): void => {
+		if (isMoving) {
+			setIsMoving(false);
+		}
+	};
+
 	return (
-		<ReactMapGL
-			id="radar-map"
-			style={style}
-			initialViewState={initialViewState}
-			// maxBounds={maxBounds}
-			// mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json"
-			// mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-			// mapStyle="https://maps.geoapify.com/v1/styles/dark-matter-dark-grey/style.json?apiKey=332569cc796d4788a11275c2fdefb5b1"
-			mapStyle={mapStyle}
-			attributionControl={false}
-			mapLib={maplibregl}
-			onClick={handleMapClick}
-			renderWorldCopies={false}
-			// If rotation and pitch should be disabled:
-			// maxPitch={0}
-			// pitchWithRotate={false}
-			// dragRotate={false}
+		<div
+			className={
+				isMoving || isDragging
+					? "radar-map-container map-is-moving"
+					: "radar-map-container"
+			}
 		>
-			<DistanceMarkers />
-			<DistanceMeasurements />
-			<Sectors />
-			<FixesPoint />
-			<FlightRoutes />
-			<SpeedVectors />
-			<Aircrafts />
-			<HighlightedAircraft />
-			<LimboAircrafts />
-			<Agenda />
-			<NavigationControl position="bottom-left" visualizePitch={true} />
-			<FullscreenControl position="bottom-left" containerId="root" />
-		</ReactMapGL>
+			<ReactMapGL
+				id="radar-map"
+				style={style}
+				initialViewState={initialViewState}
+				// maxBounds={maxBounds}
+				// mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json"
+				// mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+				// mapStyle="https://maps.geoapify.com/v1/styles/dark-matter-dark-grey/style.json?apiKey=332569cc796d4788a11275c2fdefb5b1"
+				mapStyle={mapStyle}
+				attributionControl={false}
+				mapLib={maplibregl}
+				onClick={handleMapClick}
+				onMoveStart={onMoveStart}
+				onMoveEnd={onMoveEnd}
+				renderWorldCopies={false}
+				// If rotation and pitch should be disabled:
+				// maxPitch={0}
+				// pitchWithRotate={false}
+				// dragRotate={false}
+			>
+				<DistanceMarkers />
+				<DistanceMeasurements />
+				<Sectors />
+				<FixesPoint />
+				<FlightRoutes />
+				<SpeedVectors />
+				<Aircrafts />
+				<HighlightedAircraft />
+				<LimboAircrafts />
+				<Agenda />
+				<NavigationControl position="bottom-left" visualizePitch={true} />
+				<FullscreenControl position="bottom-left" containerId="root" />
+			</ReactMapGL>
+		</div>
 	);
 }

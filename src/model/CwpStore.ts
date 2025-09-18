@@ -30,7 +30,7 @@ export default class CWPStore {
 
 	showFixes = false;
 
-	showVerticalWindow = true;
+	showVerticalWindow = false; /* should be true by default, if you see this, Antoine made a mistake by pushing this change */
 
 	showControllerSelection = true;
 

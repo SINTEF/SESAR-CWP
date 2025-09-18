@@ -2,7 +2,7 @@ import { ObservableSet } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import Draggable from "react-draggable";
-import { startDragging, stopDragging } from "../draggableState";
+import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
 import {
@@ -19,6 +19,7 @@ const _handleFlightClicked = (event: string): void => {
 // Important for perf: the markers never change, avoid rerender when the map viewport changes
 export default observer(function DypTable(/* properties */) {
 	const draggableRef = React.createRef<HTMLDivElement>();
+	const { startDragging, stopDragging } = useDragging();
 	const { selectedAircraftIds } = cwpStore;
 	const _currentSector = roleConfigurationStore.currentControlledSector;
 	const [_filter, _setFilter] = useState("");

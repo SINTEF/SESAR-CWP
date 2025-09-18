@@ -312,3 +312,12 @@ html .btn {
 .react-draggable-dragging {
     cursor: grabbing;
 }
+
+/* Smooth marker/popup movement when map is not moving,
+ * or being interacted with (dragging, zooming, rotating) */
+.radar-map-container:not(.map-is-moving) .maplibregl-marker,
+.radar-map-container:not(.map-is-moving) .maplibregl-popup {
+  transition-duration: 300ms !important;
+  transition-timing-function: ease-in-out !important;
+  transition-property: transform !important;
+}

@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import { useRef } from "react";
 import Draggable from "react-draggable";
 
-import { isDragging, startDragging, stopDragging } from "../draggableState";
+import { useDragging } from "../contexts/DraggingContext";
 import { cwpStore } from "../state";
 import SectorSideView from "./SectorSideView/SectorSideView";
 
@@ -19,7 +19,8 @@ import SectorSideView from "./SectorSideView/SectorSideView";
 
 export default observer(function Draggable2DView() {
 	const nodeRef = useRef<HTMLDivElement>(null);
-	
+	const { isDragging, startDragging, stopDragging } = useDragging();
+
 	if (!cwpStore.showVerticalWindow) {
 		return null;
 	}
@@ -43,7 +44,7 @@ export default observer(function Draggable2DView() {
 						<div
 							className="w-full"
 							onClickCapture={(event): void => {
-								if (isDragging()) {
+								if (isDragging) {
 									event.stopPropagation();
 								}
 							}}
