@@ -48,6 +48,8 @@ export default function DraggableMarker({
 		});
 		setIsDragging(true);
 		startDragging();
+		// uncomment if hover effect should disappear immediately when starting drag
+		// onMouseLeave?.();
 	};
 
 	const handleDrag = (event: DraggableEvent): void => {
@@ -65,13 +67,11 @@ export default function DraggableMarker({
 		setOffsetY(DEFAULT_OFFSET_Y);
 		stopDragging();
 
-		setTimeout(() => {
-			if (nodeRef.current?.matches(":hover")) {
-				// Not dragged away enough, keeping popup
-			} else if (onMouseLeave) {
-				onMouseLeave();
+		requestAnimationFrame(() => {
+			if (!nodeRef.current?.matches(":hover")) {
+				onMouseLeave?.();
 			}
-		}, 30);
+		});
 	};
 
 	const localOnMouseEnter = (): void => {
