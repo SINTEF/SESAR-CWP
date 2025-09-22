@@ -1,16 +1,16 @@
 export default class SectorToConfiguration {
-  configurationId = '';
+	configurationId = "";
 
-  controlledSector = '';
+	controlledSector = "";
 
-  constructor({
-    configurationId,
-    controlledSector,
-  }: {
-    configurationId: string;
-    controlledSector: string;
-  }) {
-    this.controlledSector = controlledSector;
-    this.configurationId = configurationId;
-  }
+	constructor({
+		configurationId,
+		controlledSector,
+	}: {
+		configurationId: string;
+		controlledSector: string;
+	}) {
+		this.controlledSector = controlledSector;
+		this.configurationId = configurationId;
+	}
 }

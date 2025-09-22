@@ -1,5 +1,3 @@
-
-
 import CurrentSectorPolygon from "./CurrentSectorPolygon";
 import SectorEdgesPolygon from "./SectorEdgesPolygon";
 import SectorPolygons from "./SectorPolygons";

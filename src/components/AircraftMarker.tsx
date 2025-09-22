@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { Marker } from "react-map-gl/maplibre";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
@@ -53,6 +54,7 @@ const getRegularHexPoints = (
 export default observer(function AircraftMarker(properties: {
 	aircraft: AircraftModel;
 }) {
+	const posthog = usePostHog();
 	const {
 		lastKnownLongitude: lon,
 		lastKnownLatitude: lat,
@@ -74,9 +76,21 @@ export default observer(function AircraftMarker(properties: {
 	const isSelected = selectedAircraftIds.has(aircraftId);
 
 	const onClickOnAircraft = (): void => {
+		const wasSelected = selectedAircraftIds.has(aircraftId);
 		setFlightRouteForAircraft(aircraftId, true);
 		toggleSelectedAircraftId(aircraftId);
 		setCurrentAircraftId(aircraftId);
+
+		posthog?.capture("aircraft_clicked", {
+			aircraft_id: aircraftId,
+			callsign: properties.aircraft.callSign,
+			action: wasSelected ? "deselect" : "select",
+			altitude: properties.aircraft.lastKnownAltitude,
+			speed: properties.aircraft.lastKnownSpeed,
+			bearing: bearing,
+			position: { lat, lon },
+			selected_count: selectedAircraftIds.size,
+		});
 	};
 
 	const onHoverOnAircraft = (): void => {
@@ -85,12 +99,25 @@ export default observer(function AircraftMarker(properties: {
 		}
 		setFlightRouteForAircraft(aircraftId, true);
 		setHoveredMarkerAircraftId(aircraftId);
+
+		posthog?.capture("aircraft_hover_start", {
+			aircraft_id: aircraftId,
+			callsign: properties.aircraft.callSign,
+			altitude: properties.aircraft.lastKnownAltitude,
+			speed: properties.aircraft.lastKnownSpeed,
+			is_selected: isSelected,
+		});
 	};
 	const onHoverOffAircraft = (): void => {
 		if (!cwpStore.selectedAircraftIds.has(aircraftId)) {
 			cwpStore.setFlightRouteForAircraft(aircraftId, false);
 		}
 		cwpStore.removeHoveredMarkerAircraftId();
+
+		posthog?.capture("aircraft_hover_end", {
+			aircraft_id: aircraftId,
+			callsign: properties.aircraft.callSign,
+		});
 	};
 
 	const onDragStartAircraft = (
@@ -103,6 +130,17 @@ export default observer(function AircraftMarker(properties: {
 		trajectoryPredictionStore.setEnabled(true);
 		trajectoryPredictionStore.setMainAircraft(aircraftId);
 		trajectoryPredictionStore.setDraggedHandlePosition(lat, lng);
+
+		posthog?.capture("aircraft_drag_start", {
+			aircraft_id: aircraftId,
+			callsign: properties.aircraft.callSign,
+			drag_start_position: { lat, lng },
+			original_position: {
+				lat: properties.aircraft.lastKnownLatitude,
+				lon: properties.aircraft.lastKnownLongitude,
+			},
+			altitude: properties.aircraft.lastKnownAltitude,
+		});
 	};
 
 	const onDragAircraft = (
@@ -123,6 +161,20 @@ export default observer(function AircraftMarker(properties: {
 	): void => {
 		// Disable trajectory prediction when drag ends
 		trajectoryPredictionStore.setEnabled(false);
+
+		posthog?.capture("aircraft_drag_end", {
+			aircraft_id: aircraftId,
+			callsign: properties.aircraft.callSign,
+			drag_end_position: { lat, lng },
+			original_position: {
+				lat: properties.aircraft.lastKnownLatitude,
+				lon: properties.aircraft.lastKnownLongitude,
+			},
+			drag_distance: Math.sqrt(
+				(lng - properties.aircraft.lastKnownLongitude) ** 2 +
+					(lat - properties.aircraft.lastKnownLatitude) ** 2,
+			),
+		});
 	};
 
 	return (

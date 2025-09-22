@@ -1,25 +1,39 @@
-import 'maplibre-gl/dist/maplibre-gl.css';
-import 'allotment/dist/style.css';
-import '@fontsource/ibm-plex-sans';
-import '@fontsource/ibm-plex-mono';
-import './index.css';
-import './mqtt-client';
-import './frontendSimulationLogic';
+import "maplibre-gl/dist/maplibre-gl.css";
+import "allotment/dist/style.css";
+import "@fontsource/ibm-plex-sans";
+import "@fontsource/ibm-plex-mono";
+import "./index.css";
+import "./mqtt-client";
+import "./frontendSimulationLogic";
 
-import ReactDOM from 'react-dom/client';
-
-import App from './App';
-import { DraggingProvider } from './contexts/DraggingContext';
-import reportWebVitals from './reportWebVitals';
-import * as state from './state';
+import { PostHogProvider } from "posthog-js/react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import { DraggingProvider } from "./contexts/DraggingContext";
+import reportWebVitals from "./reportWebVitals";
+import * as state from "./state";
 
 // Removed StrictMode to be able to make SectorConfigutations Draggable
 // (will see if this causes problems) <React.StrictMode>
-const root = ReactDOM.createRoot(document.querySelector('#root') ?? document.body);
+const root = ReactDOM.createRoot(
+	document.querySelector("#root") ?? document.body,
+);
 root.render(
-  <DraggingProvider>
-    <App />
-  </DraggingProvider>,
+	<PostHogProvider
+		apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY || ""}
+		options={{
+			api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+			defaults: "2025-05-24",
+			capture_exceptions: true, // This enables capturing exceptions using Error Tracking
+			debug: false, // Disabled to reduce console noise
+			disable_session_recording: false, // Ensure session recording is enabled
+			autocapture: true, // Capture all user interactions automatically
+		}}
+	>
+		<DraggingProvider>
+			<App />
+		</DraggingProvider>
+	</PostHogProvider>,
 );
 
 // If you want to start measuring performance in your app, pass a function

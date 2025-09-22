@@ -1,6 +1,3 @@
-import clientId from './clientId';
+import clientId from "./clientId";
 
-export default [
-  `ATM/${clientId}/#`,
-  `frontend/${clientId}/#`,
-];
+export default [`ATM/${clientId}/#`, `frontend/${clientId}/#`];

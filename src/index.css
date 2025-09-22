@@ -1,315 +1,321 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  logs: false;
+	logs: false;
 }
 
 /* Tailwind CSS v4 Configuration using @theme */
 @theme {
-  /* Custom fonts */
-  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  --font-mono: "IBM Plex Mono", "Roboto Mono", Monaco, "Courier New", Courier, monospace;
+	/* Custom fonts */
+	--font-sans:
+		"IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+		sans-serif;
+	--font-mono:
+		"IBM Plex Mono", "Roboto Mono", Monaco, "Courier New", Courier, monospace;
 
-  /* Custom colors */
-  --color-sesar-dark: #222;
-  --color-sesar-darker: #303030;
-  --color-sesar-gray: #404040;
-  --color-sesar-light-gray: #888;
-  --color-sesar-blue: #4472c4;
-  --color-sesar-orange: #ed7d31;
-  --color-sesar-green: #00bc8c;
-  --color-sesar-cyan: #3498db;
+	/* Custom colors */
+	--color-sesar-dark: #222;
+	--color-sesar-darker: #303030;
+	--color-sesar-gray: #404040;
+	--color-sesar-light-gray: #888;
+	--color-sesar-blue: #4472c4;
+	--color-sesar-orange: #ed7d31;
+	--color-sesar-green: #00bc8c;
+	--color-sesar-cyan: #3498db;
 
-  /* DaisyUI theme colors (dark theme) */
-  --color-primary: #375a7f;
-  --color-secondary: #444;
-  --color-accent: #00bc8c;
-  --color-neutral: #303030;
-  --color-base-100: #222;
-  --color-base-200: #1a1a1a;
-  --color-base-300: #404040;
-  --color-info: #3498db;
-  --color-success: #00bc8c;
-  --color-warning: #f39c12;
-  --color-error: #e74c3c;
+	/* DaisyUI theme colors (dark theme) */
+	--color-primary: #375a7f;
+	--color-secondary: #444;
+	--color-accent: #00bc8c;
+	--color-neutral: #303030;
+	--color-base-100: #222;
+	--color-base-200: #1a1a1a;
+	--color-base-300: #404040;
+	--color-info: #3498db;
+	--color-success: #00bc8c;
+	--color-warning: #f39c12;
+	--color-error: #e74c3c;
 
-  /* Custom z-index */
-  --z-max: 2147483637;
+	/* Custom z-index */
+	--z-max: 2147483637;
 }
 
 /* Custom utilities */
 @utility writing-mode-vertical-rl {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
+	writing-mode: vertical-rl;
+	text-orientation: upright;
 }
 
 @utility slider-vertical {
-  -webkit-appearance: slider-vertical;
+	-webkit-appearance: slider-vertical;
 }
 
 @utility scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 @utility range-vertical {
-  writing-mode: bt-lr;
-  -webkit-appearance: slider-vertical;
-  width: 100%;
+	writing-mode: bt-lr;
+	-webkit-appearance: slider-vertical;
+	width: 100%;
 }
 
 /* Maplibre/Mapbox popup customizations for draggable popup */
 .maplibregl-popup-content,
 .mapboxgl-popup-content {
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
-  position: relative;
-  background: transparent !important;
-  background-color: transparent !important;
+	border-radius: 0;
+	padding: 0;
+	box-shadow: none;
+	position: relative;
+	background: transparent !important;
+	background-color: transparent !important;
 }
 
 :root {
-    --sesar-font: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue';
-    --sesar-font-mono: "IBM Plex Mono", "Roboto Mono", "Monaco", "Courier New", Courier, monospace;
+	--sesar-font:
+		"IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue";
+	--sesar-font-mono:
+		"IBM Plex Mono", "Roboto Mono", "Monaco", "Courier New", Courier, monospace;
 }
 
 html,
 body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 body {
-    font-family: var(--sesar-font);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow: hidden;
+	font-family: var(--sesar-font);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overflow: hidden;
 }
 
 code {
-    font-family: var(--sesar-font-mono);
+	font-family: var(--sesar-font-mono);
 }
-
 
 div#root {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
-#root>main {
-    flex-grow: 1;
+#root > main {
+	flex-grow: 1;
 }
 
 /* Custom styles that cannot be easily converted to Tailwind */
 
 /* Range input styles - keeping for vertical slider */
 input[type="range"].range-vertical {
-    -webkit-appearance: slider-vertical;
-    appearance: slider-vertical;
-    height: 80px;
+	-webkit-appearance: slider-vertical;
+	appearance: slider-vertical;
+	height: 80px;
 }
-
-
 
 /* Webkit scrollbar dark mode */
 
 ::-webkit-scrollbar {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 ::-webkit-scrollbar-corner,
 ::-webkit-scrollbar-track {
-    background-color: rgb(64, 64, 64);
+	background-color: rgb(64, 64, 64);
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(96, 96, 96);
-    background-clip: padding-box;
-    border: 2px solid transparent;
+	background-color: rgb(96, 96, 96);
+	background-clip: padding-box;
+	border: 2px solid transparent;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(112, 112, 112);
+	background-color: rgb(112, 112, 112);
 }
 
 ::-webkit-scrollbar-thumb:active {
-    background-color: rgb(128, 128, 128);
+	background-color: rgb(128, 128, 128);
 }
 
 /* Buttons */
 ::-webkit-scrollbar-button:single-button {
-    background-color: rgb(64, 64, 64);
+	background-color: rgb(64, 64, 64);
 
-    display: block;
-    background-size: 10px;
-    background-repeat: no-repeat;
+	display: block;
+	background-size: 10px;
+	background-repeat: no-repeat;
 }
 
 /* Up */
 ::-webkit-scrollbar-button:single-button:vertical:decrement {
-    height: 12px;
-    width: 16px;
-    background-position: center 4px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='50,00 0,50 100,50'/></svg>");
+	height: 12px;
+	width: 16px;
+	background-position: center 4px;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='50,00 0,50 100,50'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='50,00 0,50 100,50'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='50,00 0,50 100,50'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:vertical:decrement:active {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='50,00 0,50 100,50'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='50,00 0,50 100,50'/></svg>");
 }
 
 /* Down */
 ::-webkit-scrollbar-button:single-button:vertical:increment {
-    height: 12px;
-    width: 16px;
-    background-position: center 2px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 100,0 50,50'/></svg>");
+	height: 12px;
+	width: 16px;
+	background-position: center 2px;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 100,0 50,50'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:vertical:increment:hover {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 100,0 50,50'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 100,0 50,50'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:vertical:increment:active {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,0 100,0 50,50'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,0 100,0 50,50'/></svg>");
 }
 
 /* Left */
 ::-webkit-scrollbar-button:single-button:horizontal:decrement {
-    height: 12px;
-    width: 12px;
-    background-position: 3px 3px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,50 50,100 50,0'/></svg>");
-
+	height: 12px;
+	width: 12px;
+	background-position: 3px 3px;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,50 50,100 50,0'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:horizontal:decrement:hover {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,50 50,100 50,0'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,50 50,100 50,0'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:horizontal:decrement:active {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,50 50,100 50,0'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,50 50,100 50,0'/></svg>");
 }
 
 /* Right */
 ::-webkit-scrollbar-button:single-button:horizontal:increment {
-    height: 12px;
-    width: 12px;
-    background-position: 3px 3px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 0,100 50,50'/></svg>");
+	height: 12px;
+	width: 12px;
+	background-position: 3px 3px;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(96, 96, 96)'><polygon points='0,0 0,100 50,50'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:horizontal:increment:hover {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 0,100 50,50'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(112, 112, 112)'><polygon points='0,0 0,100 50,50'/></svg>");
 }
 
 ::-webkit-scrollbar-button:single-button:horizontal:increment:active {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,0 0,100 50,50'/></svg>");
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(128, 128, 128)'><polygon points='0,0 0,100 50,50'/></svg>");
 }
-
 
 /* Mapbox/Maplibre popup styles */
 
-
-.mapboxgl-popup-anchor-top>.mapboxgl-popup-tip,
-.maplibregl-popup-anchor-top>.maplibregl-popup-tip,
-.mapboxgl-popup-anchor-bottom>.mapboxgl-popup-tip,
-.maplibregl-popup-anchor-bottom>.maplibregl-popup-tip {
-    display: none;
+.mapboxgl-popup-anchor-top > .mapboxgl-popup-tip,
+.maplibregl-popup-anchor-top > .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-bottom > .mapboxgl-popup-tip,
+.maplibregl-popup-anchor-bottom > .maplibregl-popup-tip {
+	display: none;
 }
 
 /* COMPASS - Map control styles only */
 
-#map-3d>* .maplibregl-ctrl-group .maplibregl-ctrl-compass {
-    position: absolute;
-    top: 7.5em;
-    right: 6.8em;
-    width: 3em;
-    height: 3em;
-    z-index: 0;
-    border: 0;
+#map-3d > * .maplibregl-ctrl-group .maplibregl-ctrl-compass {
+	position: absolute;
+	top: 7.5em;
+	right: 6.8em;
+	width: 3em;
+	height: 3em;
+	z-index: 0;
+	border: 0;
 }
 
-.mapboxgl-ctrl-top-right, .maplibregl-ctrl-top-right {
-    z-index: -1;
+.mapboxgl-ctrl-top-right,
+.maplibregl-ctrl-top-right {
+	z-index: -1;
 }
-.maplibregl-popup-content, .mapboxgl-popup-content {
-    background-color: transparent;
+.maplibregl-popup-content,
+.mapboxgl-popup-content {
+	background-color: transparent;
 }
 
-#map-3d>* .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
+#map-3d > * .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
 button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
-    background-color: transparent;
-    background-image: url('/compassArrow.svg');
-    background-size: 120% 120%;
+	background-color: transparent;
+	background-image: url("/compassArrow.svg");
+	background-size: 120% 120%;
 }
-#radar-map>* .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
+#radar-map > * .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
 .maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
-    background-color: transparent;
-    background-image: default;
-    background-size: 120% 120%;
+	background-color: transparent;
+	background-image: default;
+	background-size: 120% 120%;
 }
 
 /* Make the control buttons of the maps dark */
 .maplibregl-ctrl-group {
-    filter: invert() hue-rotate(180deg);
-    background-color: #aaa;
+	filter: invert() hue-rotate(180deg);
+	background-color: #aaa;
 }
 
 .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
-    filter: invert() hue-rotate(180deg);
+	filter: invert() hue-rotate(180deg);
 }
 #radar-map .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
-    filter: hue-rotate(180deg);
+	filter: hue-rotate(180deg);
 }
 
-
 html .btn {
-    font-family: var(--sesar-font);
+	font-family: var(--sesar-font);
 }
 
 .maplibregl-map {
-    font-family: var(--sesar-font-mono);
-    z-index: 0;
+	font-family: var(--sesar-font-mono);
+	z-index: 0;
 }
 
-.maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-top-left, .maplibregl-ctrl-top-right {
-    /* Highest z-index (32 bits signed integer) - 10*/
-    z-index: 2147483637;
+.maplibregl-ctrl-bottom-left,
+.maplibregl-ctrl-bottom-right,
+.maplibregl-ctrl-top-left,
+.maplibregl-ctrl-top-right {
+	/* Highest z-index (32 bits signed integer) - 10*/
+	z-index: 2147483637;
 }
 
-*:not(input,textarea) {
-    user-select: none;
+*:not(input, textarea) {
+	user-select: none;
 }
 
 .react-draggable {
-    cursor: grab;
+	cursor: grab;
 }
 
 .react-draggable-dragging {
-    cursor: grabbing;
+	cursor: grabbing;
 }
 
 /* Smooth marker/popup movement when map is not moving,
  * or being interacted with (dragging, zooming, rotating) */
-.radar-map-container:not(.map-is-moving) .maplibregl-marker:not(.disable-animation-marker), .radar-map-container:not(.map-is-moving) .maplibregl-popup {
-  transition-duration: 300ms !important;
-  transition-timing-function: ease-in-out !important;
-  transition-property: transform !important;
+.radar-map-container:not(.map-is-moving)
+.maplibregl-marker:not(.disable-animation-marker),
+.radar-map-container:not(.map-is-moving) .maplibregl-popup {
+	transition-duration: 300ms !important;
+	transition-timing-function: ease-in-out !important;
+	transition-property: transform !important;
 }
 
 .maplibregl-marker.disable-animation-marker * {
-  background-color: orange!important;
+	background-color: orange !important;
 }

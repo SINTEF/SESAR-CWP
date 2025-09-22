@@ -1,11 +1,10 @@
-import { makeAutoObservable, observable } from "mobx";
 import type { ObservableMap } from "mobx";
-
-import FixModel from "./FixModel";
+import { makeAutoObservable, observable } from "mobx";
 import type {
 	FlightMilestonePositionMessage,
 	NewPointMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
+import FixModel from "./FixModel";
 
 export default class FixStore {
 	fixes: ObservableMap<string, FixModel> = observable.map(undefined, {

@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import React from "react";
 
 import { configurationStore, cwpStore } from "../state";
@@ -90,9 +91,16 @@ const _N_AButton = observer(function N_AButton() {
 });
 
 const SectorLabelsButton = observer(function SectorLabelsButton() {
+	const posthog = usePostHog();
+	const onClick = (): void => {
+		cwpStore.toggleSectorLabels();
+		posthog?.capture("sectors_toggled", {
+			enabled: !cwpStore.showSectorLabels,
+		});
+	};
 	return (
 		<GenericButton
-			onClick={(): void => cwpStore.toggleSectorLabels()}
+			onClick={onClick}
 			active={cwpStore.showSectorLabels} // Not sure if this is correct but might be useful?
 		>
 			Sectors
@@ -101,19 +109,27 @@ const SectorLabelsButton = observer(function SectorLabelsButton() {
 });
 
 const AirwaysButton = observer(function AirwaysButton() {
+	const posthog = usePostHog();
+	const onClick = (): void => {
+		cwpStore.toggleSectorLabels(); // Not correct but might be useful?
+		posthog?.capture("airways_toggled", {
+			enabled: !cwpStore.showSectorLabels,
+		});
+	};
 	return (
-		<GenericButton
-			onClick={(): void => cwpStore.toggleSectorLabels()} // Not correct but might be useful?
-			active={cwpStore.showSectorLabels}
-		>
+		<GenericButton onClick={onClick} active={cwpStore.showSectorLabels}>
 			Airways
 		</GenericButton>
 	);
 });
 
 const ResetButton = observer(function ResetButton() {
+	const posthog = usePostHog();
 	const resetAllToggles = (): void => {
 		cwpStore.setShowSpeedVectors(false);
+		posthog?.capture("ui_reset", {
+			speed_vectors_reset: true,
+		});
 	};
 	return (
 		<GenericButton onClick={(): void => resetAllToggles()} active={true}>
@@ -134,11 +150,15 @@ const _FlightLabelsButton = observer(function FlightLabelsButton() {
 });
 
 const FixesButton = observer(function FixesButton() {
+	const posthog = usePostHog();
+	const onClick = (): void => {
+		cwpStore.toggleFixes();
+		posthog?.capture("fixes_toggled", {
+			enabled: !cwpStore.showFixes,
+		});
+	};
 	return (
-		<GenericButton
-			onClick={(): void => cwpStore.toggleFixes()}
-			active={cwpStore.showFixes}
-		>
+		<GenericButton onClick={onClick} active={cwpStore.showFixes}>
 			&#x25B2;
 		</GenericButton>
 	);
@@ -201,11 +221,15 @@ const _OtherSectorsFlightLabelsButton = observer(
 );
 
 const OpenVerticalWindowButton = observer(function OpenVerticalWindowButton() {
+	const posthog = usePostHog();
+	const onClick = (): void => {
+		cwpStore.toggleVerticalWindow();
+		posthog?.capture("vertical_window_toggled", {
+			enabled: !cwpStore.showVerticalWindow,
+		});
+	};
 	return (
-		<GenericButton
-			onClick={(): void => cwpStore.toggleVerticalWindow()}
-			active={cwpStore.showVerticalWindow}
-		>
+		<GenericButton onClick={onClick} active={cwpStore.showVerticalWindow}>
 			VAW
 		</GenericButton>
 	);

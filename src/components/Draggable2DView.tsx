@@ -33,7 +33,10 @@ export default observer(function Draggable2DView() {
 			onStart={startDragging}
 			onStop={stopDragging}
 		>
-			<div ref={nodeRef} className="absolute top-[72px] z-[34] right-1/2 w-[500px] shadow-md p-0 m-0 text-[13px] leading-8">
+			<div
+				ref={nodeRef}
+				className="absolute top-[72px] z-[34] right-1/2 w-[500px] shadow-md p-0 m-0 text-[13px] leading-8"
+			>
 				<div
 					className="w-full h-full"
 					style={{ height: "100%", width: "100%", background: "#313131" }}

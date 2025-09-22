@@ -181,17 +181,15 @@ export default observer(function DypTable(/* properties */) {
 								{latestSelectedAircraftData?.lastKnownAltitude &&
 									Math.ceil(latestSelectedAircraftData?.lastKnownAltitude)}
 							</td>
-							{latestSelectedAircraftData?.routeWaypoints?.map(
-								(wp, index) => (
-									<td
-										key={`sec-${index}`}
-										className="text-[10px] px-1 py-1 border border-slate-700"
-									>
-										<div className="font-semibold">{wp.sector}</div>
-										<div className="opacity-90">{wp.level}</div>
-									</td>
-								),
-							) || (
+							{latestSelectedAircraftData?.routeWaypoints?.map((wp, index) => (
+								<td
+									key={`sec-${index}`}
+									className="text-[10px] px-1 py-1 border border-slate-700"
+								>
+									<div className="font-semibold">{wp.sector}</div>
+									<div className="opacity-90">{wp.level}</div>
+								</td>
+							)) || (
 								<>
 									<td className="text-[10px] px-1 py-1">B2 35</td>
 									<td className="text-[10px] px-1 py-1">M2 33</td>

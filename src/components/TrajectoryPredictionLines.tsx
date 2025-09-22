@@ -5,6 +5,7 @@ import type {
 } from "maplibre-gl";
 import { observer } from "mobx-react-lite";
 import { Layer, Source } from "react-map-gl/maplibre";
+import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import {
 	aircraftStore,
@@ -175,6 +176,8 @@ const layoutSymbol: SymbolLayerSpecification["layout"] = {
 };
 
 export default observer(function TrajectoryPredictionLines() {
+	const { isDragging } = useDragging();
+
 	// Only render if trajectory prediction is enabled and we have a future time
 	if (
 		!trajectoryPredictionStore.enabled ||
@@ -189,6 +192,11 @@ export default observer(function TrajectoryPredictionLines() {
 		.filter((aircraft): aircraft is AircraftModel => aircraft !== undefined);
 
 	if (selectedAircrafts.length === 0) {
+		return null;
+	}
+
+	if (!isDragging) {
+		// Don't render while dragging to avoid flickering
 		return null;
 	}
 

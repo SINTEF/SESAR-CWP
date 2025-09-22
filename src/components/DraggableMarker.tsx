@@ -11,9 +11,19 @@ interface DraggableMarkerProps {
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
 	onClick?: () => void;
-	onDragStart?: (offsetX: number, offsetY: number, lng: number, lat: number) => void;
+	onDragStart?: (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	) => void;
 	onDrag?: (offsetX: number, offsetY: number, lng: number, lat: number) => void;
-	onDragStop?: (offsetX: number, offsetY: number, lng: number, lat: number) => void;
+	onDragStop?: (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	) => void;
 	trackMousePosition?: boolean; // When true, lat/lng represents mouse cursor position
 }
 
@@ -59,7 +69,10 @@ export default function DraggableMarker({
 		// The offsets represent the top-left corner position, but we want GPS coords for the center
 		const centerOffsetX = pixelOffsetX + ELEMENT_HALF_WIDTH;
 		const centerOffsetY = pixelOffsetY + ELEMENT_HALF_HEIGHT;
-		const newPixel: [number, number] = [basePixel.x + centerOffsetX, basePixel.y + centerOffsetY];
+		const newPixel: [number, number] = [
+			basePixel.x + centerOffsetX,
+			basePixel.y + centerOffsetY,
+		];
 		const newLngLat = map.unproject(newPixel);
 
 		return { lng: newLngLat.lng, lat: newLngLat.lat };
@@ -154,7 +167,12 @@ export default function DraggableMarker({
 			}
 
 			if (newPosition) {
-				onDragStop(finalOffsetX, finalOffsetY, newPosition.lng, newPosition.lat);
+				onDragStop(
+					finalOffsetX,
+					finalOffsetY,
+					newPosition.lng,
+					newPosition.lat,
+				);
 			}
 		}
 

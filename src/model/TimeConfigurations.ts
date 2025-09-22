@@ -1,16 +1,16 @@
 export default class TimeConfigurations {
-  startTime: number;
+	startTime: number;
 
-  endTime: number;
+	endTime: number;
 
-  constructor({
-    startTime,
-    endTime,
-  }: {
-    startTime: number;
-    endTime: number;
-  }) {
-    this.startTime = startTime;
-    this.endTime = endTime;
-  }
+	constructor({
+		startTime,
+		endTime,
+	}: {
+		startTime: number;
+		endTime: number;
+	}) {
+		this.startTime = startTime;
+		this.endTime = endTime;
+	}
 }
