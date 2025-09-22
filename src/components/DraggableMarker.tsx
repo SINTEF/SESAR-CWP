@@ -1,15 +1,12 @@
-import { set } from "mobx";
 import { useRef, useState } from "react";
 import type { DraggableEvent } from "react-draggable";
 import { DraggableCore } from "react-draggable";
 import { Popup } from "react-map-gl/maplibre";
 import { useDragging } from "../contexts/DraggingContext";
-import { cwpStore } from "../state";
 
 interface DraggableMarkerProps {
 	longitude: number;
 	latitude: number;
-	aircraftId: string;
 	children: React.ReactNode;
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
@@ -22,7 +19,6 @@ const DEFAULT_OFFSET_Y = -12;
 export default function DraggableMarker({
 	longitude,
 	latitude,
-	aircraftId,
 	children,
 	onMouseEnter,
 	onMouseLeave,
@@ -69,15 +65,13 @@ export default function DraggableMarker({
 		setOffsetY(DEFAULT_OFFSET_Y);
 		stopDragging();
 
-		if (offsetX >= -24 && offsetX <= 24 && offsetY >= -24 && offsetY <= 24) {
-			console.log("on it");
-		} else {
-			console.log("out");
-			setTimeout(() => {
-				console.log("out", onMouseLeave, isAnyDragging);
-				onMouseLeave?.();
-			}, 500);
-		}
+		setTimeout(() => {
+			if (nodeRef.current?.matches(":hover")) {
+				// Not dragged away enough, keeping popup
+			} else if (onMouseLeave) {
+				onMouseLeave();
+			}
+		}, 30);
 	};
 
 	const localOnMouseEnter = (): void => {
@@ -88,7 +82,12 @@ export default function DraggableMarker({
 	const localOnMouseLeave = (): void => {
 		if (onMouseLeave && !isDragging && !isAnyDragging) {
 			onMouseLeave();
-			console.log("prout");
+		}
+	};
+
+	const handleClick = (): void => {
+		if (onClick && !isDragging && !isAnyDragging) {
+			onClick();
 		}
 	};
 
@@ -116,6 +115,7 @@ export default function DraggableMarker({
 				}}
 				onMouseEnter={localOnMouseEnter}
 				onMouseLeave={localOnMouseLeave}
+				onClick={handleClick}
 			>
 				<DraggableCore
 					nodeRef={nodeRef}

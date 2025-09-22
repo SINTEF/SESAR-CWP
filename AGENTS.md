@@ -90,3 +90,4 @@ The app communicates with an ATC simulator via MQTT:
 - Favour immutability where possible.
 - Document the "why".
 - Run the linter and type checkers to ensure code quality.
+- A few console.log statements are acceptable during development and debugging, don't remove them unless requested.

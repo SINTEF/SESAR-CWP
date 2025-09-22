@@ -10,6 +10,9 @@ export interface DraggingContextType {
 	isDragging: boolean;
 	startDragging: () => void;
 	stopDragging: () => void;
+	// isDragging is a boolean and sometimes the value has changed and we want to
+	// check the new state before re-rendering the React component.
+	isStillDragging: () => boolean;
 }
 
 const DraggingContext = createContext<DraggingContextType | undefined>(
@@ -47,7 +50,7 @@ export const DraggingProvider: React.FC<DraggingProviderProps> = ({
 			const timeout = window.setTimeout(() => {
 				setIsDragging(true);
 				setStartDragTimeout(null);
-			}, 250); // 250ms delay to distinguish from clicks
+			}, 200); // 200ms delay to distinguish from clicks
 			setStartDragTimeout(timeout);
 		}
 	}, [isDragging, startDragTimeout, stopDragTimeout]);
@@ -70,10 +73,13 @@ export const DraggingProvider: React.FC<DraggingProviderProps> = ({
 		}
 	}, [startDragTimeout, stopDragTimeout]);
 
+	const isStillDragging = () => isDragging;
+
 	const value: DraggingContextType = {
 		isDragging,
 		startDragging,
 		stopDragging,
+		isStillDragging,
 	};
 
 	return (

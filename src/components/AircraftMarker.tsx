@@ -68,9 +68,10 @@ export default observer(function AircraftMarker(properties: {
 		toggleSelectedAircraftId,
 		selectedAircraftIds,
 	} = cwpStore;
-	const { isDragging: isAnyDragging } = useDragging();
+	const { isStillDragging } = useDragging();
 	const isHovered = hoveredMarkerAircraftId === aircraftId;
 	const history = positionHistory.slice(0, 8);
+	const isSelected = selectedAircraftIds.has(aircraftId);
 
 	const onClickOnAircraft = (): void => {
 		setFlightRouteForAircraft(aircraftId, true);
@@ -79,16 +80,13 @@ export default observer(function AircraftMarker(properties: {
 	};
 
 	const onHoverOnAircraft = (): void => {
-		if (isAnyDragging) {
+		if (isStillDragging()) {
 			return;
 		}
 		setFlightRouteForAircraft(aircraftId, true);
 		setHoveredMarkerAircraftId(aircraftId);
 	};
 	const onHoverOffAircraft = (): void => {
-		if (isAnyDragging) {
-			return;
-		}
 		if (!cwpStore.selectedAircraftIds.has(aircraftId)) {
 			cwpStore.setFlightRouteForAircraft(aircraftId, false);
 		}
@@ -126,7 +124,7 @@ export default observer(function AircraftMarker(properties: {
 							onMouseEnter={onHoverOnAircraft}
 							onMouseLeave={onHoverOffAircraft}
 						>
-							{selectedAircraftIds.has(aircraftId) && index === 0 ? (
+							{isSelected && index === 0 ? (
 								<polygon
 									points={getRegularHexPoints(size, 1, 1.5)}
 									transform={`rotate(${bearing} ${size / 2} ${size / 2})`}
@@ -154,16 +152,17 @@ export default observer(function AircraftMarker(properties: {
 				);
 			})}
 
-			{/* <DraggableMarker
-				longitude={lon}
-				latitude={lat}
-				aircraftId={aircraftId}
-				onMouseEnter={onHoverOnAircraft}
-				onMouseLeave={onHoverOffAircraft}
-				onClick={onClickOnAircraft}
-			>
-				<div className="w-6 h-6 bg-pink-400/90" />
-			</DraggableMarker> */}
+			{isSelected ? (
+				<DraggableMarker
+					longitude={lon}
+					latitude={lat}
+					onMouseEnter={onHoverOnAircraft}
+					onMouseLeave={onHoverOffAircraft}
+					onClick={onClickOnAircraft}
+				>
+					<div className="w-6 h-6" />
+				</DraggableMarker>
+			) : null}
 		</>
 	);
 });

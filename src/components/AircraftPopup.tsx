@@ -78,7 +78,7 @@ export default observer(function AircraftPopup(properties: {
 		roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
 
 	const { current } = useMap();
-	const { isDragging } = useDragging();
+	const { isDragging, isStillDragging } = useDragging();
 
 	if (localAssignedFlightLevel === altitude.toFixed(0)) {
 		setLocalAssignedFlightLevel(" ");
@@ -105,9 +105,10 @@ export default observer(function AircraftPopup(properties: {
 		setCurrentAircraftId(aircraftId);
 	};
 	const onMouseEnter = (): void => {
-		if (!isDragging) {
-			setHoveredFlightLabelId(aircraftId);
+		if (isStillDragging()) {
+			return;
 		}
+		setHoveredFlightLabelId(aircraftId);
 	};
 	const onMouseLeave = (): void => {
 		if (!isDragging) {
