@@ -1,3 +1,4 @@
+import { usePostHog } from "posthog-js/react";
 import { useCallback, useRef, useState } from "react";
 import type { DraggableEvent } from "react-draggable";
 import { DraggableCore } from "react-draggable";
@@ -18,6 +19,10 @@ export type DraggablePopupProperties = {
 	borderRadius?: number;
 	color?: string;
 	cancel?: string;
+	// Optional tracking props for PostHog events
+	trackingId?: string; // e.g., aircraft ID
+	trackingName?: string; // e.g., callsign
+	trackingType?: string; // e.g., "aircraft", "level", "speed"
 } & PopupProps;
 
 // Global z-index management - needs to be outside component for proper stacking
@@ -36,9 +41,13 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 		cancel,
 		borderRadius,
 		offset: initialOffset,
+		trackingId,
+		trackingName,
+		trackingType,
 		...popupProps
 	} = props;
 
+	const posthog = usePostHog();
 	const nodeRef = useRef<HTMLDivElement>(null);
 	const { startDragging, stopDragging } = useDragging();
 
@@ -48,6 +57,7 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 	const [zIndex, setZIndex] = useState(() => getNextZIndex());
 	const [isDragging, setIsDragging] = useState(false);
+	const [dragStartPosition, setDragStartPosition] = useState({ x: 0, y: 0 });
 
 	// Handle drag start
 	const handleDragStart = useCallback(
@@ -60,10 +70,28 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 				x: clientX - offsetX,
 				y: clientY - offsetY,
 			});
+			setDragStartPosition({ x: offsetX, y: offsetY });
 			setIsDragging(true);
 			startDragging();
+
+			// Track drag start if tracking props are provided
+			if (trackingId && posthog) {
+				posthog.capture(`${trackingType || "popup"}_drag_started`, {
+					id: trackingId,
+					name: trackingName,
+					start_position: { x: offsetX, y: offsetY },
+				});
+			}
 		},
-		[offsetX, offsetY, startDragging],
+		[
+			offsetX,
+			offsetY,
+			startDragging,
+			trackingId,
+			trackingName,
+			trackingType,
+			posthog,
+		],
 	);
 
 	// Handle dragging
@@ -83,7 +111,30 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 	const handleDragStop = useCallback((): void => {
 		setIsDragging(false);
 		stopDragging();
-	}, [stopDragging]);
+
+		// Track drag end if tracking props are provided
+		if (trackingId && posthog) {
+			posthog.capture(`${trackingType || "popup"}_drag_completed`, {
+				id: trackingId,
+				name: trackingName,
+				start_position: dragStartPosition,
+				end_position: { x: offsetX, y: offsetY },
+				distance_moved: Math.sqrt(
+					(offsetX - dragStartPosition.x) ** 2 +
+						(offsetY - dragStartPosition.y) ** 2,
+				),
+			});
+		}
+	}, [
+		stopDragging,
+		trackingId,
+		trackingName,
+		trackingType,
+		posthog,
+		dragStartPosition,
+		offsetX,
+		offsetY,
+	]);
 
 	// Handle click to bring popup to front
 	const handleClick = useCallback((): void => {

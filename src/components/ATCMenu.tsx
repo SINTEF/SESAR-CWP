@@ -1,5 +1,6 @@
 /* ATCMenu.tsx */
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import type AircraftModel from "../model/AircraftModel";
 import {
 	acceptFlight,
@@ -11,7 +12,9 @@ import { aircraftStore, configurationStore, cwpStore } from "../state";
 export default observer(function ATCMenu(properties: {
 	aircraft: AircraftModel;
 }) {
-	const { aircraftId, assignedFlightId, controlledBy } = properties.aircraft;
+	const posthog = usePostHog();
+	const { aircraftId, assignedFlightId, controlledBy, callSign } =
+		properties.aircraft;
 
 	if (cwpStore.ATCMenuAircraftId !== aircraftId) {
 		return null;
@@ -20,6 +23,18 @@ export default observer(function ATCMenu(properties: {
 	const toggleAssumeFlight = (): void => {
 		const flightIsAlreadyAssumed =
 			controlledBy === configurationStore.currentCWP;
+
+		posthog?.capture("atc_menu_action", {
+			action: flightIsAlreadyAssumed ? "de_assume" : "assume",
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			previous_controller: controlledBy,
+			new_controller: flightIsAlreadyAssumed
+				? null
+				: configurationStore.currentCWP,
+			current_cwp: configurationStore.currentCWP,
+		});
+
 		if (flightIsAlreadyAssumed) {
 			// Handle flight de-assume logic here.
 		} else {
@@ -45,11 +60,36 @@ export default observer(function ATCMenu(properties: {
 	const handleTrfClick = (aircraftId: string): void => {
 		aircraftStore.aircrafts.get(aircraftId)?.setController("NS"); // Setting transfering to next sector as NS for DIALOG
 		// change controlledBy to no longer currentCWP
+
+		posthog?.capture("atc_menu_action", {
+			action: "transfer",
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			transfer_to: "NS",
+			frequency: "130.165",
+			current_cwp: configurationStore.currentCWP,
+		});
 	};
 
 	const handleIntegreClick = (aircraftId: string): void => {
 		//aircraftStore.aircrafts.get(aircraftId)?.setCallSignBold(true);
 		// What does integre mean?
+
+		posthog?.capture("atc_menu_action", {
+			action: "integre",
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			current_cwp: configurationStore.currentCWP,
+		});
+	};
+
+	const handleButtonClick = (action: string): void => {
+		posthog?.capture("atc_menu_action", {
+			action: action.toLowerCase(),
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			current_cwp: configurationStore.currentCWP,
+		});
 	};
 
 	return (
@@ -81,9 +121,24 @@ export default observer(function ATCMenu(properties: {
 				</div>
 
 				<div className="space-y-2 w-full">
-					<button className="btn btn-sm w-full btn-accent">TP</button>
-					<button className="btn btn-sm w-full btn-accent">SEP</button>
-					<button className="btn btn-sm w-full btn-accent">QDM</button>
+					<button
+						onClick={() => handleButtonClick("TP")}
+						className="btn btn-sm w-full btn-accent"
+					>
+						TP
+					</button>
+					<button
+						onClick={() => handleButtonClick("SEP")}
+						className="btn btn-sm w-full btn-accent"
+					>
+						SEP
+					</button>
+					<button
+						onClick={() => handleButtonClick("QDM")}
+						className="btn btn-sm w-full btn-accent"
+					>
+						QDM
+					</button>
 				</div>
 			</div>
 		</div>

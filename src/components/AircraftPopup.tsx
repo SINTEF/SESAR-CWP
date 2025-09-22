@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { useMap } from "react-map-gl/maplibre";
 
 import { useDragging } from "../contexts/DraggingContext";
@@ -55,6 +56,7 @@ export default observer(function AircraftPopup(properties: {
 	aircraft: AircraftModel;
 	pseudo: boolean;
 }) {
+	const posthog = usePostHog();
 	const { aircraft } = properties;
 	const {
 		aircraftId,
@@ -92,6 +94,12 @@ export default observer(function AircraftPopup(properties: {
 				preventDefault: () => {},
 			});
 		}
+
+		posthog?.capture("aircraft_popup_wheel_scroll", {
+			aircraft_id: aircraftId,
+			callsign: aircraft.callSign,
+			delta_y: event.deltaY,
+		});
 	};
 
 	const height = 70;
@@ -103,16 +111,35 @@ export default observer(function AircraftPopup(properties: {
 			return;
 		}
 		setCurrentAircraftId(aircraftId);
+
+		posthog?.capture("aircraft_popup_clicked", {
+			aircraft_id: aircraftId,
+			callsign: aircraft.callSign,
+			altitude: altitude,
+			speed: speed,
+			is_selected: isSelected,
+		});
 	};
 	const onMouseEnter = (): void => {
 		if (isStillDragging()) {
 			return;
 		}
 		setHoveredFlightLabelId(aircraftId);
+
+		posthog?.capture("aircraft_popup_hover_start", {
+			aircraft_id: aircraftId,
+			callsign: aircraft.callSign,
+			is_selected: isSelected,
+		});
 	};
 	const onMouseLeave = (): void => {
 		if (!isDragging) {
 			removeHoveredFlightLabelId();
+
+			posthog?.capture("aircraft_popup_hover_end", {
+				aircraft_id: aircraftId,
+				callsign: aircraft.callSign,
+			});
 		}
 	};
 
@@ -134,6 +161,9 @@ export default observer(function AircraftPopup(properties: {
 			focusAfterOpen={false}
 			cancel="input, button"
 			onClose={(): void => cwpStore.closeLevelPopupForAircraft(aircraftId)}
+			trackingId={aircraftId}
+			trackingName={aircraft.callSign}
+			trackingType="aircraft_popup"
 		>
 			<div
 				onClick={onClick}

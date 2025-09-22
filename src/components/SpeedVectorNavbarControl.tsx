@@ -1,14 +1,33 @@
-import { observer } from "mobx-react-lite";
 import classNames from "classnames";
+import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { cwpStore } from "../state";
 
 export default observer(function SpeedVectorNavbarControl() {
+	const posthog = usePostHog();
 	const {
 		speedVectorMinutes,
 		setSpeedVectorMinutes,
 		showSpeedVectors,
 		toggleShowSpeedVectors,
 	} = cwpStore;
+
+	const handleToggleSpeedVectors = (): void => {
+		toggleShowSpeedVectors();
+		posthog?.capture("speed_vectors_toggled", {
+			enabled: !showSpeedVectors,
+			current_minutes: speedVectorMinutes,
+		});
+	};
+
+	const handleSetMinutes = (minutes: number): void => {
+		setSpeedVectorMinutes(minutes);
+		posthog?.capture("speed_vector_duration_changed", {
+			previous_minutes: speedVectorMinutes,
+			new_minutes: minutes,
+			vectors_enabled: showSpeedVectors,
+		});
+	};
 
 	const predefinedValues = [1, 2, 3, 4, 6, 9];
 
@@ -22,7 +41,7 @@ export default observer(function SpeedVectorNavbarControl() {
 					"focus:outline-none focus:shadow-none focus:border-[#3f77b2] p-2",
 					showSpeedVectors && "bg-[#4b90db] border-[#6bb3f0]",
 				)}
-				onClick={() => toggleShowSpeedVectors()}
+				onClick={handleToggleSpeedVectors}
 			>
 				W
 			</button>
@@ -36,7 +55,7 @@ export default observer(function SpeedVectorNavbarControl() {
 						"focus:outline-none focus:shadow-none focus:border-[#3f77b2] p-2",
 						speedVectorMinutes === val && "bg-[#4b90db] border-[#6bb3f0]",
 					)}
-					onClick={() => setSpeedVectorMinutes(val)}
+					onClick={() => handleSetMinutes(val)}
 				>
 					{val}
 				</button>

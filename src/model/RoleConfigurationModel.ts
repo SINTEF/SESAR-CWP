@@ -1,5 +1,5 @@
-import { makeObservable, observable } from "mobx";
 import type { ObservableMap } from "mobx";
+import { makeObservable, observable } from "mobx";
 
 import SectorToConfiguration from "./SectorToConfiguration";
 

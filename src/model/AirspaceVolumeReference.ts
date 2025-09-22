@@ -1,34 +1,38 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable } from "mobx";
 
 export default class AirspaceVolumeReference {
-  volumeId: string;
+	volumeId: string;
 
-  bottomFlightLevel: number;
+	bottomFlightLevel: number;
 
-  topFlightLevel: number;
+	topFlightLevel: number;
 
-  constructor({
-    volumeId,
-    bottomFlightLevel,
-    topFlightLevel,
-  }: {
-    volumeId: string,
-    bottomFlightLevel: number,
-    topFlightLevel: number,
-  }) {
-    makeAutoObservable(this, {
-      volumeId: false,
-    }, { autoBind: true });
-    this.volumeId = volumeId;
-    this.bottomFlightLevel = bottomFlightLevel;
-    this.topFlightLevel = topFlightLevel;
-  }
+	constructor({
+		volumeId,
+		bottomFlightLevel,
+		topFlightLevel,
+	}: {
+		volumeId: string;
+		bottomFlightLevel: number;
+		topFlightLevel: number;
+	}) {
+		makeAutoObservable(
+			this,
+			{
+				volumeId: false,
+			},
+			{ autoBind: true },
+		);
+		this.volumeId = volumeId;
+		this.bottomFlightLevel = bottomFlightLevel;
+		this.topFlightLevel = topFlightLevel;
+	}
 
-  setBottomFlightLevel(bottomFlightLevel: number): void {
-    this.bottomFlightLevel = bottomFlightLevel;
-  }
+	setBottomFlightLevel(bottomFlightLevel: number): void {
+		this.bottomFlightLevel = bottomFlightLevel;
+	}
 
-  setTopFlightLevel(topFlightLevel: number): void {
-    this.topFlightLevel = topFlightLevel;
-  }
+	setTopFlightLevel(topFlightLevel: number): void {
+		this.topFlightLevel = topFlightLevel;
+	}
 }

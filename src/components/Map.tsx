@@ -1,5 +1,6 @@
 import type { MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import * as maplibregl from "maplibre-gl";
+import { usePostHog } from "posthog-js/react";
 import React from "react";
 import type { MapRef, ViewState } from "react-map-gl/maplibre";
 import ReactMapGL, {
@@ -15,10 +16,10 @@ import DistanceMeasurements from "./DistanceMeasurements";
 import FixesPoints from "./FixesPoints";
 import FlightRoutes from "./FlightRoutes";
 import HighlightedAircraft from "./HighlightedAircraft";
-import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
 import LimboAircrafts from "./LimboAircrafts";
 import Sectors from "./Sectors";
 import SpeedVectors from "./SpeedVectors";
+import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
 
 // Do not load the RTL plugin because it is unecessary
 try {
@@ -65,23 +66,39 @@ const style: React.CSSProperties = {
 	background: "grey",
 };
 
-const handleMapClick = (event: MapMouseEvent): void => {
-	const { currentDistanceColor, setCurrentDistanceColor } = cwpStore;
-	if (currentDistanceColor !== "") {
+const createMapClickHandler =
+	(posthog: ReturnType<typeof usePostHog>) =>
+	(event: MapMouseEvent): void => {
+		const { currentDistanceColor, setCurrentDistanceColor } = cwpStore;
 		const coordinates = event.lngLat;
-		const { newMarker, getNumberOfMarkersForColour } = distanceLineStore;
-		newMarker({
-			lat: coordinates.lat,
-			lng: coordinates.lng,
-			colour: currentDistanceColor,
-		});
-		const numberOfMarkersForColor =
-			getNumberOfMarkersForColour(currentDistanceColor);
-		if (numberOfMarkersForColor >= 2) {
-			setCurrentDistanceColor("");
+
+		if (currentDistanceColor !== "") {
+			const { newMarker, getNumberOfMarkersForColour } = distanceLineStore;
+			newMarker({
+				lat: coordinates.lat,
+				lng: coordinates.lng,
+				colour: currentDistanceColor,
+			});
+			const numberOfMarkersForColor =
+				getNumberOfMarkersForColour(currentDistanceColor);
+
+			posthog?.capture("distance_marker_placed", {
+				marker_color: currentDistanceColor,
+				marker_number: numberOfMarkersForColor,
+				position: { lat: coordinates.lat, lng: coordinates.lng },
+				is_second_marker: numberOfMarkersForColor >= 2,
+			});
+
+			if (numberOfMarkersForColor >= 2) {
+				setCurrentDistanceColor("");
+			}
+		} else {
+			posthog?.capture("map_clicked", {
+				position: { lat: coordinates.lat, lng: coordinates.lng },
+				context: "general_map_click",
+			});
 		}
-	}
-};
+	};
 
 const initialViewState: Partial<ViewState> = {
 	longitude: 9.27,
@@ -96,18 +113,36 @@ const initialViewState: Partial<ViewState> = {
 
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
 export default function Map() {
+	const posthog = usePostHog();
 	const [isMoving, setIsMoving] = React.useState(false);
 	const mapRef = React.useRef<MapRef>(null);
 	// const { isDragging } = useDragging();
 	const onMoveStart = (): void => {
 		if (!isMoving) {
 			setIsMoving(true);
+			posthog?.capture("map_move_start", {
+				zoom: mapRef.current?.getZoom(),
+				center: mapRef.current?.getCenter(),
+			});
 		}
 	};
 	const onMoveEnd = (): void => {
 		if (isMoving) {
 			setIsMoving(false);
+			const zoom = mapRef.current?.getZoom();
+			const center = mapRef.current?.getCenter();
+			posthog?.capture("map_move_end", {
+				zoom: zoom,
+				center: center ? { lat: center.lat, lng: center.lng } : null,
+			});
 		}
+	};
+
+	const onZoom = (): void => {
+		const zoom = mapRef.current?.getZoom();
+		posthog?.capture("map_zoom", {
+			zoom_level: zoom,
+		});
 	};
 
 	useMapImage({
@@ -137,9 +172,10 @@ export default function Map() {
 				mapStyle={mapStyle}
 				attributionControl={false}
 				mapLib={maplibregl}
-				onClick={handleMapClick}
+				onClick={createMapClickHandler(posthog)}
 				onMoveStart={onMoveStart}
 				onMoveEnd={onMoveEnd}
+				onZoomEnd={onZoom}
 				renderWorldCopies={false}
 				// If rotation and pitch should be disabled:
 				// maxPitch={0}

@@ -1,8 +1,8 @@
-import type CoordinatePair from './CoordinatePair';
+import type CoordinatePair from "./CoordinatePair";
 
 export interface ISectorModel {
-  sectorId: string;
-  bottomFlightLevel: number;
-  topFlightLevel: number;
-  sectorArea: CoordinatePair[];
+	sectorId: string;
+	bottomFlightLevel: number;
+	topFlightLevel: number;
+	sectorArea: CoordinatePair[];
 }

@@ -1,3 +1,3 @@
-import mqtt from 'mqtt';
+import mqtt from "mqtt";
 
 export default mqtt;

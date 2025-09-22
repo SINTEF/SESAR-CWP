@@ -1,14 +1,9 @@
-import { observer } from "mobx-react-lite";
-import { Layer, Source } from "react-map-gl/maplibre";
 // @ts-expect-error - ESM/CJS interop issue with @mapbox/sphericalmercator
 import { SphericalMercator } from "@mapbox/sphericalmercator";
-
-import {
-	configurationStore,
-	cwpStore,
-	roleConfigurationStore,
-} from "../state";
+import { observer } from "mobx-react-lite";
+import { Layer, Source } from "react-map-gl/maplibre";
 import type AircraftModel from "../model/AircraftModel";
+import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
 
 const degreesToRad = Math.PI / 180;
 const sphericalMercator = new SphericalMercator();

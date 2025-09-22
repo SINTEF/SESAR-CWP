@@ -1,23 +1,24 @@
-import { makeObservable, observable } from 'mobx';
+import { makeObservable, observable } from "mobx";
 
-import type Trajectory from './Trajectory';
+import type Trajectory from "./Trajectory";
 
 export default class FlightRoute {
-  flightId: string;
+	flightId: string;
 
-  trajectory: Trajectory[] = [];
+	trajectory: Trajectory[] = [];
 
-  constructor({
-    flightId, trajectory,
-  }: {
-    flightId: string;
-    trajectory: Trajectory[],
-  }) {
-    makeObservable(this, {
-      flightId: false,
-      trajectory: observable,
-    });
-    this.flightId = flightId;
-    this.trajectory = trajectory;
-  }
+	constructor({
+		flightId,
+		trajectory,
+	}: {
+		flightId: string;
+		trajectory: Trajectory[];
+	}) {
+		makeObservable(this, {
+			flightId: false,
+			trajectory: observable,
+		});
+		this.flightId = flightId;
+		this.trajectory = trajectory;
+	}
 }

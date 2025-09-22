@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import {
@@ -18,6 +19,7 @@ type SubContentProperties = {
 
 export const CallSign = observer(
 	({ flightColor, aircraft, colSpan }: SubContentProperties) => {
+		const posthog = usePostHog();
 		const { callSign, controlledBy } = aircraft;
 		const { isDragging } = useDragging();
 
@@ -27,11 +29,20 @@ export const CallSign = observer(
 			}
 			const { aircraftId } = aircraft;
 
-			if (cwpStore.ATCMenuAircraftId === aircraftId) {
+			const wasOpen = cwpStore.ATCMenuAircraftId === aircraftId;
+
+			if (wasOpen) {
 				cwpStore.setATCMenuAircraftId("");
-				return;
+			} else {
+				cwpStore.setATCMenuAircraftId(aircraftId);
 			}
-			cwpStore.setATCMenuAircraftId(aircraftId);
+
+			posthog?.capture("atc_menu_toggled", {
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				action: wasOpen ? "closed" : "opened",
+				controlled_by: controlledBy,
+			});
 
 			// handlePublishPromise(
 			// 	persistFrontendFlightController(
@@ -65,12 +76,19 @@ export const CallSign = observer(
 );
 
 export const Altitude = observer(({ aircraft }: SubContentProperties) => {
+	const posthog = usePostHog();
 	const { isDragging } = useDragging();
 	const onClick = (): void => {
 		if (isDragging) {
 			return;
 		}
 		cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
+
+		posthog?.capture("altitude_popup_opened", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			current_altitude: aircraft.lastKnownAltitude,
+		});
 	};
 	return (
 		<td onClick={onClick}>
@@ -80,6 +98,7 @@ export const Altitude = observer(({ aircraft }: SubContentProperties) => {
 });
 
 export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
+	const posthog = usePostHog();
 	const { isDragging } = useDragging();
 	const openNSFLPopup = (): void => {
 		if (isDragging) {
@@ -87,18 +106,31 @@ export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
 		}
 		cwpStore.showNSFL(true);
 		cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
+
+		posthog?.capture("next_sector_fl_popup_opened", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			next_sector_fl: aircraft.nextSectorFL,
+		});
 	};
 	return <td onClick={openNSFLPopup}>{aircraft.nextSectorFL}</td>;
 });
 
 export const NextSectorController = observer(
 	({ aircraft }: SubContentProperties) => {
+		const posthog = usePostHog();
 		const { isDragging } = useDragging();
 		const onClick = (): void => {
 			if (isDragging) {
 				return;
 			}
 			cwpStore.openNextSectorPopupForAircraft(aircraft.aircraftId);
+
+			posthog?.capture("next_sector_controller_popup_opened", {
+				aircraft_id: aircraft.aircraftId,
+				callsign: aircraft.callSign,
+				current_next_sector_controller: aircraft.nextSectorController,
+			});
 		};
 		return (
 			<td onClick={onClick}>
@@ -118,6 +150,7 @@ export const LocalAssignedFlightLevel = observer(
 
 export const NextACCFlightLevel = observer(
 	({ aircraft }: SubContentProperties) => {
+		const posthog = usePostHog();
 		const { isDragging } = useDragging();
 		const openNextACCPopup = (): void => {
 			if (isDragging) {
@@ -125,6 +158,12 @@ export const NextACCFlightLevel = observer(
 			}
 			cwpStore.showFlACC(true);
 			cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
+
+			posthog?.capture("next_acc_popup_opened", {
+				aircraft_id: aircraft.aircraftId,
+				callsign: aircraft.callSign,
+				next_acc_fl: aircraft.nextACCFL,
+			});
 		};
 
 		return <td onClick={openNextACCPopup}>{aircraft.nextACCFL}</td>;

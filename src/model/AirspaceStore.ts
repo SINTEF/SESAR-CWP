@@ -1,9 +1,8 @@
-import { makeAutoObservable, observable } from "mobx";
 import type { ObservableMap } from "mobx";
-
+import { makeAutoObservable, observable } from "mobx";
+import type { NewAirspaceMessage } from "../proto/ProtobufAirTrafficSimulator";
 import CoordinatePair from "./CoordinatePair";
 import SectorModel from "./SectorModel";
-import type { NewAirspaceMessage } from "../proto/ProtobufAirTrafficSimulator";
 
 export default class AirspaceStore {
 	airspaces: ObservableMap<string, SectorModel> = observable.map(undefined, {

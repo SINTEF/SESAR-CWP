@@ -1,326 +1,313 @@
 {
-  "linter": {
-    "enabled": true,
-    "includes": [
-      "src/**/*",
-      "!src/proto/**/*",
-      "!src/proto/**/*",
-      "server/**/*.ts"
-    ],
-    "rules": {
-      "a11y": {},
-      "complexity": {
-        "noAdjacentSpacesInRegex": "error",
-        "noArguments": "error",
-        "noBannedTypes": "error",
-        "noCommaOperator": "error",
-        "noExtraBooleanCast": "error",
-        "noForEach": "error",
-        "noStaticOnlyClass": "error",
-        "noUselessCatch": "error",
-        "noUselessConstructor": "error",
-        "noUselessLabel": "error",
-        "noUselessLoneBlockStatements": "error",
-        "noUselessRename": "error",
-        "noUselessStringConcat": "error",
-        "noUselessSwitchCase": "error",
-        "noUselessTernary": "error",
-        "noUselessTypeConstraint": "error",
-        "noUselessUndefinedInitialization": "error",
-        "noVoid": "error",
-        "useDateNow": "error",
-        "useFlatMap": "error",
-        "useLiteralKeys": "error",
-        "useNumericLiterals": "error",
-        "useRegexLiterals": "error"
-      },
-      "correctness": {
-        "noChildrenProp": "error",
-        "noConstAssign": "error",
-        "noConstantCondition": "error",
-        "noConstructorReturn": "error",
-        "noEmptyCharacterClassInRegex": "error",
-        "noEmptyPattern": "error",
-        "noGlobalObjectCalls": "error",
-        "noInnerDeclarations": "error",
-        "noInvalidBuiltinInstantiation": "error",
-        "noInvalidConstructorSuper": "error",
-        "noInvalidUseBeforeDeclaration": "error",
-        "noNodejsModules": "off",
-        "noNonoctalDecimalEscape": "error",
-        "noPrecisionLoss": "error",
-        "noSelfAssign": "error",
-        "noSetterReturn": "error",
-        "noSwitchDeclarations": "error",
-        "noUndeclaredVariables": "error",
-        "noUnreachable": "error",
-        "noUnreachableSuper": "error",
-        "noUnsafeFinally": "error",
-        "noUnsafeOptionalChaining": "error",
-        "noUnusedImports": "error",
-        "noUnusedLabels": "error",
-        "noUnusedPrivateClassMembers": "off",
-        "noUnusedVariables": "warn",
-        "useIsNan": "error",
-        "useJsxKeyInIterable": "error",
-        "useValidForDirection": "error",
-        "useValidTypeof": "error",
-        "useYield": "error"
-      },
-      "recommended": false,
-      "security": {
-        "noBlankTarget": "error",
-        "noDangerouslySetInnerHtmlWithChildren": "error",
-        "noGlobalEval": "error"
-      },
-      "style": {
-        "noDefaultExport": "off",
-        "noInferrableTypes": "error",
-        "noNamespace": "error",
-        "noNegationElse": "off",
-        "noNonNullAssertion": "warn",
-        "noParameterAssign": "error",
-        "noRestrictedGlobals": {
-          "level": "error",
-          "options": {
-            "deniedGlobals": {
-              "addEventListener": "Use a specific element's addEventListener method instead of the global one.",
-              "blur": "Use a specific element's blur method instead of the global one.",
-              "close": "Use a specific window reference's close method instead of the global one.",
-              "closed": "Use a specific window reference's closed property instead of the global one.",
-              "confirm": "Use a custom modal dialog instead of the browser's confirm dialog.",
-              "defaultStatus": "This property is deprecated and should not be used.",
-              "defaultstatus": "This property is deprecated and should not be used.",
-              "event": "Use the event parameter passed to event handlers instead of the global event.",
-              "external": "This property is non-standard and should not be used.",
-              "find": "Use array methods or custom search functionality instead of the global find.",
-              "focus": "Use a specific element's focus method instead of the global one.",
-              "frameElement": "Use a specific frame reference instead of the global frameElement.",
-              "frames": "Use a specific window reference's frames property instead of the global one.",
-              "history": "Use a specific window reference's history object instead of the global one.",
-              "innerHeight": "Use a specific window reference's innerHeight property instead of the global one.",
-              "innerWidth": "Use a specific window reference's innerWidth property instead of the global one.",
-              "isFinite": "Use Number.isFinite() instead of the global isFinite().",
-              "isNaN": "Use Number.isNaN() instead of the global isNaN().",
-              "length": "Use a specific object's length property instead of the global one.",
-              "location": "Use a specific window reference's location object instead of the global one.",
-              "locationbar": "This property is deprecated and should not be used.",
-              "menubar": "This property is deprecated and should not be used.",
-              "moveBy": "Window manipulation methods should be avoided for better user experience.",
-              "moveTo": "Window manipulation methods should be avoided for better user experience.",
-              "name": "Use a specific window reference's name property instead of the global one.",
-              "onblur": "Use addEventListener('blur') instead of the onblur property.",
-              "onerror": "Use addEventListener('error') instead of the onerror property.",
-              "onfocus": "Use addEventListener('focus') instead of the onfocus property.",
-              "onload": "Use addEventListener('load') instead of the onload property.",
-              "onresize": "Use addEventListener('resize') instead of the onresize property.",
-              "onunload": "Use addEventListener('unload') instead of the onunload property.",
-              "open": "Use a specific window reference's open method instead of the global one.",
-              "opener": "Use a specific window reference's opener property instead of the global one.",
-              "opera": "This property is non-standard and should not be used.",
-              "outerHeight": "Use a specific window reference's outerHeight property instead of the global one.",
-              "outerWidth": "Use a specific window reference's outerWidth property instead of the global one.",
-              "pageXOffset": "Use window.scrollX instead of the global pageXOffset.",
-              "pageYOffset": "Use window.scrollY instead of the global pageYOffset.",
-              "parent": "Use a specific window reference's parent property instead of the global one.",
-              "print": "Use a specific window reference's print method instead of the global one.",
-              "removeEventListener": "Use a specific element's removeEventListener method instead of the global one.",
-              "resizeBy": "Window manipulation methods should be avoided for better user experience.",
-              "resizeTo": "Window manipulation methods should be avoided for better user experience.",
-              "screen": "Use a specific window reference's screen object instead of the global one.",
-              "screenLeft": "Use window.screenX instead of the global screenLeft.",
-              "screenTop": "Use window.screenY instead of the global screenTop.",
-              "screenX": "Use a specific window reference's screenX property instead of the global one.",
-              "screenY": "Use a specific window reference's screenY property instead of the global one.",
-              "scroll": "Use window.scrollTo() instead of the global scroll().",
-              "scrollBy": "Use a specific window reference's scrollBy method instead of the global one.",
-              "scrollTo": "Use a specific window reference's scrollTo method instead of the global one.",
-              "scrollX": "Use a specific window reference's scrollX property instead of the global one.",
-              "scrollY": "Use a specific window reference's scrollY property instead of the global one.",
-              "scrollbars": "This property is deprecated and should not be used.",
-              "self": "Use a specific window reference instead of the global self.",
-              "status": "This property is deprecated and should not be used.",
-              "statusbar": "This property is deprecated and should not be used.",
-              "stop": "Use a specific window reference's stop method instead of the global one.",
-              "toolbar": "This property is deprecated and should not be used.",
-              "top": "Use a specific window reference's top property instead of the global one."
-            }
-          }
-        },
-        "noYodaExpression": "error",
-        "useArrayLiterals": "off",
-        "useAsConstAssertion": "error",
-        "useBlockStatements": "error",
-        "useCollapsedElseIf": "error",
-        "useConsistentBuiltinInstantiation": "error",
-        "useConst": "error",
-        "useDefaultParameterLast": "error",
-        "useDefaultSwitchClause": "error",
-        "useExplicitLengthCheck": "error",
-        "useExponentiationOperator": "error",
-        "useForOf": "error",
-        "useNodejsImportProtocol": "error",
-        "useNumberNamespace": "error",
-        "useShorthandAssign": "error",
-        "useSingleVarDeclarator": "error",
-        "useTemplate": "error",
-        "useThrowNewError": "error"
-      },
-      "suspicious": {
-        "noAsyncPromiseExecutor": "error",
-        "noCatchAssign": "error",
-        "noClassAssign": "error",
-        "noCommentText": "error",
-        "noCompareNegZero": "error",
-        "noConsole": "warn",
-        "noControlCharactersInRegex": "error",
-        "noDebugger": "error",
-        "noDoubleEquals": "error",
-        "noDuplicateCase": "error",
-        "noDuplicateClassMembers": "error",
-        "noDuplicateJsxProps": "error",
-        "noDuplicateObjectKeys": "error",
-        "noDuplicateParameters": "error",
-        "noEmptyBlockStatements": "off",
-        "noExplicitAny": "warn",
-        "noExtraNonNullAssertion": "error",
-        "noFallthroughSwitchClause": "error",
-        "noFunctionAssign": "error",
-        "noGlobalAssign": "error",
-        "noImportAssign": "error",
-        "noLabelVar": "error",
-        "noMisleadingCharacterClass": "error",
-        "noMisleadingInstantiator": "error",
-        "noPrototypeBuiltins": "error",
-        "noRedeclare": "error",
-        "noSelfCompare": "error",
-        "noShadowRestrictedNames": "error",
-        "noSparseArray": "error",
-        "noThenProperty": "error",
-        "noUnsafeNegation": "error",
-        "noVar": "error",
-        "noWith": "error",
-        "useAwait": "error",
-        "useDefaultSwitchClauseLast": "error",
-        "useErrorMessage": "error",
-        "useGetterReturn": "error",
-        "useIsArray": "error",
-        "useNamespaceKeyword": "error",
-        "useNumberToFixedDigitsArgument": "error"
-      }
-    }
-  },
-  "overrides": [
-    {
-      "includes": [
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.mts",
-        "**/*.cts"
-      ],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noArguments": "error"
-          },
-          "correctness": {
-            "noConstAssign": "off",
-            "noGlobalObjectCalls": "off",
-            "noInvalidBuiltinInstantiation": "off",
-            "noInvalidConstructorSuper": "off",
-            "noSetterReturn": "off",
-            "noUndeclaredVariables": "off",
-            "noUnreachable": "off",
-            "noUnreachableSuper": "off",
-            "useValidTypeof": "off"
-          },
-          "style": {
-            "useConst": "error"
-          },
-          "suspicious": {
-            "noDuplicateClassMembers": "off",
-            "noDuplicateObjectKeys": "off",
-            "noDuplicateParameters": "off",
-            "noFunctionAssign": "off",
-            "noImportAssign": "off",
-            "noRedeclare": "off",
-            "noUnsafeNegation": "off",
-            "noVar": "error",
-            "useGetterReturn": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.mts",
-        "**/*.cts"
-      ],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noArguments": "error"
-          },
-          "correctness": {
-            "noConstAssign": "off",
-            "noGlobalObjectCalls": "off",
-            "noInvalidBuiltinInstantiation": "off",
-            "noInvalidConstructorSuper": "off",
-            "noSetterReturn": "off",
-            "noUndeclaredVariables": "off",
-            "noUnreachable": "off",
-            "noUnreachableSuper": "off",
-            "useValidTypeof": "off"
-          },
-          "style": {
-            "useConst": "error"
-          },
-          "suspicious": {
-            "noDuplicateClassMembers": "off",
-            "noDuplicateObjectKeys": "off",
-            "noDuplicateParameters": "off",
-            "noFunctionAssign": "off",
-            "noImportAssign": "off",
-            "noRedeclare": "off",
-            "noUnsafeNegation": "off",
-            "noVar": "error",
-            "useGetterReturn": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "**/*.ts",
-        "**/*.tsx"
-      ],
-      "linter": {
-        "rules": {
-          "correctness": {
-            "noConstAssign": "off",
-            "noGlobalObjectCalls": "off",
-            "noInvalidBuiltinInstantiation": "off",
-            "noInvalidConstructorSuper": "off",
-            "noSetterReturn": "off",
-            "noUndeclaredVariables": "off",
-            "noUnreachable": "off",
-            "noUnreachableSuper": "off",
-            "useValidTypeof": "off"
-          },
-          "suspicious": {
-            "noDuplicateClassMembers": "off",
-            "noDuplicateObjectKeys": "off",
-            "noDuplicateParameters": "off",
-            "noFunctionAssign": "off",
-            "noImportAssign": "off",
-            "noRedeclare": "off",
-            "noUnsafeNegation": "off",
-            "useGetterReturn": "off"
-          }
-        }
-      }
-    }
-  ]
+	"linter": {
+		"enabled": true,
+		"includes": [
+			"src/**/*",
+			"!src/proto/**/*",
+			"!src/proto/**/*",
+			"server/**/*.ts"
+		],
+		"rules": {
+			"a11y": {},
+			"complexity": {
+				"noAdjacentSpacesInRegex": "error",
+				"noArguments": "error",
+				"noBannedTypes": "error",
+				"noCommaOperator": "error",
+				"noExtraBooleanCast": "error",
+				"noForEach": "error",
+				"noStaticOnlyClass": "error",
+				"noUselessCatch": "error",
+				"noUselessConstructor": "error",
+				"noUselessLabel": "error",
+				"noUselessLoneBlockStatements": "error",
+				"noUselessRename": "error",
+				"noUselessStringConcat": "error",
+				"noUselessSwitchCase": "error",
+				"noUselessTernary": "error",
+				"noUselessTypeConstraint": "error",
+				"noUselessUndefinedInitialization": "error",
+				"noVoid": "error",
+				"useDateNow": "error",
+				"useFlatMap": "error",
+				"useLiteralKeys": "error",
+				"useNumericLiterals": "error",
+				"useRegexLiterals": "error"
+			},
+			"correctness": {
+				"noChildrenProp": "error",
+				"noConstAssign": "error",
+				"noConstantCondition": "error",
+				"noConstructorReturn": "error",
+				"noEmptyCharacterClassInRegex": "error",
+				"noEmptyPattern": "error",
+				"noGlobalObjectCalls": "error",
+				"noInnerDeclarations": "error",
+				"noInvalidBuiltinInstantiation": "error",
+				"noInvalidConstructorSuper": "error",
+				"noInvalidUseBeforeDeclaration": "error",
+				"noNodejsModules": "off",
+				"noNonoctalDecimalEscape": "error",
+				"noPrecisionLoss": "error",
+				"noSelfAssign": "error",
+				"noSetterReturn": "error",
+				"noSwitchDeclarations": "error",
+				"noUndeclaredVariables": "error",
+				"noUnreachable": "error",
+				"noUnreachableSuper": "error",
+				"noUnsafeFinally": "error",
+				"noUnsafeOptionalChaining": "error",
+				"noUnusedImports": "error",
+				"noUnusedLabels": "error",
+				"noUnusedPrivateClassMembers": "off",
+				"noUnusedVariables": "warn",
+				"useIsNan": "error",
+				"useJsxKeyInIterable": "error",
+				"useValidForDirection": "error",
+				"useValidTypeof": "error",
+				"useYield": "error"
+			},
+			"recommended": false,
+			"security": {
+				"noBlankTarget": "error",
+				"noDangerouslySetInnerHtmlWithChildren": "error",
+				"noGlobalEval": "error"
+			},
+			"style": {
+				"noDefaultExport": "off",
+				"noInferrableTypes": "error",
+				"noNamespace": "error",
+				"noNegationElse": "off",
+				"noNonNullAssertion": "warn",
+				"noParameterAssign": "error",
+				"noRestrictedGlobals": {
+					"level": "error",
+					"options": {
+						"deniedGlobals": {
+							"addEventListener": "Use a specific element's addEventListener method instead of the global one.",
+							"blur": "Use a specific element's blur method instead of the global one.",
+							"close": "Use a specific window reference's close method instead of the global one.",
+							"closed": "Use a specific window reference's closed property instead of the global one.",
+							"confirm": "Use a custom modal dialog instead of the browser's confirm dialog.",
+							"defaultStatus": "This property is deprecated and should not be used.",
+							"defaultstatus": "This property is deprecated and should not be used.",
+							"event": "Use the event parameter passed to event handlers instead of the global event.",
+							"external": "This property is non-standard and should not be used.",
+							"find": "Use array methods or custom search functionality instead of the global find.",
+							"focus": "Use a specific element's focus method instead of the global one.",
+							"frameElement": "Use a specific frame reference instead of the global frameElement.",
+							"frames": "Use a specific window reference's frames property instead of the global one.",
+							"history": "Use a specific window reference's history object instead of the global one.",
+							"innerHeight": "Use a specific window reference's innerHeight property instead of the global one.",
+							"innerWidth": "Use a specific window reference's innerWidth property instead of the global one.",
+							"isFinite": "Use Number.isFinite() instead of the global isFinite().",
+							"isNaN": "Use Number.isNaN() instead of the global isNaN().",
+							"length": "Use a specific object's length property instead of the global one.",
+							"location": "Use a specific window reference's location object instead of the global one.",
+							"locationbar": "This property is deprecated and should not be used.",
+							"menubar": "This property is deprecated and should not be used.",
+							"moveBy": "Window manipulation methods should be avoided for better user experience.",
+							"moveTo": "Window manipulation methods should be avoided for better user experience.",
+							"name": "Use a specific window reference's name property instead of the global one.",
+							"onblur": "Use addEventListener('blur') instead of the onblur property.",
+							"onerror": "Use addEventListener('error') instead of the onerror property.",
+							"onfocus": "Use addEventListener('focus') instead of the onfocus property.",
+							"onload": "Use addEventListener('load') instead of the onload property.",
+							"onresize": "Use addEventListener('resize') instead of the onresize property.",
+							"onunload": "Use addEventListener('unload') instead of the onunload property.",
+							"open": "Use a specific window reference's open method instead of the global one.",
+							"opener": "Use a specific window reference's opener property instead of the global one.",
+							"opera": "This property is non-standard and should not be used.",
+							"outerHeight": "Use a specific window reference's outerHeight property instead of the global one.",
+							"outerWidth": "Use a specific window reference's outerWidth property instead of the global one.",
+							"pageXOffset": "Use window.scrollX instead of the global pageXOffset.",
+							"pageYOffset": "Use window.scrollY instead of the global pageYOffset.",
+							"parent": "Use a specific window reference's parent property instead of the global one.",
+							"print": "Use a specific window reference's print method instead of the global one.",
+							"removeEventListener": "Use a specific element's removeEventListener method instead of the global one.",
+							"resizeBy": "Window manipulation methods should be avoided for better user experience.",
+							"resizeTo": "Window manipulation methods should be avoided for better user experience.",
+							"screen": "Use a specific window reference's screen object instead of the global one.",
+							"screenLeft": "Use window.screenX instead of the global screenLeft.",
+							"screenTop": "Use window.screenY instead of the global screenTop.",
+							"screenX": "Use a specific window reference's screenX property instead of the global one.",
+							"screenY": "Use a specific window reference's screenY property instead of the global one.",
+							"scroll": "Use window.scrollTo() instead of the global scroll().",
+							"scrollBy": "Use a specific window reference's scrollBy method instead of the global one.",
+							"scrollTo": "Use a specific window reference's scrollTo method instead of the global one.",
+							"scrollX": "Use a specific window reference's scrollX property instead of the global one.",
+							"scrollY": "Use a specific window reference's scrollY property instead of the global one.",
+							"scrollbars": "This property is deprecated and should not be used.",
+							"self": "Use a specific window reference instead of the global self.",
+							"status": "This property is deprecated and should not be used.",
+							"statusbar": "This property is deprecated and should not be used.",
+							"stop": "Use a specific window reference's stop method instead of the global one.",
+							"toolbar": "This property is deprecated and should not be used.",
+							"top": "Use a specific window reference's top property instead of the global one."
+						}
+					}
+				},
+				"noYodaExpression": "error",
+				"useArrayLiterals": "off",
+				"useAsConstAssertion": "error",
+				"useBlockStatements": "error",
+				"useCollapsedElseIf": "error",
+				"useConsistentBuiltinInstantiation": "error",
+				"useConst": "error",
+				"useDefaultParameterLast": "error",
+				"useDefaultSwitchClause": "error",
+				"useExplicitLengthCheck": "error",
+				"useExponentiationOperator": "error",
+				"useForOf": "error",
+				"useNodejsImportProtocol": "error",
+				"useNumberNamespace": "error",
+				"useShorthandAssign": "error",
+				"useSingleVarDeclarator": "error",
+				"useTemplate": "error",
+				"useThrowNewError": "error"
+			},
+			"suspicious": {
+				"noAsyncPromiseExecutor": "error",
+				"noCatchAssign": "error",
+				"noClassAssign": "error",
+				"noCommentText": "error",
+				"noCompareNegZero": "error",
+				"noConsole": "warn",
+				"noControlCharactersInRegex": "error",
+				"noDebugger": "error",
+				"noDoubleEquals": "error",
+				"noDuplicateCase": "error",
+				"noDuplicateClassMembers": "error",
+				"noDuplicateJsxProps": "error",
+				"noDuplicateObjectKeys": "error",
+				"noDuplicateParameters": "error",
+				"noEmptyBlockStatements": "off",
+				"noExplicitAny": "warn",
+				"noExtraNonNullAssertion": "error",
+				"noFallthroughSwitchClause": "error",
+				"noFunctionAssign": "error",
+				"noGlobalAssign": "error",
+				"noImportAssign": "error",
+				"noLabelVar": "error",
+				"noMisleadingCharacterClass": "error",
+				"noMisleadingInstantiator": "error",
+				"noPrototypeBuiltins": "error",
+				"noRedeclare": "error",
+				"noSelfCompare": "error",
+				"noShadowRestrictedNames": "error",
+				"noSparseArray": "error",
+				"noThenProperty": "error",
+				"noUnsafeNegation": "error",
+				"noVar": "error",
+				"noWith": "error",
+				"useAwait": "error",
+				"useDefaultSwitchClauseLast": "error",
+				"useErrorMessage": "error",
+				"useGetterReturn": "error",
+				"useIsArray": "error",
+				"useNamespaceKeyword": "error",
+				"useNumberToFixedDigitsArgument": "error"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noArguments": "error"
+					},
+					"correctness": {
+						"noConstAssign": "off",
+						"noGlobalObjectCalls": "off",
+						"noInvalidBuiltinInstantiation": "off",
+						"noInvalidConstructorSuper": "off",
+						"noSetterReturn": "off",
+						"noUndeclaredVariables": "off",
+						"noUnreachable": "off",
+						"noUnreachableSuper": "off",
+						"useValidTypeof": "off"
+					},
+					"style": {
+						"useConst": "error"
+					},
+					"suspicious": {
+						"noDuplicateClassMembers": "off",
+						"noDuplicateObjectKeys": "off",
+						"noDuplicateParameters": "off",
+						"noFunctionAssign": "off",
+						"noImportAssign": "off",
+						"noRedeclare": "off",
+						"noUnsafeNegation": "off",
+						"noVar": "error",
+						"useGetterReturn": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noArguments": "error"
+					},
+					"correctness": {
+						"noConstAssign": "off",
+						"noGlobalObjectCalls": "off",
+						"noInvalidBuiltinInstantiation": "off",
+						"noInvalidConstructorSuper": "off",
+						"noSetterReturn": "off",
+						"noUndeclaredVariables": "off",
+						"noUnreachable": "off",
+						"noUnreachableSuper": "off",
+						"useValidTypeof": "off"
+					},
+					"style": {
+						"useConst": "error"
+					},
+					"suspicious": {
+						"noDuplicateClassMembers": "off",
+						"noDuplicateObjectKeys": "off",
+						"noDuplicateParameters": "off",
+						"noFunctionAssign": "off",
+						"noImportAssign": "off",
+						"noRedeclare": "off",
+						"noUnsafeNegation": "off",
+						"noVar": "error",
+						"useGetterReturn": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.ts", "**/*.tsx"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noConstAssign": "off",
+						"noGlobalObjectCalls": "off",
+						"noInvalidBuiltinInstantiation": "off",
+						"noInvalidConstructorSuper": "off",
+						"noSetterReturn": "off",
+						"noUndeclaredVariables": "off",
+						"noUnreachable": "off",
+						"noUnreachableSuper": "off",
+						"useValidTypeof": "off"
+					},
+					"suspicious": {
+						"noDuplicateClassMembers": "off",
+						"noDuplicateObjectKeys": "off",
+						"noDuplicateParameters": "off",
+						"noFunctionAssign": "off",
+						"noImportAssign": "off",
+						"noRedeclare": "off",
+						"noUnsafeNegation": "off",
+						"useGetterReturn": "off"
+					}
+				}
+			}
+		}
+	]
 }

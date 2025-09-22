@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import React from "react";
 
 import type AircraftModel from "../model/AircraftModel";
@@ -30,11 +31,20 @@ export const AssignedBearing = observer(
 );
 
 const NextFix = observer(({ aircraft }: SubContentProperties) => {
+	const posthog = usePostHog();
 	const middleClickNextWaypoint = (
 		_event: React.MouseEvent<HTMLElement>,
 	): void => {
 		// if (event.button === 1) {
 		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
+		posthog?.capture("next_fix_clicked", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			next_fix: aircraft.nextFix,
+			flight_route_visible: cwpStore.aircraftsWithFlightRoutes.has(
+				aircraft.aircraftId,
+			),
+		});
 		// }
 	};
 

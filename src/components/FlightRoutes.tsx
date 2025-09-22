@@ -1,11 +1,14 @@
+import type {
+	CircleLayerSpecification,
+	LineLayerSpecification,
+	SymbolLayerSpecification,
+} from "maplibre-gl";
 import { observer } from "mobx-react-lite";
 import { Layer, Source } from "react-map-gl/maplibre";
-import type { LineLayerSpecification, CircleLayerSpecification, SymbolLayerSpecification } from "maplibre-gl";
-
-import { aircraftStore, cwpStore, simulatorStore } from "../state";
 import type AircraftModel from "../model/AircraftModel";
 import type Trajectory from "../model/Trajectory";
 import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
+import { aircraftStore, cwpStore, simulatorStore } from "../state";
 import { formatSimulatorTimeHMS } from "../utils";
 
 function buildGeoJsonFlightRoute(
@@ -51,23 +54,23 @@ function buildGeoJsonFlightRoute(
 	];
 }
 
-const paintLine: LineLayerSpecification['paint'] = {
+const paintLine: LineLayerSpecification["paint"] = {
 	"line-color": "#00FFFF",
 	"line-width": 1.5,
 };
 
-const paintCircle: CircleLayerSpecification['paint'] = {
+const paintCircle: CircleLayerSpecification["paint"] = {
 	"circle-color": "#00FFFF",
 	"circle-radius": 1.5,
 };
 
-const paintSymbol: SymbolLayerSpecification['paint'] = {
+const paintSymbol: SymbolLayerSpecification["paint"] = {
 	"text-color": "#00FFFF",
 	"text-halo-color": "#000",
 	"text-halo-width": 0,
 };
 
-const layoutSymbol: SymbolLayerSpecification['layout'] = {
+const layoutSymbol: SymbolLayerSpecification["layout"] = {
 	"text-field": ["get", "title"],
 	"text-allow-overlap": true,
 	"text-font": ["IBM Plex Mono Bold"],

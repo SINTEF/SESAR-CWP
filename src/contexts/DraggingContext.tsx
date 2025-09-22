@@ -50,7 +50,7 @@ export const DraggingProvider: React.FC<DraggingProviderProps> = ({
 			const timeout = window.setTimeout(() => {
 				setIsDragging(true);
 				setStartDragTimeout(null);
-			}, 200); // 200ms delay to distinguish from clicks
+			}, 150); // 150ms delay to distinguish from clicks
 			setStartDragTimeout(timeout);
 		}
 	}, [isDragging, startDragTimeout, stopDragTimeout]);
