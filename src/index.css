@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  logs: false;
+}
 
 /* Tailwind CSS v4 Configuration using @theme */
 @theme {
@@ -219,19 +221,6 @@ input[type="range"].range-vertical {
 
 
 /* Mapbox/Maplibre popup styles */
-.mapboxgl-popup-close-button,
-.maplibregl-popup-close-button {
-    color: white;
-}
-
-.mapboxgl-popup,
-.maplibregl-popup {
-    max-width: none;
-    width: fit-content;
-    height: fit-content;
-    font-size: 0.8em;
-    z-index: 0;
-}
 
 
 .mapboxgl-popup-anchor-top>.mapboxgl-popup-tip,
@@ -311,4 +300,16 @@ html .btn {
 
 .react-draggable-dragging {
     cursor: grabbing;
+}
+
+/* Smooth marker/popup movement when map is not moving,
+ * or being interacted with (dragging, zooming, rotating) */
+.radar-map-container:not(.map-is-moving) .maplibregl-marker:not(.disable-animation-marker), .radar-map-container:not(.map-is-moving) .maplibregl-popup {
+  transition-duration: 300ms !important;
+  transition-timing-function: ease-in-out !important;
+  transition-property: transform !important;
+}
+
+.maplibregl-marker.disable-animation-marker * {
+  background-color: orange!important;
 }

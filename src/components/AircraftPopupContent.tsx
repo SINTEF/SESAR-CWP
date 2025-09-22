@@ -55,7 +55,7 @@ export default observer(function AircraftPopupContent(properties: {
 	const { aircraft, flightColor } = properties;
 	const currentSector = roleConfigurationStore.currentControlledSector;
 	return (
-		<table className="border-spacing-0 m-1 w-full max-w-full">
+		<table className="border-spacing-0 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
 				<tr>
 					<td className="flex flex-row">

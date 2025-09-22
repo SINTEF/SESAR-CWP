@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { isDragging } from "../draggableState";
+import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import {
 	aircraftStore,
@@ -19,9 +19,10 @@ type SubContentProperties = {
 export const CallSign = observer(
 	({ flightColor, aircraft, colSpan }: SubContentProperties) => {
 		const { callSign, controlledBy } = aircraft;
+		const { isDragging } = useDragging();
 
 		const openATCMenu = (): void => {
-			if (isDragging()) {
+			if (isDragging) {
 				return;
 			}
 			const { aircraftId } = aircraft;
@@ -64,8 +65,9 @@ export const CallSign = observer(
 );
 
 export const Altitude = observer(({ aircraft }: SubContentProperties) => {
+	const { isDragging } = useDragging();
 	const onClick = (): void => {
-		if (isDragging()) {
+		if (isDragging) {
 			return;
 		}
 		cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
@@ -78,8 +80,9 @@ export const Altitude = observer(({ aircraft }: SubContentProperties) => {
 });
 
 export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
+	const { isDragging } = useDragging();
 	const openNSFLPopup = (): void => {
-		if (isDragging()) {
+		if (isDragging) {
 			return;
 		}
 		cwpStore.showNSFL(true);
@@ -90,8 +93,9 @@ export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
 
 export const NextSectorController = observer(
 	({ aircraft }: SubContentProperties) => {
+		const { isDragging } = useDragging();
 		const onClick = (): void => {
-			if (isDragging()) {
+			if (isDragging) {
 				return;
 			}
 			cwpStore.openNextSectorPopupForAircraft(aircraft.aircraftId);
@@ -114,8 +118,9 @@ export const LocalAssignedFlightLevel = observer(
 
 export const NextACCFlightLevel = observer(
 	({ aircraft }: SubContentProperties) => {
+		const { isDragging } = useDragging();
 		const openNextACCPopup = (): void => {
-			if (isDragging()) {
+			if (isDragging) {
 				return;
 			}
 			cwpStore.showFlACC(true);
@@ -133,7 +138,7 @@ export default observer(function AircraftContentSmall(properties: {
 	const { aircraft, flightColor } = properties;
 	const currentSector = roleConfigurationStore.currentControlledSector;
 	return (
-		<table className="border-spacing-2 m-1 w-full max-w-full">
+		<table className="border-spacing-2 w-full max-w-full">
 			<tbody style={{ color: flightColor }}>
 				<tr>
 					<td className="flex flex-row">

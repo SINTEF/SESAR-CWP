@@ -1,191 +1,212 @@
-import React from 'react';
-import { DraggableCore } from 'react-draggable';
-import { Popup } from 'react-map-gl/maplibre';
-import type { DraggableEvent } from 'react-draggable';
-import type { PopupProps } from 'react-map-gl/maplibre';
+import { useCallback, useRef, useState } from "react";
+import type { DraggableEvent } from "react-draggable";
+import { DraggableCore } from "react-draggable";
+import type { PopupProps } from "react-map-gl/maplibre";
+import { Popup } from "react-map-gl/maplibre";
 
-import { startDragging, stopDragging } from '../draggableState';
+import { useDragging } from "../contexts/DraggingContext";
 
 export type DraggablePopupProperties = {
-  offset: {
-    x: number,
-    y: number,
-  },
-  size: {
-    width: number,
-    height: number,
-  },
-  color?: string,
-  cancel?: string,
+	offset: {
+		x: number;
+		y: number;
+	};
+	size: {
+		width: number;
+		height: number;
+	};
+	borderRadius?: number;
+	color?: string;
+	cancel?: string;
 } & PopupProps;
 
-export type DraggablePopupState = {
-  offsetX: number,
-  offsetY: number,
-  startX: number,
-  startY: number,
-  zIndex: number,
-};
-
-let globalHighestZIndex = 0;
+// Global z-index management - needs to be outside component for proper stacking
+let globalHighestZIndex = 42;
 function getNextZIndex(): number {
-  globalHighestZIndex += 1;
-  return globalHighestZIndex;
+	globalHighestZIndex += 1;
+	return globalHighestZIndex;
 }
 
-export default class DraggablePopup extends
-  React.Component<DraggablePopupProperties, DraggablePopupState> {
-  private nodeRef = React.createRef<HTMLDivElement>();
+export default function DraggablePopup(props: DraggablePopupProperties) {
+	const {
+		className,
+		children,
+		color,
+		size,
+		cancel,
+		borderRadius,
+		offset: initialOffset,
+		...popupProps
+	} = props;
 
-  constructor(properties: DraggablePopupProperties) {
-    super(properties);
+	const nodeRef = useRef<HTMLDivElement>(null);
+	const { startDragging, stopDragging } = useDragging();
 
-    const { offset } = properties;
-    const { x, y } = offset;
+	// State management
+	const [offsetX, setOffsetX] = useState(initialOffset.x);
+	const [offsetY, setOffsetY] = useState(initialOffset.y);
+	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+	const [zIndex, setZIndex] = useState(() => getNextZIndex());
+	const [isDragging, setIsDragging] = useState(false);
 
-    this.state = {
-      offsetX: x,
-      offsetY: y,
-      startX: 0,
-      startY: 0,
-      zIndex: getNextZIndex(),
-    };
-  }
+	// Handle drag start
+	const handleDragStart = useCallback(
+		(event: DraggableEvent): void => {
+			if (!("clientX" in event && "clientY" in event)) {
+				return;
+			}
+			const { clientX, clientY } = event;
+			setDragStart({
+				x: clientX - offsetX,
+				y: clientY - offsetY,
+			});
+			setIsDragging(true);
+			startDragging();
+		},
+		[offsetX, offsetY, startDragging],
+	);
 
-  incrementZIndex(): void {
-    this.setState((state) => ({
-      ...state,
-      zIndex: getNextZIndex(),
-    }));
-  }
+	// Handle dragging
+	const handleDrag = useCallback(
+		(event: DraggableEvent): void => {
+			if (!("clientX" in event && "clientY" in event)) {
+				return;
+			}
+			const { clientX, clientY } = event;
+			setOffsetX(clientX - dragStart.x);
+			setOffsetY(clientY - dragStart.y);
+		},
+		[dragStart.x, dragStart.y],
+	);
 
-  onDragStart(event: DraggableEvent): void {
-    if (!('clientX' in event && 'clientY' in event)) {
-      return;
-    }
-    const { clientX, clientY } = event;
-    const { offsetX, offsetY } = this.state;
-    this.setState({
-      startX: clientX - offsetX,
-      startY: clientY - offsetY,
-    });
-    startDragging();
-  }
+	// Handle drag stop
+	const handleDragStop = useCallback((): void => {
+		setIsDragging(false);
+		stopDragging();
+	}, [stopDragging]);
 
-  onDrag(event: DraggableEvent): void {
-    if (!('clientX' in event && 'clientY' in event)) {
-      return;
-    }
-    const { clientX, clientY } = event;
-    const { startX, startY } = this.state;
-    const diffX = clientX - startX;
-    const diffY = clientY - startY;
-    this.setState({
-      offsetX: diffX,
-      offsetY: diffY,
-    });
-  }
+	// Handle click to bring popup to front
+	const handleClick = useCallback((): void => {
+		if (zIndex < globalHighestZIndex) {
+			setZIndex(getNextZIndex());
+		}
+	}, [zIndex]);
 
-  static onStop(/* event , data */): void {
-    stopDragging();
-  }
+	// Calculate line geometry
+	const planeIconIntersectRadius = 15;
+	const LINE_START_OFFSET_PX = 6; // distance from (0,0) to start drawing the line
+	const coreWidth = size.width;
+	const coreHeight = size.height;
+	const popupIsLower = offsetY > -coreHeight / 2;
+	const popupIsOnLeft = offsetX < -coreWidth / 2;
 
-  render() {
-    const {
-      className, children, color, size, cancel, ...otherProperties
-    } = this.props;
-    const { offsetX, offsetY, zIndex } = this.state;
+	let adjustedLineX = offsetX;
+	let adjustedLineY = offsetY;
 
-    // Compute the length of the line from the offset,
-    // use pytagore
-    const planeIconIntersectRadius = 15;
+	// Apply borderRadius adjustments based on which corner the line connects to
+	const radiusAdjustment = borderRadius || 0;
 
-    const coreWidth = size.width;
-    const coreHeight = size.height;
-    const popupIsLower = offsetY > -coreHeight / 2;
-    const popupIsOnLeft = offsetX < -coreWidth / 2;
+	if (!popupIsLower) {
+		// Line connects to bottom edge
+		adjustedLineY += coreHeight;
 
-    let adjustedLineX = offsetX;
-    let adjustedLineY = offsetY;
+		// Adjust for bottom corners
+		if (popupIsOnLeft) {
+			// Bottom-right corner
+			adjustedLineX -= radiusAdjustment;
+			adjustedLineY -= radiusAdjustment;
+		} else {
+			// Bottom-left corner
+			adjustedLineX += radiusAdjustment;
+			adjustedLineY -= radiusAdjustment;
+		}
+	} else if (popupIsOnLeft) {
+		// Line connects to top edge
+		// Top-right corner
+		adjustedLineX -= radiusAdjustment;
+		adjustedLineY += radiusAdjustment;
+	} else {
+		// Line connects to top edge
+		// Top-left corner
+		adjustedLineX += radiusAdjustment;
+		adjustedLineY += radiusAdjustment;
+	}
 
-    if (!popupIsLower) {
-      adjustedLineY += coreHeight;
-    }
+	if (popupIsOnLeft) {
+		adjustedLineX += coreWidth;
+	}
 
-    if (popupIsOnLeft) {
-      adjustedLineX += coreWidth;
-    }
+	const lineLength = Math.sqrt(
+		adjustedLineX * adjustedLineX + adjustedLineY * adjustedLineY,
+	);
+	const lineAngle = Math.atan2(adjustedLineY, adjustedLineX);
 
-    const width = Math.sqrt(adjustedLineX * adjustedLineX
-      + adjustedLineY * adjustedLineY);
-    const angle = Math.atan2(adjustedLineY, adjustedLineX);
+	// Compute start offset along the line direction
+	const lineStartX = Math.cos(lineAngle) * LINE_START_OFFSET_PX;
+	const lineStartY = Math.sin(lineAngle) * LINE_START_OFFSET_PX;
+	const adjustedLineLength = Math.max(lineLength - LINE_START_OFFSET_PX, 0);
 
-    // we have two boxes, one is coreWidth x coreHeight, the other is
-    // planeIconIntersectRadius x planeIconIntersectRadius
-    // We check if they intersects using old school maths
-    const planeIconTopLeftX = -planeIconIntersectRadius;
-    const planeIconTopLeftY = -planeIconIntersectRadius;
-    const planeIconBottomRightX = planeIconIntersectRadius;
-    const planeIconBottomRightY = planeIconIntersectRadius;
+	// Check if plane icon and popup intersect
+	const planeIconBounds = {
+		left: -planeIconIntersectRadius,
+		top: -planeIconIntersectRadius,
+		right: planeIconIntersectRadius,
+		bottom: planeIconIntersectRadius,
+	};
 
-    const coreTopLeftX = offsetX;
-    const coreTopLeftY = offsetY;
-    const coreBottomRightX = offsetX + coreWidth;
-    const coreBottomRightY = offsetY + coreHeight;
+	const popupBounds = {
+		left: offsetX,
+		top: offsetY,
+		right: offsetX + coreWidth,
+		bottom: offsetY + coreHeight,
+	};
 
-    const planeIconAndCoreIntersects = (
-      (planeIconTopLeftX < coreBottomRightX) && (planeIconBottomRightX > coreTopLeftX)
-      && (planeIconTopLeftY < coreBottomRightY) && (planeIconBottomRightY > coreTopLeftY)
-      && (planeIconTopLeftX < coreBottomRightX) && (planeIconBottomRightX > coreTopLeftX)
-    );
+	const intersects =
+		planeIconBounds.left < popupBounds.right &&
+		planeIconBounds.right > popupBounds.left &&
+		planeIconBounds.top < popupBounds.bottom &&
+		planeIconBounds.bottom > popupBounds.top;
 
-    const displayLine = !planeIconAndCoreIntersects;
+	const displayLine = !intersects;
 
-    // Increase the z-index of the popup when it is clicked
-    // To make sure it is on top of other popups
-    const onClick = (): void => {
-      if (zIndex < globalHighestZIndex) {
-        this.incrementZIndex();
-      }
-    };
-
-    return (
-      <Popup {...otherProperties} style={{
-        zIndex,
-        maxWidth: 'inherit',
-      }} className="max-w-none">
-        <div
-          className={`absolute z-[2] ${className ?? ''}`}
-          onMouseDown={onClick}
-          style={{
-            top: `${offsetY}px`,
-            left: `${offsetX}px`,
-          }}
-        >
-          <DraggableCore
-            nodeRef={this.nodeRef}
-            onStart={(event): void => this.onDragStart(event)}
-            onDrag={(event): void => this.onDrag(event)}
-            onStop={(): void => DraggablePopup.onStop()}
-            cancel={cancel}
-          >
-            <div ref={this.nodeRef}>
-              {children}
-            </div>
-          </DraggableCore>
-        </div>
-        <div
-          className="absolute z-[1] h-[1.5px] bg-white/50 origin-left"
-          style={{
-            display: displayLine ? 'block' : 'none',
-            top: 0,
-            left: 0,
-            width: `${width}px`,
-            transform: `rotate(${angle}rad)`,
-            background: color || 'rgba(255,255,255,0.5)',
-          }}
-        />
-      </Popup>
-    );
-  }
+	return (
+		<Popup
+			{...popupProps}
+			style={{
+				zIndex,
+				maxWidth: "inherit",
+			}}
+			className="max-w-none"
+		>
+			<div
+				className={`absolute z-[2] ${isDragging ? "cursor-grabbing" : ""} ${className ?? ""}`}
+				onMouseDown={handleClick}
+				style={{
+					top: `${offsetY}px`,
+					left: `${offsetX}px`,
+				}}
+			>
+				<DraggableCore
+					nodeRef={nodeRef}
+					onStart={handleDragStart}
+					onDrag={handleDrag}
+					onStop={handleDragStop}
+					cancel={cancel}
+				>
+					<div ref={nodeRef}>{children}</div>
+				</DraggableCore>
+			</div>
+			<div
+				className="absolute z-[1] h-[1.5px] bg-white/50 origin-left pointer-events-none"
+				style={{
+					display: displayLine ? "block" : "none",
+					top: `${lineStartY}px`,
+					left: `${lineStartX}px`,
+					width: `${adjustedLineLength}px`,
+					transform: `rotate(${lineAngle}rad)`,
+					background: color || "rgba(255,255,255,0.5)",
+				}}
+			/>
+		</Popup>
+	);
 }

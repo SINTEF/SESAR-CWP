@@ -9,6 +9,7 @@ import './frontendSimulationLogic';
 import ReactDOM from 'react-dom/client';
 
 import App from './App';
+import { DraggingProvider } from './contexts/DraggingContext';
 import reportWebVitals from './reportWebVitals';
 import * as state from './state';
 
@@ -16,7 +17,9 @@ import * as state from './state';
 // (will see if this causes problems) <React.StrictMode>
 const root = ReactDOM.createRoot(document.querySelector('#root') ?? document.body);
 root.render(
-  <App />,
+  <DraggingProvider>
+    <App />
+  </DraggingProvider>,
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -1,20 +1,21 @@
 import type { MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import * as maplibregl from "maplibre-gl";
 import React from "react";
-import type { ViewState } from "react-map-gl/maplibre";
+import type { MapRef, ViewState } from "react-map-gl/maplibre";
 import ReactMapGL, {
 	FullscreenControl,
 	NavigationControl,
 } from "react-map-gl/maplibre";
-
 import { cwpStore, distanceLineStore } from "../state";
+import { useMapImage } from "../useMapImage";
 import Agenda from "./Agenda";
 import Aircrafts from "./Aircrafts";
 import DistanceMarkers from "./DistanceMarkers";
 import DistanceMeasurements from "./DistanceMeasurements";
-import FixesPoint from "./FixesPoint";
+import FixesPoints from "./FixesPoints";
 import FlightRoutes from "./FlightRoutes";
 import HighlightedAircraft from "./HighlightedAircraft";
+import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
 import LimboAircrafts from "./LimboAircrafts";
 import Sectors from "./Sectors";
 import SpeedVectors from "./SpeedVectors";
@@ -34,7 +35,7 @@ const mapStyle: StyleSpecification = {
 	sources: {
 		countries: {
 			type: "geojson",
-			data: "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson",
+			data: "/countries.geojson",
 		},
 	},
 	layers: [
@@ -95,37 +96,70 @@ const initialViewState: Partial<ViewState> = {
 
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
 export default function Map() {
+	const [isMoving, setIsMoving] = React.useState(false);
+	const mapRef = React.useRef<MapRef>(null);
+	// const { isDragging } = useDragging();
+	const onMoveStart = (): void => {
+		if (!isMoving) {
+			setIsMoving(true);
+		}
+	};
+	const onMoveEnd = (): void => {
+		if (isMoving) {
+			setIsMoving(false);
+		}
+	};
+
+	useMapImage({
+		mapRef,
+		url: "/fixes.png",
+		name: "fixes",
+		sdf: true,
+	});
+
 	return (
-		<ReactMapGL
-			id="radar-map"
-			style={style}
-			initialViewState={initialViewState}
-			// maxBounds={maxBounds}
-			// mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json"
-			// mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-			// mapStyle="https://maps.geoapify.com/v1/styles/dark-matter-dark-grey/style.json?apiKey=332569cc796d4788a11275c2fdefb5b1"
-			mapStyle={mapStyle}
-			attributionControl={false}
-			mapLib={maplibregl}
-			onClick={handleMapClick}
-			renderWorldCopies={false}
-			// If rotation and pitch should be disabled:
-			// maxPitch={0}
-			// pitchWithRotate={false}
-			// dragRotate={false}
+		<div
+			className={
+				isMoving /*|| isDragging*/
+					? "radar-map-container map-is-moving"
+					: "radar-map-container"
+			}
 		>
-			<DistanceMarkers />
-			<DistanceMeasurements />
-			<Sectors />
-			<FixesPoint />
-			<FlightRoutes />
-			<SpeedVectors />
-			<Aircrafts />
-			<HighlightedAircraft />
-			<LimboAircrafts />
-			<Agenda />
-			<NavigationControl position="bottom-left" visualizePitch={true} />
-			<FullscreenControl position="bottom-left" containerId="root" />
-		</ReactMapGL>
+			<ReactMapGL
+				ref={mapRef}
+				id="radar-map"
+				style={style}
+				initialViewState={initialViewState}
+				// maxBounds={maxBounds}
+				// mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json"
+				// mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+				// mapStyle="https://maps.geoapify.com/v1/styles/dark-matter-dark-grey/style.json?apiKey=332569cc796d4788a11275c2fdefb5b1"
+				mapStyle={mapStyle}
+				attributionControl={false}
+				mapLib={maplibregl}
+				onClick={handleMapClick}
+				onMoveStart={onMoveStart}
+				onMoveEnd={onMoveEnd}
+				renderWorldCopies={false}
+				// If rotation and pitch should be disabled:
+				// maxPitch={0}
+				// pitchWithRotate={false}
+				// dragRotate={false}
+			>
+				<DistanceMarkers />
+				<DistanceMeasurements />
+				<Sectors />
+				<FixesPoints />
+				<FlightRoutes />
+				<TrajectoryPredictionLines />
+				<SpeedVectors />
+				<Aircrafts />
+				<HighlightedAircraft />
+				<LimboAircrafts />
+				<Agenda />
+				<NavigationControl position="bottom-left" visualizePitch={true} />
+				<FullscreenControl position="bottom-left" containerId="root" />
+			</ReactMapGL>
+		</div>
 	);
 }

@@ -1,21 +1,27 @@
-import { observer } from 'mobx-react-lite';
+import { observer } from "mobx-react-lite";
+import React from "react";
 
-import { configurationStore } from '../state';
-import AircraftMarker from './AircraftMarker';
+import { configurationStore, cwpStore } from "../state";
+import AircraftMarker from "./AircraftMarker";
+import AircraftPopup from "./AircraftPopup";
 
 export default observer(function Aircrafts() {
-  const aircrafts = configurationStore.aircraftsWithinExtendedEdges;
+	const aircrafts = configurationStore.aircraftsWithinExtendedEdges;
+	const pseudo =
+		configurationStore.currentCWP === "All" || cwpStore.pseudoPilot;
 
-  return (<>
-    {aircrafts.map((aircraft) => {
-      const { aircraftId } = aircraft;
+	return (
+		<>
+			{aircrafts.map((aircraft) => {
+				const { aircraftId } = aircraft;
 
-      return (
-        <AircraftMarker
-          aircraft={aircraft}
-          key={aircraftId}
-        />
-      );
-    })}
-  </>);
+				return (
+					<React.Fragment key={aircraftId}>
+						<AircraftPopup aircraft={aircraft} pseudo={pseudo} />
+						<AircraftMarker aircraft={aircraft} />
+					</React.Fragment>
+				);
+			})}
+		</>
+	);
 });

@@ -1,14 +1,14 @@
 import { observer } from "mobx-react-lite";
 import { Marker } from "react-map-gl/maplibre";
+import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import {
-	// aircraftStore,
-	configurationStore,
 	cwpStore,
 	roleConfigurationStore,
+	trajectoryPredictionStore,
 } from "../state";
-import AircraftPopup from "./AircraftPopup";
+import DraggableMarker from "./DraggableMarker";
 
 // Memoized function to calculate hexagon points - cached for performance
 // Using numeric keys with bit shifting for optimal performance
@@ -66,13 +66,12 @@ export default observer(function AircraftMarker(properties: {
 		setHoveredMarkerAircraftId,
 		setFlightRouteForAircraft,
 		toggleSelectedAircraftId,
-		removeHoveredMarkerAircraftId,
 		selectedAircraftIds,
 	} = cwpStore;
-	const pseudo =
-		configurationStore.currentCWP === "All" || cwpStore.pseudoPilot;
+	const { isStillDragging } = useDragging();
 	const isHovered = hoveredMarkerAircraftId === aircraftId;
 	const history = positionHistory.slice(0, 8);
+	const isSelected = selectedAircraftIds.has(aircraftId);
 
 	const onClickOnAircraft = (): void => {
 		setFlightRouteForAircraft(aircraftId, true);
@@ -81,6 +80,9 @@ export default observer(function AircraftMarker(properties: {
 	};
 
 	const onHoverOnAircraft = (): void => {
+		if (isStillDragging()) {
+			return;
+		}
 		setFlightRouteForAircraft(aircraftId, true);
 		setHoveredMarkerAircraftId(aircraftId);
 	};
@@ -88,7 +90,39 @@ export default observer(function AircraftMarker(properties: {
 		if (!cwpStore.selectedAircraftIds.has(aircraftId)) {
 			cwpStore.setFlightRouteForAircraft(aircraftId, false);
 		}
-		removeHoveredMarkerAircraftId();
+		cwpStore.removeHoveredMarkerAircraftId();
+	};
+
+	const onDragStartAircraft = (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	): void => {
+		// Enable trajectory prediction and set this as the main aircraft
+		trajectoryPredictionStore.setEnabled(true);
+		trajectoryPredictionStore.setMainAircraft(aircraftId);
+		trajectoryPredictionStore.setDraggedHandlePosition(lat, lng);
+	};
+
+	const onDragAircraft = (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	): void => {
+		// Update the dragged handle position
+		trajectoryPredictionStore.setDraggedHandlePosition(lat, lng);
+	};
+
+	const onDragStopAircraft = (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	): void => {
+		// Disable trajectory prediction when drag ends
+		trajectoryPredictionStore.setEnabled(false);
 	};
 
 	return (
@@ -96,13 +130,17 @@ export default observer(function AircraftMarker(properties: {
 			{history.map((pos, index) => {
 				const size = 8 + (6 - index) * 2;
 				const opacity = 1;
+				const radius = (size - 5) / 2 - 1.5;
+				if (radius <= 0.5) {
+					return null;
+				}
 				return (
 					<Marker
 						key={`trail-${index}`}
 						longitude={pos.lon}
 						latitude={pos.lat}
 						className="cursor-pointer"
-						onClick={() => onClickOnAircraft()}
+						onClick={onClickOnAircraft}
 					>
 						<svg
 							width={size}
@@ -118,11 +156,11 @@ export default observer(function AircraftMarker(properties: {
 							onMouseEnter={onHoverOnAircraft}
 							onMouseLeave={onHoverOffAircraft}
 						>
-							{selectedAircraftIds.has(aircraftId) && index === 0 ? (
+							{isSelected && index === 0 ? (
 								<polygon
 									points={getRegularHexPoints(size, 1, 1.5)}
 									transform={`rotate(${bearing} ${size / 2} ${size / 2})`}
-									fill="transparent"
+									fill={isHovered ? "#00ffff" : "transparent"}
 									stroke={"#00ffff"}
 									strokeWidth="1.5"
 								></polygon>
@@ -130,8 +168,8 @@ export default observer(function AircraftMarker(properties: {
 							<circle
 								cx="50%"
 								cy="50%"
-								r={(size - 5) / 2 - 2}
-								fill={isHovered ? "#00ffff" : "none"}
+								r={radius}
+								fill={isHovered ? "#00ffff" : "transparent"}
 								stroke={
 									isHovered
 										? "#00ffff"
@@ -146,9 +184,21 @@ export default observer(function AircraftMarker(properties: {
 				);
 			})}
 
-			<Marker longitude={lon} latitude={lat}>
-				<AircraftPopup aircraft={properties.aircraft} pseudo={pseudo} />
-			</Marker>
+			{isSelected ? (
+				<DraggableMarker
+					longitude={lon}
+					latitude={lat}
+					onMouseEnter={onHoverOnAircraft}
+					onMouseLeave={onHoverOffAircraft}
+					onClick={onClickOnAircraft}
+					onDragStart={onDragStartAircraft}
+					onDrag={onDragAircraft}
+					onDragStop={onDragStopAircraft}
+					trackMousePosition={true}
+				>
+					<div className="w-6 h-6" />
+				</DraggableMarker>
+			) : null}
 		</>
 	);
 });
