@@ -21,7 +21,7 @@ export function getAircraftsWithFlightRoutes({
 	// Load list of aircrafts that must have flightroutes
 	const aircrafts = [...selectedAircraftIds]
 		.map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
-		// Remove unfound aircrafts and aircrafts thare are not in the altitude range
+		// Remove unfound aircrafts
 		.filter((aircraft): aircraft is AircraftModel => aircraft !== undefined);
 
 	return aircrafts

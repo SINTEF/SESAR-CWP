@@ -4,9 +4,9 @@ import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import {
-	// aircraftStore,
 	cwpStore,
 	roleConfigurationStore,
+	trajectoryPredictionStore,
 } from "../state";
 import DraggableMarker from "./DraggableMarker";
 
@@ -93,6 +93,38 @@ export default observer(function AircraftMarker(properties: {
 		cwpStore.removeHoveredMarkerAircraftId();
 	};
 
+	const onDragStartAircraft = (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	): void => {
+		// Enable trajectory prediction and set this as the main aircraft
+		trajectoryPredictionStore.setEnabled(true);
+		trajectoryPredictionStore.setMainAircraft(aircraftId);
+		trajectoryPredictionStore.setDraggedHandlePosition(lat, lng);
+	};
+
+	const onDragAircraft = (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	): void => {
+		// Update the dragged handle position
+		trajectoryPredictionStore.setDraggedHandlePosition(lat, lng);
+	};
+
+	const onDragStopAircraft = (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+	): void => {
+		// Disable trajectory prediction when drag ends
+		trajectoryPredictionStore.setEnabled(false);
+	};
+
 	return (
 		<>
 			{history.map((pos, index) => {
@@ -159,6 +191,10 @@ export default observer(function AircraftMarker(properties: {
 					onMouseEnter={onHoverOnAircraft}
 					onMouseLeave={onHoverOffAircraft}
 					onClick={onClickOnAircraft}
+					onDragStart={onDragStartAircraft}
+					onDrag={onDragAircraft}
+					onDragStop={onDragStopAircraft}
+					trackMousePosition={true}
 				>
 					<div className="w-6 h-6" />
 				</DraggableMarker>

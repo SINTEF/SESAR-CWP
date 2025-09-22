@@ -15,6 +15,7 @@ import DistanceMeasurements from "./DistanceMeasurements";
 import FixesPoints from "./FixesPoints";
 import FlightRoutes from "./FlightRoutes";
 import HighlightedAircraft from "./HighlightedAircraft";
+import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
 import LimboAircrafts from "./LimboAircrafts";
 import Sectors from "./Sectors";
 import SpeedVectors from "./SpeedVectors";
@@ -150,6 +151,7 @@ export default function Map() {
 				<Sectors />
 				<FixesPoints />
 				<FlightRoutes />
+				<TrajectoryPredictionLines />
 				<SpeedVectors />
 				<Aircrafts />
 				<HighlightedAircraft />
