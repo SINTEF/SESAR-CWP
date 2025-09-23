@@ -46,6 +46,7 @@ root.render(
 						canvasQuality: "0.2", // Lower quality to reduce data size
 					},
 				},
+				person_profiles: "always", // Ensure person profiles are always created
 			}}
 		>
 			{appContent}

@@ -37,6 +37,11 @@ export default observer(function ControllerModal() {
 		const previousController = controller;
 		configurationStore.setCurrentCWP(cwp);
 
+		posthog.setPersonProperties({
+			controller: cwp,
+			is_pseudo_pilot: isPseudoPilot,
+		});
+
 		posthog?.capture("controller_selected", {
 			previous_controller: previousController,
 			new_controller: cwp,
