@@ -18,22 +18,33 @@ import * as state from "./state";
 const root = ReactDOM.createRoot(
 	document.querySelector("#root") ?? document.body,
 );
+
+// Main app content
+const appContent = (
+	<DraggingProvider>
+		<App />
+	</DraggingProvider>
+);
+
+// Only wrap with PostHogProvider if we have a valid API key
 root.render(
-	<PostHogProvider
-		apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY || ""}
-		options={{
-			api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
-			defaults: "2025-05-24",
-			capture_exceptions: true, // This enables capturing exceptions using Error Tracking
-			debug: false, // Disabled to reduce console noise
-			disable_session_recording: false, // Ensure session recording is enabled
-			autocapture: true, // Capture all user interactions automatically
-		}}
-	>
-		<DraggingProvider>
-			<App />
-		</DraggingProvider>
-	</PostHogProvider>,
+	import.meta.env.VITE_PUBLIC_POSTHOG_KEY ? (
+		<PostHogProvider
+			apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+			options={{
+				api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+				defaults: "2025-05-24",
+				capture_exceptions: true, // This enables capturing exceptions using Error Tracking
+				debug: false, // Disabled to reduce console noise
+				disable_session_recording: false, // Ensure session recording is enabled
+				autocapture: true, // Capture all user interactions automatically
+			}}
+		>
+			{appContent}
+		</PostHogProvider>
+	) : (
+		appContent
+	),
 );
 
 // If you want to start measuring performance in your app, pass a function
