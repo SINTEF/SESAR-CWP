@@ -1,3 +1,4 @@
+import { usePostHog } from "posthog-js/react";
 import AltitudeFilterPanel from "./components/AltitudeFilterPanel";
 import ControllerModal from "./components/ControllerModal";
 import Draggable2DView from "./components/Draggable2DView";
@@ -6,6 +7,7 @@ import ImageConfiguration from "./components/ImageConfiguration";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
 import Map from "./components/Map";
 import MqttIndicators from "./components/MqttIndicators";
+import clientId from "./mqtt-client/clientId";
 
 // Might be reused for DIALOG
 // const onLayoutChange = throttle(166, (): void => {
@@ -15,6 +17,8 @@ import MqttIndicators from "./components/MqttIndicators";
 // });
 
 export default function App(/* properties */) {
+	const posthog = usePostHog();
+	posthog.group("clientId", clientId);
 	return (
 		<>
 			<main>

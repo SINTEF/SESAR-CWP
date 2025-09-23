@@ -16,15 +16,22 @@ interface DraggableMarkerProps {
 		offsetY: number,
 		lng: number,
 		lat: number,
+		event?: React.MouseEvent | MouseEvent,
 	) => void;
-	onDrag?: (offsetX: number, offsetY: number, lng: number, lat: number) => void;
+	onDrag?: (
+		offsetX: number,
+		offsetY: number,
+		lng: number,
+		lat: number,
+		event?: React.MouseEvent | MouseEvent,
+	) => void;
 	onDragStop?: (
 		offsetX: number,
 		offsetY: number,
 		lng: number,
 		lat: number,
+		event?: React.MouseEvent | MouseEvent,
 	) => void;
-	trackMousePosition?: boolean; // When true, lat/lng represents mouse cursor position
 }
 
 const DEFAULT_OFFSET_X = -12;
@@ -42,7 +49,6 @@ export default function DraggableMarker({
 	onDragStart,
 	onDrag,
 	onDragStop,
-	trackMousePosition = false,
 }: DraggableMarkerProps) {
 	const nodeRef = useRef<HTMLDivElement>(null);
 	const { current: map } = useMap();
@@ -78,26 +84,6 @@ export default function DraggableMarker({
 		return { lng: newLngLat.lng, lat: newLngLat.lat };
 	};
 
-	// Utility function to calculate longitude/latitude from mouse position
-	const calculateMousePosition = (clientX: number, clientY: number) => {
-		if (!map) {
-			return null;
-		}
-
-		// Get the map container element and its position on screen
-		const canvas = map.getCanvas();
-		const rect = canvas.getBoundingClientRect();
-
-		// Convert client coordinates to map container coordinates
-		const x = clientX - rect.left;
-		const y = clientY - rect.top;
-
-		// Unproject to get lat/lng at mouse position
-		const newLngLat = map.unproject([x, y]);
-
-		return { lng: newLngLat.lng, lat: newLngLat.lat };
-	};
-
 	const handleDragStart = (event: DraggableEvent): void => {
 		if (!("clientX" in event && "clientY" in event)) {
 			return;
@@ -112,11 +98,15 @@ export default function DraggableMarker({
 
 		// Calculate new position if callback exists
 		if (onDragStart) {
-			const newPosition = trackMousePosition
-				? calculateMousePosition(clientX, clientY)
-				: calculateNewPosition(offsetX, offsetY);
+			const newPosition = calculateNewPosition(offsetX, offsetY);
 			if (newPosition) {
-				onDragStart(offsetX, offsetY, newPosition.lng, newPosition.lat);
+				onDragStart(
+					offsetX,
+					offsetY,
+					newPosition.lng,
+					newPosition.lat,
+					event as React.MouseEvent | MouseEvent,
+				);
 			}
 		}
 
@@ -136,11 +126,15 @@ export default function DraggableMarker({
 
 		// Calculate new position if callback exists
 		if (onDrag) {
-			const newPosition = trackMousePosition
-				? calculateMousePosition(clientX, clientY)
-				: calculateNewPosition(newOffsetX, newOffsetY);
+			const newPosition = calculateNewPosition(newOffsetX, newOffsetY);
 			if (newPosition) {
-				onDrag(newOffsetX, newOffsetY, newPosition.lng, newPosition.lat);
+				onDrag(
+					newOffsetX,
+					newOffsetY,
+					newPosition.lng,
+					newPosition.lat,
+					event as React.MouseEvent | MouseEvent,
+				);
 			}
 		}
 	};
@@ -157,21 +151,14 @@ export default function DraggableMarker({
 
 		// Calculate final position if callback exists
 		if (onDragStop) {
-			let newPosition;
-			if (trackMousePosition && "clientX" in event && "clientY" in event) {
-				// Use mouse position if tracking is enabled and event has coordinates
-				newPosition = calculateMousePosition(event.clientX, event.clientY);
-			} else {
-				// Fallback to element center position
-				newPosition = calculateNewPosition(finalOffsetX, finalOffsetY);
-			}
-
+			const newPosition = calculateNewPosition(finalOffsetX, finalOffsetY);
 			if (newPosition) {
 				onDragStop(
 					finalOffsetX,
 					finalOffsetY,
 					newPosition.lng,
 					newPosition.lat,
+					event as React.MouseEvent | MouseEvent,
 				);
 			}
 		}
