@@ -10,6 +10,7 @@ import { PostHogProvider } from "posthog-js/react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { DraggingProvider } from "./contexts/DraggingContext";
+import { interceptPostHogEvent } from "./posthog-interceptor";
 import reportWebVitals from "./reportWebVitals";
 import * as state from "./state";
 
@@ -47,6 +48,8 @@ root.render(
 					},
 				},
 				person_profiles: "always", // Ensure person profiles are always created
+				// Intercept all events before they're sent to PostHog
+				before_send: interceptPostHogEvent,
 			}}
 		>
 			{appContent}
