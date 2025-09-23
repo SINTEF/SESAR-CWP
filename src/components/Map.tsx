@@ -66,6 +66,12 @@ const style: React.CSSProperties = {
 	background: "grey",
 };
 
+const CANVAS_CONTEXT_ATTRIBUTES: WebGLContextAttributes = {
+	// preserveDrawingBuffer is required to make map screenshots work with PostHog
+	// But it has a performance impact, so we only enable it when PostHog is enabled
+	preserveDrawingBuffer: !!import.meta.env.VITE_PUBLIC_POSTHOG_KEY,
+};
+
 const createMapClickHandler =
 	(posthog: ReturnType<typeof usePostHog>) =>
 	(event: MapMouseEvent): void => {
@@ -181,6 +187,7 @@ export default function Map() {
 				// maxPitch={0}
 				// pitchWithRotate={false}
 				// dragRotate={false}
+				canvasContextAttributes={CANVAS_CONTEXT_ATTRIBUTES}
 			>
 				<DistanceMarkers />
 				<DistanceMeasurements />

@@ -38,6 +38,14 @@ root.render(
 				debug: false, // Disabled to reduce console noise
 				disable_session_recording: false, // Ensure session recording is enabled
 				autocapture: true, // Capture all user interactions automatically
+				capture_dead_clicks: true,
+				session_recording: {
+					captureCanvas: {
+						recordCanvas: true,
+						canvasFps: 1, // Capture at 1 frame per second to reduce performance impact
+						canvasQuality: "0.2", // Lower quality to reduce data size
+					},
+				},
 			}}
 		>
 			{appContent}
