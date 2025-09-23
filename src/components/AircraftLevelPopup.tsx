@@ -1,4 +1,3 @@
-import classnames from "classnames";
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import React from "react";
@@ -28,17 +27,29 @@ function ListOfLevels(properties: {
 	for (let index = 560; index > 200; index -= 10) {
 		const isWithinRange =
 			hasLevel && index >= bottomFlightLevel && index <= topFlightLevel;
+		const isSelected = index === value;
+
 		rows.push(
 			<button
 				key={index}
 				onClick={(): void => onClick(index)}
-				className={classnames("btn btn-ghost btn-sm text-xs", {
-					"text-green-400 font-bold": isWithinRange,
-					"btn-active": index === value,
-				})}
+				className={`
+                    w-full px-0 py-1 text-xs 
+                    bg-[#1e3a5f] text-white
+                    hover:bg-[#4b90db]
+                    border-none outline-none
+                    flex items-center justify-center
+                    ${isWithinRange ? "font-bold" : ""}
+                `}
 				data-level={index}
 			>
-				{index}
+				{isSelected ? (
+					<>
+						<span>&gt;</span>&nbsp;{index}&nbsp;<span>&lt;</span>
+					</>
+				) : (
+					index
+				)}
 			</button>,
 		);
 	}
@@ -176,14 +187,24 @@ export default observer(function AircraftLevelPopup(properties: {
 
 	return (
 		<div
-			className={classnames("w-[150px] h-fit bg-gray-700/50 rounded-sm p-1", {
-				"border-2 border-green-400": accepted,
-			})}
+			className={`
+			w-[80px] bg-[#1e3a5f] p-0 shadow-lg
+			${accepted ? "border-2 border-green-400" : ""}
+		`}
+			style={{ borderRadius: 0 }}
 		>
-			<div className="text-center font-bold">{callSign}</div>
-			<div className="flex">
+			<div className="text-center font-bold text-xs py-1 bg-black text-white">
+				{callSign}
+			</div>
+			<div className="flex flex-col">
+				<button
+					onClick={(): void => FlightLevelChange("up")}
+					className="btn btn-ghost btn-xs text-xs"
+				>
+					⮝
+				</button>
 				<div
-					className="w-1/2 text-center snap-y snap-mandatory h-52 overflow-y-scroll scrollbar-hide"
+					className="snap-y snap-mandatory h-40 overflow-y-scroll scrollbar-hide bg-[#1e3a5f]"
 					ref={listOfLevelsReference}
 				>
 					<ListOfLevels
@@ -193,31 +214,12 @@ export default observer(function AircraftLevelPopup(properties: {
 						bottomFlightLevel={bottomFlightLevel}
 					/>
 				</div>
-				<div className="w-1/2 flex flex-col">
-					<button
-						onClick={(): void => FlightLevelChange("up")}
-						className="btn btn-ghost btn-xs text-xs"
-					>
-						⮝
-					</button>
-					<input
-						className="range range-vertical flex-grow w-full"
-						type="range"
-						value={flightLevel}
-						onChange={(event): void =>
-							setFlightLevel(Number.parseInt(event.target.value, 10) || 0)
-						}
-						step={sliderStep}
-						min={flightLevelMin}
-						max={flightLevelMax}
-					/>
-					<button
-						onClick={(): void => FlightLevelChange("down")}
-						className="btn btn-ghost btn-xs text-xs"
-					>
-						⮟
-					</button>
-				</div>
+				<button
+					onClick={(): void => FlightLevelChange("down")}
+					className="btn btn-ghost btn-xs text-xs"
+				>
+					⮟
+				</button>
 			</div>
 			<div className="flex gap-0.5 mt-1">
 				<button
