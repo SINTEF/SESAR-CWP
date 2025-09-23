@@ -43,7 +43,7 @@ root.render(
 					captureCanvas: {
 						recordCanvas: true,
 						canvasFps: 1, // Capture at 1 frame per second to reduce performance impact
-						canvasQuality: "0.2", // Lower quality to reduce data size
+						canvasQuality: "0.5", // 0.4 by default
 					},
 				},
 				person_profiles: "always", // Ensure person profiles are always created

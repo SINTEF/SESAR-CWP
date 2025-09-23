@@ -7,23 +7,18 @@ import { observer } from "mobx-react-lite";
 import { Layer, Source } from "react-map-gl/maplibre";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
-import {
-	aircraftStore,
-	cwpStore,
-	simulatorStore,
-	trajectoryPredictionStore,
-} from "../state";
+import { aircraftStore, cwpStore, trajectoryPredictionStore } from "../state";
 
 function buildPredictedTrajectories(
 	selectedAircrafts: AircraftModel[],
 	mainAircraftId: string | null,
 	futureTime: number,
-	draggedHandleLat: number,
-	draggedHandleLon: number,
+	mouseLat: number,
+	mouseLon: number,
 ): GeoJSON.Feature[] {
 	const features: GeoJSON.Feature[] = [];
 
-	// Add dotted line from main aircraft to dragged handle
+	// Add dotted line from main aircraft to mouse position
 	if (mainAircraftId) {
 		const mainAircraft = selectedAircrafts.find(
 			(a) => a.aircraftId === mainAircraftId,
@@ -38,96 +33,43 @@ function buildPredictedTrajectories(
 					type: "LineString",
 					coordinates: [
 						[mainAircraft.lastKnownLongitude, mainAircraft.lastKnownLatitude],
-						[draggedHandleLon, draggedHandleLat],
+						[mouseLon, mouseLat],
 					],
 				},
 			});
 		}
 	}
 
+	// Build trajectory lines for each aircraft
 	for (const aircraft of selectedAircrafts) {
-		const currentPosition = [
-			aircraft.lastKnownLongitude,
-			aircraft.lastKnownLatitude,
-		];
-		const futurePosition = trajectoryPredictionStore.getAircraftPositionAtTime(
+		const trajectory = trajectoryPredictionStore.getPredictedTrajectory(
 			aircraft.aircraftId,
 			futureTime,
 		);
 
-		if (!futurePosition) {
+		if (!trajectory || trajectory.length < 2) {
 			continue;
 		}
 
-		// Get the flight route for this aircraft
-		const flightRoute = aircraftStore.flightRoutes.get(
-			aircraft.assignedFlightId,
-		);
-		if (flightRoute) {
-			// Get trajectory points between current time and future time
-			const currentTime = simulatorStore.timestamp;
-			const trajectoryPoints = flightRoute.trajectory.filter(
-				(t) => t.timestamp >= currentTime && t.timestamp <= futureTime,
-			);
+		// Add the trajectory line
+		features.push({
+			type: "Feature",
+			properties: {
+				isDottedLine: false,
+			},
+			geometry: {
+				type: "LineString",
+				coordinates: trajectory,
+			},
+		});
 
-			// Build coordinates following the flight route
-			const routeCoordinates: number[][] = [currentPosition];
-
-			// Add all intermediate trajectory points
-			for (const trajectory of trajectoryPoints) {
-				routeCoordinates.push([
-					trajectory.trajectoryCoordinate.longitude,
-					trajectory.trajectoryCoordinate.latitude,
-				]);
-			}
-
-			// Add the interpolated future position at the exact future time
-			const futureLonLat = [futurePosition.lon, futurePosition.lat];
-
-			// Only add if it's different from the last trajectory point
-			const lastPoint = routeCoordinates[routeCoordinates.length - 1];
-			if (
-				lastPoint[0] !== futureLonLat[0] ||
-				lastPoint[1] !== futureLonLat[1]
-			) {
-				routeCoordinates.push(futureLonLat);
-			}
-
-			// Line following the flight route
-			if (routeCoordinates.length > 1) {
-				features.push({
-					type: "Feature",
-					properties: {
-						isDottedLine: false,
-					},
-					geometry: {
-						type: "LineString",
-						coordinates: routeCoordinates,
-					},
-				});
-			}
-		} else {
-			// Fallback to straight line if no flight route
-			const futureLonLat = [futurePosition.lon, futurePosition.lat];
-			features.push({
-				type: "Feature",
-				properties: {
-					isDottedLine: false,
-				},
-				geometry: {
-					type: "LineString",
-					coordinates: [currentPosition, futureLonLat],
-				},
-			});
-		}
-
-		// Point at future position
-		const futureLonLat = [futurePosition.lon, futurePosition.lat];
+		// Add point at future position (last point of trajectory)
+		const futurePosition = trajectory[trajectory.length - 1];
 		features.push({
 			type: "Feature",
 			geometry: {
 				type: "Point",
-				coordinates: futureLonLat,
+				coordinates: futurePosition,
 			},
 			properties: {
 				title: aircraft.callSign,
@@ -204,8 +146,8 @@ export default observer(function TrajectoryPredictionLines() {
 		selectedAircrafts,
 		trajectoryPredictionStore.mainAircraftId,
 		trajectoryPredictionStore.computedFutureTime,
-		trajectoryPredictionStore.draggedHandleLat,
-		trajectoryPredictionStore.draggedHandleLon,
+		trajectoryPredictionStore.mouseLat,
+		trajectoryPredictionStore.mouseLon,
 	);
 
 	// Separate features into dotted and solid lines

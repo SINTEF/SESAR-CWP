@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
-import { Marker } from "react-map-gl/maplibre";
+import { Marker, useMap } from "react-map-gl/maplibre";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
@@ -120,16 +120,44 @@ export default observer(function AircraftMarker(properties: {
 		});
 	};
 
+	const { current: map } = useMap();
+
+	// Utility function to calculate mouse position from event
+	const calculateMousePosition = (
+		event: React.MouseEvent | MouseEvent,
+	): { lat: number; lng: number } | null => {
+		if (!map) {
+			return null;
+		}
+
+		const canvas = map.getCanvas();
+		const rect = canvas.getBoundingClientRect();
+		const x = event.clientX - rect.left;
+		const y = event.clientY - rect.top;
+		const lngLat = map.unproject([x, y]);
+
+		return { lat: lngLat.lat, lng: lngLat.lng };
+	};
+
 	const onDragStartAircraft = (
-		offsetX: number,
-		offsetY: number,
+		_offsetX: number,
+		_offsetY: number,
 		lng: number,
 		lat: number,
+		event?: React.MouseEvent | MouseEvent,
 	): void => {
 		// Enable trajectory prediction and set this as the main aircraft
 		trajectoryPredictionStore.setEnabled(true);
 		trajectoryPredictionStore.setMainAircraft(aircraftId);
 		trajectoryPredictionStore.setDraggedHandlePosition(lat, lng);
+
+		// Set mouse position if event is available
+		if (event) {
+			const mousePos = calculateMousePosition(event);
+			if (mousePos) {
+				trajectoryPredictionStore.setMousePosition(mousePos.lat, mousePos.lng);
+			}
+		}
 
 		posthog?.capture("aircraft_drag_start", {
 			aircraft_id: aircraftId,
@@ -144,18 +172,27 @@ export default observer(function AircraftMarker(properties: {
 	};
 
 	const onDragAircraft = (
-		offsetX: number,
-		offsetY: number,
+		_offsetX: number,
+		_offsetY: number,
 		lng: number,
 		lat: number,
+		event?: React.MouseEvent | MouseEvent,
 	): void => {
 		// Update the dragged handle position
 		trajectoryPredictionStore.setDraggedHandlePosition(lat, lng);
+
+		// Update mouse position if event is available
+		if (event) {
+			const mousePos = calculateMousePosition(event);
+			if (mousePos) {
+				trajectoryPredictionStore.setMousePosition(mousePos.lat, mousePos.lng);
+			}
+		}
 	};
 
 	const onDragStopAircraft = (
-		offsetX: number,
-		offsetY: number,
+		_offsetX: number,
+		_offsetY: number,
 		lng: number,
 		lat: number,
 	): void => {
@@ -246,7 +283,6 @@ export default observer(function AircraftMarker(properties: {
 					onDragStart={onDragStartAircraft}
 					onDrag={onDragAircraft}
 					onDragStop={onDragStopAircraft}
-					trackMousePosition={true}
 				>
 					<div className="w-6 h-6" />
 				</DraggableMarker>

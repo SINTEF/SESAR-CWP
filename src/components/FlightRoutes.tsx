@@ -61,13 +61,13 @@ const paintLine: LineLayerSpecification["paint"] = {
 
 const paintCircle: CircleLayerSpecification["paint"] = {
 	"circle-color": "#00FFFF",
-	"circle-radius": 1.5,
+	"circle-radius": 2.5,
 };
 
 const paintSymbol: SymbolLayerSpecification["paint"] = {
 	"text-color": "#00FFFF",
-	"text-halo-color": "#000",
-	"text-halo-width": 0,
+	"text-halo-color": "#3E3E3E",
+	"text-halo-width": 1,
 };
 
 const layoutSymbol: SymbolLayerSpecification["layout"] = {
