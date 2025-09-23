@@ -51,6 +51,8 @@ jobs:
           build-args: |
             NODE_OPTIONS=--max-old-space-size=6000
             MQTT_BROKER_URL=${{ secrets.MQTT_BROKER_URL }}
+            PUBLIC_POSTHOG_KEY=${{ secrets.PUBLIC_POSTHOG_KEY }}
+            PUBLIC_POSTHOG_HOST=${{ secrets.PUBLIC_POSTHOG_HOST }}
             BUILDTIME=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta-main.outputs.json).labels['org.opencontainers.image.revision'] }}
