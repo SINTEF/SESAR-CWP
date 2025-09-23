@@ -46,10 +46,6 @@
 	text-orientation: upright;
 }
 
-@utility slider-vertical {
-	-webkit-appearance: slider-vertical;
-}
-
 @utility scrollbar-hide {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
@@ -59,9 +55,8 @@
 }
 
 @utility range-vertical {
-	writing-mode: bt-lr;
-	-webkit-appearance: slider-vertical;
-	width: 100%;
+	writing-mode: vertical-lr;
+	direction: rtl;
 }
 
 /* Maplibre/Mapbox popup customizations for draggable popup */
@@ -117,8 +112,8 @@ div#root {
 
 /* Range input styles - keeping for vertical slider */
 input[type="range"].range-vertical {
-	-webkit-appearance: slider-vertical;
-	appearance: slider-vertical;
+	writing-mode: vertical-lr;
+	direction: rtl;
 	height: 80px;
 }
 
