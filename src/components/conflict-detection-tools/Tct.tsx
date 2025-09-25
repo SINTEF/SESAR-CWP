@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 const BLINK_INTERVAL = 500; // ms
 
-export default observer(function Stca() {
+export default observer(function Tct() {
 	const [blink, setBlink] = useState(false);
 
 	useEffect(() => {
@@ -25,5 +25,5 @@ export default observer(function Stca() {
 		transition: "background-color 0.2s, color 0.2s, border-color 0.2s",
 	} as React.CSSProperties;
 
-	return <div style={style}>STCA</div>;
+	return <div style={style}>TCT</div>;
 });

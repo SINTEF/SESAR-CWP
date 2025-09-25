@@ -10,6 +10,7 @@ import {
 } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 import Stca from "./conflict-detection-tools/Stca";
+import Tct from "./conflict-detection-tools/Tct";
 
 type SubContentProperties = {
 	aircraft: AircraftModel;
@@ -173,6 +174,7 @@ export const NextACCFlightLevel = observer(
 export default observer(function AircraftContentSmall(properties: {
 	aircraft: AircraftModel;
 	flightColor: string;
+	width: number;
 }) {
 	const { aircraft, flightColor } = properties;
 	const currentSector = roleConfigurationStore.currentControlledSector;
@@ -182,7 +184,8 @@ export default observer(function AircraftContentSmall(properties: {
 				<tr>
 					<td className="flex flex-row">
 						{Math.round(aircraft.lastKnownSpeed)}
-						{aircraftStore.stcaConflictIds.has(aircraft.aircraftId) && <Stca />}
+						{aircraftStore.hasStcaConflict(aircraft.aircraftId) && <Stca />}
+						{aircraftStore.hasTctConflict(aircraft.aircraftId) && <Tct />}
 					</td>
 				</tr>
 				<tr>

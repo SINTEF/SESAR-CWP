@@ -287,6 +287,9 @@ export default observer(function AircraftMarker(properties: {
 					<div className="w-6 h-6" />
 				</DraggableMarker>
 			) : null}
+			{/* <Marker longitude={lon} latitude={lat}>
+				<AircraftPopup aircraft={properties.aircraft} pseudo={pseudo} />
+			</Marker> */}
 		</>
 	);
 });

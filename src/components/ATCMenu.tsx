@@ -93,7 +93,7 @@ export default observer(function ATCMenu(properties: {
 	};
 
 	return (
-		<div className="bg-gray-800 p-4 w-36 text-gray-200 font-sans flex flex-col items-center">
+		<div className="bg-gray-800 p-4 w-36 text-gray-200 font-sans flex flex-col items-center z-5000">
 			<div className="space-y-2 w-full">
 				<div className="space-y-2 w-full">
 					{controlledBy === configurationStore.currentCWP && (

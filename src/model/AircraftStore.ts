@@ -1,4 +1,4 @@
-import type { ObservableMap, ObservableSet } from "mobx";
+import type { ObservableMap } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
 import type {
 	FlightConflictUpdateMessage,
@@ -44,9 +44,20 @@ export default class AircraftStore {
 
 	simulatorStore: SimulatorStore;
 
-	stcaConflictIds: ObservableSet<string> = observable.set(undefined, {
-		deep: false,
-	});
+	stcaConflictIds: ObservableMap<string, FlightConflictUpdateMessage> =
+		observable.map(undefined, {
+			deep: false,
+		});
+
+	mtcdConflictIds: ObservableMap<string, FlightConflictUpdateMessage> =
+		observable.map(undefined, {
+			deep: false,
+		});
+
+	tctConflictIds: ObservableMap<string, FlightConflictUpdateMessage> =
+		observable.map(undefined, {
+			deep: false,
+		});
 
 	constructor({
 		simulatorStore,
@@ -305,17 +316,44 @@ export default class AircraftStore {
 			return;
 		}
 		switch (flightConflictUpdate.conflictUpdate) {
-			case 0: // New conflict
+			case 0: // New Conflict
+			case 1: // Update conflict
 				switch (flightConflictUpdate.conflictType) {
 					case 0: // STCA Conflict
-						this.stcaConflictIds.add(flight1);
-						this.stcaConflictIds.add(flight2);
+						this.stcaConflictIds.set(
+							flightConflictUpdate.id.toString(),
+							flightConflictUpdate,
+						);
 						break;
 					case 1: // TCT Conflict
-						// TCT Conflict
+						this.tctConflictIds.set(
+							flightConflictUpdate.id.toString(),
+							flightConflictUpdate,
+						);
+						break;
+					case 2: // MTCD Conflict
+						this.mtcdConflictIds.set(
+							flightConflictUpdate.id.toString(),
+							flightConflictUpdate,
+						);
+						break;
+					default:
+						// Handle unexpected conflictType values
+						break;
+				}
+				break;
+
+			case 2: // Conflict cleared
+				switch (flightConflictUpdate.conflictType) {
+					case 0: // STCA Conflict cleared
+						this.stcaConflictIds.delete(flightConflictUpdate.id.toString());
+						break;
+					case 1: // TCT Conflict
+						this.tctConflictIds.delete(flightConflictUpdate.id.toString());
 						break;
 					case 2: // MTCD Conflict
 						// MTCD Conflict
+						this.mtcdConflictIds.delete(flightConflictUpdate.id.toString());
 						break;
 					default:
 						// Handle unexpected conflictType values
@@ -323,22 +361,44 @@ export default class AircraftStore {
 				}
 				break;
 			default:
-				switch (flightConflictUpdate.conflictType) {
-					case 0: // STCA Conflict cleared
-						this.stcaConflictIds.delete(flight1);
-						this.stcaConflictIds.delete(flight2);
-						break;
-					case 1: // TCT Conflict
-						// TCT Conflict
-						break;
-					case 2: // MTCD Conflict
-						// MTCD Conflict
-						break;
-					default:
-						// Handle unexpected conflictType values
-						break;
-				}
+				// Handle unexpected conflictUpdate values
 				break;
 		}
+	}
+
+	// Helper extractors for conflict maps that currently store FlightConflictUpdateMessage objects
+	private conflictSetHasFlight(
+		map: ObservableMap<string, FlightConflictUpdateMessage>,
+		flightId: string,
+	): boolean {
+		for (const msg of map.values()) {
+			if (msg.flightId === flightId || msg.conflictingFlightId === flightId) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	hasStcaConflict(flightId: string): boolean {
+		return this.conflictSetHasFlight(this.stcaConflictIds, flightId);
+	}
+	hasTctConflict(flightId: string): boolean {
+		return this.conflictSetHasFlight(this.tctConflictIds, flightId);
+	}
+	hasMtcdConflict(flightId: string): boolean {
+		return this.conflictSetHasFlight(this.mtcdConflictIds, flightId);
+	}
+
+	getMtcdConflictFlightIds(): string[] {
+		const ids = new Set<string>();
+		for (const msg of this.mtcdConflictIds.values()) {
+			if (msg.flightId) {
+				ids.add(msg.flightId);
+			}
+			if (msg.conflictingFlightId) {
+				ids.add(msg.conflictingFlightId);
+			}
+		}
+		return [...ids];
 	}
 }

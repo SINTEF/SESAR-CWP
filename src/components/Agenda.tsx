@@ -1,4 +1,8 @@
+import { observer } from "mobx-react-lite";
 import React from "react";
+// import type { FlightConflictUpdateMessage } from "../proto/ProtobufAirTrafficSimulator";
+import { aircraftStore, simulatorStore } from "../state";
+import { convertMetersToFlightLevel } from "../utils";
 
 /**
  * VerticalTimeline — Tailwind + DaisyUI
@@ -14,7 +18,7 @@ export type TimelineEvent = {
 	id: string;
 	startMin: number; // minutes from the top of the window
 	endMin: number; // minutes from the top of the window
-	code: string; // the orange badge text
+	code: string | undefined; // the orange badge text
 	labels: string[]; // lines of text inside the chip
 };
 
@@ -30,23 +34,42 @@ const MAJOR_ROWS = 6;
 const MINUTES_PER_ROW = 60; // one hour rows
 
 // Example data
-const SAMPLE_EVENTS: TimelineEvent[] = [
-	{
-		id: "e1",
-		startMin: 60 + 6, // 1:06 from top of window
-		endMin: 60 + 20, // 1:20
-		code: "380",
-		labels: ["TUI1FX", "TAR718"],
-	},
-];
+// const SAMPLE_EVENTS: TimelineEvent[] = [
+// 	{
+// 		id: "e1",
+// 		startMin: 60 + 6, // 1:06 from top of window
+// 		endMin: 60 + 20, // 1:20
+// 		code: "380",
+// 		labels: ["TUI1FX", "TAR718"],
+// 	},
+// ];
 
-export default function Agenda({
-	events = SAMPLE_EVENTS,
-	startLabel = "09:11",
+export default observer(function Agenda({
+	events = [],
+	startLabel = simulatorStore.timestamp.toLocaleString(),
 }: {
 	events?: TimelineEvent[];
 	startLabel?: string;
 }) {
+	const { tctConflictIds } = aircraftStore; // Will be MTCD in future
+
+	const datablocks: TimelineEvent[] = Array.from(tctConflictIds.entries()).map(
+		([_, conflict]) => ({
+			id: conflict.id.toString(),
+			startMin: 60 + 6, // 1:06 from top of window - will be conflict.conflictingFlightPosition?.time
+			endMin: 60 + 20, // 1:20
+			code:
+				conflict.conflictingFlightPosition?.altitude !== undefined
+					? String(
+							convertMetersToFlightLevel(
+								conflict.conflictingFlightPosition.altitude,
+							),
+						)
+					: undefined,
+			labels: [conflict.callSign, conflict.conflictingFlightCallSign],
+		}),
+	);
+
 	// Grid height in minutes
 	const WINDOW_MINUTES = MAJOR_ROWS * MINUTES_PER_ROW;
 	const gridStyle: React.CSSProperties = {
@@ -54,7 +77,7 @@ export default function Agenda({
 	};
 
 	return (
-		<div className="fixed right-0 top-0 h-screen w-44 bg-base-300 text-base-content border-l border-base-200">
+		<div className="fixed right-0 top-0 h-screen w-44 bg-base-300 text-base-content border-l border-base-200 z-500">
 			{/* Bottom time label (on right side) */}
 			<div className="absolute bottom-1 right-1 text-[10px] text-base-content/70 select-none">
 				{startLabel}
@@ -102,7 +125,37 @@ export default function Agenda({
 						</article>
 					);
 				})}
+				{datablocks.map((ev) => {
+					const topRow = clamp(Math.floor(ev.startMin) + 1, 1);
+					const bottomRow = clamp(Math.ceil(ev.endMin) + 1, topRow + 1);
+					return (
+						<article
+							key={ev.id}
+							className="relative mx-1 mt-[2px] rounded-xl border border-primary/60 bg-primary/15 shadow-sm backdrop-blur-[1px]"
+							style={{ gridRow: `${topRow} / ${bottomRow}` }}
+						>
+							<div className="flex items-stretch overflow-hidden rounded-xl">
+								{/* Left rail */}
+								<div className="w-1.5 bg-primary rounded-l-xl my-1 ml-1" />
+
+								{/* Text */}
+								<div className="flex-1 px-2 py-1 leading-tight text-[10px] text-right">
+									{ev.labels.map((l, i) => (
+										<div key={i} className="truncate">
+											{l}
+										</div>
+									))}
+								</div>
+
+								{/* Right badge */}
+								<div className="badge badge-warning rounded-r-xl rounded-l-none font-bold text-[10px] px-2 py-1 my-auto mr-1">
+									{ev.code}
+								</div>
+							</div>
+						</article>
+					);
+				})}
 			</div>
 		</div>
 	);
-}
+});

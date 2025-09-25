@@ -147,7 +147,7 @@ export default observer(function AircraftPopup(properties: {
 
 	return (
 		<DraggablePopup
-			className="text-xs p-0 m-0 backdrop-blur-[1.5px]"
+			className="text-xs p-0 m-0 backdrop-blur-[1.5px] z-0"
 			style={{ color: flightColor }}
 			color={isHoveredMarker ? "#00FFFF" : flightColor}
 			offset={offset as DraggablePopupProperties["offset"]}
@@ -181,7 +181,11 @@ export default observer(function AircraftPopup(properties: {
 					onWheel={onWheel}
 					style={{ width: `${width}px`, height: `${height}px` }}
 				>
-					<Content flightColor={flightColor} aircraft={aircraft} />
+					<Content
+						flightColor={flightColor}
+						aircraft={aircraft}
+						width={width}
+					/>
 				</div>
 				<div className="pt-1">
 					<AircraftLevelPopup aircraft={aircraft} />
@@ -189,9 +193,10 @@ export default observer(function AircraftPopup(properties: {
 					<NextSectorPopup aircraft={aircraft} />
 					<ChangeSpeedPopup aircraft={aircraft} />
 					<ChangeBearingPopup aircraft={aircraft} />
-					<ATCMenu aircraft={aircraft} />
+					{/* <ATCMenu aircraft={aircraft} /> */}
 				</div>
 			</div>
+			<ATCMenu aircraft={properties.aircraft} />
 		</DraggablePopup>
 	);
 });

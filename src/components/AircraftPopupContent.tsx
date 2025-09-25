@@ -7,6 +7,7 @@ import { aircraftStore, cwpStore, roleConfigurationStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 import { Altitude, CallSign, NextSectorFL } from "./AircraftContentSmall";
 import Stca from "./conflict-detection-tools/Stca";
+import Tct from "./conflict-detection-tools/Tct";
 
 type SubContentProperties = {
 	aircraft: AircraftModel;
@@ -72,7 +73,8 @@ export default observer(function AircraftPopupContent(properties: {
 						{Math.round(aircraft.lastKnownSpeed)}
 					</td>
 					<td>
-						{aircraftStore.stcaConflictIds.has(aircraft.aircraftId) && <Stca />}
+						{aircraftStore.hasStcaConflict(aircraft.aircraftId) && <Stca />}
+						{aircraftStore.hasTctConflict(aircraft.aircraftId) && <Tct />}
 					</td>
 				</tr>
 				<tr>
