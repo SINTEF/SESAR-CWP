@@ -1,12 +1,9 @@
 {
+	"files": {
+		"includes": ["src/**/*", "!src/proto/**"]
+	},
 	"linter": {
 		"enabled": true,
-		"includes": [
-			"src/**/*",
-			"!src/proto/**/*",
-			"!src/proto/**/*",
-			"server/**/*.ts"
-		],
 		"rules": {
 			"a11y": {},
 			"complexity": {

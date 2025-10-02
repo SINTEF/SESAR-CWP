@@ -4,7 +4,8 @@ import { buffer } from "@turf/buffer";
 import { polygon } from "@turf/helpers";
 import type { Feature, Polygon } from "geojson";
 import type { ObservableMap } from "mobx";
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, reaction } from "mobx";
+import posthog from "posthog-js";
 import type {
 	AirspaceAvailabilityMessage,
 	AvailabilityIntervalsMessage,
@@ -48,6 +49,9 @@ export default class ConfigurationStore {
 
 	currentCWP = "";
 
+	/** Tracks aircraft IDs currently within extended edges for lifecycle events */
+	private trackedAircraftIds: Set<string> = new Set();
+
 	constructor({
 		aircraftStore,
 		airspaceStore,
@@ -73,6 +77,76 @@ export default class ConfigurationStore {
 		this.airspaceStore = airspaceStore;
 		this.simulatorStore = simulatorStore;
 		this.cwpStore = cwpStore;
+
+		// Setup aircraft lifecycle tracking
+		this.setupAircraftLifecycleTracking();
+	}
+
+	/**
+	 * Setup MobX reaction to track aircraft entering and leaving the visible area
+	 * Fires PostHog events with GPS coordinates for analytics
+	 */
+	private setupAircraftLifecycleTracking(): void {
+		reaction(
+			() => this.aircraftsWithinExtendedEdges.map((a) => a.aircraftId),
+			(currentIds) => {
+				const currentIdSet = new Set(currentIds);
+
+				// Detect aircraft that entered the view
+				for (const id of currentIds) {
+					if (!this.trackedAircraftIds.has(id)) {
+						const aircraft = this.aircraftsWithinExtendedEdges.find(
+							(a) => a.aircraftId === id,
+						);
+						if (aircraft) {
+							this.captureAircraftEnteredEvent(aircraft);
+						}
+					}
+				}
+
+				// Detect aircraft that left the view
+				for (const id of this.trackedAircraftIds) {
+					if (!currentIdSet.has(id)) {
+						// Aircraft has left - find it in the full aircraft store before it's gone
+						const aircraft = this.aircraftStore.aircrafts.get(id);
+						if (aircraft) {
+							this.captureAircraftLeftEvent(aircraft);
+						}
+					}
+				}
+
+				// Update tracked set
+				this.trackedAircraftIds = currentIdSet;
+			},
+		);
+	}
+
+	/**
+	 * Capture PostHog event when aircraft enters the visible area with valid coordinates
+	 */
+	private captureAircraftEnteredEvent(aircraft: AircraftModel): void {
+		posthog.capture("aircraft_entered_view", {
+			aircraftId: aircraft.aircraftId,
+			callSign: aircraft.callSign,
+			latitude: aircraft.lastKnownLatitude,
+			longitude: aircraft.lastKnownLongitude,
+			altitude: aircraft.lastKnownAltitude,
+			departureAirport: aircraft.departureAirport,
+			arrivalAirport: aircraft.arrivalAirport,
+		});
+	}
+
+	/**
+	 * Capture PostHog event when aircraft leaves the visible area
+	 */
+	private captureAircraftLeftEvent(aircraft: AircraftModel): void {
+		posthog.capture("aircraft_left_view", {
+			aircraftId: aircraft.aircraftId,
+			callSign: aircraft.callSign,
+			lastLatitude: aircraft.lastKnownLatitude,
+			lastLongitude: aircraft.lastKnownLongitude,
+			lastAltitude: aircraft.lastKnownAltitude,
+		});
 	}
 
 	handleNewAirspaceConfiguration(
