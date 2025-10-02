@@ -7,7 +7,7 @@ import ReactMapGL, {
 	FullscreenControl,
 	NavigationControl,
 } from "react-map-gl/maplibre";
-import { cwpStore, distanceLineStore } from "../state";
+import { cwpStore, distanceLineStore, mapViewportStore } from "../state";
 import { useMapImage } from "../useMapImage";
 import Agenda from "./Agenda";
 import Aircrafts from "./Aircrafts";
@@ -123,9 +123,28 @@ export default function Map() {
 	const [isMoving, setIsMoving] = React.useState(false);
 	const mapRef = React.useRef<MapRef>(null);
 	// const { isDragging } = useDragging();
+
+	// Set map reference for viewport store when available
+	React.useEffect(() => {
+		if (mapRef.current) {
+			mapViewportStore.setMapRef(mapRef.current);
+			// Initialize viewport state immediately when map is ready
+			mapViewportStore.updateViewportState();
+		}
+	}, []);
+
+	// Also set map reference when map loads (onLoad callback)
+	const onMapLoad = React.useCallback(() => {
+		if (mapRef.current) {
+			mapViewportStore.setMapRef(mapRef.current);
+			mapViewportStore.updateViewportState();
+		}
+	}, []);
+
 	const onMoveStart = (): void => {
 		if (!isMoving) {
 			setIsMoving(true);
+			mapViewportStore.setIsMoving(true);
 			posthog?.capture("map_move_start", {
 				zoom: mapRef.current?.getZoom(),
 				center: mapRef.current?.getCenter(),
@@ -135,6 +154,10 @@ export default function Map() {
 	const onMoveEnd = (): void => {
 		if (isMoving) {
 			setIsMoving(false);
+			mapViewportStore.setIsMoving(false);
+			// Update viewport store with debouncing to prevent excessive events
+			mapViewportStore.debouncedUpdateViewportState(1500);
+
 			const zoom = mapRef.current?.getZoom();
 			const center = mapRef.current?.getCenter();
 			posthog?.capture("map_move_end", {
@@ -145,6 +168,9 @@ export default function Map() {
 	};
 
 	const onZoom = (): void => {
+		// Update viewport store with debouncing for zoom changes
+		mapViewportStore.debouncedUpdateViewportState(1000);
+
 		const zoom = mapRef.current?.getZoom();
 		posthog?.capture("map_zoom", {
 			zoom_level: zoom,
@@ -179,6 +205,7 @@ export default function Map() {
 				attributionControl={false}
 				mapLib={maplibregl}
 				onClick={createMapClickHandler(posthog)}
+				onLoad={onMapLoad}
 				onMoveStart={onMoveStart}
 				onMoveEnd={onMoveEnd}
 				onZoomEnd={onZoom}

@@ -7,6 +7,7 @@ import FixStore from "./model/FixStore";
 import RoleConfigurationStore from "./model/RoleConfigurationStore";
 import SimulatorStore from "./model/SimulatorStore";
 import TrajectoryPredictionStore from "./model/TrajectoryPredictionStore";
+import MapViewportStore from "./stores/MapViewportStore";
 
 export const simulatorStore = new SimulatorStore();
 export const aircraftStore = new AircraftStore({
@@ -37,3 +38,4 @@ export const trajectoryPredictionStore = new TrajectoryPredictionStore({
 	aircraftStore,
 	simulatorStore,
 });
+export const mapViewportStore = new MapViewportStore();
