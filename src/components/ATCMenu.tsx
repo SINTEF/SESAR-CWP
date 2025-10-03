@@ -7,7 +7,12 @@ import {
 	handlePublishPromise,
 	persistFrontendFlightController,
 } from "../mqtt-client/publishers";
-import { aircraftStore, configurationStore, cwpStore } from "../state";
+import {
+	aircraftStore,
+	configurationStore,
+	cwpStore,
+	sepQdmStore,
+} from "../state";
 
 export default observer(function ATCMenu(properties: {
 	aircraft: AircraftModel;
@@ -92,6 +97,34 @@ export default observer(function ATCMenu(properties: {
 		});
 	};
 
+	const handleSepClick = (): void => {
+		sepQdmStore.enableSep(aircraftId);
+
+		posthog?.capture("atc_menu_action", {
+			action: "sep",
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			current_cwp: configurationStore.currentCWP,
+		});
+
+		// Close the ATC menu after clicking SEP
+		cwpStore.clearATCMenuAircraftId();
+	};
+
+	const handleQdmClick = (): void => {
+		sepQdmStore.enableQdm(aircraftId);
+
+		posthog?.capture("atc_menu_action", {
+			action: "qdm",
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			current_cwp: configurationStore.currentCWP,
+		});
+
+		// Close the ATC menu after clicking QDM
+		cwpStore.clearATCMenuAircraftId();
+	};
+
 	return (
 		<div className="bg-gray-800 p-4 w-36 text-gray-200 font-sans flex flex-col items-center z-5000">
 			<div className="space-y-2 w-full">
@@ -127,16 +160,10 @@ export default observer(function ATCMenu(properties: {
 					>
 						TP
 					</button>
-					<button
-						onClick={() => handleButtonClick("SEP")}
-						className="btn btn-sm w-full btn-accent"
-					>
+					<button onClick={handleSepClick} className="btn btn-sm w-full btn-accent">
 						SEP
 					</button>
-					<button
-						onClick={() => handleButtonClick("QDM")}
-						className="btn btn-sm w-full btn-accent"
-					>
+					<button onClick={handleQdmClick} className="btn btn-sm w-full btn-accent">
 						QDM
 					</button>
 				</div>

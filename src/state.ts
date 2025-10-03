@@ -5,6 +5,7 @@ import CWPStore from "./model/CwpStore";
 import DistanceLine from "./model/DistanceLine";
 import FixStore from "./model/FixStore";
 import RoleConfigurationStore from "./model/RoleConfigurationStore";
+import SepQdmStore from "./model/SepQdmStore";
 import SimulatorStore from "./model/SimulatorStore";
 import TrajectoryPredictionStore from "./model/TrajectoryPredictionStore";
 import MapViewportStore from "./stores/MapViewportStore";
@@ -39,3 +40,9 @@ export const trajectoryPredictionStore = new TrajectoryPredictionStore({
 	simulatorStore,
 });
 export const mapViewportStore = new MapViewportStore();
+export const sepQdmStore = new SepQdmStore({
+	mapViewportStore,
+	aircraftStore,
+	configurationStore,
+	trajectoryPredictionStore,
+});

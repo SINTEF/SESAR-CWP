@@ -1,6 +1,11 @@
 import { lineString } from "@turf/helpers";
 import { length as turfLength } from "@turf/length";
 import { makeAutoObservable } from "mobx";
+import {
+	closestBetweenPolylines,
+	type Point,
+	type Polyline,
+} from "../utils/geomClosest";
 import type AircraftStore from "./AircraftStore";
 import type SimulatorStore from "./SimulatorStore";
 import type Trajectory from "./Trajectory";
@@ -347,5 +352,35 @@ export default class TrajectoryPredictionStore {
 					prev.trajectoryCoordinate.longitude) *
 					r,
 		};
+	}
+
+	/**
+	 * Convert trajectory coordinates to geomClosest Polyline
+	 * @param coords Array of [lon, lat] coordinates
+	 * @returns Polyline (array of Point objects)
+	 */
+	private trajectoryToPolyline(coords: number[][]): Polyline {
+		return coords.map(([lon, lat]) => ({ x: lon, y: lat }));
+	}
+
+	/**
+	 * Calculate shortest distance between two trajectories
+	 * @param trajectory1 First trajectory as [lon, lat][] coordinates
+	 * @param trajectory2 Second trajectory as [lon, lat][] coordinates
+	 * @returns Distance and shortest segment [distance, {a, b}]
+	 */
+	getTrajectoryDistance(
+		trajectory1: number[][],
+		trajectory2: number[][],
+	): [number, { a: Point; b: Point }] | null {
+		if (trajectory1.length < 2 || trajectory2.length < 2) {
+			return null;
+		}
+
+		const polyline1 = this.trajectoryToPolyline(trajectory1);
+		const polyline2 = this.trajectoryToPolyline(trajectory2);
+
+		const result = closestBetweenPolylines(polyline1, polyline2);
+		return [result.distance, { a: result.a, b: result.b }];
 	}
 }

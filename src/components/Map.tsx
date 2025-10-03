@@ -17,7 +17,10 @@ import FixesPoints from "./FixesPoints";
 import FlightRoutes from "./FlightRoutes";
 import HighlightedAircraft from "./HighlightedAircraft";
 import LimboAircrafts from "./LimboAircrafts";
+import QdmLabelPopups from "./QdmLabelPopups";
 import Sectors from "./Sectors";
+import SepQdmCurrentLine from "./SepQdmCurrentLine";
+import SepQdmLines from "./SepQdmLines";
 import SpeedVectors from "./SpeedVectors";
 import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
 
@@ -184,6 +187,8 @@ export default function Map() {
 		sdf: true,
 	});
 
+	console.log("Rendering Map component");
+
 	return (
 		<div
 			className={
@@ -223,6 +228,9 @@ export default function Map() {
 				<FlightRoutes />
 				<TrajectoryPredictionLines />
 				<SpeedVectors />
+				<SepQdmLines />
+				<QdmLabelPopups />
+				<SepQdmCurrentLine />
 				<Aircrafts />
 				<HighlightedAircraft />
 				<LimboAircrafts />
