@@ -401,4 +401,66 @@ export default class AircraftStore {
 		}
 		return [...ids];
 	}
+
+	/**
+	 * Find the nearest aircraft to a screen position within a pixel threshold
+	 * @param mouseScreenX Screen X coordinate in pixels
+	 * @param mouseScreenY Screen Y coordinate in pixels
+	 * @param maxDistancePixels Maximum distance in pixels to consider
+	 * @param mapViewportStore MapViewportStore for coordinate projection
+	 * @param excludeAircraftId Optional aircraft ID to exclude from search
+	 * @returns Nearest aircraft info or null if none found within threshold
+	 */
+	findNearestAircraftInScreenSpace(
+		mouseScreenX: number,
+		mouseScreenY: number,
+		maxDistancePixels: number,
+		mapViewportStore: {
+			projectPosition: (
+				lat: number,
+				lng: number,
+			) => { x: number; y: number } | null;
+		},
+		excludeAircraftId?: string | null,
+	): { aircraftId: string; position: [number, number] } | null {
+		let nearestAircraft: {
+			aircraftId: string;
+			position: [number, number];
+		} | null = null;
+		let minDistance = maxDistancePixels;
+
+		for (const aircraft of this.aircraftsWithPosition) {
+			// Skip the excluded aircraft (typically the source aircraft)
+			if (excludeAircraftId && aircraft.aircraftId === excludeAircraftId) {
+				continue;
+			}
+
+			// Project aircraft position to screen coordinates
+			const screenPos = mapViewportStore.projectPosition(
+				aircraft.lastKnownLatitude,
+				aircraft.lastKnownLongitude,
+			);
+
+			// Skip if projection failed (aircraft off-screen)
+			if (!screenPos) {
+				continue;
+			}
+
+			// Calculate pixel distance using Euclidean distance
+			const dx = screenPos.x - mouseScreenX;
+			const dy = screenPos.y - mouseScreenY;
+			const distance = Math.sqrt(dx * dx + dy * dy);
+
+			// Track closest aircraft within threshold
+			if (distance < minDistance) {
+				minDistance = distance;
+				nearestAircraft = {
+					aircraftId: aircraft.aircraftId,
+					position: [aircraft.lastKnownLongitude, aircraft.lastKnownLatitude],
+				};
+			}
+		}
+
+		return nearestAircraft;
+	}
 }

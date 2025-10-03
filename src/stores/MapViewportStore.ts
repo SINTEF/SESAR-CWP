@@ -136,6 +136,23 @@ export default class MapViewportStore {
 	}
 
 	/**
+	 * Get geographic coordinates for a screen position
+	 * Returns null if map is not available or position is invalid
+	 */
+	unprojectPosition(x: number, y: number): { lng: number; lat: number } | null {
+		if (!this.mapRef) {
+			return null;
+		}
+
+		try {
+			const lngLat = this.mapRef.unproject([x, y]);
+			return { lng: lngLat.lng, lat: lngLat.lat };
+		} catch (_error) {
+			return null;
+		}
+	}
+
+	/**
 	 * Convert MapLibre bounds to our ViewportBounds format
 	 */
 	private convertBounds(mapBounds: LngLatBounds): ViewportBounds {

@@ -7,7 +7,12 @@ import {
 	handlePublishPromise,
 	persistFrontendFlightController,
 } from "../mqtt-client/publishers";
-import { aircraftStore, configurationStore, cwpStore } from "../state";
+import {
+	aircraftStore,
+	configurationStore,
+	cwpStore,
+	sepQdmStore,
+} from "../state";
 
 export default observer(function ATCMenu(properties: {
 	aircraft: AircraftModel;
@@ -92,6 +97,55 @@ export default observer(function ATCMenu(properties: {
 		});
 	};
 
+	const handleMeasurementClick = (mode: "sep" | "qdm"): void => {
+		// Get selected aircraft IDs, excluding the menu aircraft itself
+		const selectedIds = Array.from(cwpStore.selectedAircraftIds).filter(
+			(id) => id !== aircraftId,
+		);
+
+		// If we have at least one other selected aircraft, create multiple lines immediately
+		if (selectedIds.length > 0) {
+			if (mode === "sep") {
+				sepQdmStore.createMultipleSepLines(aircraftId, selectedIds);
+			} else {
+				sepQdmStore.createMultipleQdmLines(aircraftId, selectedIds);
+			}
+
+			posthog?.capture("atc_menu_action", {
+				action: `${mode}_multiple`,
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				target_count: selectedIds.length,
+				current_cwp: configurationStore.currentCWP,
+			});
+		} else {
+			// Otherwise, enter the drag-to-select mode
+			if (mode === "sep") {
+				sepQdmStore.enableSep(aircraftId);
+			} else {
+				sepQdmStore.enableQdm(aircraftId);
+			}
+
+			posthog?.capture("atc_menu_action", {
+				action: mode,
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				current_cwp: configurationStore.currentCWP,
+			});
+		}
+
+		// Close the ATC menu
+		cwpStore.clearATCMenuAircraftId();
+	};
+
+	const handleSepClick = (): void => {
+		handleMeasurementClick("sep");
+	};
+
+	const handleQdmClick = (): void => {
+		handleMeasurementClick("qdm");
+	};
+
 	return (
 		<div className="bg-gray-800 p-4 w-36 text-gray-200 font-sans flex flex-col items-center z-5000">
 			<div className="space-y-2 w-full">
@@ -128,13 +182,13 @@ export default observer(function ATCMenu(properties: {
 						TP
 					</button>
 					<button
-						onClick={() => handleButtonClick("SEP")}
+						onClick={handleSepClick}
 						className="btn btn-sm w-full btn-accent"
 					>
 						SEP
 					</button>
 					<button
-						onClick={() => handleButtonClick("QDM")}
+						onClick={handleQdmClick}
 						className="btn btn-sm w-full btn-accent"
 					>
 						QDM

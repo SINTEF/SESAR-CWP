@@ -17,7 +17,11 @@ import FixesPoints from "./FixesPoints";
 import FlightRoutes from "./FlightRoutes";
 import HighlightedAircraft from "./HighlightedAircraft";
 import LimboAircrafts from "./LimboAircrafts";
+import QdmLabelPopups from "./QdmLabelPopups";
 import Sectors from "./Sectors";
+import SepLabelPopups from "./SepLabelPopups";
+import SepQdmCurrentLine from "./SepQdmCurrentLine";
+import SepQdmLines from "./SepQdmLines";
 import SpeedVectors from "./SpeedVectors";
 import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
 
@@ -107,9 +111,9 @@ const createMapClickHandler =
 	};
 
 const initialViewState: Partial<ViewState> = {
-	longitude: 9.27,
-	latitude: 45.11,
-	zoom: 6.3,
+	longitude: 7,
+	latitude: 44,
+	zoom: 7.0,
 };
 
 // Rough bounds of the area
@@ -223,6 +227,10 @@ export default function Map() {
 				<FlightRoutes />
 				<TrajectoryPredictionLines />
 				<SpeedVectors />
+				<SepQdmLines />
+				<QdmLabelPopups />
+				<SepLabelPopups />
+				<SepQdmCurrentLine />
 				<Aircrafts />
 				<HighlightedAircraft />
 				<LimboAircrafts />
