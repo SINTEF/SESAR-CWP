@@ -1,11 +1,8 @@
+import { distance } from "@turf/distance";
+import { point } from "@turf/helpers";
 import { lineString } from "@turf/helpers";
 import { length as turfLength } from "@turf/length";
 import { makeAutoObservable } from "mobx";
-import {
-	closestBetweenPolylines,
-	type Point,
-	type Polyline,
-} from "../utils/geomClosest";
 import type AircraftStore from "./AircraftStore";
 import type SimulatorStore from "./SimulatorStore";
 import type Trajectory from "./Trajectory";
@@ -355,32 +352,128 @@ export default class TrajectoryPredictionStore {
 	}
 
 	/**
-	 * Convert trajectory coordinates to geomClosest Polyline
-	 * @param coords Array of [lon, lat] coordinates
-	 * @returns Polyline (array of Point objects)
+	 * Find the Closest Point of Approach (CPA) between two aircraft trajectories.
+	 * Uses binary search: coarse 5-minute chunks, then fine 1-second resolution.
+	 *
+	 * @param aircraft1Id First aircraft ID
+	 * @param aircraft2Id Second aircraft ID
+	 * @returns CPA details or null if no valid trajectories or time overlap
 	 */
-	private trajectoryToPolyline(coords: number[][]): Polyline {
-		return coords.map(([lon, lat]) => ({ x: lon, y: lat }));
-	}
+	findClosestPointOfApproach(
+		aircraft1Id: string,
+		aircraft2Id: string,
+	): {
+		time: number;
+		distanceNM: number;
+		point1: { lat: number; lon: number };
+		point2: { lat: number; lon: number };
+	} | null {
+		const aircraft1 = this.aircraftStore.aircrafts.get(aircraft1Id);
+		const aircraft2 = this.aircraftStore.aircrafts.get(aircraft2Id);
 
-	/**
-	 * Calculate shortest distance between two trajectories
-	 * @param trajectory1 First trajectory as [lon, lat][] coordinates
-	 * @param trajectory2 Second trajectory as [lon, lat][] coordinates
-	 * @returns Distance and shortest segment [distance, {a, b}]
-	 */
-	getTrajectoryDistance(
-		trajectory1: number[][],
-		trajectory2: number[][],
-	): [number, { a: Point; b: Point }] | null {
-		if (trajectory1.length < 2 || trajectory2.length < 2) {
+		if (!aircraft1 || !aircraft2) {
 			return null;
 		}
 
-		const polyline1 = this.trajectoryToPolyline(trajectory1);
-		const polyline2 = this.trajectoryToPolyline(trajectory2);
+		const flightRoute1 = this.aircraftStore.flightRoutes.get(
+			aircraft1.assignedFlightId,
+		);
+		const flightRoute2 = this.aircraftStore.flightRoutes.get(
+			aircraft2.assignedFlightId,
+		);
 
-		const result = closestBetweenPolylines(polyline1, polyline2);
-		return [result.distance, { a: result.a, b: result.b }];
+		if (!flightRoute1 || !flightRoute2) {
+			return null;
+		}
+
+		const currentTime = this.simulatorStore.timestamp;
+
+		// Find end times of both trajectories
+		const trajectory1 = flightRoute1.trajectory;
+		const trajectory2 = flightRoute2.trajectory;
+
+		if (trajectory1.length === 0 || trajectory2.length === 0) {
+			return null;
+		}
+
+		const endTime1 = trajectory1[trajectory1.length - 1].timestamp;
+		const endTime2 = trajectory2[trajectory2.length - 1].timestamp;
+
+		// Use the shortest trajectory end time
+		const endTime = Math.min(endTime1, endTime2);
+
+		// Check if there's time overlap
+		if (endTime <= currentTime) {
+			return null;
+		}
+
+		// Helper function to calculate distance at a given time
+		const getDistanceAtTime = (time: number): number | null => {
+			const pos1 = this.getAircraftPositionAtTime(aircraft1Id, time);
+			const pos2 = this.getAircraftPositionAtTime(aircraft2Id, time);
+
+			if (!pos1 || !pos2) {
+				return null;
+			}
+
+			const pt1 = point([pos1.lon, pos1.lat]);
+			const pt2 = point([pos2.lon, pos2.lat]);
+
+			return distance(pt1, pt2, { units: "nauticalmiles" });
+		};
+
+		// Phase 1: Coarse search with 5-minute (300s) chunks
+		const COARSE_STEP = 300; // 5 minutes in seconds
+		let minTime = currentTime;
+		let minDistance = Number.POSITIVE_INFINITY;
+
+		for (let t = currentTime; t <= endTime; t += COARSE_STEP) {
+			const d = getDistanceAtTime(t);
+			if (d !== null && d < minDistance) {
+				minDistance = d;
+				minTime = t;
+			}
+		}
+
+		// Also check the end time if it wasn't covered
+		const finalDist = getDistanceAtTime(endTime);
+		if (finalDist !== null && finalDist < minDistance) {
+			minDistance = finalDist;
+			minTime = endTime;
+		}
+
+		// Phase 2: Fine search with binary search within ±7.5 minutes (450s) window
+		const FINE_WINDOW = 450; // 7.5 minutes in seconds
+		const fineStart = Math.max(currentTime, minTime - FINE_WINDOW);
+		const fineEnd = Math.min(endTime, minTime + FINE_WINDOW);
+
+		const FINE_RESOLUTION = 1; // 1 second
+
+		// Binary-like search: sample every second in the fine window
+		let finalTime = minTime;
+		let finalDistance = minDistance;
+
+		for (let t = fineStart; t <= fineEnd; t += FINE_RESOLUTION) {
+			const d = getDistanceAtTime(t);
+			if (d !== null && d < finalDistance) {
+				finalDistance = d;
+				finalTime = t;
+			}
+		}
+
+		// Get final positions
+		const finalPos1 = this.getAircraftPositionAtTime(aircraft1Id, finalTime);
+		const finalPos2 = this.getAircraftPositionAtTime(aircraft2Id, finalTime);
+
+		if (!finalPos1 || !finalPos2) {
+			return null;
+		}
+
+		return {
+			time: finalTime,
+			distanceNM: finalDistance,
+			point1: finalPos1,
+			point2: finalPos2,
+		};
 	}
 }

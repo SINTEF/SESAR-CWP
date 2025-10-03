@@ -42,6 +42,8 @@ export default class SepQdmSeparation {
 			fromAircraft: computed,
 			toAircraft: computed,
 			isValid: computed,
+			cpaResult: computed,
+			cpaTime: computed,
 			startPosition: computed,
 			endPosition: computed,
 			midpoint: computed,
@@ -61,6 +63,36 @@ export default class SepQdmSeparation {
 
 	get isValid(): boolean {
 		return this.fromAircraft !== undefined && this.toAircraft !== undefined;
+	}
+
+	/**
+	 * Cached CPA result for both SEP and QDM type separations.
+	 * MobX computed property ensures this is only recalculated when dependencies change.
+	 */
+	get cpaResult(): {
+		time: number;
+		distanceNM: number;
+		point1: { lat: number; lon: number };
+		point2: { lat: number; lon: number };
+	} | null {
+		return this.trajectoryPredictionStore.findClosestPointOfApproach(
+			this.fromId,
+			this.toId,
+		);
+	}
+
+	/**
+	 * Get CPA time relative to current time (in seconds from now).
+	 * Returns null if no CPA available.
+	 */
+	get cpaTime(): number | null {
+		const cpa = this.cpaResult;
+		if (!cpa) {
+			return null;
+		}
+
+		const currentTime = this.aircraftStore.simulatorStore.timestamp;
+		return cpa.time - currentTime;
 	}
 
 	get startPosition(): [number, number] | null {
@@ -105,42 +137,23 @@ export default class SepQdmSeparation {
 
 	/**
 	 * Get trajectory segment for SEP type separation
-	 * Returns the shortest segment between two aircraft trajectories
+	 * Returns the closest point of approach between two aircraft trajectories
+	 * Uses cached cpaResult to avoid duplicate calculations
 	 */
 	private getTrajectorySegment(): {
 		start: { x: number; y: number };
 		end: { x: number; y: number };
 	} | null {
-		// Get trajectories for both aircraft
-		// Use the computed future time from trajectory prediction if available,
-		// otherwise use a reasonable future time window (e.g., 10 minutes = 600 seconds)
-		const currentTime = this.aircraftStore.simulatorStore.timestamp;
-		const futureTime = currentTime + 600;
+		const cpa = this.cpaResult;
 
-		const trajectory1 =
-			this.trajectoryPredictionStore.getPredictedTrajectory(
-				this.fromId,
-				futureTime,
-			);
-		const trajectory2 = this.trajectoryPredictionStore.getPredictedTrajectory(
-			this.toId,
-			futureTime,
-		);
-
-		if (!trajectory1 || !trajectory2) {
+		if (!cpa) {
 			return null;
 		}
 
-		const result = this.trajectoryPredictionStore.getTrajectoryDistance(
-			trajectory1,
-			trajectory2,
-		);
-		if (!result) {
-			return null;
-		}
-
-		const [, segment] = result;
-		return { start: segment.a, end: segment.b };
+		return {
+			start: { x: cpa.point1.lon, y: cpa.point1.lat },
+			end: { x: cpa.point2.lon, y: cpa.point2.lat },
+		};
 	}
 
 	get midpoint(): [number, number] | null {
@@ -187,6 +200,24 @@ export default class SepQdmSeparation {
 	}
 
 	get color(): string {
-		return this.type === "qdm" ? "#FF8C00" : "#0000FF";
+		// Both SEP and QDM lines use color based on CPA distance
+		const cpa = this.cpaResult;
+		if (!cpa) {
+			// Fallback colors when no CPA available
+			return this.type === "qdm" ? "#9370DB" : "#FF69B4";
+		}
+
+		const cpaDistance = cpa.distanceNM;
+
+		// Red below 6 NM, yellow below 9 NM
+		if (cpaDistance < 6) {
+			return "#FF0000"; // Red
+		}
+		if (cpaDistance < 9) {
+			return "#FFFF00"; // Yellow
+		}
+
+		// Purple for QDM when safe, pink for SEP when safe
+		return this.type === "qdm" ? "#9370DB" : "#FF69B4";
 	}
 }

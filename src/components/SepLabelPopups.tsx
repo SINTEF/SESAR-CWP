@@ -3,7 +3,7 @@ import { Popup, useMap } from "react-map-gl/maplibre";
 import type SepQdmSeparation from "../model/SepQdmSeparation";
 import { sepQdmStore } from "../state";
 
-const QdmLabelPopup = observer(function QdmLabelPopup({
+const SepLabelPopup = observer(function SepLabelPopup({
 	separation,
 }: {
 	separation: SepQdmSeparation;
@@ -16,17 +16,16 @@ const QdmLabelPopup = observer(function QdmLabelPopup({
 	}
 
 	const midpoint = separation.midpoint;
-	const distanceNM = separation.distanceNM;
 	const cpaResult = separation.cpaResult;
 
 	// Should never happen due to isValid check, but satisfy TypeScript
-	if (!midpoint || distanceNM === null) {
+	if (!midpoint || !cpaResult) {
 		return null;
 	}
 
 	const handleContextMenu = (event: React.MouseEvent): void => {
 		event.preventDefault();
-		sepQdmStore.removeQdmLine(separation.fromId, separation.toId);
+		sepQdmStore.removeSepLine(separation.fromId, separation.toId);
 	};
 
 	const onWheel = (event: React.WheelEvent): void => {
@@ -54,21 +53,18 @@ const QdmLabelPopup = observer(function QdmLabelPopup({
 				onContextMenu={handleContextMenu}
 				onWheel={onWheel}
 			>
-				<div>{distanceNM.toFixed(1)}&nbsp;Nm</div>
-				{cpaResult && (
-					<div>CPA&nbsp;:&nbsp;{cpaResult.distanceNM.toFixed(1)}&nbsp;Nm</div>
-				)}
+				<div>{cpaResult.distanceNM.toFixed(1)}&nbsp;Nm</div>
 			</div>
 		</Popup>
 	);
 });
 
-export default observer(function QdmLabelPopups() {
+export default observer(function SepLabelPopups() {
 	return (
 		<>
-			{sepQdmStore.savedQdmLines.map((separation) => (
-				<QdmLabelPopup
-					key={`qdm-label-${separation.fromId}-${separation.toId}`}
+			{sepQdmStore.savedSepLines.map((separation) => (
+				<SepLabelPopup
+					key={`sep-label-${separation.fromId}-${separation.toId}`}
 					separation={separation}
 				/>
 			))}

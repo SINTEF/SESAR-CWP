@@ -19,6 +19,7 @@ import HighlightedAircraft from "./HighlightedAircraft";
 import LimboAircrafts from "./LimboAircrafts";
 import QdmLabelPopups from "./QdmLabelPopups";
 import Sectors from "./Sectors";
+import SepLabelPopups from "./SepLabelPopups";
 import SepQdmCurrentLine from "./SepQdmCurrentLine";
 import SepQdmLines from "./SepQdmLines";
 import SpeedVectors from "./SpeedVectors";
@@ -110,9 +111,9 @@ const createMapClickHandler =
 	};
 
 const initialViewState: Partial<ViewState> = {
-	longitude: 9.27,
-	latitude: 45.11,
-	zoom: 6.3,
+	longitude: 7,
+	latitude: 44,
+	zoom: 7.0,
 };
 
 // Rough bounds of the area
@@ -163,6 +164,7 @@ export default function Map() {
 
 			const zoom = mapRef.current?.getZoom();
 			const center = mapRef.current?.getCenter();
+			console.log({ zoom, center });
 			posthog?.capture("map_move_end", {
 				zoom: zoom,
 				center: center ? { lat: center.lat, lng: center.lng } : null,
@@ -230,6 +232,7 @@ export default function Map() {
 				<SpeedVectors />
 				<SepQdmLines />
 				<QdmLabelPopups />
+				<SepLabelPopups />
 				<SepQdmCurrentLine />
 				<Aircrafts />
 				<HighlightedAircraft />
