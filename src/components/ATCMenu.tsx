@@ -97,32 +97,53 @@ export default observer(function ATCMenu(properties: {
 		});
 	};
 
-	const handleSepClick = (): void => {
-		sepQdmStore.enableSep(aircraftId);
+	const handleMeasurementClick = (mode: "sep" | "qdm"): void => {
+		// Get selected aircraft IDs, excluding the menu aircraft itself
+		const selectedIds = Array.from(cwpStore.selectedAircraftIds).filter(
+			(id) => id !== aircraftId,
+		);
 
-		posthog?.capture("atc_menu_action", {
-			action: "sep",
-			aircraft_id: aircraftId,
-			callsign: callSign,
-			current_cwp: configurationStore.currentCWP,
-		});
+		// If we have at least one other selected aircraft, create multiple lines immediately
+		if (selectedIds.length > 0) {
+			if (mode === "sep") {
+				sepQdmStore.createMultipleSepLines(aircraftId, selectedIds);
+			} else {
+				sepQdmStore.createMultipleQdmLines(aircraftId, selectedIds);
+			}
 
-		// Close the ATC menu after clicking SEP
+			posthog?.capture("atc_menu_action", {
+				action: `${mode}_multiple`,
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				target_count: selectedIds.length,
+				current_cwp: configurationStore.currentCWP,
+			});
+		} else {
+			// Otherwise, enter the drag-to-select mode
+			if (mode === "sep") {
+				sepQdmStore.enableSep(aircraftId);
+			} else {
+				sepQdmStore.enableQdm(aircraftId);
+			}
+
+			posthog?.capture("atc_menu_action", {
+				action: mode,
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				current_cwp: configurationStore.currentCWP,
+			});
+		}
+
+		// Close the ATC menu
 		cwpStore.clearATCMenuAircraftId();
 	};
 
+	const handleSepClick = (): void => {
+		handleMeasurementClick("sep");
+	};
+
 	const handleQdmClick = (): void => {
-		sepQdmStore.enableQdm(aircraftId);
-
-		posthog?.capture("atc_menu_action", {
-			action: "qdm",
-			aircraft_id: aircraftId,
-			callsign: callSign,
-			current_cwp: configurationStore.currentCWP,
-		});
-
-		// Close the ATC menu after clicking QDM
-		cwpStore.clearATCMenuAircraftId();
+		handleMeasurementClick("qdm");
 	};
 
 	return (

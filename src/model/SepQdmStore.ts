@@ -191,6 +191,57 @@ export default class SepQdmStore {
 	}
 
 	/**
+	 * Create multiple separation lines from one aircraft to multiple target aircraft
+	 */
+	private createMultipleLines(
+		fromAircraftId: string,
+		toAircraftIds: string[],
+		type: "sep" | "qdm",
+	): void {
+		const savedLines = type === "sep" ? this.savedSepLines : this.savedQdmLines;
+
+		for (const toId of toAircraftIds) {
+			// Skip if trying to create a line to itself
+			if (toId === fromAircraftId) {
+				continue;
+			}
+
+			// Check if this pair already exists
+			const exists = savedLines.some(
+				(line) =>
+					(line.fromId === fromAircraftId && line.toId === toId) ||
+					(line.fromId === toId && line.toId === fromAircraftId),
+			);
+
+			if (!exists) {
+				savedLines.push(
+					new SepQdmSeparation({
+						fromId: fromAircraftId,
+						toId: toId,
+						type: type,
+						aircraftStore: this.aircraftStore,
+						trajectoryPredictionStore: this.trajectoryPredictionStore,
+					}),
+				);
+			}
+		}
+	}
+
+	/**
+	 * Create multiple SEP lines from one aircraft to multiple target aircraft
+	 */
+	createMultipleSepLines(fromAircraftId: string, toAircraftIds: string[]): void {
+		this.createMultipleLines(fromAircraftId, toAircraftIds, "sep");
+	}
+
+	/**
+	 * Create multiple QDM lines from one aircraft to multiple target aircraft
+	 */
+	createMultipleQdmLines(fromAircraftId: string, toAircraftIds: string[]): void {
+		this.createMultipleLines(fromAircraftId, toAircraftIds, "qdm");
+	}
+
+	/**
 	 * Remove a QDM line by aircraft IDs
 	 */
 	removeQdmLine(fromId: string, toId: string): void {

@@ -353,7 +353,7 @@ export default class TrajectoryPredictionStore {
 
 	/**
 	 * Find the Closest Point of Approach (CPA) between two aircraft trajectories.
-	 * Uses binary search: coarse 5-minute chunks, then fine 1-second resolution.
+	 * Uses two-phase search: coarse 1-minute chunks, then fine 1-second resolution.
 	 *
 	 * @param aircraft1Id First aircraft ID
 	 * @param aircraft2Id Second aircraft ID
@@ -422,8 +422,8 @@ export default class TrajectoryPredictionStore {
 			return distance(pt1, pt2, { units: "nauticalmiles" });
 		};
 
-		// Phase 1: Coarse search with 5-minute (300s) chunks
-		const COARSE_STEP = 300; // 5 minutes in seconds
+		// Phase 1: Coarse search with 1-minute (60s) chunks
+		const COARSE_STEP = 60; // 1 minute in seconds
 		let minTime = currentTime;
 		let minDistance = Number.POSITIVE_INFINITY;
 
@@ -442,14 +442,14 @@ export default class TrajectoryPredictionStore {
 			minTime = endTime;
 		}
 
-		// Phase 2: Fine search with binary search within ±7.5 minutes (450s) window
-		const FINE_WINDOW = 450; // 7.5 minutes in seconds
+		// Phase 2: Fine search within ±1 minute (60s) window
+		const FINE_WINDOW = 60; // 1 minute in seconds
 		const fineStart = Math.max(currentTime, minTime - FINE_WINDOW);
 		const fineEnd = Math.min(endTime, minTime + FINE_WINDOW);
 
 		const FINE_RESOLUTION = 1; // 1 second
 
-		// Binary-like search: sample every second in the fine window
+		// Sample every second in the fine window
 		let finalTime = minTime;
 		let finalDistance = minDistance;
 

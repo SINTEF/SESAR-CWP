@@ -164,7 +164,6 @@ export default function Map() {
 
 			const zoom = mapRef.current?.getZoom();
 			const center = mapRef.current?.getCenter();
-			console.log({ zoom, center });
 			posthog?.capture("map_move_end", {
 				zoom: zoom,
 				center: center ? { lat: center.lat, lng: center.lng } : null,
@@ -188,8 +187,6 @@ export default function Map() {
 		name: "fixes",
 		sdf: true,
 	});
-
-	console.log("Rendering Map component");
 
 	return (
 		<div
