@@ -74,10 +74,18 @@ export default observer(function SepQdmCurrentLine() {
 
 	return (
 		<>
-			<Source id="sep_qdm_current_line_source" type="geojson" data={lineGeoJson}>
+			<Source
+				id="sep_qdm_current_line_source"
+				type="geojson"
+				data={lineGeoJson}
+			>
 				<Layer id="sep_qdm_current_line" type="line" paint={paintLine} />
 			</Source>
-			<Source id="sep_qdm_current_text_source" type="geojson" data={textGeoJson}>
+			<Source
+				id="sep_qdm_current_text_source"
+				type="geojson"
+				data={textGeoJson}
+			>
 				<Layer
 					id="sep_qdm_current_text"
 					type="symbol"

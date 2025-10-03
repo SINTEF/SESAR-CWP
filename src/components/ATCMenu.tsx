@@ -181,10 +181,16 @@ export default observer(function ATCMenu(properties: {
 					>
 						TP
 					</button>
-					<button onClick={handleSepClick} className="btn btn-sm w-full btn-accent">
+					<button
+						onClick={handleSepClick}
+						className="btn btn-sm w-full btn-accent"
+					>
 						SEP
 					</button>
-					<button onClick={handleQdmClick} className="btn btn-sm w-full btn-accent">
+					<button
+						onClick={handleQdmClick}
+						className="btn btn-sm w-full btn-accent"
+					>
 						QDM
 					</button>
 				</div>

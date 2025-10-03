@@ -1,6 +1,5 @@
 import { distance } from "@turf/distance";
-import { point } from "@turf/helpers";
-import { lineString } from "@turf/helpers";
+import { lineString, point } from "@turf/helpers";
 import { length as turfLength } from "@turf/length";
 import { makeAutoObservable } from "mobx";
 import type AircraftStore from "./AircraftStore";

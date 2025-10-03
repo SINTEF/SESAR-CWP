@@ -14,8 +14,9 @@ This file provides guidance to AI agents when working with code in this reposito
 
 - `npm run lint` - Run Biome linter (`npx @biomejs/biome lint`)
 - `npm run typecheck` - TypeScript type checking (`tsc --noEmit`)
-- `npm run lint -- --fix` - Automatically fix linting issues
-- `npm run lint -- --fix --unsafe` - Automatically fix unsafe linting issues (do that on a clean git state)
+- `npm run check` - Run both linter and formatting checks
+- `npm run check -- --fix` - Automatically fix linting and formatting issues
+- `npm run check -- --fix --unsafe` - Automatically fix unsafe linting and formatting issues (do that on a clean git state)
 
 ## Architecture Overview
 

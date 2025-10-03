@@ -415,10 +415,18 @@ export default class AircraftStore {
 		mouseScreenX: number,
 		mouseScreenY: number,
 		maxDistancePixels: number,
-		mapViewportStore: { projectPosition: (lat: number, lng: number) => { x: number; y: number } | null },
+		mapViewportStore: {
+			projectPosition: (
+				lat: number,
+				lng: number,
+			) => { x: number; y: number } | null;
+		},
 		excludeAircraftId?: string | null,
 	): { aircraftId: string; position: [number, number] } | null {
-		let nearestAircraft: { aircraftId: string; position: [number, number] } | null = null;
+		let nearestAircraft: {
+			aircraftId: string;
+			position: [number, number];
+		} | null = null;
 		let minDistance = maxDistancePixels;
 
 		for (const aircraft of this.aircraftsWithPosition) {

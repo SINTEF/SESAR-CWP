@@ -85,7 +85,11 @@ export default observer(function SepQdmLines() {
 	}
 
 	// Don't render if no valid features at all
-	if (sepFeatures.length === 0 && qdmFeatures.length === 0 && sepTrajectoryFeatures.length === 0) {
+	if (
+		sepFeatures.length === 0 &&
+		qdmFeatures.length === 0 &&
+		sepTrajectoryFeatures.length === 0
+	) {
 		return null;
 	}
 
@@ -118,8 +122,16 @@ export default observer(function SepQdmLines() {
 	return (
 		<>
 			{sepTrajectoryFeatures.length > 0 && (
-				<Source id="sep_trajectory_lines_source" type="geojson" data={sepTrajectoryGeoJson}>
-					<Layer id="sep_trajectory_lines" type="line" paint={paintTrajectoryLine} />
+				<Source
+					id="sep_trajectory_lines_source"
+					type="geojson"
+					data={sepTrajectoryGeoJson}
+				>
+					<Layer
+						id="sep_trajectory_lines"
+						type="line"
+						paint={paintTrajectoryLine}
+					/>
 				</Source>
 			)}
 			{sepFeatures.length > 0 && (

@@ -230,14 +230,20 @@ export default class SepQdmStore {
 	/**
 	 * Create multiple SEP lines from one aircraft to multiple target aircraft
 	 */
-	createMultipleSepLines(fromAircraftId: string, toAircraftIds: string[]): void {
+	createMultipleSepLines(
+		fromAircraftId: string,
+		toAircraftIds: string[],
+	): void {
 		this.createMultipleLines(fromAircraftId, toAircraftIds, "sep");
 	}
 
 	/**
 	 * Create multiple QDM lines from one aircraft to multiple target aircraft
 	 */
-	createMultipleQdmLines(fromAircraftId: string, toAircraftIds: string[]): void {
+	createMultipleQdmLines(
+		fromAircraftId: string,
+		toAircraftIds: string[],
+	): void {
 		this.createMultipleLines(fromAircraftId, toAircraftIds, "qdm");
 	}
 
