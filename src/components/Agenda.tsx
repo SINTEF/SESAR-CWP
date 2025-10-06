@@ -51,9 +51,9 @@ export default observer(function Agenda({
 	events?: TimelineEvent[];
 	startLabel?: string;
 }) {
-	const { mtcdConflictIds } = aircraftStore; // Will be MTCD in future
+	const { tctConflictIds } = aircraftStore; // Will be MTCD in future
 
-	const datablocks: TimelineEvent[] = Array.from(mtcdConflictIds.entries()).map(
+	const datablocks: TimelineEvent[] = Array.from(tctConflictIds.entries()).map(
 		([_, conflict]) => ({
 			id: conflict.id.toString(),
 			startMin: 60 + 6 + Math.random() * 6, // 1:06 from top of window - will be conflict.conflictingFlightPosition?.time
