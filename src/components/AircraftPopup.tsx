@@ -6,7 +6,7 @@ import { useMap } from "react-map-gl/maplibre";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
-import { cwpStore, roleConfigurationStore } from "../state";
+import { aircraftStore, cwpStore, roleConfigurationStore } from "../state";
 import AircraftContentSmall from "./AircraftContentSmall";
 import AircraftLevelPopup from "./AircraftLevelPopup";
 import AircraftPopupContent from "./AircraftPopupContent";
@@ -16,6 +16,7 @@ import ChangeNextFixPopup from "./ChangeNextFixPopup";
 import ChangeSpeedPopup from "./ChangeSpeedPopup";
 import DraggablePopup, { DraggablePopupProperties } from "./DraggablePopup";
 import NextSectorPopup from "./NextSectorPopup";
+import TaLabel from "./team-assistant/TaLabel";
 
 /**
  * REQUIREMENTS:
@@ -103,7 +104,7 @@ export default observer(function AircraftPopup(properties: {
 	};
 
 	const height = 70;
-	const width = isHoveredLabel ? 145 : 60;
+	const width = isHoveredLabel ? 145 : 70;
 	const Content = isHoveredLabel ? AircraftPopupContent : AircraftContentSmall;
 
 	const onClick = (): void => {
@@ -166,11 +167,15 @@ export default observer(function AircraftPopup(properties: {
 			trackingType="aircraft_popup"
 		>
 			<div
-				onClick={onClick}
-				onMouseEnter={onMouseEnter}
-				onMouseLeave={onMouseLeave}
+				className="flex flex-row gap-1 items-start"
+				// onClick={onClick}
+				// onMouseEnter={onMouseEnter} // if we want both open at the same time, then uncomment these
+				// onMouseLeave={onMouseLeave}
 			>
 				<div
+					onClick={onClick}
+					onMouseEnter={onMouseEnter}
+					onMouseLeave={onMouseLeave}
 					className={classNames(
 						"p-1 select-none",
 						isSelected
@@ -187,14 +192,18 @@ export default observer(function AircraftPopup(properties: {
 						width={width}
 					/>
 				</div>
-				<div className="pt-1">
-					<AircraftLevelPopup aircraft={aircraft} />
-					<ChangeNextFixPopup aircraft={aircraft} />
-					<NextSectorPopup aircraft={aircraft} />
-					<ChangeSpeedPopup aircraft={aircraft} />
-					<ChangeBearingPopup aircraft={aircraft} />
-					{/* <ATCMenu aircraft={aircraft} /> */}
-				</div>
+				{aircraftStore.teamAssistantRequest.has(
+					properties.aircraft.aircraftId,
+				) && <TaLabel aircraft={properties.aircraft} />}
+				{/* <TaLabel aircraft={properties.aircraft} /> */}
+			</div>
+			<div className="pt-1">
+				<AircraftLevelPopup aircraft={aircraft} />
+				<ChangeNextFixPopup aircraft={aircraft} />
+				<NextSectorPopup aircraft={aircraft} />
+				<ChangeSpeedPopup aircraft={aircraft} />
+				<ChangeBearingPopup aircraft={aircraft} />
+				{/* <ATCMenu aircraft={aircraft} /> */}
 			</div>
 			<ATCMenu aircraft={properties.aircraft} />
 		</DraggablePopup>

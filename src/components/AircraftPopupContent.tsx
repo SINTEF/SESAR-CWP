@@ -74,7 +74,8 @@ export default observer(function AircraftPopupContent(properties: {
 					</td>
 					<td>
 						{aircraftStore.hasStcaConflict(aircraft.aircraftId) && <Stca />}
-						{aircraftStore.hasTctConflict(aircraft.aircraftId) && <Tct />}
+						{aircraftStore.hasTctConflict(aircraft.aircraftId) &&
+							!aircraftStore.hasStcaConflict(aircraft.aircraftId) && <Tct />}
 					</td>
 				</tr>
 				<tr>

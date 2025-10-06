@@ -8,6 +8,7 @@ import type {
 	NewAircraftMessage,
 	NewAircraftTypeMessage,
 	NewFlightMessage,
+	PilotRequestMessage,
 	PositionAtObject,
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
@@ -55,6 +56,11 @@ export default class AircraftStore {
 		});
 
 	tctConflictIds: ObservableMap<string, FlightConflictUpdateMessage> =
+		observable.map(undefined, {
+			deep: false,
+		});
+
+	teamAssistantRequest: ObservableMap<string, PilotRequestMessage> =
 		observable.map(undefined, {
 			deep: false,
 		});
@@ -462,5 +468,32 @@ export default class AircraftStore {
 		}
 
 		return nearestAircraft;
+	}
+
+	handleFlightLevelPilotRequest(
+		flightId: string,
+		pilotRequestMessage: PilotRequestMessage,
+	): void {
+		console.log(this.aircrafts.get(flightId)?.callSign);
+		this.teamAssistantRequest.set(flightId, {
+			flightId,
+			requestType: 0, // Flight Level
+			requestParameter: pilotRequestMessage.requestParameter,
+			callSign:
+				pilotRequestMessage.callSign ||
+				this.aircrafts.get(flightId)?.callSign ||
+				"",
+			status: pilotRequestMessage.status,
+			responseDetails: pilotRequestMessage.responseDetails,
+			tasks: pilotRequestMessage.tasks,
+			suggestion: pilotRequestMessage.suggestion,
+		});
+		this.aircrafts
+			.get(flightId)
+			?.setPilotRequestFlightLevel(pilotRequestMessage.requestParameter);
+	}
+
+	handleBearingPilotRequest(flightId: string, bearing: string): void {
+		this.aircrafts.get(flightId)?.setPilotRequestedBearing(bearing);
 	}
 }

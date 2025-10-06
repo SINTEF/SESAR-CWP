@@ -210,3 +210,19 @@ export function flightConflictMessage(
 	const protoMessage = FlightConflictUpdateMessage.fromBinary(message);
 	aircraftStore.handleNewConflictMessage(protoMessage);
 }
+
+export function flightLevelPilotRequest(
+	{ flightUniqueId }: { [key: string]: string },
+	message: Buffer,
+): void {
+	const json_message = JSON.parse(message.toString());
+	aircraftStore.handleFlightLevelPilotRequest(flightUniqueId, json_message);
+}
+
+export function bearingPilotRequest(
+	{ flightUniqueId }: { [key: string]: string },
+	message: Buffer,
+): void {
+	const bearing = Number.parseInt(message.toString(), 10) || 0;
+	aircraftStore.handleBearingPilotRequest(flightUniqueId, bearing.toString()); // Should it be string or number?
+}

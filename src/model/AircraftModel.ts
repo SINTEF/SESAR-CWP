@@ -85,6 +85,10 @@ export default class AircraftModel {
 
 	frequency = "";
 
+	flightLevelPilotRequest: string | boolean = false;
+
+	bearingPilotRequest: string | boolean = false;
+
 	constructor({
 		aircraftId,
 		assignedFlightId,
@@ -364,5 +368,13 @@ export default class AircraftModel {
 
 	setNextACCFL(nextACCFL: string): void {
 		this.nextACCFL = nextACCFL;
+	}
+
+	setPilotRequestFlightLevel(request: string): void {
+		this.flightLevelPilotRequest = request;
+	}
+
+	setPilotRequestedBearing(bearing: string): void {
+		this.bearingPilotRequest = bearing;
 	}
 }

@@ -1,16 +1,13 @@
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
-import { useDragging } from "../contexts/DraggingContext";
-import type AircraftModel from "../model/AircraftModel";
+import { useDragging } from "../../contexts/DraggingContext";
+import type AircraftModel from "../../model/AircraftModel";
 import {
-	aircraftStore,
 	configurationStore,
 	cwpStore,
 	roleConfigurationStore,
-} from "../state";
-import { convertMetersToFlightLevel } from "../utils";
-import Stca from "./conflict-detection-tools/Stca";
-import Tct from "./conflict-detection-tools/Tct";
+} from "../../state";
+import FlightLevelRequestIcon from "./FlightLevelRequestIcon";
 
 type SubContentProperties = {
 	aircraft: AircraftModel;
@@ -171,7 +168,7 @@ export const NextACCFlightLevel = observer(
 	},
 );
 
-export default observer(function AircraftContentSmall(properties: {
+export default observer(function TaPopupSmall(properties: {
 	aircraft: AircraftModel;
 	flightColor: string;
 	width: number;
@@ -180,33 +177,21 @@ export default observer(function AircraftContentSmall(properties: {
 	const currentSector = roleConfigurationStore.currentControlledSector;
 	return (
 		<table className="border-spacing-2 w-full max-w-full">
-			<tbody style={{ color: flightColor }}>
+			<tbody
+			// style={{ color: flightColor }}
+			>
 				<tr>
 					<td className="flex flex-row">
-						{Math.round(aircraft.lastKnownSpeed)}
-						{aircraftStore.hasStcaConflict(aircraft.aircraftId) && <Stca />}
-						{aircraftStore.hasTctConflict(aircraft.aircraftId) &&
-							!aircraftStore.hasStcaConflict(aircraft.aircraftId) && <Tct />}
+						<FlightLevelRequestIcon
+							flightId={aircraft.aircraftId}
+							primaryColor="#FFF703"
+						/>
 					</td>
 				</tr>
+				<tr></tr>
+				<tr></tr>
 				<tr>
-					<CallSign flightColor={flightColor} aircraft={aircraft} colSpan={1} />
-				</tr>
-				<tr>
-					<Altitude aircraft={aircraft} />
-				</tr>
-				<tr>
-					<td>
-						x
-						{currentSector &&
-						aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-							?.altitude !== null
-							? convertMetersToFlightLevel(
-									aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-										?.altitude as number,
-								)
-							: ""}
-					</td>
+					<td></td>
 				</tr>
 			</tbody>
 		</table>

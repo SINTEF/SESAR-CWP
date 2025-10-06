@@ -1190,6 +1190,101 @@ export interface FlightConflictUpdateMessage {
      */
     id: bigint;
 }
+/**
+ * @generated from protobuf message ProtobufAirTrafficSimulator.TaskMessage
+ */
+export interface TaskMessage {
+    /**
+     * @generated from protobuf field: string taskId = 1
+     */
+    taskId: string;
+    /**
+     * @generated from protobuf field: string requirementName = 2
+     */
+    requirementName: string;
+    /**
+     * @generated from protobuf field: string requirementParameter = 3
+     */
+    requirementParameter: string;
+    /**
+     * @generated from protobuf field: string description = 4
+     */
+    description: string;
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.TaskStatus status = 5
+     */
+    status: TaskStatus;
+    /**
+     * @generated from protobuf field: google.protobuf.Timestamp completedAt = 6
+     */
+    completedAt?: Timestamp;
+}
+/**
+ * @generated from protobuf message ProtobufAirTrafficSimulator.SuggestionMessage
+ */
+export interface SuggestionMessage {
+    /**
+     * @generated from protobuf field: string suggestionId = 1
+     */
+    suggestionId: string;
+    /**
+     * @generated from protobuf field: string suggestionName = 2
+     */
+    suggestionName: string;
+    /**
+     * @generated from protobuf field: string suggestionParameter = 3
+     */
+    suggestionParameter: string;
+    /**
+     * @generated from protobuf field: string description = 4
+     */
+    description: string;
+    /**
+     * @generated from protobuf field: google.protobuf.Timestamp suggestedAt = 5
+     */
+    suggestedAt?: Timestamp;
+}
+/**
+ * @generated from protobuf message ProtobufAirTrafficSimulator.PilotRequestMessage
+ */
+export interface PilotRequestMessage {
+    /**
+     * @generated from protobuf field: string flightId = 1
+     */
+    flightId: string;
+    /**
+     * @generated from protobuf field: string callSign = 2
+     */
+    callSign: string;
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.PilotRequestTypes requestType = 3
+     */
+    requestType: PilotRequestTypes; // "DCT", "FL", "HDG"
+    /**
+     * @generated from protobuf field: string requestParameter = 4
+     */
+    requestParameter: string; // E.g. "350", "35", "USANO"
+    /**
+     * @generated from protobuf field: repeated ProtobufAirTrafficSimulator.TaskMessage tasks = 5
+     */
+    tasks: TaskMessage[]; // Optional task associated with the request.
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.SuggestionMessage suggestion = 6
+     */
+    suggestion?: SuggestionMessage; // Optional suggestions associated with the request.
+    /**
+     * @generated from protobuf field: google.protobuf.Timestamp time = 7
+     */
+    time?: Timestamp; // The time when the request was made.
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.PilotRequestStatus status = 8
+     */
+    status: PilotRequestStatus; // E.g. "Pending", "Accepted", "Rejected"
+    /**
+     * @generated from protobuf field: string responseDetails = 9
+     */
+    responseDetails: string; // E.g. reason for rejection or additional information.
+}
 // Changing the file
 // protoc --js_out=import_style=commonjs,binary:. ProtobufAirTrafficSimulator.proto
 // For changing file here: npm run protoc
@@ -2105,6 +2200,63 @@ export enum ConflictUpdate {
      * @generated from protobuf enum value: Cleared = 2;
      */
     Cleared = 2
+}
+// TEAM ASSISTANT
+
+/**
+ * @generated from protobuf enum ProtobufAirTrafficSimulator.PilotRequestTypes
+ */
+export enum PilotRequestTypes {
+    /**
+     * @generated from protobuf enum value: FLIGHT_LEVEL = 0;
+     */
+    FLIGHT_LEVEL = 0,
+    /**
+     * @generated from protobuf enum value: HEADING = 1;
+     */
+    HEADING = 1,
+    /**
+     * @generated from protobuf enum value: DIRECTTO = 2;
+     */
+    DIRECTTO = 2,
+    /**
+     * @generated from protobuf enum value: SPEED = 3;
+     */
+    SPEED = 3
+}
+/**
+ * @generated from protobuf enum ProtobufAirTrafficSimulator.PilotRequestStatus
+ */
+export enum PilotRequestStatus {
+    /**
+     * @generated from protobuf enum value: PR_PENDING = 0;
+     */
+    PR_PENDING = 0,
+    /**
+     * @generated from protobuf enum value: PR_ACCEPTED = 1;
+     */
+    PR_ACCEPTED = 1,
+    /**
+     * @generated from protobuf enum value: PR_REJECTED = 2;
+     */
+    PR_REJECTED = 2
+}
+/**
+ * @generated from protobuf enum ProtobufAirTrafficSimulator.TaskStatus
+ */
+export enum TaskStatus {
+    /**
+     * @generated from protobuf enum value: TS_PENDING = 0;
+     */
+    TS_PENDING = 0,
+    /**
+     * @generated from protobuf enum value: TS_SUCCESS = 1;
+     */
+    TS_SUCCESS = 1,
+    /**
+     * @generated from protobuf enum value: TS_FAILED = 2;
+     */
+    TS_FAILED = 2
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class PreferenceInterval$Type extends MessageType<PreferenceInterval> {
@@ -5349,3 +5501,276 @@ class FlightConflictUpdateMessage$Type extends MessageType<FlightConflictUpdateM
  * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.FlightConflictUpdateMessage
  */
 export const FlightConflictUpdateMessage = new FlightConflictUpdateMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class TaskMessage$Type extends MessageType<TaskMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.TaskMessage", [
+            { no: 1, name: "taskId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "requirementName", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "requirementParameter", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "description", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "status", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.TaskStatus", TaskStatus] },
+            { no: 6, name: "completedAt", kind: "message", T: () => Timestamp }
+        ]);
+    }
+    create(value?: PartialMessage<TaskMessage>): TaskMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.taskId = "";
+        message.requirementName = "";
+        message.requirementParameter = "";
+        message.description = "";
+        message.status = 0;
+        if (value !== undefined)
+            reflectionMergePartial<TaskMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: TaskMessage): TaskMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string taskId */ 1:
+                    message.taskId = reader.string();
+                    break;
+                case /* string requirementName */ 2:
+                    message.requirementName = reader.string();
+                    break;
+                case /* string requirementParameter */ 3:
+                    message.requirementParameter = reader.string();
+                    break;
+                case /* string description */ 4:
+                    message.description = reader.string();
+                    break;
+                case /* ProtobufAirTrafficSimulator.TaskStatus status */ 5:
+                    message.status = reader.int32();
+                    break;
+                case /* google.protobuf.Timestamp completedAt */ 6:
+                    message.completedAt = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.completedAt);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: TaskMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string taskId = 1; */
+        if (message.taskId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.taskId);
+        /* string requirementName = 2; */
+        if (message.requirementName !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.requirementName);
+        /* string requirementParameter = 3; */
+        if (message.requirementParameter !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.requirementParameter);
+        /* string description = 4; */
+        if (message.description !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.description);
+        /* ProtobufAirTrafficSimulator.TaskStatus status = 5; */
+        if (message.status !== 0)
+            writer.tag(5, WireType.Varint).int32(message.status);
+        /* google.protobuf.Timestamp completedAt = 6; */
+        if (message.completedAt)
+            Timestamp.internalBinaryWrite(message.completedAt, writer.tag(6, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.TaskMessage
+ */
+export const TaskMessage = new TaskMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class SuggestionMessage$Type extends MessageType<SuggestionMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.SuggestionMessage", [
+            { no: 1, name: "suggestionId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "suggestionName", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "suggestionParameter", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "description", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "suggestedAt", kind: "message", T: () => Timestamp }
+        ]);
+    }
+    create(value?: PartialMessage<SuggestionMessage>): SuggestionMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.suggestionId = "";
+        message.suggestionName = "";
+        message.suggestionParameter = "";
+        message.description = "";
+        if (value !== undefined)
+            reflectionMergePartial<SuggestionMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: SuggestionMessage): SuggestionMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string suggestionId */ 1:
+                    message.suggestionId = reader.string();
+                    break;
+                case /* string suggestionName */ 2:
+                    message.suggestionName = reader.string();
+                    break;
+                case /* string suggestionParameter */ 3:
+                    message.suggestionParameter = reader.string();
+                    break;
+                case /* string description */ 4:
+                    message.description = reader.string();
+                    break;
+                case /* google.protobuf.Timestamp suggestedAt */ 5:
+                    message.suggestedAt = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.suggestedAt);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: SuggestionMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string suggestionId = 1; */
+        if (message.suggestionId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.suggestionId);
+        /* string suggestionName = 2; */
+        if (message.suggestionName !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.suggestionName);
+        /* string suggestionParameter = 3; */
+        if (message.suggestionParameter !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.suggestionParameter);
+        /* string description = 4; */
+        if (message.description !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.description);
+        /* google.protobuf.Timestamp suggestedAt = 5; */
+        if (message.suggestedAt)
+            Timestamp.internalBinaryWrite(message.suggestedAt, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.SuggestionMessage
+ */
+export const SuggestionMessage = new SuggestionMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class PilotRequestMessage$Type extends MessageType<PilotRequestMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.PilotRequestMessage", [
+            { no: 1, name: "flightId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "callSign", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "requestType", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.PilotRequestTypes", PilotRequestTypes] },
+            { no: 4, name: "requestParameter", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "tasks", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => TaskMessage },
+            { no: 6, name: "suggestion", kind: "message", T: () => SuggestionMessage },
+            { no: 7, name: "time", kind: "message", T: () => Timestamp },
+            { no: 8, name: "status", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.PilotRequestStatus", PilotRequestStatus] },
+            { no: 9, name: "responseDetails", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<PilotRequestMessage>): PilotRequestMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.flightId = "";
+        message.callSign = "";
+        message.requestType = 0;
+        message.requestParameter = "";
+        message.tasks = [];
+        message.status = 0;
+        message.responseDetails = "";
+        if (value !== undefined)
+            reflectionMergePartial<PilotRequestMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: PilotRequestMessage): PilotRequestMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string flightId */ 1:
+                    message.flightId = reader.string();
+                    break;
+                case /* string callSign */ 2:
+                    message.callSign = reader.string();
+                    break;
+                case /* ProtobufAirTrafficSimulator.PilotRequestTypes requestType */ 3:
+                    message.requestType = reader.int32();
+                    break;
+                case /* string requestParameter */ 4:
+                    message.requestParameter = reader.string();
+                    break;
+                case /* repeated ProtobufAirTrafficSimulator.TaskMessage tasks */ 5:
+                    message.tasks.push(TaskMessage.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                case /* ProtobufAirTrafficSimulator.SuggestionMessage suggestion */ 6:
+                    message.suggestion = SuggestionMessage.internalBinaryRead(reader, reader.uint32(), options, message.suggestion);
+                    break;
+                case /* google.protobuf.Timestamp time */ 7:
+                    message.time = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.time);
+                    break;
+                case /* ProtobufAirTrafficSimulator.PilotRequestStatus status */ 8:
+                    message.status = reader.int32();
+                    break;
+                case /* string responseDetails */ 9:
+                    message.responseDetails = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: PilotRequestMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string flightId = 1; */
+        if (message.flightId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.flightId);
+        /* string callSign = 2; */
+        if (message.callSign !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.callSign);
+        /* ProtobufAirTrafficSimulator.PilotRequestTypes requestType = 3; */
+        if (message.requestType !== 0)
+            writer.tag(3, WireType.Varint).int32(message.requestType);
+        /* string requestParameter = 4; */
+        if (message.requestParameter !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.requestParameter);
+        /* repeated ProtobufAirTrafficSimulator.TaskMessage tasks = 5; */
+        for (let i = 0; i < message.tasks.length; i++)
+            TaskMessage.internalBinaryWrite(message.tasks[i], writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* ProtobufAirTrafficSimulator.SuggestionMessage suggestion = 6; */
+        if (message.suggestion)
+            SuggestionMessage.internalBinaryWrite(message.suggestion, writer.tag(6, WireType.LengthDelimited).fork(), options).join();
+        /* google.protobuf.Timestamp time = 7; */
+        if (message.time)
+            Timestamp.internalBinaryWrite(message.time, writer.tag(7, WireType.LengthDelimited).fork(), options).join();
+        /* ProtobufAirTrafficSimulator.PilotRequestStatus status = 8; */
+        if (message.status !== 0)
+            writer.tag(8, WireType.Varint).int32(message.status);
+        /* string responseDetails = 9; */
+        if (message.responseDetails !== "")
+            writer.tag(9, WireType.LengthDelimited).string(message.responseDetails);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.PilotRequestMessage
+ */
+export const PilotRequestMessage = new PilotRequestMessage$Type();

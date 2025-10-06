@@ -119,6 +119,10 @@ export default class CWPStore {
 	hoveredMarkerAircraftId: string | null = null;
 	hoveredFlightLabelId: string | null = null;
 
+	hoveredTaLabelAircraftId: string | null = null;
+
+	taArrowClickedAircraftId: string | null = null;
+
 	constructor({
 		altitudeFilter,
 	}: {
@@ -480,5 +484,17 @@ export default class CWPStore {
 	}
 	removeHoveredMarkerAircraftId(): void {
 		this.hoveredMarkerAircraftId = null;
+	}
+	setHoveredTaLabelAircraftId(aircraftId: string): void {
+		this.hoveredTaLabelAircraftId = aircraftId;
+	}
+	removeHoveredTaLabelAircraftId(): void {
+		this.hoveredTaLabelAircraftId = null;
+	}
+	setTaArrowClickedAircraftId(aircraftId: string): void {
+		this.taArrowClickedAircraftId = aircraftId;
+	}
+	removeTaArrowClickedAircraftId(): void {
+		this.taArrowClickedAircraftId = null;
 	}
 }

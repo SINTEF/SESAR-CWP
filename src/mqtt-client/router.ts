@@ -4,9 +4,11 @@ import {
 	airspaceAvailability,
 	airspaces,
 	airTrafficControllerMessage,
+	bearingPilotRequest,
 	currentAirspaceConfiguration,
 	flightConflictMessage,
 	flightEnteringAirspaceMessage,
+	flightLevelPilotRequest,
 	flightRoutes,
 	frontendACCBearing,
 	frontendACCFlightLevel,
@@ -62,6 +64,9 @@ const router = rlite<Buffer>(notFound, {
 		airTrafficControllerMessage,
 	"ATM/:clientId/FlightEnteringAirspaceMessage/:flightUniqueId/:time":
 		flightEnteringAirspaceMessage,
+	"ATM/:clientId/FlightLevelPilotRequest/:flightUniqueId":
+		flightLevelPilotRequest,
+	"ATM/:clientId/BearingPilotRequest/:flightUniqueId": bearingPilotRequest,
 	"ATM/:clientId/TesselatedAirspaceVolume/:airspaceVolumeId": ignored,
 	"ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId": ignored,
 	"ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId":

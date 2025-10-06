@@ -684,6 +684,56 @@ message FlightConflictUpdateMessage {
   Position4D conflictingFlightPosition = 8;
   uint64 id                            = 9;
 }
+
+// TEAM ASSISTANT
+
+enum PilotRequestTypes {
+  FLIGHT_LEVEL   = 0;
+  HEADING        = 1;
+  DIRECTTO      = 2;
+  SPEED         = 3;
+}
+
+enum PilotRequestStatus {
+  PR_PENDING   = 0; // Pending feedback from pilot.
+  PR_ACCEPTED  = 1; // Have done things that can be checked for decision support
+  PR_REJECTED  = 2; // No alternative
+}
+
+enum TaskStatus {
+  TS_PENDING    = 0; 
+  TS_SUCCESS    = 1; 
+  TS_FAILED     = 2; 
+}
+
+message TaskMessage {
+  string taskId                   = 1;
+  string requirementName          = 2;
+  string requirementParameter     = 3;
+  string description              = 4;
+  TaskStatus status               = 5;
+  google.protobuf.Timestamp completedAt = 6;
+}
+
+message SuggestionMessage {
+  string suggestionId             = 1;
+  string suggestionName           = 2;
+  string suggestionParameter      = 3;
+  string description              = 4;
+  google.protobuf.Timestamp suggestedAt = 5;
+}
+
+message PilotRequestMessage {
+  string flightId                  = 1;
+  string callSign                  = 2;
+  PilotRequestTypes requestType    = 3; // "DCT", "FL", "HDG"
+  string requestParameter          = 4; // E.g. "350", "35", "USANO"
+  repeated TaskMessage tasks       = 5; // Optional task associated with the request.
+  SuggestionMessage suggestion = 6; // Optional suggestions associated with the request.
+  google.protobuf.Timestamp time   = 7; // The time when the request was made.
+  PilotRequestStatus status        = 8; // E.g. "Pending", "Accepted", "Rejected"
+  string responseDetails           = 9; // E.g. reason for rejection or additional information.
+}
 // ###################################################################################
 // * Messages, end.                                                                  |
 //  ##################################################################################

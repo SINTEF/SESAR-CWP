@@ -9,6 +9,7 @@ import {
 	roleConfigurationStore,
 	trajectoryPredictionStore,
 } from "../state";
+// import AircraftPopup from "./AircraftPopup";
 import DraggableMarker from "./DraggableMarker";
 
 // Memoized function to calculate hexagon points - cached for performance
