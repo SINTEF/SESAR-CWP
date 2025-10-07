@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import type { MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import * as maplibregl from "maplibre-gl";
 import { usePostHog } from "posthog-js/react";
@@ -9,7 +10,6 @@ import ReactMapGL, {
 } from "react-map-gl/maplibre";
 import { cwpStore, distanceLineStore, mapViewportStore } from "../state";
 import { useMapImage } from "../useMapImage";
-import Agenda from "./Agenda";
 import Aircrafts from "./Aircrafts";
 import DistanceMarkers from "./DistanceMarkers";
 import DistanceMeasurements from "./DistanceMeasurements";
@@ -66,8 +66,8 @@ const mapStyle: StyleSpecification = {
 
 const style: React.CSSProperties = {
 	width: "100%",
-	height: "calc(100vh - 1.9rem)",
-	background: "grey",
+	height: "100%",
+	background: "gray",
 };
 
 const CANVAS_CONTEXT_ATTRIBUTES: WebGLContextAttributes = {
@@ -190,11 +190,10 @@ export default function Map() {
 
 	return (
 		<div
-			className={
-				isMoving /*|| isDragging*/
-					? "radar-map-container map-is-moving"
-					: "radar-map-container"
-			}
+			className={classNames(
+				"radar-map-container grow",
+				isMoving && "map-is-moving",
+			)}
 		>
 			<ReactMapGL
 				ref={mapRef}
@@ -234,7 +233,6 @@ export default function Map() {
 				<Aircrafts />
 				<HighlightedAircraft />
 				<LimboAircrafts />
-				<Agenda />
 				<NavigationControl position="bottom-left" visualizePitch={true} />
 				<FullscreenControl position="bottom-left" containerId="root" />
 			</ReactMapGL>

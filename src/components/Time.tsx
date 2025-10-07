@@ -12,7 +12,7 @@ export default observer(function Time() {
 	const time = formatSimulatorTimeHMS(simulatorStore.timestamp);
 
 	return (
-		<div className="font-mono right-1/2 rounded-sm text-white font-bold text-2xl px-2 py-0.5">
+		<div className="font-mono right-1/2 rounded-sm text-white font-bold text-xl px-1 py-0.5">
 			{time}
 		</div>
 	);

@@ -227,16 +227,6 @@ input[type="range"].range-vertical {
 
 /* COMPASS - Map control styles only */
 
-#map-3d > * .maplibregl-ctrl-group .maplibregl-ctrl-compass {
-	position: absolute;
-	top: 7.5em;
-	right: 6.8em;
-	width: 3em;
-	height: 3em;
-	z-index: 0;
-	border: 0;
-}
-
 .mapboxgl-ctrl-top-right,
 .maplibregl-ctrl-top-right {
 	z-index: -1;
@@ -246,12 +236,6 @@ input[type="range"].range-vertical {
 	background-color: transparent;
 }
 
-#map-3d > * .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
-button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
-	background-color: transparent;
-	background-image: url("/compassArrow.svg");
-	background-size: 120% 120%;
-}
 #radar-map > * .mapboxgl-ctrl button.mapboxgl-ctrl-compass .mapboxgl-ctrl-icon,
 .maplibregl-ctrl button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
 	background-color: transparent;
@@ -313,4 +297,13 @@ html .btn {
 
 .maplibregl-marker.disable-animation-marker * {
 	background-color: orange !important;
+}
+
+/** Full viewport height and width using dynamic viewport units */
+.h-screen {
+  height: 100dvh;
+}
+
+.w-screen {
+  width: 100dvw;
 }

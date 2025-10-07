@@ -1,4 +1,5 @@
 import { usePostHog } from "posthog-js/react";
+import Agenda from "./components/Agenda";
 import AltitudeFilterPanel from "./components/AltitudeFilterPanel";
 import ControllerModal from "./components/ControllerModal";
 import Draggable2DView from "./components/Draggable2DView";
@@ -23,14 +24,17 @@ export default function App(/* properties */) {
 
 	return (
 		<main>
-			<Map />
+			<div className="flex flex-row h-screen w-screen">
+				<Map />
+				<Agenda />
+			</div>
 			<DypTable />
 			<Draggable2DView />
 			<ControllerModal />
 			<AltitudeFilterPanel />
 			<ImageConfiguration />
 			<SepQdmOverlay />
-			<div className="fixed top-3 left-2 z-50">
+			<div className="fixed bottom-3 right-2 z-50">
 				<MqttIndicators />
 			</div>
 		</main>

@@ -77,14 +77,14 @@ export default observer(function Agenda({
 	};
 
 	return (
-		<div className="fixed right-0 top-0 h-screen w-44 bg-base-300 text-base-content border-l border-base-200 z-500">
+		<div className="w-44 bg-base-300 text-base-content border-l border-base-200 z-40">
 			{/* Bottom time label (on right side) */}
 			<div className="absolute bottom-1 right-1 text-[10px] text-base-content/70 select-none">
 				{startLabel}
 			</div>
 
 			{/* Minute grid */}
-			<div className="h-full grid" style={gridStyle}>
+			<div className="grid" style={gridStyle}>
 				{/* Major hour separators */}
 				{Array.from({ length: MAJOR_ROWS + 1 }).map((_, i) => (
 					<div
