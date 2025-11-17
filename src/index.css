@@ -301,9 +301,9 @@ html .btn {
 
 /** Full viewport height and width using dynamic viewport units */
 .h-screen {
-  height: 100dvh;
+	height: 100dvh;
 }
 
 .w-screen {
-  width: 100dvw;
+	width: 100dvw;
 }
