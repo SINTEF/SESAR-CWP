@@ -1,5 +1,4 @@
 import "maplibre-gl/dist/maplibre-gl.css";
-import "allotment/dist/style.css";
 import "@fontsource/ibm-plex-sans";
 import "@fontsource/ibm-plex-mono";
 import "./index.css";
