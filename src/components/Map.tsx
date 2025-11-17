@@ -11,6 +11,7 @@ import ReactMapGL, {
 import { cwpStore, distanceLineStore, mapViewportStore } from "../state";
 import { useMapImage } from "../useMapImage";
 import Aircrafts from "./Aircrafts";
+import CenterTextOverlay from "./CenterTextOverlay";
 import DistanceMarkers from "./DistanceMarkers";
 import DistanceMeasurements from "./DistanceMeasurements";
 import FixesPoints from "./FixesPoints";
@@ -219,6 +220,7 @@ export default function Map() {
 				// dragRotate={false}
 				canvasContextAttributes={CANVAS_CONTEXT_ATTRIBUTES}
 			>
+				<CenterTextOverlay />
 				<DistanceMarkers />
 				<DistanceMeasurements />
 				<Sectors />

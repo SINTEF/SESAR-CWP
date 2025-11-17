@@ -87,6 +87,7 @@ The app communicates with an ATC simulator via MQTT:
 - Overall, the source code should be "good enough".
 - However, we do care about high quality code and maintainability. It's about finding the right balance.
 - Use the type system effectively, it's helpful. Avoid `any` or `unknown`.
+- Use Tailwind CSS utility classes for styling.
 - Prefer composition to inheritance.
 - Favour immutability where possible.
 - Document the "why".

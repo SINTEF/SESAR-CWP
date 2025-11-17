@@ -238,7 +238,7 @@ const OpenVerticalWindowButton = observer(function OpenVerticalWindowButton() {
 export default function ImageConfiguration() {
 	return (
 		<div className="absolute top-0 left-0 h-auto p-0 flex flex-col justify-start items-start z-[1]">
-			<div className="flex gap-2 bg-gray-950/50 p-2 ml-1 mt-1 items-center backdrop-blur-[1.5px] rounded-sm">
+			<div className="flex gap-2 bg-gray-950/50 p-2 ml-2 mt-2 items-center backdrop-blur-[1.5px] rounded-sm">
 				<Time />
 				<div className="flex">
 					<ResetButton />
@@ -258,7 +258,7 @@ export default function ImageConfiguration() {
 					<N_AButton />
 				</div> */}
 			</div>
-			<div className="flex gap-4 bg-gray-950/50 p-2 ml-1 mt-1 items-center backdrop-blur-[1.5px] rounded-sm">
+			<div className="flex gap-4 bg-gray-950/50 p-2 ml-2 mt-1.5 items-center backdrop-blur-[1.5px] rounded-sm">
 				<SpeedVectorNavbarControl />
 			</div>
 			{/* <div className="image-configuration-section">
