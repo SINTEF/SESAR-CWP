@@ -474,7 +474,6 @@ export default class AircraftStore {
 		flightId: string,
 		pilotRequestMessage: PilotRequestMessage,
 	): void {
-		console.log(this.aircrafts.get(flightId)?.callSign);
 		this.teamAssistantRequest.set(flightId, {
 			flightId,
 			requestType: 0, // Flight Level

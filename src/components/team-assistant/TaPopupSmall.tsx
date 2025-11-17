@@ -173,8 +173,8 @@ export default observer(function TaPopupSmall(properties: {
 	flightColor: string;
 	width: number;
 }) {
-	const { aircraft, flightColor } = properties;
-	const currentSector = roleConfigurationStore.currentControlledSector;
+	const { aircraft /*, flightColor */ } = properties;
+	const _currentSector = roleConfigurationStore.currentControlledSector;
 	return (
 		<table className="border-spacing-2 w-full max-w-full">
 			<tbody

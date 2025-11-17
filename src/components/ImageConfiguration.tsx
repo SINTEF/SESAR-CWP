@@ -35,10 +35,10 @@ function GenericButton({
 			type="button"
 			onClick={onClick}
 			className={classNames(
-				"h-full text-white text-xs bg-[#1e3a5f] rounded-none border border-[#2a5d8f] overflow-hidden whitespace-nowrap shrink",
-				"hover:bg-[#2a5d8f] hover:border-[#4b90db] active:bg-[#366fa3] active:border-[#5aa1e6]",
-				"focus:outline-none focus:shadow-none focus:border-[#3f77b2] p-1.5",
-				active && "bg-[#4b90db] border-[#6bb3f0]",
+				"h-full text-white text-xs bg-[#1e3a5f] rounded-none overflow-hidden whitespace-nowrap shrink",
+				"hover:bg-[#2a5d8f] active:bg-[#366fa3]",
+				"focus:outline-none focus:shadow-none focus:bg-[#3f77b2] p-1.5 pt-1 pb-1",
+				active && "bg-[#4b90db]",
 			)}
 		>
 			{children}
@@ -238,9 +238,9 @@ const OpenVerticalWindowButton = observer(function OpenVerticalWindowButton() {
 export default function ImageConfiguration() {
 	return (
 		<div className="absolute top-0 left-0 h-auto p-0 flex flex-col justify-start items-start z-[1]">
-			<div className="flex gap-2 bg-[#232323] p-4 ml-1 mt-1 items-center">
+			<div className="flex gap-2 bg-gray-950/50 p-2 ml-2 mt-2 items-center backdrop-blur-[1.5px] rounded-sm">
 				<Time />
-				<div>
+				<div className="flex">
 					<ResetButton />
 				</div>
 				<div className="flex">
@@ -248,7 +248,7 @@ export default function ImageConfiguration() {
 					<AirwaysButton />
 					<SectorLabelsButton />
 				</div>
-				<div>
+				<div className="flex">
 					<OpenVerticalWindowButton />
 				</div>
 				{/* <div>
@@ -258,7 +258,7 @@ export default function ImageConfiguration() {
 					<N_AButton />
 				</div> */}
 			</div>
-			<div className="flex gap-4 bg-[#232323] p-4 ml-1 mt-1 items-center">
+			<div className="flex gap-4 bg-gray-950/50 p-2 ml-2 mt-1.5 items-center backdrop-blur-[1.5px] rounded-sm">
 				<SpeedVectorNavbarControl />
 			</div>
 			{/* <div className="image-configuration-section">
