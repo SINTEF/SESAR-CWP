@@ -88,7 +88,7 @@ export default observer(function SectorSideView() {
 
 	return (
 		<div>
-			<div className="text-xs font-bold m-2 text-white">
+			<div className="text-xs font-bold m-1 mt-0 pt-1 text-white">
 				Vertical Window | {selectedAircraft?.callSign}
 			</div>
 			<ResponsiveContainer width="100%" height={400}>
@@ -102,7 +102,7 @@ export default observer(function SectorSideView() {
 						domain={xDomain}
 						type="number"
 						ticks={xTicks}
-						tickFormatter={formatSimulatorTimeHM}
+						tickFormatter={(value) => formatSimulatorTimeHM(value)}
 						// Draw custom ticks to get lighter line colours
 						tick={({ x, y, payload }) => (
 							<g transform={`translate(${x},${y})`}>
