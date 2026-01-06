@@ -22,20 +22,28 @@ export function handlePublishPromise(promise: Promise<void>): void {
 }
 
 export async function startSimulator(): Promise<void> {
-	await publish(`simulator/${clientId}/simCommand`, "start");
+	await publish(`ats/${clientId}/commands/sim`, "start");
 }
 
 export async function pauseSimulator(): Promise<void> {
-	await publish(`simulator/${clientId}/simCommand`, "pause");
+	await publish(`ats/${clientId}/commands/sim`, "pause");
 }
 
 export async function resetSimulator(): Promise<void> {
-	await publish(`simulator/${clientId}/simCommand`, "reset", { qos: 2 });
+	await publish(`ats/${clientId}/commands/sim`, "reset", { qos: 2 });
+}
+
+export async function fastForwardSimulator(minutes: number): Promise<void> {
+	await publish(`ats/${clientId}/commands/sim`, `ffw ${minutes}`);
+}
+
+export async function restartSimulator(): Promise<void> {
+	await publish(`ats/${clientId}/commands/sim`, "quit", { qos: 2 });
 }
 
 export async function setSpeedFactor(speedFactor: number): Promise<void> {
 	await publish(
-		`simulator/${clientId}/speedFactor`,
+		`ats/${clientId}/commands/speed-factor`,
 		serializeForSimulator(speedFactor),
 	);
 }
@@ -46,7 +54,7 @@ export async function changeSpeedOfAircraft(
 	newSpeed: number,
 ): Promise<void> {
 	await publish(
-		`simulator/${clientId}/changeSpeedOfAircraft/`,
+		`ats/${clientId}/commands/change-speed/`,
 		serializeForSimulator(pilotId, flightId, newSpeed),
 	);
 }
@@ -57,7 +65,7 @@ export async function changeFlightLevelOfAircraft(
 	newFlightLevel: string,
 ): Promise<void> {
 	await publish(
-		`simulator/${clientId}/changeFlightLevelOfAircraft/`,
+		`ats/${clientId}/commands/change-flight-level/`,
 		serializeForSimulator(pilotId, flightId, newFlightLevel),
 	);
 }
@@ -68,7 +76,7 @@ export async function changeBearingOfAircraft(
 	newBearing: number,
 ): Promise<void> {
 	await publish(
-		`simulator/${clientId}/changeBearingOfAircraft/`,
+		`ats/${clientId}/commands/change-bearing/`,
 		serializeForSimulator(pilotId, flightId, newBearing),
 	);
 }
@@ -93,7 +101,7 @@ export async function changeNextWaypointOfAircraft({
 	viaWaypointId: string;
 }): Promise<void> {
 	await publish(
-		`simulator/${clientId}/changeNextWaypointOfAircraft/`,
+		`ats/${clientId}/commands/change-waypoint/`,
 		serializeForSimulator(
 			pilotId,
 			waypointId,
@@ -113,7 +121,7 @@ export async function acceptFlight(
 	flightUniqueId: string,
 ): Promise<void> {
 	await publish(
-		`simulator/${clientId}/acceptedFlight/`,
+		`ats/${clientId}/commands/accept-flight/`,
 		serializeForSimulator(
 			fromControllableSector,
 			toControllableSector,
@@ -183,7 +191,7 @@ export async function tentativeFlight(
 	flightUniqueId: string,
 ): Promise<void> {
 	await publish(
-		`simulator/${clientId}/tentativeFlight/`,
+		`ats/${clientId}/commands/tentative-flight/`,
 		serializeForSimulator(
 			fromControllableSector,
 			toControllableSector,

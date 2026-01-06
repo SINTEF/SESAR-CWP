@@ -19,6 +19,7 @@ import {
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
 import {
+	adminStore,
 	aircraftStore,
 	airspaceStore,
 	configurationStore,
@@ -225,4 +226,9 @@ export function bearingPilotRequest(
 ): void {
 	const bearing = Number.parseInt(message.toString(), 10) || 0;
 	aircraftStore.handleBearingPilotRequest(flightUniqueId, bearing.toString()); // Should it be string or number?
+}
+
+export function simulatorLogs(_parameters: unknown, message: Buffer): void {
+	const logMessage = message.toString();
+	adminStore.handleLogMessage(logMessage);
 }

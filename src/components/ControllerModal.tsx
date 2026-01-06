@@ -2,7 +2,12 @@ import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import * as React from "react";
 
-import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
+import {
+	adminStore,
+	configurationStore,
+	cwpStore,
+	roleConfigurationStore,
+} from "../state";
 
 export default observer(function ControllerModal() {
 	const posthog = usePostHog();
@@ -137,6 +142,22 @@ export default observer(function ControllerModal() {
 								className={`btn ${selectedCWP === "All" ? "btn-primary" : "btn-outline"}`}
 							>
 								Master
+							</button>
+						</div>
+
+						{/* Admin mode */}
+						<div className="flex flex-wrap gap-2 mt-4">
+							<button
+								onClick={() => {
+									if (!adminStore.adminModeEnabled) {
+										adminStore.toggleAdminMode();
+										adminStore.setAdminPanel(true);
+									}
+									handleSelect("All");
+								}}
+								className={`btn ${adminStore.adminModeEnabled ? "btn-primary" : "btn-outline"}`}
+							>
+								Admin Mode
 							</button>
 						</div>
 					</div>

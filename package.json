@@ -20,7 +20,7 @@
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "mqtt": "^5.14.1",
-    "posthog-js": "^1.309.1",
+    "posthog-js": "^1.314.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-draggable": "^4.5.0",
@@ -54,7 +54,7 @@
     ]
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.10",
+    "@biomejs/biome": "^2.3.11",
     "@protobuf-ts/plugin": "^2.11.1",
     "@tailwindcss/vite": "^4.1.18",
     "@types/mapbox__sphericalmercator": "^1.2.3",

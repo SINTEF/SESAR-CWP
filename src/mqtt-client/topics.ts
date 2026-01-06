@@ -1,3 +1,8 @@
 import clientId from "./clientId";
 
-export default [`ATM/${clientId}/#`, `frontend/${clientId}/#`];
+export default [
+	`ats/${clientId}/data/#`,
+	`ats/${clientId}/status/#`,
+	`ats/${clientId}/logs`,
+	`frontend/${clientId}/#`,
+];

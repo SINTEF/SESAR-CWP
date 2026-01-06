@@ -29,53 +29,54 @@ import {
 	newSimulatorTime,
 	notFound,
 	roleConfiguration,
+	simulatorLogs,
 	targetReport,
 } from "./subscribers";
 
 const router = rlite<Buffer>(notFound, {
-	"ATM/:clientId/Initialisation/Completed": ignored,
-	"ATM/:clientId/TargetReports/:vehicleId": targetReport,
-	// 'ATM/:clientId/AvailabilityIntervalsMessage/:objectId/:time': newAvailabilityIntervalsMessage,
-	"ATM/:clientId/AvailabilitySchedule": newAvailabilitySchedule,
-	"ATM/:clientId/AllTargetReports/:time": ignored,
-	"ATM/:clientId/FlightMilestoneTimes/:flightUniqueId": ignored,
-	"ATM/:clientId/FlightMilestonePositions/:flightUniqueId":
+	"ats/:clientId/data/init-completed": ignored,
+	"ats/:clientId/data/target-reports/:vehicleId": targetReport,
+	"ats/:clientId/data/availability-schedule": newAvailabilitySchedule,
+	"ats/:clientId/data/flight-milestone-times/:flightUniqueId": ignored,
+	"ats/:clientId/data/flight-milestone-positions/:flightUniqueId":
 		newFlightMilestonePositions,
-	"ATM/:clientId/PlannedFlights/:flightUniqueId": ignored,
-	"ATM/:clientId/AircraftTypes/:vehicleTypeId": newAircraftTypeMessage,
-	"ATM/:clientId/Aircrafts/:vehicleTypeId": newAircraftMessage,
-	"ATM/:clientId/NewFlights/:flightUniqueId": newFlight,
-	"ATM/:clientId/FlightStatusCodes/:flightUniqueId": ignored,
-	"ATM/:clientId/Routes/:networkId/:objectId": ignored,
-	"ATM/:clientId/FlightRoutes/:flightUniqueId": flightRoutes,
-	"ATM/:clientId/StandManoeuvres/:networkId/:objectId": ignored,
-	"ATM/:clientId/Airspaces/:airspaceId": airspaces,
-	"ATM/:clientId/Sectors/:sectorId": ignored, // no longer needed
-	"ATM/:clientId/Airblocks/:airblockId": ignored, // no longer needed
-	"ATM/:clientId/AirspaceConfigurations/:configurationId":
+	"ats/:clientId/data/planned-flights/:flightUniqueId": ignored,
+	"ats/:clientId/data/aircraft-types/:vehicleTypeId": newAircraftTypeMessage,
+	"ats/:clientId/data/aircrafts/:vehicleTypeId": newAircraftMessage,
+	"ats/:clientId/data/flights/:flightUniqueId": newFlight,
+	"ats/:clientId/data/flight-status/:flightUniqueId": ignored,
+	"ats/:clientId/data/routes/:networkId/:objectId": ignored,
+	"ats/:clientId/data/flight-routes/:flightUniqueId": flightRoutes,
+	"ats/:clientId/data/airspaces/:airspaceId": airspaces,
+	"ats/:clientId/data/sectors/:sectorId": ignored, // no longer needed
+	"ats/:clientId/data/airblocks/:airblockId": ignored, // no longer needed
+	"ats/:clientId/data/airspace-configs/:configurationId":
 		newAirspaceConfiguration,
-	"ATM/:clientId/AirspaceAvailability/:airspaceId/:time": airspaceAvailability,
-	"ATM/:clientId/Segments/:segmentId": ignored,
-	"ATM/:clientId/Waypoints/:objectId": ignored,
-	"ATM/:clientId/Points/:nodeId": newPointMessage,
-	"ATM/:clientId/RoleConfiguration/:roleName": roleConfiguration,
-	"ATM/:clientId/CurrentAirspaceConfiguration": currentAirspaceConfiguration,
-	"ATM/:clientId/AirTrafficControllerAssignmentMessage/:objectId/:time":
+	"ats/:clientId/data/airspace-availability/:airspaceId/:time":
+		airspaceAvailability,
+	"ats/:clientId/data/segments/:segmentId": ignored,
+	"ats/:clientId/data/waypoints/:objectId": ignored,
+	"ats/:clientId/data/points/:nodeId": newPointMessage,
+	"ats/:clientId/data/role-configs/:roleName": roleConfiguration,
+	"ats/:clientId/data/current-config": currentAirspaceConfiguration,
+	"ats/:clientId/data/controller-assignments/:objectId/:time":
 		airTrafficControllerMessage,
-	"ATM/:clientId/FlightEnteringAirspaceMessage/:flightUniqueId/:time":
+	"ats/:clientId/data/flight-entering-airspace/:flightUniqueId/:time":
 		flightEnteringAirspaceMessage,
-	"ATM/:clientId/FlightLevelPilotRequest/:flightUniqueId":
+	"ats/:clientId/data/flight-level-pilot-request/:flightUniqueId":
 		flightLevelPilotRequest,
-	"ATM/:clientId/BearingPilotRequest/:flightUniqueId": bearingPilotRequest,
-	"ATM/:clientId/TesselatedAirspaceVolume/:airspaceVolumeId": ignored,
-	"ATM/:clientId/NewAirspaceVolumeFlightListMessage/:airspaceVolumeId": ignored,
-	"ATM/:clientId/AddAcceptedFlightMessage/:toControllableAirspaceVolume/:flightId":
+	"ats/:clientId/data/bearing-pilot-request/:flightUniqueId":
+		bearingPilotRequest,
+	"ats/:clientId/data/tessellated-volumes/:airspaceVolumeId": ignored,
+	"ats/:clientId/data/volume-flight-lists/:airspaceVolumeId": ignored,
+	"ats/:clientId/data/accepted-flights/:toControllableAirspaceVolume/:flightId":
 		ignored,
-	"ATM/:clientId/AddTentativeFlightMessage/:toControllableAirspaceVolume/:flightId":
+	"ats/:clientId/data/tentative-flights/:toControllableAirspaceVolume/:flightId":
 		ignored,
-	"ATM/:clientId/status/time": newSimulatorTime,
-	"ATM/:clientId/status/:status": ignored,
-	"ATM/:clientId/FlightConflictUpdates/:flightUniqueId1/:flightUniqueId2":
+	"ats/:clientId/status/time": newSimulatorTime,
+	"ats/:clientId/status/:status": ignored,
+	"ats/:clientId/logs": simulatorLogs,
+	"ats/:clientId/data/flight-conflicts/:flightUniqueId1/:flightUniqueId2":
 		flightConflictMessage,
 	"frontend/:clientId/flight/:flightId/controller": frontendFlightController,
 	"frontend/:clientId/flight/:flightId/ACCFL": frontendACCFlightLevel,
