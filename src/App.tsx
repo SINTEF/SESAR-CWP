@@ -1,8 +1,10 @@
 import { usePostHog } from "posthog-js/react";
 import Agenda from "./components/Agenda";
 import AltitudeFilterPanel from "./components/AltitudeFilterPanel";
+import ConnectionErrorModal from "./components/ConnectionErrorModal";
 import ControllerModal from "./components/ControllerModal";
 import Draggable2DView from "./components/Draggable2DView";
+import DraggableAdminPanel from "./components/DraggableAdminPanel";
 import DypTable from "./components/DypTable";
 import ImageConfiguration from "./components/ImageConfiguration";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: Should change one day, but not today
@@ -30,10 +32,12 @@ export default function App(/* properties */) {
 			</div>
 			<DypTable />
 			<Draggable2DView />
+			<DraggableAdminPanel />
 			<ControllerModal />
 			<AltitudeFilterPanel />
 			<ImageConfiguration />
 			<SepQdmOverlay />
+			<ConnectionErrorModal />
 			<div className="fixed bottom-3 right-2 z-50">
 				<MqttIndicators />
 			</div>

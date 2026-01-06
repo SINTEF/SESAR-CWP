@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import type { Metric } from "web-vitals";
 
 const reportWebVitals = (onPerfEntry?: (metric: Metric) => void): void => {
@@ -13,6 +14,7 @@ const reportWebVitals = (onPerfEntry?: (metric: Metric) => void): void => {
 			.catch((error) => {
 				// biome-ignore lint/suspicious/noConsole: needed for now
 				console.error(error);
+				Sentry.captureException(error);
 			});
 	}
 };

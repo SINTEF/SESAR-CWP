@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import type { ObservableMap } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
 import type {
@@ -238,6 +239,10 @@ export default class AircraftStore {
 					"Received milestone position for unknown aircraft",
 					flightUniqueId,
 				);
+				Sentry.captureMessage(
+					`Received milestone position for unknown aircraft: ${flightUniqueId}`,
+					"warning",
+				);
 				return;
 			}
 
@@ -255,6 +260,10 @@ export default class AircraftStore {
 			console.warn(
 				"Received sector in flight message for unknown aircraft",
 				flightUniqueId,
+			);
+			Sentry.captureMessage(
+				`Received sector in flight message for unknown aircraft: ${flightUniqueId}`,
+				"warning",
 			);
 			return;
 		}

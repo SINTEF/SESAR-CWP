@@ -1,3 +1,4 @@
+import AdminStore from "./model/AdminStore";
 import AircraftStore from "./model/AircraftStore";
 import AirspaceStore from "./model/AirspaceStore";
 import ConfigurationStore from "./model/ConfigurationStore";
@@ -11,6 +12,7 @@ import TrajectoryPredictionStore from "./model/TrajectoryPredictionStore";
 import MapViewportStore from "./stores/MapViewportStore";
 
 export const simulatorStore = new SimulatorStore();
+export const adminStore = new AdminStore();
 export const aircraftStore = new AircraftStore({
 	simulatorStore,
 });

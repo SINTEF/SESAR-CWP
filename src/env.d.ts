@@ -10,6 +10,8 @@ interface ImportMetaEnv {
 	readonly VITE_REVISION: string | undefined;
 	readonly VITE_PUBLIC_POSTHOG_KEY: string | undefined;
 	readonly VITE_PUBLIC_POSTHOG_HOST: string | undefined;
+	/** When "true", localhost requires MQTT authentication (default: disabled) */
+	readonly VITE_LOCALHOST_AUTH_REQUIRED: string | undefined;
 }
 
 interface ImportMeta {

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import type { LngLatBounds } from "maplibre-gl";
 import { makeAutoObservable } from "mobx";
 import type { MapRef } from "react-map-gl/maplibre";
@@ -69,6 +70,7 @@ export default class MapViewportStore {
 		} catch (error) {
 			// biome-ignore lint/suspicious/noConsole: error logging for map state updates
 			console.warn("Failed to update viewport state:", error);
+			Sentry.captureException(error);
 		}
 	}
 

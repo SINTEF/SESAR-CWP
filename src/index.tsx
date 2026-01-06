@@ -1,3 +1,4 @@
+import "./instrument"; // Sentry must be imported first
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@fontsource/ibm-plex-sans";
 import "@fontsource/ibm-plex-mono";

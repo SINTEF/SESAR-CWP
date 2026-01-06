@@ -35,7 +35,7 @@ export default observer(function Draggable2DView() {
 		>
 			<div
 				ref={nodeRef}
-				className="absolute top-[72px] z-[34] right-1/2 w-[500px] shadow-md p-0 m-0 text-[13px] leading-8"
+				className="absolute top-18 z-44 right-1/2 w-125 shadow-md p-0 m-0 text-[13px] leading-8"
 			>
 				<div
 					className="w-full h-full"

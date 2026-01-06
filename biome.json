@@ -5,7 +5,7 @@
 		}
 	},
 	"files": {
-		"includes": ["src/**/*", "!src/proto/**"]
+		"includes": ["src/**/*", "!src/proto/**", "!src/utils/*.obs.js"]
 	},
 	"linter": {
 		"enabled": true,

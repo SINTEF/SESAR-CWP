@@ -1,3 +1,12 @@
-import mqtt from "mqtt";
+import * as Sentry from "@sentry/react";
+import { bootstrapMqtt } from "./bootstrap";
 
-export default mqtt;
+// Initialize MQTT client with proper credentials
+// This is a top-level await alternative that works in module scope
+bootstrapMqtt().catch((error) => {
+	// biome-ignore lint/suspicious/noConsole: startup error handling
+	console.error("Failed to bootstrap MQTT:", error);
+	Sentry.captureException(error);
+});
+
+export { publish } from "./mqtt";
