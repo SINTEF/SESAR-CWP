@@ -3,17 +3,50 @@ import { usePostHog } from "posthog-js/react";
 import * as React from "react";
 
 import {
+	getPasswordSalt,
+	isAdminModeRequested,
+	redirectToAdmin,
+} from "../mqtt-client/auth";
+import { getBrokerUrl } from "../mqtt-client/mqtt";
+import {
 	adminStore,
 	configurationStore,
 	cwpStore,
 	roleConfigurationStore,
 } from "../state";
+import { load as loadPassword } from "../utils/passwordStore.obs";
+import AdminPasswordModal from "./AdminPasswordModal";
+
+/**
+ * Check if we're in a valid admin session (admin mode requested AND no error).
+ * This means the password was already entered successfully.
+ */
+function isValidAdminSession(): boolean {
+	return isAdminModeRequested() && !adminStore.adminError;
+}
+
+function getAdminErrorMessage(code: string | null): string | null {
+	if (!code) {
+		return null;
+	}
+	if (code === "4" || code === "5") {
+		return "Admin login failed: Invalid credentials";
+	}
+	if (code === "reconnect") {
+		return "Admin login failed: Could not connect to server";
+	}
+	if (code === "no-password") {
+		return "Admin session expired. Please log in again.";
+	}
+	return `Admin login failed: ${code}`;
+}
 
 export default observer(function ControllerModal() {
 	const posthog = usePostHog();
 	const { showControllerSelection, toggleControllerSelection, setPseudoPilot } =
 		cwpStore;
 	const [selectedCWP, setSelectedCWP] = React.useState<string>("");
+	const [showPasswordModal, setShowPasswordModal] = React.useState(false);
 	const listOfControllers = roleConfigurationStore.listOfAllControllers;
 	const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
 	const controller = configurationStore.currentCWP;
@@ -21,6 +54,31 @@ export default observer(function ControllerModal() {
 		(cwp) => cwp !== "All",
 	);
 	const listOfAll = [...controllersWithoutAll, ...pseudoPilots, "All"];
+
+	// Check if currently in a valid admin session (admin requested and no error)
+	const isInAdminMode = isValidAdminSession();
+
+	// If in valid admin mode, auto-select "All" controller and skip the modal
+	React.useEffect(() => {
+		if (isInAdminMode) {
+			// Enable admin mode in store
+			if (!adminStore.adminModeEnabled) {
+				adminStore.setAdminMode(true);
+				adminStore.setAdminPanel(true);
+			}
+			// Auto-select "All" (master) controller and close the modal
+			if (showControllerSelection && controller !== "All") {
+				configurationStore.setCurrentCWP("All");
+				cwpStore.setPseudoPilot(false);
+				toggleControllerSelection();
+			}
+		}
+	}, [
+		isInAdminMode,
+		showControllerSelection,
+		controller,
+		toggleControllerSelection,
+	]);
 
 	const collator = new Intl.Collator([], { numeric: true });
 	pseudoPilots.sort((a, b) => collator.compare(a, b));
@@ -146,23 +204,58 @@ export default observer(function ControllerModal() {
 						</div>
 
 						{/* Admin mode */}
-						<div className="flex flex-wrap gap-2 mt-4">
+						<div className="flex flex-wrap gap-2 mt-4 items-center">
 							<button
-								onClick={() => {
-									if (!adminStore.adminModeEnabled) {
-										adminStore.toggleAdminMode();
+								onClick={async () => {
+									if (isInAdminMode) {
+										// Already in admin mode, just select All and show panel
 										adminStore.setAdminPanel(true);
+										handleSelect("All");
+									} else {
+										// Check if password is already stored
+										const brokerUrl = getBrokerUrl();
+										const salt = getPasswordSalt(brokerUrl);
+										const storedPassword = await loadPassword(salt);
+
+										if (storedPassword) {
+											// Password exists, redirect directly to admin mode
+											redirectToAdmin();
+										} else {
+											// No password stored, show the password modal
+											setShowPasswordModal(true);
+										}
 									}
-									handleSelect("All");
 								}}
-								className={`btn ${adminStore.adminModeEnabled ? "btn-primary" : "btn-outline"}`}
+								className={`btn ${isInAdminMode ? "btn-primary" : "btn-outline"}`}
 							>
 								Admin Mode
 							</button>
+
+							{/* Show admin error if any */}
+							{adminStore.adminError && (
+								<div className="flex items-center gap-2">
+									<span className="text-error text-sm">
+										{getAdminErrorMessage(adminStore.adminError)}
+									</span>
+									<button
+										type="button"
+										className="btn btn-ghost btn-xs"
+										onClick={() => adminStore.clearAdminError()}
+									>
+										✕
+									</button>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
 			</div>
+
+			{/* Admin password modal */}
+			<AdminPasswordModal
+				isOpen={showPasswordModal}
+				onClose={() => setShowPasswordModal(false)}
+			/>
 		</>
 	);
 });

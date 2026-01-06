@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import Draggable from "react-draggable";
 
 import { useDragging } from "../contexts/DraggingContext";
+import { redirectToNonAdmin } from "../mqtt-client/auth";
 import {
 	fastForwardSimulator,
 	handlePublishPromise,
@@ -171,13 +172,23 @@ export default observer(function DraggableAdminPanel() {
 				{/* Header / Drag Handle */}
 				<div className="drag-handle flex items-center justify-between px-4 py-2 bg-base-300 cursor-move">
 					<h2 className="text-lg font-semibold text-white">Admin</h2>
-					<button
-						type="button"
-						className="btn btn-sm btn-ghost btn-circle"
-						onClick={() => adminStore.toggleMinimized()}
-					>
-						{adminStore.isMinimized ? "▼" : "▲"}
-					</button>
+					<div className="flex items-center gap-1">
+						<button
+							type="button"
+							className="btn btn-xs btn-ghost text-error"
+							onClick={() => redirectToNonAdmin()}
+							title="Exit Admin Mode"
+						>
+							Exit
+						</button>
+						<button
+							type="button"
+							className="btn btn-sm btn-ghost btn-circle"
+							onClick={() => adminStore.toggleMinimized()}
+						>
+							{adminStore.isMinimized ? "▼" : "▲"}
+						</button>
+					</div>
 				</div>
 
 				{!adminStore.isMinimized && (

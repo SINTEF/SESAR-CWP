@@ -1,5 +1,5 @@
 import clientId from "./clientId";
-import { publish } from "./mqtt";
+import { isClientReady, publish } from "./mqtt";
 
 export interface AnalyticsEvent {
 	event: string;
@@ -15,6 +15,11 @@ export interface AnalyticsEvent {
 export async function publishAnalyticsEvent(
 	event: AnalyticsEvent,
 ): Promise<void> {
+	// Skip publishing if MQTT client isn't ready yet (e.g., during async bootstrap)
+	if (!isClientReady()) {
+		return;
+	}
+
 	const eventName = event.event ?? "unknown";
 
 	const topic = `analytics/${encodeURIComponent(clientId)}/events/${encodeURIComponent(eventName)}`;

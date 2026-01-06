@@ -2,70 +2,203 @@ import { transaction } from "mobx";
 import type { IClientPublishOptions, MqttClient } from "mqtt";
 import mqtt from "mqtt";
 
+import {
+	isAdminModeRequested,
+	type MqttCredentials,
+	redirectToNonAdmin,
+} from "./auth";
 import router from "./router";
-import topics from "./topics";
+import { getTopics } from "./topics";
 
-function createClient(): MqttClient {
+/** Connection error state for UI display */
+export type ConnectionErrorState = {
+	hasError: boolean;
+	errorCode?: string | number;
+	isAdminMode: boolean;
+};
+
+let connectionErrorState: ConnectionErrorState = {
+	hasError: false,
+	isAdminMode: false,
+};
+
+const connectionErrorListeners: Set<(state: ConnectionErrorState) => void> =
+	new Set();
+
+export function getConnectionErrorState(): ConnectionErrorState {
+	return connectionErrorState;
+}
+
+export function onConnectionError(
+	callback: (state: ConnectionErrorState) => void,
+): () => void {
+	connectionErrorListeners.add(callback);
+	return () => connectionErrorListeners.delete(callback);
+}
+
+function setConnectionError(errorCode?: string | number): void {
+	connectionErrorState = {
+		hasError: true,
+		errorCode,
+		isAdminMode: isAdminModeRequested(),
+	};
+	for (const listener of connectionErrorListeners) {
+		listener(connectionErrorState);
+	}
+}
+
+function clearConnectionError(): void {
+	connectionErrorState = {
+		hasError: false,
+		isAdminMode: isAdminModeRequested(),
+	};
+	for (const listener of connectionErrorListeners) {
+		listener(connectionErrorState);
+	}
+}
+
+function getBrokerUrl(): string {
 	const MQTT_BROKER_URL = import.meta.env.VITE_MQTT_BROKER_URL;
-	// const MQTT_BROKER_URL = 'wss://sesar.sintef.cloud';
 
-	let brokerUrl: string;
 	if (MQTT_BROKER_URL && MQTT_BROKER_URL !== "default") {
-		brokerUrl = MQTT_BROKER_URL;
-	} else if (
-		/^(localhost|127(?:\.\d{1,3}){2}.\d{1,3}|\[:{2}1])(:\d+)?$/.test(
+		return MQTT_BROKER_URL;
+	}
+
+	if (
+		/^(localhost|127(?:\.\d{1,3}){2}.\d{1,3}|\[::1])(:\d+)?$/.test(
 			window.location.host,
 		)
 	) {
-		brokerUrl = "ws://localhost:9001/mqtt";
-	} else {
-		const isHTTPS = window.location.protocol === "https:";
-		brokerUrl = `${isHTTPS ? "wss" : "ws"}://${window.location.host}/mqtt`;
+		return "ws://localhost:9001/mqtt";
 	}
+
+	const isHTTPS = window.location.protocol === "https:";
+	return `${isHTTPS ? "wss" : "ws"}://${window.location.host}/mqtt`;
+}
+
+export function createClient(credentials: MqttCredentials | null): MqttClient {
+	const brokerUrl = getBrokerUrl();
 
 	return mqtt.connect(brokerUrl, {
 		protocolVersion: 5,
+		...(credentials && {
+			username: credentials.username,
+			password: credentials.password,
+		}),
 	});
 }
 
-const client = createClient();
+// Placeholder client that will be replaced once credentials are loaded
+let client: MqttClient | null = null;
 
-client.on("connect", () => {
-	client.subscribe(topics, (error) => {
-		if (error) {
-			// biome-ignore lint/suspicious/noConsole: needed for now
-			console.error("Failed to subscribe to MQTT topics", error);
+/**
+ * Check if the MQTT client is initialized and ready to publish
+ */
+export function isClientReady(): boolean {
+	return client !== null;
+}
+
+export function initializeClient(credentials: MqttCredentials | null): void {
+	const isAdmin = isAdminModeRequested();
+	client = createClient(credentials);
+
+	// Track reconnection attempts for detecting auth failures
+	let reconnectCount = 0;
+	let hasConnectedAtLeastOnce = false;
+
+	client.on("connect", () => {
+		hasConnectedAtLeastOnce = true;
+		reconnectCount = 0;
+		clearConnectionError();
+
+		const topics = getTopics(isAdmin);
+		client?.subscribe(topics, (error) => {
+			if (error) {
+				// biome-ignore lint/suspicious/noConsole: needed for now
+				console.error("Failed to subscribe to MQTT topics", error);
+			}
+		});
+	});
+
+	client.on("error", (error) => {
+		// biome-ignore lint/suspicious/noConsole: needed for now
+		console.error("MQTT error", error);
+
+		// Check for authentication errors (codes 4 and 5 are auth-related in MQTT)
+		const errorCode = (error as { code?: number }).code;
+		if (errorCode === 4 || errorCode === 5) {
+			if (isAdmin) {
+				// Admin auth failed, redirect to non-admin mode
+				redirectToNonAdmin(errorCode);
+			} else {
+				// Public auth failed, set error once
+				setConnectionError(errorCode);
+			}
 		}
 	});
-});
+
+	client.on("reconnect", () => {
+		reconnectCount += 1;
+		// Some brokers (like RabbitMQ) don't send proper MQTT auth errors,
+		// they just close the connection. Detect repeated reconnects without success.
+		if (reconnectCount >= 3 && !hasConnectedAtLeastOnce) {
+			if (isAdmin) {
+				redirectToNonAdmin("reconnect");
+			} else if (!connectionErrorState.hasError) {
+				// Only set error once to avoid repeated error notifications
+				setConnectionError("reconnect");
+			}
+		}
+	});
+}
+
+export { getBrokerUrl };
 
 type MqttOnCallback = () => void;
 type MqttOffCallback = () => void;
 
 export function onConnect(callback: MqttOnCallback): MqttOffCallback {
+	if (!client) {
+		// Client not initialized yet, just register for when it is
+		return () => {};
+	}
 	if (client.connected) {
 		callback();
 	}
 	client.on("connect", callback);
-	return () => client.off("connect", callback);
+	const currentClient = client;
+	return () => currentClient.off("connect", callback);
 }
 
 export function onDisconnect(callback: MqttOffCallback): MqttOffCallback {
+	if (!client) {
+		callback();
+		return () => {};
+	}
 	if (!client.connected) {
 		callback();
 	}
 	client.on("close", callback);
-	return () => client.off("close", callback);
+	const currentClient = client;
+	return () => currentClient.off("close", callback);
 }
 
 export function onPacketReceive(callback: MqttOnCallback): MqttOffCallback {
+	if (!client) {
+		return () => {};
+	}
 	client.on("packetreceive", callback);
-	return () => client.off("packetreceive", callback);
+	const currentClient = client;
+	return () => currentClient.off("packetreceive", callback);
 }
 
 export function onPacketSend(callback: MqttOnCallback): MqttOffCallback {
+	if (!client) {
+		return () => {};
+	}
 	client.on("packetsend", callback);
-	return () => client.off("packetsend", callback);
+	const currentClient = client;
+	return () => currentClient.off("packetsend", callback);
 }
 
 let incomingMessagesQueue: { topic: string; message: Buffer }[] = [];
@@ -90,12 +223,18 @@ function processIncomingMessages(): void {
 	incomingMessagesQueue = [];
 }
 
-client.on("message", (topic: string, message: Buffer) => {
-	incomingMessagesQueue.push({ topic, message });
-	if (incomingMessagesBatchId === 0) {
-		incomingMessagesBatchId = window.setTimeout(processIncomingMessages, 100);
+/** Setup message handler - called after client is initialized */
+export function setupMessageHandler(): void {
+	if (!client) {
+		return;
 	}
-});
+	client.on("message", (topic: string, message: Buffer) => {
+		incomingMessagesQueue.push({ topic, message });
+		if (incomingMessagesBatchId === 0) {
+			incomingMessagesBatchId = window.setTimeout(processIncomingMessages, 100);
+		}
+	});
+}
 
 export function publish(
 	topic: string,
@@ -106,6 +245,10 @@ export function publish(
 		typeof message === "string" ? message : JSON.stringify(message);
 
 	return new Promise((resolve, reject) => {
+		if (!client) {
+			reject(new Error("MQTT client not initialized"));
+			return;
+		}
 		client.publish(
 			topic,
 			messageData,
