@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { bootstrapMqtt } from "./bootstrap";
 
 // Initialize MQTT client with proper credentials
@@ -5,6 +6,7 @@ import { bootstrapMqtt } from "./bootstrap";
 bootstrapMqtt().catch((error) => {
 	// biome-ignore lint/suspicious/noConsole: startup error handling
 	console.error("Failed to bootstrap MQTT:", error);
+	Sentry.captureException(error);
 });
 
 export { publish } from "./mqtt";

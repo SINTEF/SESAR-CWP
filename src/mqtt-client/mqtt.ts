@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { transaction } from "mobx";
 import type { IClientPublishOptions, MqttClient } from "mqtt";
 import mqtt from "mqtt";
@@ -116,6 +117,7 @@ export function initializeClient(credentials: MqttCredentials | null): void {
 			if (error) {
 				// biome-ignore lint/suspicious/noConsole: needed for now
 				console.error("Failed to subscribe to MQTT topics", error);
+				Sentry.captureException(error);
 			}
 		});
 	});
@@ -123,6 +125,7 @@ export function initializeClient(credentials: MqttCredentials | null): void {
 	client.on("error", (error) => {
 		// biome-ignore lint/suspicious/noConsole: needed for now
 		console.error("MQTT error", error);
+		Sentry.captureException(error);
 
 		// Check for authentication errors (codes 4 and 5 are auth-related in MQTT)
 		const errorCode = (error as { code?: number }).code;
@@ -147,6 +150,10 @@ export function initializeClient(credentials: MqttCredentials | null): void {
 			} else if (!connectionErrorState.hasError) {
 				// Only set error once to avoid repeated error notifications
 				setConnectionError("reconnect");
+				Sentry.captureMessage(
+					"MQTT connection failed after multiple attempts",
+					"error",
+				);
 			}
 		}
 	});
@@ -215,6 +222,7 @@ function processIncomingMessages(): void {
 				} catch (error) {
 					// biome-ignore lint/suspicious/noConsole: needed for now
 					console.error("Error while handling MQTT message", error);
+					Sentry.captureException(error);
 				}
 			}
 		}

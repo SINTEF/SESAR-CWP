@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import React from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
@@ -28,6 +29,7 @@ export function useMapImage({
 				.catch((error) => {
 					// biome-ignore lint/suspicious/noConsole: fine
 					console.error(`Could not load image ${name} from ${url}:`, error);
+					Sentry.captureException(error);
 				});
 		}
 	}, [mapRef.current]);

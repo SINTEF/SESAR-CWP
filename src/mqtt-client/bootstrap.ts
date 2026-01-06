@@ -3,6 +3,7 @@
  * This should be called early in the application lifecycle.
  */
 
+import * as Sentry from "@sentry/react";
 import { getMqttCredentials } from "./auth";
 import { getBrokerUrl, initializeClient, setupMessageHandler } from "./mqtt";
 
@@ -27,6 +28,14 @@ export async function bootstrapMqtt(): Promise<void> {
 		initialized = true;
 	} catch (error) {
 		// If getMqttCredentials throws, it's likely redirecting
+		if (
+			error instanceof Error &&
+			error.message.includes("Admin password not found")
+		) {
+			// This is expected during redirection, no need to report to Sentry
+		} else {
+			Sentry.captureException(error);
+		}
 		// biome-ignore lint/suspicious/noConsole: needed for startup errors
 		console.error("Failed to initialize MQTT:", error);
 	}

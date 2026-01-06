@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import {
 	AirspaceAvailabilityMessage,
 	AirTrafficControllerAssignmentMessage,
@@ -39,6 +40,7 @@ export function notFound(
 		url,
 		message,
 	);
+	Sentry.captureMessage(`MQTT route not found: ${url}`, "warning");
 }
 
 export function ignored(): void {}

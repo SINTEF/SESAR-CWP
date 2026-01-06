@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import clientId from "./clientId";
 import { publish } from "./mqtt";
 
@@ -18,6 +19,7 @@ export function handlePublishPromise(promise: Promise<void>): void {
 	promise.catch((error) => {
 		// biome-ignore lint/suspicious/noConsole: needed for now
 		console.error("Error while publishing MQTT message", error);
+		Sentry.captureException(error);
 	});
 }
 

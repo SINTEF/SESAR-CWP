@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
@@ -36,6 +37,7 @@ export default observer(function AdminPasswordModal({
 			// Redirect to admin mode (this will reload the page)
 			redirectToAdmin();
 		} catch (persistError) {
+			Sentry.captureException(persistError);
 			setError(
 				persistError instanceof Error
 					? persistError.message

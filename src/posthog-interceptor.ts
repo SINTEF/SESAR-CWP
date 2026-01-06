@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import type { CaptureResult } from "posthog-js";
 import { publishAnalyticsEvent } from "./mqtt-client/analyticsPublisher";
 import { mapViewportStore } from "./state";
@@ -35,6 +36,7 @@ export function interceptPostHogEvent(
 	}).catch((error) => {
 		// biome-ignore lint/suspicious/noConsole: should be logged
 		console.error("[PostHog Interceptor] Failed to publish to MQTT:", error);
+		Sentry.captureException(error);
 	});
 
 	// Return the event to let PostHog continue normally
