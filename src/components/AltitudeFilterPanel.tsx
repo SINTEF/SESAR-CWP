@@ -39,7 +39,7 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
 	}
 
 	return (
-		<div className="card absolute bottom-8 left-[37rem] ml-px text-sm text-white z-[500] flex-col-reverse bg-transparent">
+		<div className="card absolute bottom-8 left-148 ml-px text-sm text-white z-500 flex-col-reverse bg-transparent">
 			<div className="card-body border border-white bg-gray-700 pb-0 mb-0 w-80 h-48">
 				<div className="flex justify-center">
 					<div className="text-center">Altitude Filter</div>
