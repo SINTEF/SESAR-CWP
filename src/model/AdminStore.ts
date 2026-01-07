@@ -8,6 +8,7 @@ interface LogEntry {
 }
 
 const MAX_LOG_ENTRIES = 500;
+const SIMULATION_STARTED_LOG = "Simulation started in paused state";
 
 /**
  * Parse a timestamp from various formats commonly found in log messages.
@@ -58,6 +59,12 @@ export default class AdminStore {
 	isMinimized = false;
 
 	logs: LogEntry[] = [];
+
+	/** Whether we're waiting for a simulator restart confirmation */
+	pendingRestart = false;
+
+	/** Set to true when simulator confirms it has restarted */
+	simulationRestarted = false;
 
 	/** Error from previous admin login attempt (stored in sessionStorage) */
 	adminError: string | null = null;
@@ -116,6 +123,18 @@ export default class AdminStore {
 		if (this.logs.length > MAX_LOG_ENTRIES) {
 			this.logs.splice(0, this.logs.length - MAX_LOG_ENTRIES);
 		}
+
+		// Check for simulator restart confirmation
+		if (this.pendingRestart && message.includes(SIMULATION_STARTED_LOG)) {
+			this.pendingRestart = false;
+			this.simulationRestarted = true;
+		}
+	}
+
+	/** Mark that we're expecting a simulator restart */
+	expectRestart(): void {
+		this.pendingRestart = true;
+		this.simulationRestarted = false;
 	}
 
 	handleLogMessage(jsonString: string): void {
@@ -123,13 +142,14 @@ export default class AdminStore {
 			const parsed = JSON.parse(jsonString);
 			// Handle different log formats - could be an object with message/level or just a string
 			if (typeof parsed === "object" && parsed !== null) {
-				const message = parsed.message ?? parsed.msg ?? JSON.stringify(parsed);
+				const logMessage =
+					parsed.message ?? parsed.msg ?? JSON.stringify(parsed);
 				const level = parsed.level ?? parsed.severity ?? undefined;
 				// Try to extract timestamp from common log fields
 				const timestamp = parseTimestamp(
 					parsed.timestamp ?? parsed.time ?? parsed.ts ?? parsed.date,
 				);
-				this.addLog(message, level, timestamp);
+				this.addLog(logMessage, level, timestamp);
 			} else {
 				this.addLog(String(parsed));
 			}

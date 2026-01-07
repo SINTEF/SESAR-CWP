@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
 
 import { useDragging } from "../contexts/DraggingContext";
@@ -42,8 +42,8 @@ function getLevelColor(level?: string): string {
 	return "text-gray-300";
 }
 
-/** Control buttons for simulator - isolated to avoid re-renders when logs update */
-function AdminControlButtons() {
+/** Control buttons for simulator - observer to react to restart state */
+const AdminControlButtons = observer(function AdminControlButtons() {
 	const [ffwMinutes, setFfwMinutes] = useState(5);
 
 	const handleStart = () => {
@@ -58,12 +58,16 @@ function AdminControlButtons() {
 		handlePublishPromise(fastForwardSimulator(ffwMinutes));
 	};
 
-	const handleRestart = () => {
-		handlePublishPromise(restartSimulator());
-		// Refresh the page after a short delay to allow the quit command to be sent
-		setTimeout(() => {
+	// Watch for simulator restart confirmation
+	useEffect(() => {
+		if (adminStore.simulationRestarted) {
 			window.location.reload();
-		}, 1000);
+		}
+	}, [adminStore.simulationRestarted]);
+
+	const handleRestart = () => {
+		adminStore.expectRestart();
+		handlePublishPromise(restartSimulator());
 	};
 
 	return (
@@ -110,7 +114,7 @@ function AdminControlButtons() {
 			</button>
 		</div>
 	);
-}
+});
 
 /** Logs container - observer to re-render only when logs change */
 const AdminLogs = observer(function AdminLogs() {
