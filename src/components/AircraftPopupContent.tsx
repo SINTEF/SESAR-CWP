@@ -1,96 +1,19 @@
 import { observer } from "mobx-react-lite";
-import { usePostHog } from "posthog-js/react";
-import React from "react";
 
 import type AircraftModel from "../model/AircraftModel";
-import { cwpStore, roleConfigurationStore } from "../state";
-import { convertMetersToFlightLevel } from "../utils";
+import { roleConfigurationStore } from "../state";
+import { formatSpeed, formatVerticalSpeed } from "../utils";
 import {
 	Altitude,
+	AssignedBearing,
 	CallSign,
 	NextACCFlightLevel,
+	NextNav,
 	NextSectorFL,
+	TransferAltitude,
 	VerticalSpeedIcon,
 	WarningIcon,
-} from "./AircraftContentSmall";
-
-type SubContentProperties = {
-	aircraft: AircraftModel;
-	colSpan?: number;
-};
-
-export const AssignedBearing = observer(
-	({ aircraft }: SubContentProperties) => {
-		const { assignedBearing /* aircraftId */ } = aircraft;
-
-		if (assignedBearing === -1 || assignedBearing === undefined) {
-			return <span>h...</span>;
-		}
-
-		let displayedBearing = Math.round(assignedBearing) % 360;
-		if (displayedBearing < 1) {
-			displayedBearing = 360;
-		}
-
-		return <span>{`${displayedBearing.toString().padStart(3, "0")}`}</span>;
-	},
-);
-
-const TransferAltitude = ({
-	altitude,
-}: {
-	altitude: number | null | undefined;
-}) => {
-	if (altitude === null || altitude === undefined) {
-		return <span>x</span>;
-	}
-	const flightLevel = Math.round(convertMetersToFlightLevel(altitude) / 10);
-	return <span>x{flightLevel}</span>;
-};
-
-const NextNav = observer(({ aircraft }: SubContentProperties) => {
-	const posthog = usePostHog();
-	const middleClickNextWaypoint = (
-		_event: React.MouseEvent<HTMLElement>,
-	): void => {
-		// if (event.button === 1) {
-		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
-		posthog?.capture("next_nav_clicked", {
-			aircraft_id: aircraft.aircraftId,
-			callsign: aircraft.callSign,
-			next_nav: aircraft.nextNav,
-			flight_route_visible: cwpStore.aircraftsWithFlightRoutes.has(
-				aircraft.aircraftId,
-			),
-		});
-		// }
-	};
-
-	const { nextNav, assignedBearing } = aircraft;
-	const showNextNav = assignedBearing === -1 || assignedBearing === undefined;
-
-	return (
-		<span onMouseDown={middleClickNextWaypoint}>
-			{showNextNav ? nextNav : "--"}
-		</span>
-	);
-});
-
-export function formatSpeed(speed: number): string {
-	// convert from m/s to knots / 10
-	const lowImperialishSpeed = speed * 0.194384;
-	return Math.round(lowImperialishSpeed).toString();
-}
-
-function formatVerticalSpeed(verticalSpeed: number): string {
-	// convert from m/s to ft/min and divide by 100
-	const verticalSpeedFpm = Math.round(verticalSpeed * 1.96850394);
-	if (verticalSpeedFpm === 0) {
-		return "00";
-	}
-	const speedString = Math.abs(verticalSpeedFpm).toString().padStart(2, "0");
-	return verticalSpeedFpm > 0 ? `+${speedString}` : `-${speedString}`;
-}
+} from "./AircraftLabelParts";
 
 export default observer(function AircraftPopupContent(properties: {
 	aircraft: AircraftModel;
