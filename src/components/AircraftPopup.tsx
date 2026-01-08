@@ -77,7 +77,7 @@ export default observer(function AircraftPopup(properties: {
 		selectedAircraftIds,
 	} = cwpStore;
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
-	const isHoveredLabel = true || cwpStore.hoveredFlightLabelId === aircraftId;
+	const isHoveredLabel = cwpStore.hoveredFlightLabelId === aircraftId;
 	const isSelected = selectedAircraftIds.has(aircraft.aircraftId);
 	// Use base color (without warning) for popup content
 	const flightColor = roleConfigurationStore.getBaseColorOfAircraft(aircraftId);
@@ -109,7 +109,7 @@ export default observer(function AircraftPopup(properties: {
 	};
 
 	const height = isHoveredLabel ? 70 : 56;
-	const width = isHoveredLabel ? 145 : 74;
+	const width = isHoveredLabel ? 135 : 74;
 	const Content = isHoveredLabel ? AircraftPopupContent : AircraftContentSmall;
 
 	const onClick = (): void => {

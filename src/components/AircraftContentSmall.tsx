@@ -3,6 +3,7 @@ import { usePostHog } from "posthog-js/react";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
+import { formatSpeed } from "./AircraftPopupContent";
 
 type SubContentProperties = {
 	aircraft: AircraftModel;
@@ -159,7 +160,10 @@ export const LocalAssignedFlightLevel = observer(
 );
 
 export const NextACCFlightLevel = observer(
-	({ aircraft }: SubContentProperties) => {
+	({
+		aircraft,
+		hideIfMatchesAltitude = false,
+	}: SubContentProperties & { hideIfMatchesAltitude?: boolean }) => {
 		const posthog = usePostHog();
 		const { isDragging } = useDragging();
 		const openNextACCPopup = (): void => {
@@ -176,7 +180,30 @@ export const NextACCFlightLevel = observer(
 			});
 		};
 
-		return <span onClick={openNextACCPopup}>{aircraft.nextACCFL}</span>;
+		const { nextACCFL, lastKnownAltitude } = aircraft;
+
+		// Don't display if COO (only when hideIfMatchesAltitude is true, i.e., in small content)
+		if (hideIfMatchesAltitude && nextACCFL === "COO") {
+			return null;
+		}
+
+		let displayValue = nextACCFL;
+		// if digit
+		if (/^\d+$/.test(nextACCFL)) {
+			displayValue = Math.round(Number.parseInt(nextACCFL) / 10)
+				.toString()
+				.padStart(2, "0");
+		}
+
+		// Don't display if the rounded display value matches the rounded altitude (only in small content)
+		if (hideIfMatchesAltitude && /^\d+$/.test(displayValue)) {
+			const roundedAltitude = Math.round(lastKnownAltitude);
+			if (Number.parseInt(displayValue) === roundedAltitude) {
+				return null;
+			}
+		}
+
+		return <span onClick={openNextACCPopup}>{displayValue}</span>;
 	},
 );
 
@@ -257,24 +284,28 @@ export default observer(function AircraftContentSmall(properties: {
 	width: number;
 }) {
 	const { aircraft, flightColor } = properties;
+	const { lastKnownSpeed } = aircraft;
 	return (
 		<div style={{ color: flightColor }}>
 			{/* Line 0 */}
-			<div className="flex justify-between">
-				<span>{Math.round(aircraft.lastKnownSpeed)}</span>
-				&nbsp;
+			<div>
+				<span>{formatSpeed(lastKnownSpeed)}</span>
+				<span className="ml-1">&nbsp;&nbsp;</span>
 				<span>{aircraft.aircraftType}</span>
 			</div>
 			{/* Line 1 */}
 			<div>
-				<CallSign flightColor={flightColor} aircraft={aircraft} />{" "}
+				<CallSign flightColor={flightColor} aircraft={aircraft} />
+				<span className="ml-1"></span>
 				<WarningIcon aircraft={aircraft} skipNone={true} />
 			</div>
 			{/* Line 2 - clearance in RESP state*/}
 			<div>
 				<Altitude aircraft={aircraft} />
-				&nbsp;
+				<span className="ml-0.5"></span>
 				<VerticalSpeedIcon aircraft={aircraft} />
+				<span className="ml-0.5"></span>
+				<NextACCFlightLevel aircraft={aircraft} hideIfMatchesAltitude={true} />
 			</div>
 		</div>
 	);

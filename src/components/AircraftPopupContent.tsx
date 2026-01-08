@@ -8,7 +8,9 @@ import { convertMetersToFlightLevel } from "../utils";
 import {
 	Altitude,
 	CallSign,
+	NextACCFlightLevel,
 	NextSectorFL,
+	VerticalSpeedIcon,
 	WarningIcon,
 } from "./AircraftContentSmall";
 
@@ -22,7 +24,7 @@ export const AssignedBearing = observer(
 		const { assignedBearing /* aircraftId */ } = aircraft;
 
 		if (assignedBearing === -1 || assignedBearing === undefined) {
-			return <td>h...</td>;
+			return <span>h...</span>;
 		}
 
 		let displayedBearing = Math.round(assignedBearing) % 360;
@@ -30,21 +32,33 @@ export const AssignedBearing = observer(
 			displayedBearing = 360;
 		}
 
-		return <td>{`${displayedBearing.toString().padStart(3, "0")}`}</td>;
+		return <span>{`${displayedBearing.toString().padStart(3, "0")}`}</span>;
 	},
 );
 
-const NextFix = observer(({ aircraft }: SubContentProperties) => {
+const TransferAltitude = ({
+	altitude,
+}: {
+	altitude: number | null | undefined;
+}) => {
+	if (altitude === null || altitude === undefined) {
+		return <span>x</span>;
+	}
+	const flightLevel = Math.round(convertMetersToFlightLevel(altitude) / 10);
+	return <span>x{flightLevel}</span>;
+};
+
+const NextNav = observer(({ aircraft }: SubContentProperties) => {
 	const posthog = usePostHog();
 	const middleClickNextWaypoint = (
 		_event: React.MouseEvent<HTMLElement>,
 	): void => {
 		// if (event.button === 1) {
 		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
-		posthog?.capture("next_fix_clicked", {
+		posthog?.capture("next_nav_clicked", {
 			aircraft_id: aircraft.aircraftId,
 			callsign: aircraft.callSign,
-			next_fix: aircraft.nextFix,
+			next_nav: aircraft.nextNav,
 			flight_route_visible: cwpStore.aircraftsWithFlightRoutes.has(
 				aircraft.aircraftId,
 			),
@@ -52,17 +66,17 @@ const NextFix = observer(({ aircraft }: SubContentProperties) => {
 		// }
 	};
 
-	const { nextFix, assignedBearing } = aircraft;
-	const showNextFix = assignedBearing === -1 || assignedBearing === undefined;
+	const { nextNav, assignedBearing } = aircraft;
+	const showNextNav = assignedBearing === -1 || assignedBearing === undefined;
 
 	return (
-		<td onMouseDown={middleClickNextWaypoint}>
-			{showNextFix ? nextFix : "--"}
-		</td>
+		<span onMouseDown={middleClickNextWaypoint}>
+			{showNextNav ? nextNav : "--"}
+		</span>
 	);
 });
 
-function formatSpeed(speed: number): string {
+export function formatSpeed(speed: number): string {
 	// convert from m/s to knots / 10
 	const lowImperialishSpeed = speed * 0.194384;
 	return Math.round(lowImperialishSpeed).toString();
@@ -86,52 +100,50 @@ export default observer(function AircraftPopupContent(properties: {
 	const currentSector = roleConfigurationStore.currentControlledSector;
 	const { lastKnownSpeed, lastKnownVerticalSpeed, aircraftType, nextSector } =
 		aircraft;
+	const sectorTimes = currentSector
+		? aircraft.flightInSectorTimes?.get(currentSector)
+		: undefined;
 	return (
 		<div style={{ color: flightColor }}>
 			{/* Line 0 */}
 			<div>
-				<span>{formatSpeed(lastKnownSpeed)}</span>{" "}
-				<span>{formatVerticalSpeed(lastKnownVerticalSpeed)}</span>{" "}
+				<span>{formatSpeed(lastKnownSpeed)}</span>
+				<span className="ml-0.5"></span>
+				<span>{formatVerticalSpeed(lastKnownVerticalSpeed)}</span>
+				<span className="ml-0.5"></span>
 				<span>{aircraftType}</span>
 			</div>
 			{/* Line 1 */}
 			<div>
-				<CallSign flightColor={flightColor} aircraft={aircraft} />{" "}
-				<span>{nextSector}</span> <NextSectorFL aircraft={aircraft} />{" "}
+				<CallSign flightColor={flightColor} aircraft={aircraft} />
+				<span className="ml-0.5"></span>
+				<span>{nextSector}</span>
+				<span className="ml-0.5"></span>
+				<NextSectorFL aircraft={aircraft} />
+				<span className="ml-0.5"></span>
 				<WarningIcon aircraft={aircraft} skipNone={false} />
 			</div>
 			{/* Line 2 - clearance in RESP state */}
 			<div>
 				<Altitude aircraft={aircraft} />
-				{/* <NextACCFlightLevel aircraft={aircraft} />  Is this something we need? */}
-				{/* <td>
-						{" "}
-						{aircraft.flightInSectorTimes?.get(currentSector)?.entryWaypointId}
-					</td> */}
-				<NextFix aircraft={aircraft} />
+				<span className="ml-0.5"></span>
+				<VerticalSpeedIcon aircraft={aircraft} />
+				<span className="ml-0.5"></span>
+				<NextACCFlightLevel aircraft={aircraft} />
+				<span className="ml-0.5"></span>
+				<NextNav aircraft={aircraft} />
+				<span className="ml-0.5"></span>
 				<AssignedBearing aircraft={aircraft} />
 			</div>
 			<div>
-				<td>
-					x
-					{currentSector &&
-					aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-						?.altitude !== null
-						? convertMetersToFlightLevel(
-								aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-									?.altitude as number,
-							)
-						: ""}
-				</td>
+				<TransferAltitude altitude={sectorTimes?.exitPosition?.altitude} />
+				<span className="ml-0.5"></span>
 				{/* Line 3 - exit */}
-				<td>
-					x
-					{currentSector &&
-						aircraft.flightInSectorTimes?.get(currentSector)?.exitWaypointId}
-				</td>
+				<span>{aircraft.nextSectorExitPoint}</span>
 				{/* <NextSectorController aircraft={aircraft} /> */}
 				{/* <LocalAssignedFlightLevel aircraft={aircraft} /> */}
-				<td>{aircraft.arrivalAirport}</td>
+				<span className="ml-0.5"></span>
+				<span>{aircraft.arrivalAirport}</span>
 			</div>
 		</div>
 	);

@@ -165,8 +165,10 @@ export default class AircraftModel {
 			frequency: observable,
 
 			nextFix: computed,
+			nextNav: computed,
 			nextSectorInfo: computed,
 			nextSector: computed,
+			nextSectorExitPoint: computed,
 			nextSectorFL: computed,
 			aircraftType: computed,
 			wakeTurbulenceCategory: computed,
@@ -280,6 +282,31 @@ export default class AircraftModel {
 	}
 
 	/**
+	 * Returns the next navigation point (waypoint) that the aircraft will pass.
+	 * This is the first future trajectory point that has a name (objectId).
+	 */
+	get nextNav(): string {
+		const flightRoute = this.flightRoutes.get(this.assignedFlightId);
+		if (!flightRoute || flightRoute.trajectory.length === 0) {
+			return this.arrivalAirport ?? "UNKNOWN";
+		}
+
+		const currentTime = this.simulatorStore.timestamp;
+		const trajectories = flightRoute.trajectory;
+
+		// Find the first future trajectory point with a name
+		const nextNavPoint = trajectories.find(
+			(t) => t.timestamp >= currentTime && t.objectId,
+		);
+
+		if (nextNavPoint?.objectId) {
+			return nextNavPoint.objectId;
+		}
+
+		return this.arrivalAirport ?? "UNKNOWN";
+	}
+
+	/**
 	 * Returns the next sector info the aircraft will enter based on its trajectory.
 	 * Iterates through the flight route waypoints, finds the sector for each,
 	 * and returns the first sector that differs from the current sector,
@@ -340,6 +367,56 @@ export default class AircraftModel {
 	 */
 	get nextSector(): string | undefined {
 		return this.nextSectorInfo?.sectorId;
+	}
+
+	/**
+	 * Returns the exit point name for the current sector (i.e., where the aircraft will exit to the next sector).
+	 * Priority:
+	 * 1. exitWaypointId from MQTT (FlightEnteringAirspaceMessage) for the current sector
+	 * 2. objectId from the nextSectorInfo trajectory point
+	 * 3. First named trajectory point after the sector entry point
+	 */
+	get nextSectorExitPoint(): string | undefined {
+		// First, try to get exitWaypointId from MQTT message for the current sector
+		const currentSector = this.sectorStore.findSector(
+			this.lastKnownLongitude,
+			this.lastKnownLatitude,
+		);
+		if (currentSector) {
+			const flightInSector = this.flightInSectorTimes.get(
+				currentSector.sectorId,
+			);
+			if (flightInSector?.exitWaypointId) {
+				return flightInSector.exitWaypointId;
+			}
+		}
+
+		// Fallback: use nextSectorInfo trajectory point
+		const info = this.nextSectorInfo;
+		if (!info) {
+			return undefined;
+		}
+
+		// If the entry point to the next sector has an ID, use it
+		if (info.trajectoryPoint.objectId) {
+			return info.trajectoryPoint.objectId;
+		}
+
+		// Otherwise, find the next trajectory point after the entry point that has an ID
+		const flightRoute = this.flightRoutes.get(this.assignedFlightId);
+		if (!flightRoute || flightRoute.trajectory.length === 0) {
+			return undefined;
+		}
+
+		const entryTimestamp = info.trajectoryPoint.timestamp;
+		const trajectories = flightRoute.trajectory;
+
+		// Find the first trajectory point after the entry point that has an objectId
+		const nextNamedPoint = trajectories.find(
+			(t) => t.timestamp > entryTimestamp && t.objectId,
+		);
+
+		return nextNamedPoint?.objectId;
 	}
 
 	/**
