@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const BLINK_INTERVAL = 500; // ms
 
@@ -11,19 +11,13 @@ export default observer(function Tct() {
 		return () => clearInterval(interval);
 	}, []);
 
-	const style = {
-		width: 40,
-		height: 20,
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: blink ? "white" : "black",
-		color: blink ? "red" : "red",
-		// border: `2px solid ${blink ? "black" : "red"}`,
-		fontWeight: "bold",
-		fontSize: 12,
-		transition: "background-color 0.2s, color 0.2s, border-color 0.2s",
-	} as React.CSSProperties;
-
-	return <div style={style}>TCT</div>;
+	return (
+		<div
+			className={`flex h-5 w-10 items-center justify-center rounded-t-xs font-bold text-xs text-red-600 transition-colors duration-200 ${
+				blink ? "bg-white" : "bg-black"
+			}`}
+		>
+			TCT
+		</div>
+	);
 });

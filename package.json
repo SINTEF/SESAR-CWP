@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "overrides": {
+    "@typescript/vfs": "1.6.2"
+  },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.2.7",
     "@fontsource/ibm-plex-sans": "^5.2.8",
@@ -15,13 +18,15 @@
     "@turf/buffer": "^7.3.1",
     "@turf/centroid": "^7.3.1",
     "@turf/length": "^7.3.1",
+    "@turf/area": "^7.3.1",
     "classnames": "^2.5.1",
     "daisyui": "^5.5.14",
+    "flatbush": "^4.5.0",
     "maplibre-gl": "^5.15.0",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "mqtt": "^5.14.1",
-    "posthog-js": "^1.314.0",
+    "posthog-js": "^1.315.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-draggable": "^4.5.0",
@@ -66,6 +71,6 @@
     "@vitejs/plugin-react": "^5.1.2",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
-    "vite": "^7.3.0"
+    "vite": "^7.3.1"
   }
 }

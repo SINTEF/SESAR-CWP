@@ -6,17 +6,26 @@ import CWPStore from "./model/CwpStore";
 import DistanceLine from "./model/DistanceLine";
 import FixStore from "./model/FixStore";
 import RoleConfigurationStore from "./model/RoleConfigurationStore";
+import SectorStore from "./model/SectorStore";
 import SepQdmStore from "./model/SepQdmStore";
 import SimulatorStore from "./model/SimulatorStore";
 import TrajectoryPredictionStore from "./model/TrajectoryPredictionStore";
 import MapViewportStore from "./stores/MapViewportStore";
 
+declare global {
+	interface Window {
+		mobxDebugStores: Record<string, unknown>;
+	}
+}
+
 export const simulatorStore = new SimulatorStore();
 export const adminStore = new AdminStore();
+export const airspaceStore = new AirspaceStore();
+export const sectorStore = new SectorStore();
 export const aircraftStore = new AircraftStore({
 	simulatorStore,
+	sectorStore,
 });
-export const airspaceStore = new AirspaceStore();
 export const fixStore = new FixStore();
 export const distanceLineStore = new DistanceLine();
 export const cwpStore = new CWPStore({
@@ -48,3 +57,19 @@ export const sepQdmStore = new SepQdmStore({
 	configurationStore,
 	trajectoryPredictionStore,
 });
+
+window.mobxDebugStores = {
+	simulatorStore,
+	adminStore,
+	aircraftStore,
+	airspaceStore,
+	sectorStore,
+	fixStore,
+	distanceLineStore,
+	cwpStore,
+	configurationStore,
+	roleConfigurationStore,
+	trajectoryPredictionStore,
+	mapViewportStore,
+	sepQdmStore,
+};

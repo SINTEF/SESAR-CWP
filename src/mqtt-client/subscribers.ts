@@ -15,6 +15,7 @@ import {
 	NewAirspaceMessage,
 	NewFlightMessage,
 	NewPointMessage,
+	NewSectorMessage,
 	RoleConfigurationMessage,
 	SimulatorTime,
 	TargetReportMessage,
@@ -26,6 +27,7 @@ import {
 	configurationStore,
 	fixStore,
 	roleConfigurationStore,
+	sectorStore,
 	simulatorStore,
 } from "../state";
 
@@ -65,6 +67,10 @@ export function newAirspaceConfiguration(
 export function airspaces(_parameters: unknown, message: Buffer): void {
 	const protoMessage = NewAirspaceMessage.fromBinary(message);
 	airspaceStore.handleNewAirspace(protoMessage);
+}
+export function newSector(_parameters: unknown, message: Buffer): void {
+	const protoMessage = NewSectorMessage.fromBinary(message);
+	sectorStore.handleNewSector(protoMessage);
 }
 export function newPointMessage(_parameters: unknown, message: Buffer): void {
 	const protoMessage = NewPointMessage.fromBinary(message);

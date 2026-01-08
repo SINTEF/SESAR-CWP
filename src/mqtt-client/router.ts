@@ -26,6 +26,7 @@ import {
 	newFlight,
 	newFlightMilestonePositions,
 	newPointMessage,
+	newSector,
 	newSimulatorTime,
 	notFound,
 	roleConfiguration,
@@ -48,7 +49,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/data/routes/:networkId/:objectId": ignored,
 	"ats/:clientId/data/flight-routes/:flightUniqueId": flightRoutes,
 	"ats/:clientId/data/airspaces/:airspaceId": airspaces,
-	"ats/:clientId/data/sectors/:sectorId": ignored, // no longer needed
+	"ats/:clientId/data/sectors/:sectorId": newSector,
 	"ats/:clientId/data/airblocks/:airblockId": ignored, // no longer needed
 	"ats/:clientId/data/airspace-configs/:configurationId":
 		newAirspaceConfiguration,

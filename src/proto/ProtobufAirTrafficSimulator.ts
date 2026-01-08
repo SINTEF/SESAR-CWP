@@ -344,6 +344,10 @@ export interface TargetReportMessage {
      * @generated from protobuf field: google.protobuf.Timestamp timeStamp = 9
      */
     timeStamp?: Timestamp; // The time when the message was sent.
+    /**
+     * @generated from protobuf field: float verticalSpeed = 10
+     */
+    verticalSpeed: number; // The vertical speed (m/s), optional.
 }
 /**
  * @generated from protobuf message ProtobufAirTrafficSimulator.AllTargetReports
@@ -2229,14 +2233,20 @@ export enum PilotRequestTypes {
  */
 export enum PilotRequestStatus {
     /**
+     * Pending feedback from pilot.
+     *
      * @generated from protobuf enum value: PR_PENDING = 0;
      */
     PR_PENDING = 0,
     /**
+     * Have done things that can be checked for decision support
+     *
      * @generated from protobuf enum value: PR_ACCEPTED = 1;
      */
     PR_ACCEPTED = 1,
     /**
+     * No alternative
+     *
      * @generated from protobuf enum value: PR_REJECTED = 2;
      */
     PR_REJECTED = 2
@@ -2995,7 +3005,8 @@ class TargetReportMessage$Type extends MessageType<TargetReportMessage> {
             { no: 6, name: "altitude", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
             { no: 7, name: "speed", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
             { no: 8, name: "bearing", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
-            { no: 9, name: "timeStamp", kind: "message", T: () => Timestamp }
+            { no: 9, name: "timeStamp", kind: "message", T: () => Timestamp },
+            { no: 10, name: "verticalSpeed", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ }
         ]);
     }
     create(value?: PartialMessage<TargetReportMessage>): TargetReportMessage {
@@ -3007,6 +3018,7 @@ class TargetReportMessage$Type extends MessageType<TargetReportMessage> {
         message.altitude = 0;
         message.speed = 0;
         message.bearing = 0;
+        message.verticalSpeed = 0;
         if (value !== undefined)
             reflectionMergePartial<TargetReportMessage>(this, message, value);
         return message;
@@ -3042,6 +3054,9 @@ class TargetReportMessage$Type extends MessageType<TargetReportMessage> {
                     break;
                 case /* google.protobuf.Timestamp timeStamp */ 9:
                     message.timeStamp = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.timeStamp);
+                    break;
+                case /* float verticalSpeed */ 10:
+                    message.verticalSpeed = reader.float();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -3082,6 +3097,9 @@ class TargetReportMessage$Type extends MessageType<TargetReportMessage> {
         /* google.protobuf.Timestamp timeStamp = 9; */
         if (message.timeStamp)
             Timestamp.internalBinaryWrite(message.timeStamp, writer.tag(9, WireType.LengthDelimited).fork(), options).join();
+        /* float verticalSpeed = 10; */
+        if (message.verticalSpeed !== 0)
+            writer.tag(10, WireType.Bit32).float(message.verticalSpeed);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

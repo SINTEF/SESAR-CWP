@@ -1,4 +1,4 @@
-import type { ObservableSet } from "mobx";
+import type { ObservableMap, ObservableSet } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
 
 import AltitudeFilter from "./AltitudeFilter";
@@ -8,6 +8,25 @@ export enum ShowNextConfiguration {
 	On = "On",
 	Off = "Off",
 }
+
+/** Warning levels for aircraft, affects VV line and icon color */
+export type WarningLevel = "none" | "blue" | "orange" | "yellow";
+
+/** Order of warning levels for cycling */
+const WARNING_LEVEL_ORDER: WarningLevel[] = [
+	"none",
+	"blue",
+	"orange",
+	"yellow",
+];
+
+/** Color mapping for warning levels */
+export const WARNING_LEVEL_COLORS: Record<WarningLevel, string | null> = {
+	none: null, // null means use default color
+	blue: "#00BFFF", // Deep sky blue
+	orange: "#FFA500", // Orange
+	yellow: "#FFFF00", // Yellow
+};
 
 export default class CWPStore {
 	altitudeFilter: AltitudeFilter;
@@ -39,6 +58,12 @@ export default class CWPStore {
 	aircraftsWithSpeedVectors: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
+
+	/** Warning levels for aircraft (local only, not synced over MQTT) */
+	aircraftWarningLevels: ObservableMap<string, WarningLevel> = observable.map(
+		undefined,
+		{ deep: false },
+	);
 
 	aircraftsWithFlightRoutes: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
@@ -496,5 +521,35 @@ export default class CWPStore {
 	}
 	removeTaArrowClickedAircraftId(): void {
 		this.taArrowClickedAircraftId = null;
+	}
+
+	/** Get the warning level for an aircraft */
+	getWarningLevel(aircraftId: string): WarningLevel {
+		return this.aircraftWarningLevels.get(aircraftId) ?? "none";
+	}
+
+	/** Cycle to the next warning level: none → blue → orange → yellow → none */
+	cycleWarningLevel(aircraftId: string): void {
+		const currentLevel = this.getWarningLevel(aircraftId);
+		const currentIndex = WARNING_LEVEL_ORDER.indexOf(currentLevel);
+		const nextIndex = (currentIndex + 1) % WARNING_LEVEL_ORDER.length;
+		const nextLevel = WARNING_LEVEL_ORDER[nextIndex];
+
+		if (nextLevel === "none") {
+			this.aircraftWarningLevels.delete(aircraftId);
+		} else {
+			this.aircraftWarningLevels.set(aircraftId, nextLevel);
+		}
+	}
+
+	/** Reset warning level to none */
+	resetWarningLevel(aircraftId: string): void {
+		this.aircraftWarningLevels.delete(aircraftId);
+	}
+
+	/** Get the warning color for an aircraft (null if none) */
+	getWarningColor(aircraftId: string): string | null {
+		const level = this.getWarningLevel(aircraftId);
+		return WARNING_LEVEL_COLORS[level];
 	}
 }

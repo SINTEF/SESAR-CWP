@@ -25,7 +25,7 @@ export default observer(function SepQdmOverlay() {
 			onMouseMove={onMouseMove}
 			onClick={onClick}
 			onContextMenu={onContextMenu}
-			className="fixed inset-0 w-full h-full bg-pink-500/10 cursor-crosshair z-[600]"
+			className="fixed inset-0 w-full h-full cursor-crosshair z-600"
 		/>
 	);
 });

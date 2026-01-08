@@ -358,7 +358,11 @@ export default class RoleConfigurationStore {
 		return undefined;
 	}
 
-	getOriginalColorOfAircraft(aircraftId: string): string {
+	/**
+	 * Get the base color for an aircraft based on its role/state (without warning color).
+	 * Use this for popup content where warning colors should not apply.
+	 */
+	getBaseColorOfAircraft(aircraftId: string): string {
 		const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
 		if (!aircraft) {
 			return "grey"; // Default color is grey
@@ -392,6 +396,21 @@ export default class RoleConfigurationStore {
 		}
 
 		return "grey"; // What is the default flight color?
+	}
+
+	/**
+	 * Get the display color for an aircraft (includes warning color if set).
+	 * Warning color has priority over all other colors.
+	 * Use this for icons and speed vectors.
+	 */
+	getOriginalColorOfAircraft(aircraftId: string): string {
+		// Warning color has priority over all other colors
+		const warningColor = this.cwpStore.getWarningColor(aircraftId);
+		if (warningColor) {
+			return warningColor;
+		}
+
+		return this.getBaseColorOfAircraft(aircraftId);
 	}
 
 	get listOfFlightsInCurrentSector(): AircraftModel[] | [] {

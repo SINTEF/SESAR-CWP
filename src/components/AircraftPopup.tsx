@@ -14,6 +14,8 @@ import ATCMenu from "./ATCMenu";
 import ChangeBearingPopup from "./ChangeBearingPopup";
 import ChangeNextFixPopup from "./ChangeNextFixPopup";
 import ChangeSpeedPopup from "./ChangeSpeedPopup";
+import Stca from "./conflict-detection-tools/Stca";
+import Tct from "./conflict-detection-tools/Tct";
 import DraggablePopup, { DraggablePopupProperties } from "./DraggablePopup";
 import NextSectorPopup from "./NextSectorPopup";
 import TaLabel from "./team-assistant/TaLabel";
@@ -75,9 +77,12 @@ export default observer(function AircraftPopup(properties: {
 		selectedAircraftIds,
 	} = cwpStore;
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
-	const isHoveredLabel = cwpStore.hoveredFlightLabelId === aircraftId;
+	const isHoveredLabel = true || cwpStore.hoveredFlightLabelId === aircraftId;
 	const isSelected = selectedAircraftIds.has(aircraft.aircraftId);
-	const flightColor =
+	// Use base color (without warning) for popup content
+	const flightColor = roleConfigurationStore.getBaseColorOfAircraft(aircraftId);
+	// Use original color (with warning) for border/icon elements
+	const iconColor =
 		roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
 
 	const { current } = useMap();
@@ -103,8 +108,8 @@ export default observer(function AircraftPopup(properties: {
 		});
 	};
 
-	const height = 70;
-	const width = isHoveredLabel ? 145 : 70;
+	const height = isHoveredLabel ? 70 : 56;
+	const width = isHoveredLabel ? 145 : 74;
 	const Content = isHoveredLabel ? AircraftPopupContent : AircraftContentSmall;
 
 	const onClick = (): void => {
@@ -145,12 +150,15 @@ export default observer(function AircraftPopup(properties: {
 	};
 
 	const offset = computePopupOffset(bearing, speed, width, height);
+	const hasStcaConflict = aircraftStore.hasStcaConflict(aircraft.aircraftId);
+	const hasTctConflict =
+		!hasStcaConflict && aircraftStore.hasTctConflict(aircraft.aircraftId);
 
 	return (
 		<DraggablePopup
 			className="text-xs p-0 m-0 backdrop-blur-[1.5px] z-0"
 			style={{ color: flightColor }}
-			color={isHoveredMarker ? "#00FFFF" : flightColor}
+			color={isHoveredMarker ? "#00FFFF" : iconColor}
 			offset={offset as DraggablePopupProperties["offset"]}
 			size={{ width, height }}
 			borderRadius={1.5}
@@ -206,6 +214,12 @@ export default observer(function AircraftPopup(properties: {
 				{/* <ATCMenu aircraft={aircraft} /> */}
 			</div>
 			<ATCMenu aircraft={properties.aircraft} />
+			{hasStcaConflict || hasTctConflict ? (
+				<div className="absolute bottom-full left-1">
+					{hasStcaConflict && <Stca />}
+					{hasTctConflict && <Tct />}
+				</div>
+			) : null}
 		</DraggablePopup>
 	);
 });
