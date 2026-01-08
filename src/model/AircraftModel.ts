@@ -12,7 +12,18 @@ import type AircraftInfo from "./AircraftInfo";
 import type AircraftType from "./AircraftType";
 import convertTimestamp from "./convertTimestamp";
 import FlightInSectorModel from "./FlightInSectorModel";
+import type FlightRoute from "./FlightRoute";
+import type SectorStore from "./SectorStore";
 import type SimulatorStore from "./SimulatorStore";
+import type Trajectory from "./Trajectory";
+
+/** Represents the next sector the aircraft will enter, with the trajectory point where it happens */
+export interface NextSectorInfo {
+	/** The sector ID */
+	sectorId: string;
+	/** The trajectory point where the aircraft enters the next sector */
+	trajectoryPoint: Trajectory;
+}
 
 function convertToFlightMeters(alt: number): number {
 	const feet = alt * 3.280_84;
@@ -40,6 +51,8 @@ export default class AircraftModel {
 
 	lastKnownSpeed = 0;
 
+	lastKnownVerticalSpeed = 0;
+
 	arrivalAirport: string;
 
 	departureAirport: string;
@@ -60,15 +73,26 @@ export default class AircraftModel {
 
 	assignedSpeed: number | undefined;
 
-	nextSectorFL = "NSFL";
+	/** Explicitly set next sector flight level (raw value), or undefined if derived from trajectory */
+	manualNextSectorFL: number | undefined = undefined;
 
 	nextACCFL = "COO";
+
+	/** Whether the nextACCFL value is currently flashing (recently changed) */
+	isNextACCFLFlashing = false;
+
+	/** Timeout handle for clearing the flash state (not observable) */
+	private nextACCFLFlashTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	localAssignedFlightLevel = "";
 
 	aircraftInfo: ObservableMap<string, AircraftInfo>;
 
 	aircraftTypes: ObservableMap<string, AircraftType>;
+
+	flightRoutes: ObservableMap<string, FlightRoute>;
+
+	sectorStore: SectorStore;
 
 	flightInSectorTimes: ObservableMap<string, FlightInSectorModel> =
 		observable.map(undefined, { deep: false });
@@ -97,6 +121,8 @@ export default class AircraftModel {
 		departureAirport,
 		aircraftInfo,
 		aircraftTypes,
+		flightRoutes,
+		sectorStore,
 		simulatorStore,
 	}: {
 		aircraftId: string;
@@ -106,6 +132,8 @@ export default class AircraftModel {
 		departureAirport: string;
 		aircraftInfo: ObservableMap<string, AircraftInfo>;
 		aircraftTypes: ObservableMap<string, AircraftType>;
+		flightRoutes: ObservableMap<string, FlightRoute>;
+		sectorStore: SectorStore;
 		simulatorStore: SimulatorStore;
 	}) {
 		makeObservable(this, {
@@ -115,6 +143,8 @@ export default class AircraftModel {
 			milestoneTargetTimestamp: false,
 			aircraftInfo: false,
 			aircraftTypes: false,
+			flightRoutes: false,
+			sectorStore: false,
 			simulatorStore: false,
 			flightInSectorTimes: observable,
 			lastKnownLongitude: observable,
@@ -122,6 +152,7 @@ export default class AircraftModel {
 			lastKnownAltitude: observable,
 			lastKnownBearing: observable,
 			lastKnownSpeed: observable,
+			lastKnownVerticalSpeed: observable,
 			arrivalAirport: observable,
 			departureAirport: observable,
 			controlledBy: observable,
@@ -131,8 +162,9 @@ export default class AircraftModel {
 			assignedBearing: observable,
 			assignedSpeed: observable,
 			localAssignedFlightLevel: observable,
-			nextSectorFL: observable,
+			manualNextSectorFL: observable,
 			nextACCFL: observable,
+			isNextACCFLFlashing: observable,
 			positionHistory: observable,
 			transponderCode: observable,
 			currentTime: observable,
@@ -140,6 +172,12 @@ export default class AircraftModel {
 			frequency: observable,
 
 			nextFix: computed,
+			nextNav: computed,
+			nextSectorInfo: computed,
+			nextSector: computed,
+			nextSectorExitPoint: computed,
+			nextSectorFL: computed,
+			aircraftType: computed,
 			wakeTurbulenceCategory: computed,
 			speedAndWakeTurbulenceLabel: computed,
 
@@ -162,6 +200,8 @@ export default class AircraftModel {
 		this.departureAirport = departureAirport;
 		this.aircraftInfo = aircraftInfo;
 		this.aircraftTypes = aircraftTypes;
+		this.flightRoutes = flightRoutes;
+		this.sectorStore = sectorStore;
 		this.simulatorStore = simulatorStore;
 	}
 
@@ -169,8 +209,15 @@ export default class AircraftModel {
 		// Ignore target reports that are older than the previous one
 		// This is because MQTT doesn't guarantie the order of the received messages
 		// We could use a MQTT broker that is a message queue with an order, like RabbitMQ
-		const { time, altitude, latitude, longitude, bearing, speed } =
-			targetReport;
+		const {
+			time,
+			altitude,
+			latitude,
+			longitude,
+			bearing,
+			speed,
+			verticalSpeed,
+		} = targetReport;
 		if (!time) {
 			throw new Error("Missing time in target report message");
 		}
@@ -201,6 +248,11 @@ export default class AircraftModel {
 		}
 		if (speed !== this.lastKnownSpeed) {
 			this.lastKnownSpeed = speed;
+		}
+		// verticalSpeed may be NaN or missing, default to 0
+		const safeVerticalSpeed = Number.isNaN(verticalSpeed) ? 0 : verticalSpeed;
+		if (safeVerticalSpeed !== this.lastKnownVerticalSpeed) {
+			this.lastKnownVerticalSpeed = safeVerticalSpeed;
 		}
 	}
 
@@ -234,6 +286,176 @@ export default class AircraftModel {
 		}
 
 		return this.arrivalAirport ?? "UNKNOWN";
+	}
+
+	/**
+	 * Returns the next navigation point (waypoint) that the aircraft will pass.
+	 * This is the first future trajectory point that has a name (objectId).
+	 */
+	get nextNav(): string {
+		const flightRoute = this.flightRoutes.get(this.assignedFlightId);
+		if (!flightRoute || flightRoute.trajectory.length === 0) {
+			return this.arrivalAirport ?? "UNKNOWN";
+		}
+
+		const currentTime = this.simulatorStore.timestamp;
+		const trajectories = flightRoute.trajectory;
+
+		// Find the first future trajectory point with a name
+		const nextNavPoint = trajectories.find(
+			(t) => t.timestamp >= currentTime && t.objectId,
+		);
+
+		if (nextNavPoint?.objectId) {
+			return nextNavPoint.objectId;
+		}
+
+		return this.arrivalAirport ?? "UNKNOWN";
+	}
+
+	/**
+	 * Returns the next sector info the aircraft will enter based on its trajectory.
+	 * Iterates through the flight route waypoints, finds the sector for each,
+	 * and returns the first sector that differs from the current sector,
+	 * along with the trajectory point where it enters that sector.
+	 *
+	 * The logic looks at the waypoint just before the current time to determine
+	 * the "current" sector, then finds the first waypoint in a different sector.
+	 */
+	get nextSectorInfo(): NextSectorInfo | undefined {
+		const flightRoute = this.flightRoutes.get(this.assignedFlightId);
+		if (!flightRoute || flightRoute.trajectory.length === 0) {
+			return undefined;
+		}
+
+		const currentTime = this.simulatorStore.timestamp;
+		const trajectories = flightRoute.trajectory;
+
+		// Find the current sector by looking at the position before or at current time
+		// We need to determine what sector the aircraft is currently in
+		const currentSector = this.sectorStore.findSector(
+			this.lastKnownLongitude,
+			this.lastKnownLatitude,
+		);
+		const currentSectorId = currentSector?.sectorId;
+
+		// Find the first future waypoint index (after current time)
+		const firstFutureIndex = trajectories.findIndex(
+			(t) => t.timestamp >= currentTime,
+		);
+
+		// If all waypoints are in the past, no next sector
+		if (firstFutureIndex === -1) {
+			return undefined;
+		}
+
+		// Iterate through future waypoints and find the first one in a different sector
+		for (let i = firstFutureIndex; i < trajectories.length; i++) {
+			const waypoint = trajectories[i];
+			const waypointSector = this.sectorStore.findSector(
+				waypoint.trajectoryCoordinate.longitude,
+				waypoint.trajectoryCoordinate.latitude,
+			);
+
+			if (waypointSector && waypointSector.sectorId !== currentSectorId) {
+				return {
+					sectorId: waypointSector.sectorId,
+					trajectoryPoint: waypoint,
+				};
+			}
+		}
+
+		return undefined;
+	}
+
+	/**
+	 * Returns the next sector ID the aircraft will enter.
+	 * This is a convenience accessor that extracts just the sector ID from nextSectorInfo.
+	 */
+	get nextSector(): string | undefined {
+		return this.nextSectorInfo?.sectorId;
+	}
+
+	/**
+	 * Returns the exit point name for the current sector (i.e., where the aircraft will exit to the next sector).
+	 * Priority:
+	 * 1. exitWaypointId from MQTT (FlightEnteringAirspaceMessage) for the current sector
+	 * 2. objectId from the nextSectorInfo trajectory point
+	 * 3. First named trajectory point after the sector entry point
+	 */
+	get nextSectorExitPoint(): string | undefined {
+		// First, try to get exitWaypointId from MQTT message for the current sector
+		const currentSector = this.sectorStore.findSector(
+			this.lastKnownLongitude,
+			this.lastKnownLatitude,
+		);
+		if (currentSector) {
+			const flightInSector = this.flightInSectorTimes.get(
+				currentSector.sectorId,
+			);
+			if (flightInSector?.exitWaypointId) {
+				return flightInSector.exitWaypointId;
+			}
+		}
+
+		// Fallback: use nextSectorInfo trajectory point
+		const info = this.nextSectorInfo;
+		if (!info) {
+			return undefined;
+		}
+
+		// If the entry point to the next sector has an ID, use it
+		if (info.trajectoryPoint.objectId) {
+			return info.trajectoryPoint.objectId;
+		}
+
+		// Otherwise, find the next trajectory point after the entry point that has an ID
+		const flightRoute = this.flightRoutes.get(this.assignedFlightId);
+		if (!flightRoute || flightRoute.trajectory.length === 0) {
+			return undefined;
+		}
+
+		const entryTimestamp = info.trajectoryPoint.timestamp;
+		const trajectories = flightRoute.trajectory;
+
+		// Find the first trajectory point after the entry point that has an objectId
+		const nextNamedPoint = trajectories.find(
+			(t) => t.timestamp > entryTimestamp && t.objectId,
+		);
+
+		return nextNamedPoint?.objectId;
+	}
+
+	/**
+	 * Returns the flight level for the next sector as a display string.
+	 * If manually set, returns the manual value divided by 10 and rounded.
+	 * Otherwise, derives it from the trajectory point's altitude at sector entry.
+	 * The division by 10 is per app specifications for display.
+	 */
+	get nextSectorFL(): string {
+		// If manually set, return the manual value divided by 10 and rounded
+		if (this.manualNextSectorFL !== undefined) {
+			return Math.round(this.manualNextSectorFL / 10).toString();
+		}
+
+		// Derive from trajectory point altitude
+		const info = this.nextSectorInfo;
+		if (info) {
+			const altitude = info.trajectoryPoint.trajectoryCoordinate.altitude;
+			if (altitude !== undefined && altitude > 0) {
+				// Convert meters to flight level (altitude in meters -> feet / 100)
+				// Then divide by 10 for display per app specifications
+				const flightLevel = (altitude * 3.28084) / 100;
+				return Math.round(flightLevel / 10).toString();
+			}
+		}
+
+		return "NSFL";
+	}
+
+	get aircraftType(): string {
+		const aircraftInfo = this.aircraftInfo.get(this.aircraftId);
+		return aircraftInfo?.aircraftType ?? "";
 	}
 
 	handleNewFlightUpdate(newFlight: NewFlightMessage): void {
@@ -363,11 +585,31 @@ export default class AircraftModel {
 	}
 
 	setNextSectorFL(nextSectorFL: string): void {
-		this.nextSectorFL = nextSectorFL;
+		// "NSFL" is the default/unset value - clear manual setting to use derived value
+		if (nextSectorFL === "NSFL") {
+			this.manualNextSectorFL = undefined;
+		} else {
+			const parsed = Number.parseInt(nextSectorFL, 10);
+			this.manualNextSectorFL = Number.isNaN(parsed) ? undefined : parsed;
+		}
 	}
 
 	setNextACCFL(nextACCFL: string): void {
+		const hasChanged = this.nextACCFL !== nextACCFL;
 		this.nextACCFL = nextACCFL;
+
+		if (hasChanged) {
+			// Clear any existing flash timeout
+			if (this.nextACCFLFlashTimeout) {
+				clearTimeout(this.nextACCFLFlashTimeout);
+			}
+			// Start flashing
+			this.isNextACCFLFlashing = true;
+			// Stop flashing after 1 second
+			this.nextACCFLFlashTimeout = setTimeout(() => {
+				this.isNextACCFLFlashing = false;
+			}, 1000);
+		}
 	}
 
 	setPilotRequestFlightLevel(request: string): void {

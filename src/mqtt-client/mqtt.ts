@@ -92,6 +92,12 @@ export function createClient(credentials: MqttCredentials | null): MqttClient {
 // Placeholder client that will be replaced once credentials are loaded
 let client: MqttClient | null = null;
 
+// Pending listeners that were registered before client was initialized
+const pendingConnectListeners: Set<() => void> = new Set();
+const pendingDisconnectListeners: Set<() => void> = new Set();
+const pendingPacketReceiveListeners: Set<() => void> = new Set();
+const pendingPacketSendListeners: Set<() => void> = new Set();
+
 /**
  * Check if the MQTT client is initialized and ready to publish
  */
@@ -102,6 +108,25 @@ export function isClientReady(): boolean {
 export function initializeClient(credentials: MqttCredentials | null): void {
 	const isAdmin = isAdminModeRequested();
 	client = createClient(credentials);
+
+	// Attach any listeners that were registered before client was initialized
+	for (const listener of pendingConnectListeners) {
+		client.on("connect", listener);
+	}
+	for (const listener of pendingDisconnectListeners) {
+		client.on("close", listener);
+	}
+	for (const listener of pendingPacketReceiveListeners) {
+		client.on("packetreceive", listener);
+	}
+	for (const listener of pendingPacketSendListeners) {
+		client.on("packetsend", listener);
+	}
+	// Clear the pending sets
+	pendingConnectListeners.clear();
+	pendingDisconnectListeners.clear();
+	pendingPacketReceiveListeners.clear();
+	pendingPacketSendListeners.clear();
 
 	// Track reconnection attempts for detecting auth failures
 	let reconnectCount = 0;
@@ -166,8 +191,9 @@ type MqttOffCallback = () => void;
 
 export function onConnect(callback: MqttOnCallback): MqttOffCallback {
 	if (!client) {
-		// Client not initialized yet, just register for when it is
-		return () => {};
+		// Client not initialized yet, store for later
+		pendingConnectListeners.add(callback);
+		return () => pendingConnectListeners.delete(callback);
 	}
 	if (client.connected) {
 		callback();
@@ -179,8 +205,11 @@ export function onConnect(callback: MqttOnCallback): MqttOffCallback {
 
 export function onDisconnect(callback: MqttOffCallback): MqttOffCallback {
 	if (!client) {
+		// Client not initialized yet, store for later
+		// Also call callback immediately since we're "disconnected" (not connected yet)
 		callback();
-		return () => {};
+		pendingDisconnectListeners.add(callback);
+		return () => pendingDisconnectListeners.delete(callback);
 	}
 	if (!client.connected) {
 		callback();
@@ -192,7 +221,9 @@ export function onDisconnect(callback: MqttOffCallback): MqttOffCallback {
 
 export function onPacketReceive(callback: MqttOnCallback): MqttOffCallback {
 	if (!client) {
-		return () => {};
+		// Client not initialized yet, store for later
+		pendingPacketReceiveListeners.add(callback);
+		return () => pendingPacketReceiveListeners.delete(callback);
 	}
 	client.on("packetreceive", callback);
 	const currentClient = client;
@@ -201,7 +232,9 @@ export function onPacketReceive(callback: MqttOnCallback): MqttOffCallback {
 
 export function onPacketSend(callback: MqttOnCallback): MqttOffCallback {
 	if (!client) {
-		return () => {};
+		// Client not initialized yet, store for later
+		pendingPacketSendListeners.add(callback);
+		return () => pendingPacketSendListeners.delete(callback);
 	}
 	client.on("packetsend", callback);
 	const currentClient = client;

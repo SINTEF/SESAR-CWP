@@ -20,6 +20,7 @@ import AircraftType from "./AircraftType";
 import CoordinatePair from "./CoordinatePair";
 import convertTimestamp from "./convertTimestamp";
 import FlightRoute from "./FlightRoute";
+import type SectorStore from "./SectorStore";
 import type SimulatorStore from "./SimulatorStore";
 import Trajectory from "./Trajectory";
 
@@ -46,6 +47,8 @@ export default class AircraftStore {
 
 	simulatorStore: SimulatorStore;
 
+	sectorStore: SectorStore;
+
 	stcaConflictIds: ObservableMap<string, FlightConflictUpdateMessage> =
 		observable.map(undefined, {
 			deep: false,
@@ -68,17 +71,21 @@ export default class AircraftStore {
 
 	constructor({
 		simulatorStore,
+		sectorStore,
 	}: {
 		simulatorStore: SimulatorStore;
+		sectorStore: SectorStore;
 	}) {
 		makeAutoObservable(
 			this,
 			{
 				simulatorStore: false,
+				sectorStore: false,
 			},
 			{ autoBind: true },
 		);
 		this.simulatorStore = simulatorStore;
+		this.sectorStore = sectorStore;
 	}
 
 	get notHiddenAircrafts(): AircraftModel[] {
@@ -119,6 +126,8 @@ export default class AircraftStore {
 					departureAirport: newFlight.departureAirport,
 					aircraftInfo: this.aircraftInfo,
 					aircraftTypes: this.aircraftTypes,
+					flightRoutes: this.flightRoutes,
+					sectorStore: this.sectorStore,
 					simulatorStore: this.simulatorStore,
 				}),
 			);

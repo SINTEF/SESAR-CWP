@@ -34,11 +34,10 @@ function ListOfLevels(properties: {
 				key={index}
 				onClick={(): void => onClick(index)}
 				className={`
-                    w-full px-0 py-1 text-xs 
+                    block px-0 py-1 text-xs text-center
                     bg-[#1e3a5f] text-white
                     hover:bg-[#4b90db]
                     border-none outline-none
-                    flex items-center justify-center
                     ${isWithinRange ? "font-bold" : ""}
                 `}
 				data-level={index}
@@ -67,6 +66,7 @@ export default observer(function AircraftLevelPopup(properties: {
 		lastKnownAltitude: altitude,
 		callSign,
 		controlledBy,
+		nextACCFL,
 		setAssignedFlightLevel,
 		setLocalAssignedFlightLevel,
 		setNextSectorFL,
@@ -76,9 +76,17 @@ export default observer(function AircraftLevelPopup(properties: {
 	const { areaOfIncludedAirspaces, currentCWP } = configurationStore;
 	const { currentControlledSector } = roleConfigurationStore;
 
-	const [flightLevel, setFlightLevel] = React.useState(
-		Math.round(altitude / 10) * 10,
-	);
+	const currentAircraftLevel = Math.round(altitude / 10) * 10;
+	// Use nextACCFL as the default level if it's a number, otherwise use the aircraft altitude
+	const getDefaultLevel = (): number => {
+		if (nextACCFL !== "COO" && /^\d+$/.test(nextACCFL)) {
+			return Math.round(Number.parseInt(nextACCFL) / 10) * 10;
+		}
+		return currentAircraftLevel;
+	};
+	const defaultLevel = getDefaultLevel();
+
+	const [flightLevel, setFlightLevel] = React.useState(defaultLevel);
 	const listOfLevelsReference = React.createRef<HTMLDivElement>();
 	const shouldShow = cwpStore.aircraftsWithLevelPopup.has(aircraftId);
 
@@ -89,14 +97,36 @@ export default observer(function AircraftLevelPopup(properties: {
 	const topFlightLevel = airspaceCurrent?.topFlightLevel;
 	const bottomFlightLevel = airspaceCurrent?.bottomFlightLevel;
 
+	// Reset flight level to default when popup opens
 	React.useEffect(() => {
-		// Scroll to the level in the list
-		const listElement = (
-			[
-				...(listOfLevelsReference.current?.children ?? []),
-			] as HTMLButtonElement[]
-		).find((element) => element.dataset.level === `${flightLevel}`);
-		listElement?.scrollIntoView({ block: "center" });
+		if (shouldShow) {
+			setFlightLevel(defaultLevel);
+		}
+	}, [shouldShow, defaultLevel]);
+
+	React.useEffect(() => {
+		// Scroll to the level in the list (only within the container, not the whole page)
+		const container = listOfLevelsReference.current;
+		if (!container) {
+			return;
+		}
+
+		const listElement = ([...container.children] as HTMLButtonElement[]).find(
+			(element) => element.dataset.level === `${flightLevel}`,
+		);
+
+		if (listElement) {
+			// Calculate scroll position to center the element within the container
+			// Using getBoundingClientRect for accurate positioning
+			const containerRect = container.getBoundingClientRect();
+			const elementRect = listElement.getBoundingClientRect();
+			const elementTopRelativeToContainer =
+				elementRect.top - containerRect.top + container.scrollTop;
+			container.scrollTop =
+				elementTopRelativeToContainer -
+				container.clientHeight / 2 +
+				listElement.offsetHeight / 2;
+		}
 	}, [flightLevel, shouldShow]);
 
 	const accepted = controlledBy === currentCWP;
@@ -130,9 +160,10 @@ export default observer(function AircraftLevelPopup(properties: {
 			action: "cancelled",
 		});
 	};
-	const setFLCP = (): void => {
-		const stringFlightLevel = flightLevel.toString();
-		const previousAltitude = Math.round(altitude / 10) * 10;
+
+	const applyFlightLevel = (level: number): void => {
+		const stringFlightLevel = level.toString();
+		const previousAltitude = currentAircraftLevel;
 		let changeType = "";
 
 		if (cwpStore.nextSectorFlActivated) {
@@ -174,21 +205,36 @@ export default observer(function AircraftLevelPopup(properties: {
 			aircraft_id: aircraftId,
 			callsign: callSign,
 			previous_altitude: previousAltitude,
-			new_altitude: flightLevel,
-			altitude_change: flightLevel - previousAltitude,
+			new_altitude: level,
+			altitude_change: level - previousAltitude,
 			change_type: changeType,
 			controlled_by: controlledBy,
 			current_cwp: currentCWP,
 			is_master: isMaster,
 		});
 
-		close();
+		cwpStore.closeLevelPopupForAircraft(aircraftId);
+	};
+
+	const setFLCP = (): void => {
+		applyFlightLevel(flightLevel);
+	};
+
+	// Handler for clicking a flight level button in the list
+	const handleFlightLevelClick = (level: number): void => {
+		if (level === defaultLevel) {
+			// If clicking on the default level (no change), just close the popup
+			close();
+		} else {
+			// Otherwise, apply immediately
+			applyFlightLevel(level);
+		}
 	};
 
 	return (
 		<div
 			className={`
-			w-[80px] bg-[#1e3a5f] p-0 shadow-lg
+			w-20 bg-[#1e3a5f] p-0 shadow-lg
 			${accepted ? "border-2 border-green-400" : ""}
 		`}
 			style={{ borderRadius: 0 }}
@@ -201,15 +247,15 @@ export default observer(function AircraftLevelPopup(properties: {
 					onClick={(): void => FlightLevelChange("up")}
 					className="btn btn-ghost btn-xs text-xs"
 				>
-					⮝
+					▲
 				</button>
 				<div
-					className="snap-y snap-mandatory h-40 overflow-y-scroll scrollbar-hide bg-[#1e3a5f]"
+					className="h-40 overflow-y-scroll scrollbar-hide bg-[#1e3a5f] flex flex-col"
 					ref={listOfLevelsReference}
 				>
 					<ListOfLevels
 						value={flightLevel}
-						onClick={setFlightLevel}
+						onClick={handleFlightLevelClick}
 						topFlightLevel={topFlightLevel}
 						bottomFlightLevel={bottomFlightLevel}
 					/>
@@ -218,19 +264,19 @@ export default observer(function AircraftLevelPopup(properties: {
 					onClick={(): void => FlightLevelChange("down")}
 					className="btn btn-ghost btn-xs text-xs"
 				>
-					⮟
+					▼
 				</button>
 			</div>
 			<div className="flex gap-0.5 mt-1">
 				<button
 					onClick={close}
-					className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2"
+					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
 				>
 					Cancel
 				</button>
 				<button
 					onClick={setFLCP}
-					className="btn btn-sm btn-outline flex-grow h-8 text-xs px-0 rounded-none border-2"
+					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
 				>
 					Apply
 				</button>

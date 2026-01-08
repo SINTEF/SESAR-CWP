@@ -2,7 +2,6 @@ import { usePostHog } from "posthog-js/react";
 import Agenda from "./components/Agenda";
 import AltitudeFilterPanel from "./components/AltitudeFilterPanel";
 import ConnectionErrorModal from "./components/ConnectionErrorModal";
-import ControllerModal from "./components/ControllerModal";
 import Draggable2DView from "./components/Draggable2DView";
 import DraggableAdminPanel from "./components/DraggableAdminPanel";
 import DypTable from "./components/DypTable";
@@ -11,6 +10,7 @@ import ImageConfiguration from "./components/ImageConfiguration";
 import Map from "./components/Map";
 import MqttIndicators from "./components/MqttIndicators";
 import SepQdmOverlay from "./components/SepQdmOverlay";
+import StartupModal from "./components/StartupModal";
 import clientId from "./mqtt-client/clientId";
 
 // Might be reused for DIALOG
@@ -33,7 +33,7 @@ export default function App(/* properties */) {
 			<DypTable />
 			<Draggable2DView />
 			<DraggableAdminPanel />
-			<ControllerModal />
+			<StartupModal />
 			<AltitudeFilterPanel />
 			<ImageConfiguration />
 			<SepQdmOverlay />

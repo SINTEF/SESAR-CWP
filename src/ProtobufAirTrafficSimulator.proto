@@ -372,7 +372,7 @@ message TargetReportMessage {
   float speed                             =  7; // Speed (m/s).
   float bearing                           =  8; // The bearing (degrees).
   google.protobuf.Timestamp timeStamp     =  9; // The time when the message was sent.
-
+  float verticalSpeed                     = 10; // The vertical speed (m/s), optional.
 }
 
 message AllTargetReports {

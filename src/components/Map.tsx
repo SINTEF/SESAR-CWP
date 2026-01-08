@@ -25,6 +25,7 @@ import SepQdmCurrentLine from "./SepQdmCurrentLine";
 import SepQdmLines from "./SepQdmLines";
 import SpeedVectors from "./SpeedVectors";
 import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
+import ViewportPresetsControl from "./ViewportPresetsControl";
 
 // Do not load the RTL plugin because it is unecessary
 try {
@@ -127,6 +128,8 @@ export default function Map() {
 	const posthog = usePostHog();
 	const [isMoving, setIsMoving] = React.useState(false);
 	const mapRef = React.useRef<MapRef>(null);
+	// Track number of concurrent move operations to handle overlapping animations
+	const moveCountRef = React.useRef(0);
 	// const { isDragging } = useDragging();
 
 	// Set map reference for viewport store when available
@@ -147,7 +150,9 @@ export default function Map() {
 	}, []);
 
 	const onMoveStart = (): void => {
-		if (!isMoving) {
+		moveCountRef.current += 1;
+		// Only set isMoving to true on the first move start
+		if (moveCountRef.current === 1) {
 			setIsMoving(true);
 			mapViewportStore.setIsMoving(true);
 			posthog?.capture("map_move_start", {
@@ -157,7 +162,9 @@ export default function Map() {
 		}
 	};
 	const onMoveEnd = (): void => {
-		if (isMoving) {
+		moveCountRef.current = Math.max(0, moveCountRef.current - 1);
+		// Only set isMoving to false when all moves have ended
+		if (moveCountRef.current === 0) {
 			setIsMoving(false);
 			mapViewportStore.setIsMoving(false);
 			// Update viewport store with debouncing to prevent excessive events
@@ -237,6 +244,7 @@ export default function Map() {
 				<LimboAircrafts />
 				<NavigationControl position="bottom-left" visualizePitch={true} />
 				<FullscreenControl position="bottom-left" containerId="root" />
+				<ViewportPresetsControl />
 			</ReactMapGL>
 		</div>
 	);

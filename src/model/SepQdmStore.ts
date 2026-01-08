@@ -163,26 +163,45 @@ export default class SepQdmStore {
 
 		// If snapped to aircraft, save to the appropriate collection based on mode
 		if (nearestAircraft) {
+			const toId = nearestAircraft.aircraftId;
+			const fromId = this.fromAircraftId;
+
 			if (this.mode === "SEP") {
-				this.savedSepLines.push(
-					new SepQdmSeparation({
-						fromId: this.fromAircraftId,
-						toId: nearestAircraft.aircraftId,
-						type: "sep",
-						aircraftStore: this.aircraftStore,
-						trajectoryPredictionStore: this.trajectoryPredictionStore,
-					}),
+				// Check if this pair already exists (in either direction)
+				const exists = this.savedSepLines.some(
+					(line) =>
+						(line.fromId === fromId && line.toId === toId) ||
+						(line.fromId === toId && line.toId === fromId),
 				);
+				if (!exists) {
+					this.savedSepLines.push(
+						new SepQdmSeparation({
+							fromId: fromId,
+							toId: toId,
+							type: "sep",
+							aircraftStore: this.aircraftStore,
+							trajectoryPredictionStore: this.trajectoryPredictionStore,
+						}),
+					);
+				}
 			} else if (this.mode === "QDM") {
-				this.savedQdmLines.push(
-					new SepQdmSeparation({
-						fromId: this.fromAircraftId,
-						toId: nearestAircraft.aircraftId,
-						type: "qdm",
-						aircraftStore: this.aircraftStore,
-						trajectoryPredictionStore: this.trajectoryPredictionStore,
-					}),
+				// Check if this pair already exists (in either direction)
+				const exists = this.savedQdmLines.some(
+					(line) =>
+						(line.fromId === fromId && line.toId === toId) ||
+						(line.fromId === toId && line.toId === fromId),
 				);
+				if (!exists) {
+					this.savedQdmLines.push(
+						new SepQdmSeparation({
+							fromId: fromId,
+							toId: toId,
+							type: "qdm",
+							aircraftStore: this.aircraftStore,
+							trajectoryPredictionStore: this.trajectoryPredictionStore,
+						}),
+					);
+				}
 			}
 		}
 
