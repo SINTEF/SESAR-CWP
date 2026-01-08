@@ -5,6 +5,7 @@ import { roleConfigurationStore } from "../state";
 import { formatSpeed, formatVerticalSpeed } from "../utils";
 import {
 	Altitude,
+	ArrivalAirport,
 	AssignedBearing,
 	CallSign,
 	NextACCFlightLevel,
@@ -27,7 +28,10 @@ export default observer(function AircraftPopupContent(properties: {
 		? aircraft.flightInSectorTimes?.get(currentSector)
 		: undefined;
 	return (
-		<div style={{ color: flightColor }}>
+		<div
+			style={{ color: flightColor }}
+			className={aircraft.degreased ? "font-normal" : "font-bold"}
+		>
 			{/* Line 0 */}
 			<div>
 				<span>{formatSpeed(lastKnownSpeed)}</span>
@@ -66,7 +70,7 @@ export default observer(function AircraftPopupContent(properties: {
 				{/* <NextSectorController aircraft={aircraft} /> */}
 				{/* <LocalAssignedFlightLevel aircraft={aircraft} /> */}
 				<span className="ml-0.5"></span>
-				<span>{aircraft.arrivalAirport}</span>
+				<ArrivalAirport aircraft={aircraft} />
 			</div>
 		</div>
 	);
