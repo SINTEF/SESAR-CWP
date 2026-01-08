@@ -18,7 +18,10 @@ export default observer(function AircraftContentSmall(properties: {
 	const { aircraft, flightColor } = properties;
 	const { lastKnownSpeed } = aircraft;
 	return (
-		<div style={{ color: flightColor }}>
+		<div
+			style={{ color: flightColor }}
+			className={aircraft.degreased ? "font-normal" : "font-bold"}
+		>
 			{/* Line 0 */}
 			<div>
 				<span>{formatSpeed(lastKnownSpeed)}</span>

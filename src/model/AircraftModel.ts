@@ -113,6 +113,9 @@ export default class AircraftModel {
 
 	bearingPilotRequest: string | boolean = false;
 
+	/** Whether the aircraft has been "degreased" (acknowledged). Once true, popup text is no longer bold. */
+	degreased = false;
+
 	constructor({
 		aircraftId,
 		assignedFlightId,
@@ -170,6 +173,7 @@ export default class AircraftModel {
 			currentTime: observable,
 			routeWaypoints: observable,
 			frequency: observable,
+			degreased: observable,
 
 			nextFix: computed,
 			nextNav: computed,
@@ -191,6 +195,7 @@ export default class AircraftModel {
 			setLocalAssignedFlightLevel: action.bound,
 			setNextSectorFL: action.bound,
 			setNextACCFL: action.bound,
+			degrease: action.bound,
 		});
 
 		this.aircraftId = aircraftId;
@@ -618,5 +623,10 @@ export default class AircraftModel {
 
 	setPilotRequestedBearing(bearing: string): void {
 		this.bearingPilotRequest = bearing;
+	}
+
+	/** Mark this aircraft as degreased. Only goes from false to true, never back. */
+	degrease(): void {
+		this.degreased = true;
 	}
 }

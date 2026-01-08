@@ -45,6 +45,11 @@ export const CallSign = observer(
 			});
 		};
 
+		const handleContextMenu = (event: React.MouseEvent): void => {
+			event.preventDefault();
+			aircraft.degrease();
+		};
+
 		const getColor = (aircraft: AircraftModel): string => {
 			if (controlledBy === "NS") {
 				// Setting transfering to next sector as NS for DIALOG
@@ -61,6 +66,7 @@ export const CallSign = observer(
 			<span
 				style={{ color: getColor(aircraft) }}
 				onClick={openATCMenu}
+				onContextMenu={handleContextMenu}
 				className="hover:outline-2 hover:outline-white"
 			>
 				{callSign}
@@ -359,3 +365,19 @@ export const TransferAltitude = ({
 	const flightLevel = Math.round(convertMetersToFlightLevel(altitude) / 10);
 	return <span>x{flightLevel}</span>;
 };
+
+export const ArrivalAirport = observer(({ aircraft }: SubContentProperties) => {
+	const handleContextMenu = (event: React.MouseEvent): void => {
+		event.preventDefault();
+		aircraft.degrease();
+	};
+
+	return (
+		<span
+			onContextMenu={handleContextMenu}
+			className="hover:outline-2 hover:outline-white"
+		>
+			{aircraft.arrivalAirport}
+		</span>
+	);
+});

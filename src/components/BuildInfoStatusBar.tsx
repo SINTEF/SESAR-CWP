@@ -38,9 +38,7 @@ export default function BuildInfoStatusBar() {
 	return (
 		<footer className="mt-6 pt-4 border-t border-base-300">
 			<div className="flex flex-wrap items-center justify-center gap-2 text-xs text-base-content/60">
-				{version && (
-					<div className="badge badge-ghost badge-sm">v{version}</div>
-				)}
+				{version && <div className="badge badge-ghost badge-sm">{version}</div>}
 				{revision && (
 					<div className="badge badge-ghost badge-sm font-mono">{revision}</div>
 				)}
