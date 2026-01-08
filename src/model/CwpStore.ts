@@ -552,4 +552,16 @@ export default class CWPStore {
 		const level = this.getWarningLevel(aircraftId);
 		return WARNING_LEVEL_COLORS[level];
 	}
+
+	/** Check if any popup is open for an aircraft */
+	aircraftHasOpenPopup(aircraftId: string): boolean {
+		return (
+			this.aircraftsWithLevelPopup.has(aircraftId) ||
+			this.aircraftsWithSectorPopup.has(aircraftId) ||
+			this.aircraftsWithBearingPopup.has(aircraftId) ||
+			this.aircraftsWithNextFixPopup.has(aircraftId) ||
+			this.aircraftWithSpeedChangePopup.has(aircraftId) ||
+			this.ATCMenuAircraftId === aircraftId
+		);
+	}
 }

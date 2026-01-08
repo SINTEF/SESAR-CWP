@@ -58,7 +58,11 @@ export const CallSign = observer(
 		};
 
 		return (
-			<span style={{ color: getColor(aircraft) }} onClick={openATCMenu}>
+			<span
+				style={{ color: getColor(aircraft) }}
+				onClick={openATCMenu}
+				className="hover:outline-2 hover:outline-white"
+			>
 				{callSign}
 			</span>
 		);
@@ -103,7 +107,7 @@ export const Altitude = observer(({ aircraft }: SubContentProperties) => {
 		});
 	};
 	return (
-		<span onClick={onClick}>
+		<span onClick={onClick} className="hover:outline-2 hover:outline-white">
 			{Number.parseFloat(aircraft.lastKnownAltitude.toFixed(0))}
 		</span>
 	);
@@ -125,7 +129,14 @@ export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
 			next_sector_fl: aircraft.nextSectorFL,
 		});
 	};
-	return <span onClick={openNSFLPopup}>{aircraft.nextSectorFL}</span>;
+	return (
+		<span
+			onClick={openNSFLPopup}
+			className="hover:outline-2 hover:outline-white"
+		>
+			{aircraft.nextSectorFL}
+		</span>
+	);
 });
 
 export const NextSectorController = observer(
@@ -145,7 +156,7 @@ export const NextSectorController = observer(
 			});
 		};
 		return (
-			<span onClick={onClick}>
+			<span onClick={onClick} className="hover:outline-2 hover:outline-white">
 				{aircraft.nextSectorController === "All"
 					? "Master"
 					: aircraft.nextSectorController}
@@ -167,6 +178,9 @@ export const NextACCFlightLevel = observer(
 	}: SubContentProperties & { hideIfMatchesAltitude?: boolean }) => {
 		const posthog = usePostHog();
 		const { isDragging } = useDragging();
+
+		const { nextACCFL, lastKnownAltitude, isNextACCFLFlashing } = aircraft;
+
 		const openNextACCPopup = (): void => {
 			if (isDragging) {
 				return;
@@ -180,8 +194,6 @@ export const NextACCFlightLevel = observer(
 				next_acc_fl: aircraft.nextACCFL,
 			});
 		};
-
-		const { nextACCFL, lastKnownAltitude } = aircraft;
 
 		// Don't display if COO (only when hideIfMatchesAltitude is true, i.e., in small content)
 		if (hideIfMatchesAltitude && nextACCFL === "COO") {
@@ -204,7 +216,18 @@ export const NextACCFlightLevel = observer(
 			}
 		}
 
-		return <span onClick={openNextACCPopup}>{displayValue}</span>;
+		return (
+			<span
+				onClick={openNextACCPopup}
+				className={`hover:outline-2 hover:outline-white ${
+					isNextACCFLFlashing
+						? "bg-blue-500 outline-2 outline-blue-500"
+						: "bg-transparent outline-0 outline-transparent transition-[background-color,outline-width,outline-color] duration-500"
+				}`}
+			>
+				{displayValue}
+			</span>
+		);
 	},
 );
 
@@ -316,7 +339,10 @@ export const NextNav = observer(({ aircraft }: SubContentProperties) => {
 	const showNextNav = assignedBearing === -1 || assignedBearing === undefined;
 
 	return (
-		<span onMouseDown={middleClickNextWaypoint}>
+		<span
+			onMouseDown={middleClickNextWaypoint}
+			className="hover:outline-2 hover:outline-white"
+		>
 			{showNextNav ? nextNav : "--"}
 		</span>
 	);

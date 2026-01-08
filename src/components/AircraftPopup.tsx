@@ -79,6 +79,8 @@ export default observer(function AircraftPopup(properties: {
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
 	const isHoveredLabel = cwpStore.hoveredFlightLabelId === aircraftId;
 	const isSelected = selectedAircraftIds.has(aircraft.aircraftId);
+	const hasOpenPopup = cwpStore.aircraftHasOpenPopup(aircraftId);
+
 	// Use base color (without warning) for popup content
 	const flightColor = roleConfigurationStore.getBaseColorOfAircraft(aircraftId);
 	// Use original color (with warning) for border/icon elements
@@ -108,9 +110,13 @@ export default observer(function AircraftPopup(properties: {
 		});
 	};
 
-	const height = isHoveredLabel ? 70 : 56;
-	const width = isHoveredLabel ? 135 : 74;
-	const Content = isHoveredLabel ? AircraftPopupContent : AircraftContentSmall;
+	// Show expanded content when hovering OR when any popup is open
+	const showExpandedContent = isHoveredLabel || hasOpenPopup;
+	const height = showExpandedContent ? 70 : 56;
+	const width = showExpandedContent ? 135 : 74;
+	const Content = showExpandedContent
+		? AircraftPopupContent
+		: AircraftContentSmall;
 
 	const onClick = (): void => {
 		if (isDragging) {
@@ -205,7 +211,7 @@ export default observer(function AircraftPopup(properties: {
 				) && <TaLabel aircraft={properties.aircraft} />}
 				{/* <TaLabel aircraft={properties.aircraft} /> */}
 			</div>
-			<div className="pt-1">
+			<div className="pt-0 pl-0.5">
 				<AircraftLevelPopup aircraft={aircraft} />
 				<ChangeNextFixPopup aircraft={aircraft} />
 				<NextSectorPopup aircraft={aircraft} />

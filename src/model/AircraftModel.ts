@@ -78,6 +78,12 @@ export default class AircraftModel {
 
 	nextACCFL = "COO";
 
+	/** Whether the nextACCFL value is currently flashing (recently changed) */
+	isNextACCFLFlashing = false;
+
+	/** Timeout handle for clearing the flash state (not observable) */
+	private nextACCFLFlashTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	localAssignedFlightLevel = "";
 
 	aircraftInfo: ObservableMap<string, AircraftInfo>;
@@ -158,6 +164,7 @@ export default class AircraftModel {
 			localAssignedFlightLevel: observable,
 			manualNextSectorFL: observable,
 			nextACCFL: observable,
+			isNextACCFLFlashing: observable,
 			positionHistory: observable,
 			transponderCode: observable,
 			currentTime: observable,
@@ -588,7 +595,21 @@ export default class AircraftModel {
 	}
 
 	setNextACCFL(nextACCFL: string): void {
+		const hasChanged = this.nextACCFL !== nextACCFL;
 		this.nextACCFL = nextACCFL;
+
+		if (hasChanged) {
+			// Clear any existing flash timeout
+			if (this.nextACCFLFlashTimeout) {
+				clearTimeout(this.nextACCFLFlashTimeout);
+			}
+			// Start flashing
+			this.isNextACCFLFlashing = true;
+			// Stop flashing after 1 second
+			this.nextACCFLFlashTimeout = setTimeout(() => {
+				this.isNextACCFLFlashing = false;
+			}, 1000);
+		}
 	}
 
 	setPilotRequestFlightLevel(request: string): void {

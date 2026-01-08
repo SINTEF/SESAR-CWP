@@ -58,10 +58,10 @@ export default observer(function AircraftPopupContent(properties: {
 				<span className="ml-0.5"></span>
 				<AssignedBearing aircraft={aircraft} />
 			</div>
+			{/* Line 3 - exit */}
 			<div>
 				<TransferAltitude altitude={sectorTimes?.exitPosition?.altitude} />
 				<span className="ml-0.5"></span>
-				{/* Line 3 - exit */}
 				<span>{aircraft.nextSectorExitPoint}</span>
 				{/* <NextSectorController aircraft={aircraft} /> */}
 				{/* <LocalAssignedFlightLevel aircraft={aircraft} /> */}
@@ -71,18 +71,3 @@ export default observer(function AircraftPopupContent(properties: {
 		</div>
 	);
 });
-
-/*
-			{/* Line 3 - exit* /}
-			<div>
-				x
-				{currentSector &&
-				aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-					?.altitude !== null
-					? convertMetersToFlightLevel(
-							aircraft.flightInSectorTimes?.get(currentSector)?.exitPosition
-								?.altitude as number,
-						)
-					: ""}
-			</div>
-			*/
