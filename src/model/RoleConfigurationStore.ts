@@ -12,6 +12,8 @@ import type AircraftStore from "./AircraftStore";
 import type ConfigurationStore from "./ConfigurationStore";
 import type CoordinatePair from "./CoordinatePair";
 import type CWPStore from "./CwpStore";
+import { FLIGHT_LABEL_COLORS, type FlightLabelColorCategory } from "./CwpStore";
+import convertTimestamp from "./convertTimestamp";
 import type FixStore from "./FixStore";
 import type { ISectorModel } from "./ISectorModel";
 import RoleConfigurationModel from "./RoleConfigurationModel";
@@ -359,43 +361,72 @@ export default class RoleConfigurationStore {
 	}
 
 	/**
+	 * Get the flight label color category for an aircraft.
+	 * This determines the aircraft's color based on its control state and sector entry timing.
+	 *
+	 * Priority (highest to lowest):
+	 * 1. WHITE: Currently controlled by the ATCO's sector (accepted)
+	 * 2. LIGHT_GREEN: About to enter the sector within the configured time window (anticipated, imminent)
+	 * 3. GREEN: Has information about entering the sector (anticipated)
+	 * 4. GREY: Not of interest (no sector entry info or already exited)
+	 */
+	getFlightLabelColorCategory(aircraftId: string): FlightLabelColorCategory {
+		const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
+		if (!aircraft) {
+			return "grey";
+		}
+
+		const currentCWP = this.configurationStore.currentCWP;
+		const currentSector = this.currentControlledSector;
+
+		// Priority 1: WHITE - Currently controlled by the ATCO's sector
+		if (aircraft.controlledBy === currentCWP) {
+			return "white";
+		}
+
+		// Check if aircraft has sector entry information for the current sector
+		if (currentSector) {
+			const flightInSector = aircraft.flightInSectorTimes.get(currentSector);
+			if (flightInSector?.entryPosition?.time) {
+				const entryTimestamp = convertTimestamp(
+					flightInSector.entryPosition.time,
+				);
+				const currentTimestamp = aircraft.simulatorStore.timestamp;
+				const timeUntilEntry = entryTimestamp - currentTimestamp;
+
+				// Only consider future entry times
+				if (timeUntilEntry > 0) {
+					const lightGreenWindowSeconds =
+						this.cwpStore.lightGreenTimeWindowMinutes * 60;
+
+					// Priority 2: LIGHT_GREEN - About to enter within configured time window
+					if (timeUntilEntry <= lightGreenWindowSeconds) {
+						return "lightGreen";
+					}
+
+					// Priority 3: GREEN - Has sector entry info but not yet imminent
+					return "green";
+				}
+			}
+		}
+
+		// Check if aircraft is in the list of aircraft entering the current sector
+		// This is a fallback for aircraft that have sector entry info via other means
+		if (this.aircraftsEnteringCurrentSector.includes(aircraft)) {
+			return "green";
+		}
+
+		// Priority 4: GREY - Not of interest
+		return "grey";
+	}
+
+	/**
 	 * Get the base color for an aircraft based on its role/state (without warning color).
 	 * Use this for popup content where warning colors should not apply.
 	 */
 	getBaseColorOfAircraft(aircraftId: string): string {
-		const aircraft = this.aircraftStore.aircrafts.get(aircraftId);
-		if (!aircraft) {
-			return "grey"; // Default color is grey
-		}
-		if (aircraft.controlledBy === this.configurationStore.currentCWP) {
-			return "#ffffff";
-		}
-		const listOfTentatives = this.roleConfigurations.get(
-			this.configurationStore.currentCWP,
-		)?.tentativeAircrafts;
-		if (listOfTentatives?.includes(aircraftId)) {
-			return "#ff0000"; // Green?
-		}
-		// console.log(this.aircraftsEnteringCurrentSector);
-		if (this.aircraftsEnteringCurrentSector.includes(aircraft)) {
-			// Anticipated flights
-			return "#78e251"; // Green?
-		}
-		if (
-			aircraft.nextSectorController !== "NS" &&
-			aircraft.nextSectorController !== aircraft.controlledBy
-		) {
-			return "#CEFCBA"; // Grey?
-		}
-		if (
-			this.currentControlledSector &&
-			aircraft.isEnteringFlight(this.currentControlledSector)
-		) {
-			// Is this also anticipated flight?
-			return "#ff00ff"; // Not in use?"
-		}
-
-		return "grey"; // What is the default flight color?
+		const category = this.getFlightLabelColorCategory(aircraftId);
+		return FLIGHT_LABEL_COLORS[category];
 	}
 
 	/**

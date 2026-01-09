@@ -8,6 +8,7 @@ import React from "react";
 
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
+import { FLIGHT_LABEL_COLORS } from "../model/CwpStore";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 
@@ -50,21 +51,33 @@ export const CallSign = observer(
 			aircraft.degrease();
 		};
 
-		const getColor = (aircraft: AircraftModel): string => {
-			if (controlledBy === "NS") {
-				// Setting transfering to next sector as NS for DIALOG
-				return "grey";
+		/**
+		 * Get the callsign display color.
+		 * Special case: For LIGHT_GREEN aircraft (imminent sector entry),
+		 * the callsign is displayed in WHITE while the rest of the label uses light green.
+		 */
+		const getCallSignColor = (): string => {
+			const category = roleConfigurationStore.getFlightLabelColorCategory(
+				aircraft.aircraftId,
+			);
+
+			// For LIGHT_GREEN aircraft, display callsign in WHITE
+			if (category === "lightGreen") {
+				return FLIGHT_LABEL_COLORS.white;
 			}
+
+			// Check if aircraft is being transferred to current CWP (not yet controlled but coordinated)
 			if (aircraft.nextSectorController === configurationStore.currentCWP) {
-				// Not yet controlled by current CWP but transferred by another CWP
-				return "white";
+				return FLIGHT_LABEL_COLORS.white;
 			}
-			return flightColor ? flightColor : "grey";
+
+			// Otherwise use the flight label color (which comes from the category)
+			return flightColor ?? FLIGHT_LABEL_COLORS.grey;
 		};
 
 		return (
 			<span
-				style={{ color: getColor(aircraft) }}
+				style={{ color: getCallSignColor() }}
 				onClick={openATCMenu}
 				onContextMenu={handleContextMenu}
 				className="hover:outline-2 hover:outline-white"
