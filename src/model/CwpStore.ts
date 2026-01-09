@@ -28,10 +28,40 @@ export const WARNING_LEVEL_COLORS: Record<WarningLevel, string | null> = {
 	yellow: "#FFFF00", // Yellow
 };
 
+/**
+ * Flight label color categories based on aircraft control state.
+ * Priority (highest to lowest): WHITE > LIGHT_GREEN > GREEN > GREY
+ *
+ * - WHITE: Currently controlled by the ATCO's sector (accepted)
+ * - LIGHT_GREEN: About to enter the sector within the configured time window (anticipated, imminent)
+ * - GREEN: Has information about entering the sector (anticipated)
+ * - GREY: Not of interest (no sector entry info or already exited)
+ */
+export type FlightLabelColorCategory =
+	| "white"
+	| "lightGreen"
+	| "green"
+	| "grey";
+
+/** Color mapping for flight label categories */
+export const FLIGHT_LABEL_COLORS: Record<FlightLabelColorCategory, string> = {
+	white: "#FFFFFF", // Currently controlled
+	lightGreen: "#CCFF00", // Light green - imminent entry (configurable time window)
+	green: "#78e251", // Green - anticipated entry
+	grey: "#888888", // Grey - not of interest (semi-transparent grey)
+};
+
 export default class CWPStore {
 	altitudeFilter: AltitudeFilter;
 
 	speedVectorMinutes = 3;
+
+	/**
+	 * Time window in minutes before sector entry for LIGHT_GREEN color.
+	 * Aircraft that will enter the sector within this time window
+	 * are shown in light green (imminent entry).
+	 */
+	lightGreenTimeWindowMinutes = 3;
 
 	showFlightLabels = true;
 
