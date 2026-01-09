@@ -366,8 +366,8 @@ export default class RoleConfigurationStore {
 	 *
 	 * Priority (highest to lowest):
 	 * 1. WHITE: Currently controlled by the ATCO's sector (accepted)
-	 * 2. LIGHT_GREEN: About to enter the sector within the configured time window (anticipated, imminent)
-	 * 3. GREEN: Has information about entering the sector (anticipated)
+	 * 2. LIGHT_GREEN: Within the sector (between entry and exit) but not assumed, OR about to enter within time window
+	 * 3. GREEN: Has information about entering the sector (anticipated, not yet imminent)
 	 * 4. GREY: Not of interest (no sector entry info or already exited)
 	 */
 	getFlightLabelColorCategory(aircraftId: string): FlightLabelColorCategory {
@@ -394,19 +394,33 @@ export default class RoleConfigurationStore {
 				const currentTimestamp = aircraft.simulatorStore.timestamp;
 				const timeUntilEntry = entryTimestamp - currentTimestamp;
 
-				// Only consider future entry times
-				if (timeUntilEntry > 0) {
-					const lightGreenWindowSeconds =
-						this.cwpStore.lightGreenTimeWindowMinutes * 60;
+				// Check exit time if available
+				const exitTimestamp = flightInSector.exitPosition?.time
+					? convertTimestamp(flightInSector.exitPosition.time)
+					: null;
 
-					// Priority 2: LIGHT_GREEN - About to enter within configured time window
-					if (timeUntilEntry <= lightGreenWindowSeconds) {
+				// Aircraft is currently within the sector (past entry, before exit) but not assumed
+				// This is a critical situation - should be LIGHT_GREEN
+				if (timeUntilEntry <= 0) {
+					// Past entry time - check if still before exit
+					if (exitTimestamp === null || currentTimestamp < exitTimestamp) {
 						return "lightGreen";
 					}
-
-					// Priority 3: GREEN - Has sector entry info but not yet imminent
-					return "green";
+					// Past exit time - no longer of interest
+					return "grey";
 				}
+
+				// Aircraft has not yet entered
+				const lightGreenWindowSeconds =
+					this.cwpStore.lightGreenTimeWindowMinutes * 60;
+
+				// Priority 2: LIGHT_GREEN - About to enter within configured time window
+				if (timeUntilEntry <= lightGreenWindowSeconds) {
+					return "lightGreen";
+				}
+
+				// Priority 3: GREEN - Has sector entry info but not yet imminent
+				return "green";
 			}
 		}
 
