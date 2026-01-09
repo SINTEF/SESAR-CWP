@@ -18,6 +18,7 @@ import FixesPoints from "./FixesPoints";
 import FlightRoutes from "./FlightRoutes";
 import HighlightedAircraft from "./HighlightedAircraft";
 import LimboAircrafts from "./LimboAircrafts";
+import PopupLines from "./PopupLines";
 import QdmLabelPopups from "./QdmLabelPopups";
 import Sectors from "./Sectors";
 import SepLabelPopups from "./SepLabelPopups";
@@ -239,6 +240,7 @@ export default function Map() {
 				<QdmLabelPopups />
 				<SepLabelPopups />
 				<SepQdmCurrentLine />
+				<PopupLines />
 				<Aircrafts />
 				<HighlightedAircraft />
 				<LimboAircrafts />

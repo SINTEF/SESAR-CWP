@@ -5,6 +5,7 @@ import ConfigurationStore from "./model/ConfigurationStore";
 import CWPStore from "./model/CwpStore";
 import DistanceLine from "./model/DistanceLine";
 import FixStore from "./model/FixStore";
+import PopupLinesStore from "./model/PopupLinesStore";
 import RoleConfigurationStore from "./model/RoleConfigurationStore";
 import SectorStore from "./model/SectorStore";
 import SepQdmStore from "./model/SepQdmStore";
@@ -51,6 +52,7 @@ export const trajectoryPredictionStore = new TrajectoryPredictionStore({
 	simulatorStore,
 });
 export const mapViewportStore = new MapViewportStore();
+export const popupLinesStore = new PopupLinesStore();
 export const sepQdmStore = new SepQdmStore({
 	mapViewportStore,
 	aircraftStore,
@@ -71,5 +73,6 @@ window.mobxDebugStores = {
 	roleConfigurationStore,
 	trajectoryPredictionStore,
 	mapViewportStore,
+	popupLinesStore,
 	sepQdmStore,
 };
