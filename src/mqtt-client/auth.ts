@@ -1,19 +1,24 @@
 import { load as loadPassword } from "../utils/passwordStore.obs";
 
 // Public credentials for non-admin mode (non-localhost only)
-const PUBLIC_USERNAME = "sesar-public-frontend";
-const PUBLIC_PASSWORD = "pk_CT2MKMb6ZeBCDu4o";
+const PUBLIC_USERNAME = import.meta.env.VITE_MQTT_PUBLIC_USERNAME;
+const PUBLIC_PASSWORD = import.meta.env.VITE_MQTT_PUBLIC_PASSWORD;
 
 // Admin username (password must be entered by user)
-export const ADMIN_USERNAME = "sesar-simulator-admin";
+export const ADMIN_USERNAME = import.meta.env.VITE_MQTT_ADMIN_USERNAME;
 
 /**
- * Check if the current environment is localhost
+ * Check if the MQTT broker URL points to localhost
  */
-export function isLocalhost(): boolean {
-	return /^(localhost|127(?:\.\d{1,3}){2}.\d{1,3}|\[::1])(:\d+)?$/.test(
-		window.location.host,
-	);
+export function isBrokerLocalhost(brokerUrl: string): boolean {
+	try {
+		const url = new URL(brokerUrl);
+		return /^(localhost|127(?:\.\d{1,3}){2}\.\d{1,3}|\[::1])$/.test(
+			url.hostname,
+		);
+	} catch {
+		return false;
+	}
 }
 
 /**
@@ -28,7 +33,7 @@ export function isAdminModeRequested(): boolean {
  * Generate the salt for password storage
  */
 export function getPasswordSalt(brokerUrl: string): string {
-	return `sesar-1280e-${ADMIN_USERNAME}-${brokerUrl}`;
+	return `sesar-1280e-${ADMIN_USERNAME ?? "admin"}-${brokerUrl}`;
 }
 
 /**
@@ -83,6 +88,12 @@ export async function getMqttCredentials(
 	brokerUrl: string,
 ): Promise<MqttCredentials | null> {
 	if (isAdminModeRequested()) {
+		if (!ADMIN_USERNAME) {
+			throw new Error(
+				"Admin mode requested but VITE_MQTT_ADMIN_USERNAME is not configured",
+			);
+		}
+
 		const salt = getPasswordSalt(brokerUrl);
 		const password = await loadPassword(salt);
 
@@ -99,14 +110,19 @@ export async function getMqttCredentials(
 		};
 	}
 
-	// Non-admin mode: skip auth for localhost unless explicitly required
+	// Non-admin mode: skip auth for localhost broker unless explicitly required
 	const localhostAuthRequired =
 		import.meta.env.VITE_LOCALHOST_AUTH_REQUIRED === "true";
-	if (!localhostAuthRequired && isLocalhost()) {
+	if (!localhostAuthRequired && isBrokerLocalhost(brokerUrl)) {
 		return null;
 	}
 
-	// Public credentials for non-localhost
+	// Public credentials for non-localhost broker
+	// If not configured, skip authentication (useful for development)
+	if (!PUBLIC_USERNAME || !PUBLIC_PASSWORD) {
+		return null;
+	}
+
 	return {
 		username: PUBLIC_USERNAME,
 		password: PUBLIC_PASSWORD,

@@ -41,7 +41,6 @@ jobs:
             type=sha
 
       - name: Build demonstrator docker image
-
         uses: docker/build-push-action@v6
         with:
           context: ./
@@ -51,6 +50,9 @@ jobs:
           build-args: |
             NODE_OPTIONS=--max-old-space-size=6000
             MQTT_BROKER_URL=${{ secrets.MQTT_BROKER_URL }}
+            MQTT_PUBLIC_USERNAME=${{ secrets.MQTT_PUBLIC_USERNAME }}
+            MQTT_PUBLIC_PASSWORD=${{ secrets.MQTT_PUBLIC_PASSWORD }}
+            MQTT_ADMIN_USERNAME=${{ secrets.MQTT_ADMIN_USERNAME }}
             PUBLIC_POSTHOG_KEY=${{ secrets.PUBLIC_POSTHOG_KEY }}
             PUBLIC_POSTHOG_HOST=${{ secrets.PUBLIC_POSTHOG_HOST }}
             SENTRY_DSN=${{ secrets.SENTRY_DSN }}
