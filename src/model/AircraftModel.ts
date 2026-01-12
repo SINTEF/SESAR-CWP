@@ -196,6 +196,7 @@ export default class AircraftModel {
 			setNextSectorFL: action.bound,
 			setNextACCFL: action.bound,
 			degrease: action.bound,
+			undegrease: action.bound,
 		});
 
 		this.aircraftId = aircraftId;
@@ -625,8 +626,13 @@ export default class AircraftModel {
 		this.bearingPilotRequest = bearing;
 	}
 
-	/** Mark this aircraft as degreased. Only goes from false to true, never back. */
+	/** Mark this aircraft as degreased (seen/acknowledged). Label becomes normal (not bold). */
 	degrease(): void {
 		this.degreased = true;
+	}
+
+	/** Mark this aircraft as not degreased (not seen). Label becomes bold again. */
+	undegrease(): void {
+		this.degreased = false;
 	}
 }
