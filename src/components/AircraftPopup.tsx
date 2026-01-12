@@ -156,9 +156,10 @@ export default observer(function AircraftPopup(properties: {
 	};
 
 	const offset = computePopupOffset(bearing, speed, width, height);
-	const hasStcaConflict = aircraftStore.hasStcaConflict(aircraft.aircraftId);
+	const hasStcaConflict =
+		true || aircraftStore.hasStcaConflict(aircraft.aircraftId);
 	const hasTctConflict =
-		!hasStcaConflict && aircraftStore.hasTctConflict(aircraft.aircraftId);
+		true || aircraftStore.hasTctConflict(aircraft.aircraftId);
 
 	return (
 		<DraggablePopup
@@ -221,7 +222,7 @@ export default observer(function AircraftPopup(properties: {
 			</div>
 			<ATCMenu aircraft={properties.aircraft} />
 			{hasStcaConflict || hasTctConflict ? (
-				<div className="absolute bottom-full left-1">
+				<div className="absolute bottom-full left-1 flex">
 					{hasStcaConflict && <Stca />}
 					{hasTctConflict && <Tct />}
 				</div>
