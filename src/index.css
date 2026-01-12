@@ -40,6 +40,22 @@
 	--z-max: 2147483637;
 }
 
+/* Alert blink animation for STCA/TCT indicators - synchronized across all elements */
+@keyframes alert-blink {
+	0%,
+	49.9% {
+		background-color: white;
+	}
+	50%,
+	100% {
+		background-color: black;
+	}
+}
+
+@utility animate-alert-blink {
+	animation: alert-blink 1s step-end infinite;
+}
+
 /* Custom utilities */
 @utility writing-mode-vertical-rl {
 	writing-mode: vertical-rl;
