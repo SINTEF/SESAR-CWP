@@ -20,8 +20,9 @@ function ListOfFixes(properties: {
 	currentFix: string;
 	selectedFix: string;
 	onSelect: (fix: string) => void;
+	onHover: (fix: string | null) => void;
 }) {
-	const { fixes, currentFix, selectedFix, onSelect } = properties;
+	const { fixes, currentFix, selectedFix, onSelect, onHover } = properties;
 
 	return (
 		<>
@@ -34,6 +35,8 @@ function ListOfFixes(properties: {
 						key={fix}
 						type="button"
 						onClick={(): void => onSelect(fix)}
+						onMouseEnter={(): void => onHover(fix)}
+						onMouseLeave={(): void => onHover(null)}
 						className={`
 							block w-full px-1 py-1 text-xs text-center
 							bg-[#1e3a5f] text-white
@@ -76,6 +79,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 	const [showWarning, setShowWarning] = React.useState(false);
 	const [canScrollUp, setCanScrollUp] = React.useState(false);
 	const [canScrollDown, setCanScrollDown] = React.useState(false);
+	const [hoveredFix, setHoveredFix] = React.useState<string | null>(null);
 	const listOfFixesRef = React.useRef<HTMLDivElement>(null);
 
 	const shouldShow = cwpStore.aircraftsWithNextFixPopup.has(aircraftId);
@@ -151,6 +155,36 @@ export default observer(function ChangeNextFixPopup(properties: {
 			setSelectedFix(nextFix);
 		}
 	}, [shouldShow, nextFix]);
+
+	// Update preview line based on hovered fix or exact text match
+	React.useEffect(() => {
+		if (!shouldShow) {
+			return;
+		}
+
+		// Priority: hovered fix > exact text match
+		if (hoveredFix) {
+			cwpStore.setNextFixPreview(aircraftId, hoveredFix);
+			return;
+		}
+
+		// Check for exact text match (case-insensitive)
+		const upperManualFix = manualFix.toUpperCase().trim();
+		if (upperManualFix && fixStore.fixes.has(upperManualFix)) {
+			cwpStore.setNextFixPreview(aircraftId, upperManualFix);
+			return;
+		}
+
+		// No preview to show
+		cwpStore.clearNextFixPreview();
+	}, [shouldShow, hoveredFix, manualFix, aircraftId]);
+
+	// Cleanup preview when popup closes or component unmounts
+	React.useEffect(() => {
+		return () => {
+			cwpStore.clearNextFixPreview();
+		};
+	}, []);
 
 	if (!shouldShow) {
 		return null;
@@ -298,6 +332,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 							currentFix={nextFix}
 							selectedFix={selectedFix}
 							onSelect={handleFixClick}
+							onHover={setHoveredFix}
 						/>
 					)}
 					{displayedTrajectoryFixes.length > 0 &&
@@ -312,11 +347,12 @@ export default observer(function ChangeNextFixPopup(properties: {
 							currentFix={nextFix}
 							selectedFix={selectedFix}
 							onSelect={handleFixClick}
+							onHover={setHoveredFix}
 						/>
 					)}
 					{hasNoDisplayedFixes && (
 						<div className="text-xs text-center text-gray-400 py-2">
-							{searchTerm ? "No matching fixes" : "No fixes available"}
+							{searchTerm ? "" : "No fixes available"}
 						</div>
 					)}
 				</div>

@@ -178,6 +178,9 @@ export default class CWPStore {
 
 	taArrowClickedAircraftId: string | null = null;
 
+	/** Preview state for next fix selection: shows a line from aircraft to hovered/matched fix */
+	nextFixPreview: { aircraftId: string; fixName: string } | null = null;
+
 	constructor({
 		altitudeFilter,
 	}: {
@@ -593,5 +596,15 @@ export default class CWPStore {
 			this.aircraftWithSpeedChangePopup.has(aircraftId) ||
 			this.ATCMenuAircraftId === aircraftId
 		);
+	}
+
+	/** Set the preview for next fix selection (shows line from aircraft to fix) */
+	setNextFixPreview(aircraftId: string, fixName: string): void {
+		this.nextFixPreview = { aircraftId, fixName };
+	}
+
+	/** Clear the next fix preview */
+	clearNextFixPreview(): void {
+		this.nextFixPreview = null;
 	}
 }
