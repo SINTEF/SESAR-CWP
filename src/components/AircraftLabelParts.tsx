@@ -340,6 +340,8 @@ export const AssignedBearing = observer(
 
 export const NextNav = observer(({ aircraft }: SubContentProperties) => {
 	const posthog = usePostHog();
+	const { isDragging } = useDragging();
+
 	const middleClickNextWaypoint = (
 		_event: React.MouseEvent<HTMLElement>,
 	): void => {
@@ -354,11 +356,24 @@ export const NextNav = observer(({ aircraft }: SubContentProperties) => {
 		});
 	};
 
+	const openNextFixPopup = (): void => {
+		if (isDragging) {
+			return;
+		}
+		cwpStore.openChangeNextFixForAircraft(aircraft.aircraftId);
+		posthog?.capture("next_fix_popup_opened", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			next_nav: aircraft.nextNav,
+		});
+	};
+
 	const { nextNav, assignedBearing } = aircraft;
 	const showNextNav = assignedBearing === -1 || assignedBearing === undefined;
 
 	return (
 		<span
+			onClick={openNextFixPopup}
 			onMouseDown={middleClickNextWaypoint}
 			className="hover:outline-2 hover:outline-white"
 		>

@@ -9,7 +9,7 @@ import {
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore } from "../state";
 
-export default observer(function ChangeNextFixPopup(properties: {
+export default observer(function ChangeSpeedPopup(properties: {
 	aircraft: AircraftModel;
 }) {
 	const posthog = usePostHog();
