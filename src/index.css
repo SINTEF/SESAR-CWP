@@ -1,6 +1,30 @@
 @import "tailwindcss";
 @plugin "daisyui" {
 	logs: false;
+	themes: dark --default;
+}
+
+/* Customize DaisyUI dark theme with our light blue primary color */
+@plugin "daisyui/theme" {
+	name: "dark";
+	default: true;
+	prefersdark: true;
+	--color-primary: #4b90db;
+	--color-primary-content: #ffffff;
+	--color-secondary: #444444;
+	--color-secondary-content: #ffffff;
+	--color-accent: #00bc8c;
+	--color-accent-content: #ffffff;
+	--color-neutral: #303030;
+	--color-neutral-content: #ffffff;
+	--color-base-100: #222222;
+	--color-base-200: #1a1a1a;
+	--color-base-300: #404040;
+	--color-base-content: #ffffff;
+	--color-info: #3498db;
+	--color-success: #00bc8c;
+	--color-warning: #f39c12;
+	--color-error: #e74c3c;
 }
 
 /* Tailwind CSS v4 Configuration using @theme */
@@ -22,19 +46,6 @@
 	--color-sesar-orange: #ed7d31;
 	--color-sesar-green: #00bc8c;
 	--color-sesar-cyan: #3498db;
-
-	/* DaisyUI theme colors (dark theme) */
-	--color-primary: #375a7f;
-	--color-secondary: #444;
-	--color-accent: #00bc8c;
-	--color-neutral: #303030;
-	--color-base-100: #222;
-	--color-base-200: #1a1a1a;
-	--color-base-300: #404040;
-	--color-info: #3498db;
-	--color-success: #00bc8c;
-	--color-warning: #f39c12;
-	--color-error: #e74c3c;
 
 	/* Custom z-index */
 	--z-max: 2147483637;

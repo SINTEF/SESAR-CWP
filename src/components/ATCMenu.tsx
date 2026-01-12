@@ -77,11 +77,21 @@ export default observer(function ATCMenu(properties: {
 	};
 
 	const handleIntegreClick = (aircraftId: string): void => {
-		//aircraftStore.aircrafts.get(aircraftId)?.setCallSignBold(true);
-		// What does integre mean?
+		aircraftStore.aircrafts.get(aircraftId)?.degrease();
 
 		posthog?.capture("atc_menu_action", {
 			action: "integre",
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			current_cwp: configurationStore.currentCWP,
+		});
+	};
+
+	const handleDeIntegreClick = (aircraftId: string): void => {
+		aircraftStore.aircrafts.get(aircraftId)?.undegrease();
+
+		posthog?.capture("atc_menu_action", {
+			action: "de_integre",
 			aircraft_id: aircraftId,
 			callsign: callSign,
 			current_cwp: configurationStore.currentCWP,
@@ -147,53 +157,59 @@ export default observer(function ATCMenu(properties: {
 	};
 
 	return (
-		<div className="bg-gray-800 p-4 w-36 text-gray-200 font-sans flex flex-col items-center z-5000">
+		<div className="bg-gray-900 p-3 w-36 text-gray-200 font-sans flex flex-col items-center border border-gray-700">
 			<div className="space-y-2 w-full">
-				<div className="space-y-2 w-full">
-					{controlledBy === configurationStore.currentCWP && (
-						<button
-							onClick={() => handleTrfClick(aircraftId)}
-							className="btn btn-sm w-full btn-secondary"
-						>
-							TRF 130.165
-						</button>
-					)}
+				{controlledBy === configurationStore.currentCWP && (
 					<button
-						onClick={toggleAssumeFlight}
-						className={`btn btn-sm w-full ${controlledBy === configurationStore.currentCWP ? "btn-disabled" : "btn-primary"}`}
+						onClick={() => handleTrfClick(aircraftId)}
+						className="btn btn-sm btn-primary w-full rounded-xs"
 					>
-						{controlledBy === configurationStore.currentCWP
-							? "DE ASSUME"
-							: "ASSUME"}
+						TRF 130.165
 					</button>
+				)}
+				<button
+					onClick={toggleAssumeFlight}
+					className={`btn btn-sm btn-primary w-full rounded-xs ${controlledBy === configurationStore.currentCWP ? "opacity-50 cursor-not-allowed" : ""}`}
+					disabled={controlledBy === configurationStore.currentCWP}
+				>
+					{controlledBy === configurationStore.currentCWP
+						? "DE ASSUME"
+						: "ASSUME"}
+				</button>
+				{!properties.aircraft.degreased ? (
 					<button
-						onClick={() => handleIntegreClick(aircraftId)} // Changing callsign to bold font
-						className="btn btn-sm w-full btn-secondary"
+						onClick={() => handleIntegreClick(aircraftId)}
+						className="btn btn-sm btn-primary w-full rounded-xs"
 					>
 						INTEGRE
 					</button>
-				</div>
-
-				<div className="space-y-2 w-full">
+				) : (
 					<button
-						onClick={() => handleButtonClick("TP")}
-						className="btn btn-sm w-full btn-accent"
+						onClick={() => handleDeIntegreClick(aircraftId)}
+						className="btn btn-sm btn-primary w-full rounded-xs"
 					>
-						TP
+						DE INTEGRE
 					</button>
-					<button
-						onClick={handleSepClick}
-						className="btn btn-sm w-full btn-accent"
-					>
-						SEP
-					</button>
-					<button
-						onClick={handleQdmClick}
-						className="btn btn-sm w-full btn-accent"
-					>
-						QDM
-					</button>
-				</div>
+				)}
+				<hr className="border-t-2 border-gray-600 w-full" />
+				<button
+					onClick={() => handleButtonClick("TP")}
+					className="btn btn-sm btn-primary w-full rounded-xs"
+				>
+					TP
+				</button>
+				<button
+					onClick={handleSepClick}
+					className="btn btn-sm btn-primary w-full rounded-xs"
+				>
+					SEP
+				</button>
+				<button
+					onClick={handleQdmClick}
+					className="btn btn-sm btn-primary w-full rounded-xs"
+				>
+					QDM
+				</button>
 			</div>
 		</div>
 	);
