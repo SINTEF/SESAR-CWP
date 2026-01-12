@@ -156,10 +156,8 @@ export default observer(function AircraftPopup(properties: {
 	};
 
 	const offset = computePopupOffset(bearing, speed, width, height);
-	const hasStcaConflict =
-		true || aircraftStore.hasStcaConflict(aircraft.aircraftId);
-	const hasTctConflict =
-		true || aircraftStore.hasTctConflict(aircraft.aircraftId);
+	const hasStcaConflict = aircraftStore.hasStcaConflict(aircraft.aircraftId);
+	const hasTctConflict = aircraftStore.hasTctConflict(aircraft.aircraftId);
 
 	return (
 		<DraggablePopup
