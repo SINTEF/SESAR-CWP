@@ -9,6 +9,7 @@ interface LogEntry {
 
 const MAX_LOG_ENTRIES = 500;
 const SIMULATION_STARTED_LOG = "Simulation started in paused state";
+const ADMIN_MINIMIZED_KEY = "adminPanelMinimized";
 
 /**
  * Parse a timestamp from various formats commonly found in log messages.
@@ -74,6 +75,9 @@ export default class AdminStore {
 
 		// Check for any admin error from previous session
 		this.adminError = getAndClearAdminError();
+
+		// Restore minimized state from session storage
+		this.isMinimized = sessionStorage.getItem(ADMIN_MINIMIZED_KEY) === "true";
 	}
 
 	clearAdminError(): void {
@@ -108,6 +112,7 @@ export default class AdminStore {
 
 	toggleMinimized(): void {
 		this.isMinimized = !this.isMinimized;
+		sessionStorage.setItem(ADMIN_MINIMIZED_KEY, String(this.isMinimized));
 	}
 
 	addLog(message: string, level?: string, timestamp?: number): void {

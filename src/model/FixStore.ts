@@ -76,14 +76,14 @@ export default class FixStore {
 	 * @param longitude - Longitude of the search point
 	 * @param latitude - Latitude of the search point
 	 * @param maxResults - Maximum number of results to return
-	 * @param excludeIds - Set of fix IDs to exclude from results
+	 * @param filterFn - Optional filter function to exclude fixes by index
 	 * @returns Array of fix names sorted by distance
 	 */
 	findNearestFixes(
 		longitude: number,
 		latitude: number,
 		maxResults = 50,
-		excludeIds?: Set<string>,
+		filterFn?: (index: number) => boolean,
 	): string[] {
 		const fixList = this.fixList;
 		if (fixList.length === 0) {
@@ -94,21 +94,36 @@ export default class FixStore {
 		const neighborIndices = fixIndex.neighbors(
 			longitude,
 			latitude,
-			maxResults + (excludeIds?.size ?? 0),
+			maxResults,
+			Number.POSITIVE_INFINITY,
+			filterFn,
 		);
 
-		const result: string[] = [];
-		for (const idx of neighborIndices) {
-			const fix = fixList[idx];
-			if (excludeIds?.has(fix.pointId)) {
-				continue;
-			}
-			result.push(fix.pointId);
-			if (result.length >= maxResults) {
-				break;
+		return neighborIndices.map((idx) => fixList[idx].pointId);
+	}
+
+	/**
+	 * Get the index of a fix by its ID
+	 * @param fixId - The fix ID to look up
+	 * @returns The index in fixList, or -1 if not found
+	 */
+	getFixIndex(fixId: string): number {
+		return this.fixList.findIndex((fix) => fix.pointId === fixId);
+	}
+
+	/**
+	 * Build a set of indices to exclude from spatial queries
+	 * @param excludeIds - Set of fix IDs to exclude
+	 * @returns Set of indices corresponding to the excluded IDs
+	 */
+	buildExcludeIndexSet(excludeIds: Set<string>): Set<number> {
+		const excludeIndices = new Set<number>();
+		const fixList = this.fixList;
+		for (let i = 0; i < fixList.length; i++) {
+			if (excludeIds.has(fixList[i].pointId)) {
+				excludeIndices.add(i);
 			}
 		}
-
-		return result;
+		return excludeIndices;
 	}
 }

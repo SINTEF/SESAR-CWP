@@ -97,16 +97,39 @@ export default observer(function ChangeNextFixPopup(properties: {
 			.map((t) => t.objectId as string);
 	}, [flightRoute, currentTime]);
 
+	// Build exclude set for trajectory fixes (stable reference for filter function)
+	const trajectoryFixSet = React.useMemo(
+		() => new Set(trajectoryFixes),
+		[trajectoryFixes],
+	);
+
+	// Get search term for filtering
+	const searchTerm = manualFix.toUpperCase().trim();
+
 	// Get 50 nearest fixes using KNN search, excluding trajectory fixes
+	// When searching, apply string filter directly in the spatial query
 	const nearbyFixes = React.useMemo(() => {
-		const trajectoryFixSet = new Set(trajectoryFixes);
+		const fixList = fixStore.fixList;
+		const excludeIndices = fixStore.buildExcludeIndexSet(trajectoryFixSet);
+
+		const filterFn = (index: number): boolean => {
+			if (excludeIndices.has(index)) {
+				return false;
+			}
+			// If there's a search term, also filter by string match
+			if (searchTerm) {
+				return fixList[index].pointId.includes(searchTerm);
+			}
+			return true;
+		};
+
 		return fixStore.findNearestFixes(
 			lastKnownLongitude,
 			lastKnownLatitude,
 			50,
-			trajectoryFixSet,
+			filterFn,
 		);
-	}, [lastKnownLongitude, lastKnownLatitude, trajectoryFixes]);
+	}, [lastKnownLongitude, lastKnownLatitude, trajectoryFixSet, searchTerm]);
 
 	// Update scroll button states based on scroll position
 	const updateScrollState = React.useCallback(() => {
@@ -273,7 +296,6 @@ export default observer(function ChangeNextFixPopup(properties: {
 	};
 
 	// Filter fix names for the datalist autocomplete based on manual input
-	const searchTerm = manualFix.toUpperCase();
 	const filteredFixNames =
 		searchTerm.length < 3
 			? []
@@ -293,13 +315,12 @@ export default observer(function ChangeNextFixPopup(properties: {
 		return a.localeCompare(b);
 	});
 
-	// Filter displayed lists based on the text input (if any input is provided)
+	// Filter displayed trajectory fixes based on the text input
+	// (nearby fixes are already filtered in the spatial query)
 	const displayedTrajectoryFixes = searchTerm
 		? trajectoryFixes.filter((fix) => fix.includes(searchTerm))
 		: trajectoryFixes;
-	const displayedNearbyFixes = searchTerm
-		? nearbyFixes.filter((fix) => fix.includes(searchTerm))
-		: nearbyFixes;
+	const displayedNearbyFixes = nearbyFixes;
 	const hasNoDisplayedFixes =
 		displayedTrajectoryFixes.length === 0 && displayedNearbyFixes.length === 0;
 
