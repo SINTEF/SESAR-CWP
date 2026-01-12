@@ -114,6 +114,20 @@ const createMapClickHandler =
 		}
 	};
 
+const createMapRightClickHandler =
+	(posthog: ReturnType<typeof usePostHog>) =>
+	(event: MapMouseEvent): void => {
+		// Close ATC Menu if it's open
+		if (cwpStore.ATCMenuAircraftId !== "") {
+			cwpStore.clearATCMenuAircraftId();
+		}
+
+		posthog?.capture("map_right_clicked", {
+			position: { lat: event.lngLat.lat, lng: event.lngLat.lng },
+			context: "general_map_right_click",
+		});
+	};
+
 const initialViewState: Partial<ViewState> = {
 	longitude: 7,
 	latitude: 44,
@@ -218,6 +232,7 @@ export default function Map() {
 				attributionControl={false}
 				mapLib={maplibregl}
 				onClick={createMapClickHandler(posthog)}
+				onContextMenu={createMapRightClickHandler(posthog)}
 				onLoad={onMapLoad}
 				onMoveStart={onMoveStart}
 				onMoveEnd={onMoveEnd}
