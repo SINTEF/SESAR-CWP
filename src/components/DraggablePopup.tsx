@@ -1,11 +1,12 @@
 import { usePostHog } from "posthog-js/react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { DraggableEvent } from "react-draggable";
 import { DraggableCore } from "react-draggable";
 import type { PopupProps } from "react-map-gl/maplibre";
 import { Popup } from "react-map-gl/maplibre";
 
 import { useDragging } from "../contexts/DraggingContext";
+import { popupLinesStore } from "../state";
 
 export type DraggablePopupProperties = {
 	offset: {
@@ -44,12 +45,15 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 		trackingId,
 		trackingName,
 		trackingType,
+		longitude,
+		latitude,
 		...popupProps
 	} = props;
 
 	const posthog = usePostHog();
 	const nodeRef = useRef<HTMLDivElement>(null);
 	const { startDragging, stopDragging } = useDragging();
+	const lineId = useId();
 
 	// State management
 	const [offsetX, setOffsetX] = useState(initialOffset.x);
@@ -220,9 +224,50 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 
 	const displayLine = !intersects;
 
+	// Register line with the global lines store
+	useEffect(() => {
+		popupLinesStore.registerLine(lineId, {
+			id: lineId,
+			longitude,
+			latitude,
+			lineStartX,
+			lineStartY,
+			lineLength: adjustedLineLength,
+			lineAngle,
+			color: color || "rgba(255,255,255,0.5)",
+			visible: displayLine,
+		});
+
+		return () => {
+			popupLinesStore.unregisterLine(lineId);
+		};
+	}, [lineId, longitude, latitude]);
+
+	// Update line when geometry changes
+	useEffect(() => {
+		popupLinesStore.updateLine(lineId, {
+			lineStartX,
+			lineStartY,
+			lineLength: adjustedLineLength,
+			lineAngle,
+			color: color || "rgba(255,255,255,0.5)",
+			visible: displayLine,
+		});
+	}, [
+		lineId,
+		lineStartX,
+		lineStartY,
+		adjustedLineLength,
+		lineAngle,
+		color,
+		displayLine,
+	]);
+
 	return (
 		<Popup
 			{...popupProps}
+			longitude={longitude}
+			latitude={latitude}
 			style={{
 				zIndex,
 				maxWidth: "inherit",
@@ -230,7 +275,7 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 			className="max-w-none"
 		>
 			<div
-				className={`absolute z-[2] ${isDragging ? "cursor-grabbing" : ""} ${className ?? ""}`}
+				className={`absolute ${isDragging ? "cursor-grabbing" : ""} ${className ?? ""}`}
 				onMouseDown={handleClick}
 				style={{
 					top: `${offsetY}px`,
@@ -247,17 +292,6 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 					<div ref={nodeRef}>{children}</div>
 				</DraggableCore>
 			</div>
-			<div
-				className="absolute z-[1] h-[1.5px] bg-white/50 origin-left pointer-events-none"
-				style={{
-					display: displayLine ? "block" : "none",
-					top: `${lineStartY}px`,
-					left: `${lineStartX}px`,
-					width: `${adjustedLineLength}px`,
-					transform: `rotate(${lineAngle}rad)`,
-					background: color || "rgba(255,255,255,0.5)",
-				}}
-			/>
 		</Popup>
 	);
 }
