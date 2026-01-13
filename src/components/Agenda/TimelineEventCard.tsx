@@ -27,6 +27,9 @@ type EventCardProps = {
  * A draggable timeline event card.
  * Renders a ghost during drag with a vertical connecting line to the original position.
  */
+/** Minimum movement in pixels before we consider it a drag (prevents ghost on click) */
+const DRAG_THRESHOLD_PX = 3;
+
 const TimelineEventCard = observer(function TimelineEventCard({
 	event,
 	timeOffsetMin,
@@ -35,6 +38,9 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	animatePosition,
 }: EventCardProps) {
 	const nodeRef = useRef<HTMLDivElement>(null);
+	// Whether mouse is pressed (DraggableCore active)
+	const [isPressed, setIsPressed] = useState(false);
+	// Whether actual dragging has started (movement threshold exceeded)
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragOffsetY, setDragOffsetY] = useState(0);
 	const [dragStartY, setDragStartY] = useState(0);
@@ -139,7 +145,8 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		if (!("clientY" in e)) {
 			return;
 		}
-		setIsDragging(true);
+		// Mark as pressed, but don't show ghost yet (wait for movement)
+		setIsPressed(true);
 		setDragStartY(e.clientY);
 		setDragOffsetY(0);
 	};
@@ -150,10 +157,17 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		}
 		// Only update Y position (vertical drag)
 		const deltaY = dragStartY - e.clientY; // Inverted because bottom-based positioning
+
+		// Only start visual dragging after exceeding threshold
+		if (!isDragging && Math.abs(deltaY) >= DRAG_THRESHOLD_PX) {
+			setIsDragging(true);
+		}
+
 		setDragOffsetY(deltaY);
 	};
 
 	const handleDragStop = (): void => {
+		setIsPressed(false);
 		setIsDragging(false);
 
 		// Check if ghost overlaps with original (small movement threshold)
@@ -264,8 +278,8 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		shadow-sm backdrop-blur-[1px]
 		flex justify-between items-center`;
 
-	// Only apply transition when animating and not dragging
-	const shouldAnimate = animatePosition && !isDragging;
+	// Only apply transition when animating and not dragging/pressed
+	const shouldAnimate = animatePosition && !isDragging && !isPressed;
 
 	return (
 		<>
