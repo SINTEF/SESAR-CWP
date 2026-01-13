@@ -4,6 +4,7 @@ import type { DraggableEvent } from "react-draggable";
 import { DraggableCore } from "react-draggable";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
 import {
+	aircraftStore,
 	cwpStore,
 	simulatorStore,
 	trajectoryPredictionStore,
@@ -265,14 +266,16 @@ const TimelineEventCard = observer(function TimelineEventCard({
 			{/* Left badge */}
 			{event.code && (
 				<div
-					className={`h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square cursor-pointer hover:brightness-110 transition-all ${
-						allAircraftSelected ? "outline outline-1 outline-cyan-400" : ""
+					className={`h-auto badge badge-warning border-1.5 border-white rounded font-bold text-xs ml-0.75 px-0.5 aspect-square cursor-pointer hover:brightness-110 transition-all ${
+						allAircraftSelected ? "outline outline-cyan-400" : ""
 					}`}
 					onMouseEnter={handleBadgeMouseEnter}
 					onMouseLeave={handleBadgeMouseLeave}
 					onClick={handleBadgeClick}
 				>
-					{event.code}
+					<div className="outline-1 outline-white rounded-full flex items-center justify-center w-7 h-7">
+						{event.code}
+					</div>
 				</div>
 			)}
 
@@ -280,15 +283,19 @@ const TimelineEventCard = observer(function TimelineEventCard({
 			<ul className="text-[10px] flex flex-col gap-0.5 mr-1 my-1">
 				{event.labels.map((l, i) => {
 					const aircraftId = event.aircraftIds?.[i];
+					const aircraft = aircraftId
+						? aircraftStore.aircrafts.get(aircraftId)
+						: undefined;
+					const isDegreased = aircraft?.degreased ?? false;
 					const isSelected = aircraftId
 						? cwpStore.selectedAircraftIds.has(aircraftId)
 						: false;
 					return (
 						<li key={i} className="flex gap-0.5">
 							<div
-								className={`bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors ${
-									isSelected ? "outline outline-1 outline-cyan-400" : ""
-								}`}
+								className={`bg-neutral-800 pl-0.75 min-w-15 cursor-pointer hover:bg-neutral-700 transition-colors ${
+									isDegreased ? "font-normal" : "font-bold"
+								} ${isSelected ? "outline-1 outline-cyan-400" : ""}`}
 								onMouseEnter={() => handleMouseEnter(i)}
 								onMouseLeave={() => handleMouseLeave(i)}
 								onClick={() => handleClick(i)}
@@ -314,7 +321,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 
 	const cardClassName = `absolute left-1 right-1
 		rounded-lg border-2 border-white/50
-		bg-primary/40
+		bg-primary/40 font-mono
 		shadow-sm backdrop-blur-[1px]
 		flex justify-between items-center`;
 

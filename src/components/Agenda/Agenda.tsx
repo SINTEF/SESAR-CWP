@@ -319,7 +319,7 @@ export default observer(function Agenda({
 	);
 
 	return (
-		<div className="w-44 h-screen bg-base-300 text-base-content border-l-[1.5px] border-base-200 z-40 flex flex-col">
+		<div className="w-44 h-screen bg-base-300 text-base-content border-l-[1.5px] border-base-200 z-40 flex flex-col font-mono">
 			{/* Header */}
 			<div className="px-2 py-1 border-b border-base-200 shrink-0 bg-neutral-800">
 				<h2 className="text-xs font-semibold text-base-content/80">Agenda</h2>

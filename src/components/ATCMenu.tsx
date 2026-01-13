@@ -167,19 +167,19 @@ export default observer(function ATCMenu(properties: {
 	};
 
 	return (
-		<div className="bg-gray-900 p-3 w-36 text-gray-200 font-sans flex flex-col items-center border border-gray-700">
+		<div className="bg-neutral-900/60 p-2.5 w-30 ml-1 rounded-b-sm text-gray-200 font-sans flex flex-col items-center border-t border-t-neutral-800">
 			<div className="space-y-2 w-full">
 				{controlledBy === configurationStore.currentCWP && (
 					<button
 						onClick={() => handleTrfClick(aircraftId)}
-						className="btn btn-sm btn-primary w-full rounded-xs"
+						className="btn btn-xs btn-primary w-full rounded-xs"
 					>
 						TRF 130.165
 					</button>
 				)}
 				<button
 					onClick={toggleAssumeFlight}
-					className={`btn btn-sm btn-primary w-full rounded-xs ${controlledBy === configurationStore.currentCWP ? "opacity-50 cursor-not-allowed" : ""}`}
+					className={`btn btn-xs btn-primary w-full rounded-xs ${controlledBy === configurationStore.currentCWP ? "opacity-50 cursor-not-allowed" : ""}`}
 					disabled={controlledBy === configurationStore.currentCWP}
 				>
 					{controlledBy === configurationStore.currentCWP
@@ -189,34 +189,34 @@ export default observer(function ATCMenu(properties: {
 				{!properties.aircraft.degreased ? (
 					<button
 						onClick={() => handleIntegreClick(aircraftId)}
-						className="btn btn-sm btn-primary w-full rounded-xs"
+						className="btn btn-xs btn-primary w-full rounded-xs"
 					>
 						INTEGRE
 					</button>
 				) : (
 					<button
 						onClick={() => handleDeIntegreClick(aircraftId)}
-						className="btn btn-sm btn-primary w-full rounded-xs"
+						className="btn btn-xs btn-primary w-full rounded-xs"
 					>
 						DE INTEGRE
 					</button>
 				)}
-				<hr className="border-t-2 border-gray-600 w-full" />
+				<hr className="border-t-2 border-neutral-700 w-full" />
 				<button
 					onClick={() => handleButtonClick("TP")}
-					className="btn btn-sm btn-primary w-full rounded-xs"
+					className="btn btn-xs btn-primary w-full rounded-xs"
 				>
 					TP
 				</button>
 				<button
 					onClick={handleSepClick}
-					className="btn btn-sm btn-primary w-full rounded-xs"
+					className="btn btn-xs btn-primary w-full rounded-xs"
 				>
 					SEP
 				</button>
 				<button
 					onClick={handleQdmClick}
-					className="btn btn-sm btn-primary w-full rounded-xs"
+					className="btn btn-xs btn-primary w-full rounded-xs"
 				>
 					QDM
 				</button>

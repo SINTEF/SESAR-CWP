@@ -30,7 +30,9 @@ export default observer(function AircraftPopupContent(properties: {
 	return (
 		<div
 			style={{ color: flightColor }}
-			className={aircraft.degreased ? "font-normal" : "font-bold"}
+			className={
+				aircraft.degreased ? "font-normal font-mono" : "font-bold font-mono"
+			}
 		>
 			{/* Line 0 */}
 			<div>
