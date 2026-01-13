@@ -1,65 +1,230 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
-// import type { FlightConflictUpdateMessage } from "../proto/ProtobufAirTrafficSimulator";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { aircraftStore, simulatorStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 
 /**
  * VerticalTimeline — Tailwind + DaisyUI
  *
- * - Creates a fixed-width vertical scheduler column.
- * - Uses CSS grid rows for consistent slot heights.
- * - Renders events positioned by start/end (in minutes) within the visible window.
- * - Positioned on the right side of the screen.
+ * - Creates a fixed-width vertical scheduler column that fills screen height.
+ * - Renders events positioned by time relative to "now" (bottom of timeline).
+ * - Zoomable via mouse wheel or range slider.
+ * - Separator lines adapt to current scale.
+ * - Events have fixed height and stack vertically to avoid overlaps.
  */
 
 // Types
 export type TimelineEvent = {
 	id: string;
-	startMin: number; // minutes from the top of the window
-	endMin: number; // minutes from the top of the window
+	startMin: number; // minutes from now (positive = future)
+	endMin: number; // minutes from now
 	code: string | undefined; // the orange badge text
 	labels: string[]; // lines of text inside the chip
 };
 
-// Helpers
-const clamp = (n: number, min = 0, max = 10_000) =>
-	Math.max(min, Math.min(n, max));
+// Scale presets in minutes (total visible window)
+const SCALE_PRESETS = [5, 10, 15, 30, 60, 120, 240] as const;
+type ScalePreset = (typeof SCALE_PRESETS)[number];
 
-// The height (px) of 1 minute on the grid. Change to scale timeline density.
-const PX_PER_MINUTE = 2.4; // 60min -> 144px
+// Fixed height for event labels in pixels
+const EVENT_HEIGHT_PX = 36;
+// Gap between stacked events
+const EVENT_GAP_PX = 2;
+// Bottom padding to prevent content being cropped at the bottom
+const BOTTOM_PADDING_PX = 16;
 
-// Number of major rows (e.g., 6 rows as in the screenshot)
-const MAJOR_ROWS = 6;
-const MINUTES_PER_ROW = 60; // one hour rows
+/**
+ * Determine separator interval based on scale
+ * Returns interval in minutes
+ */
+function getSeparatorInterval(scaleMinutes: number): number {
+	if (scaleMinutes <= 10) {
+		return 1;
+	}
+	if (scaleMinutes <= 15) {
+		return 3;
+	}
+	if (scaleMinutes <= 30) {
+		return 5;
+	}
+	if (scaleMinutes <= 60) {
+		return 10;
+	}
+	if (scaleMinutes <= 120) {
+		return 15;
+	}
+	return 30;
+}
 
-// Example data
-// const SAMPLE_EVENTS: TimelineEvent[] = [
-// 	{
-// 		id: "e1",
-// 		startMin: 60 + 6, // 1:06 from top of window
-// 		endMin: 60 + 20, // 1:20
-// 		code: "380",
-// 		labels: ["TUI1FX", "TAR718"],
-// 	},
-// ];
+/**
+ * Format timestamp to HH:mm (24h)
+ */
+function formatTime(timestampSeconds: number): string {
+	const date = new Date(timestampSeconds * 1000);
+	return date.toLocaleTimeString("en-GB", {
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	});
+}
+
+type PositionedEvent = TimelineEvent & {
+	bottomPx: number; // distance from container bottom in pixels
+};
+
+/**
+ * Stack events vertically to avoid overlaps.
+ * Events are positioned from bottom (now) upward (future).
+ * Returns events with adjusted bottom positions.
+ */
+function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
+	if (events.length === 0) {
+		return [];
+	}
+
+	// Sort by bottomPx ascending (events closer to bottom/now first)
+	const sorted = [...events].sort((a, b) => a.bottomPx - b.bottomPx);
+	const result: PositionedEvent[] = [];
+
+	for (const event of sorted) {
+		let adjustedBottom = event.bottomPx;
+
+		// Check for overlaps with already placed events and shift up if needed
+		for (const placed of result) {
+			const eventTop = adjustedBottom + EVENT_HEIGHT_PX;
+			const placedTop = placed.bottomPx + EVENT_HEIGHT_PX;
+
+			// Events overlap if their vertical ranges intersect
+			// Event range: [adjustedBottom, eventTop]
+			// Placed range: [placed.bottomPx, placedTop]
+			if (adjustedBottom < placedTop && eventTop > placed.bottomPx) {
+				// Shift this event up (higher bottomPx = higher on screen)
+				adjustedBottom = placedTop + EVENT_GAP_PX;
+			}
+		}
+
+		result.push({ ...event, bottomPx: adjustedBottom });
+	}
+
+	return result;
+}
+
+// ============================================================================
+// Memoized Sub-components for performance
+// ============================================================================
+
+type SeparatorProps = {
+	bottomPx: number;
+	time: string;
+};
+
+const TimelineSeparator = memo(function TimelineSeparator({
+	bottomPx,
+	time,
+}: SeparatorProps) {
+	return (
+		<div
+			className="absolute left-0 right-0 border-t border-base-content/20 pointer-events-none transition-[bottom] duration-300 ease-out"
+			style={{ bottom: bottomPx }}
+		>
+			<span
+				className="absolute left-1 text-[8px] bg-base-300 px-0.5 text-base-content/60 select-none"
+				style={{ transform: "translateY(-50%)" }}
+			>
+				{time}
+			</span>
+		</div>
+	);
+});
+
+type EventCardProps = {
+	event: PositionedEvent;
+};
+
+const TimelineEventCard = memo(function TimelineEventCard({
+	event,
+}: EventCardProps) {
+	return (
+		<article
+			className="absolute left-1 right-1 rounded-xl border border-primary/60 bg-primary/15 shadow-sm backdrop-blur-[1px] transition-[bottom] duration-300 ease-out"
+			style={{
+				bottom: event.bottomPx,
+				height: EVENT_HEIGHT_PX,
+			}}
+		>
+			<div className="flex items-stretch overflow-hidden rounded-xl h-full">
+				{/* Left rail */}
+				<div className="w-1.5 bg-primary rounded-l-xl my-1 ml-1" />
+
+				{/* Text */}
+				<div className="flex-1 px-2 py-1 leading-tight text-[10px] text-right flex flex-col justify-center">
+					{event.labels.map((l, i) => (
+						<div key={i} className="truncate">
+							{l}
+						</div>
+					))}
+				</div>
+
+				{/* Right badge */}
+				{event.code && (
+					<div className="badge badge-warning rounded-r-xl rounded-l-none font-bold text-[10px] px-2 py-1 my-auto mr-1">
+						{event.code}
+					</div>
+				)}
+			</div>
+		</article>
+	);
+});
+
+// ============================================================================
+// Main Component
+// ============================================================================
 
 export default observer(function Agenda({
 	events = [],
-	startLabel = simulatorStore.timestamp.toLocaleString(),
 }: {
 	events?: TimelineEvent[];
-	startLabel?: string;
 }) {
-	const { mtcdConflictIds } = aircraftStore; // Will be MTCD in future
-	let count = 0;
+	const [scaleMinutes, setScaleMinutes] = useState<ScalePreset>(30);
+	const [containerHeight, setContainerHeight] = useState(600);
+	const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
+
+	const currentTimestamp = simulatorStore.timestamp;
+	const { mtcdConflictIds } = aircraftStore;
+
+	// Measure container height
+	useEffect(() => {
+		if (!containerRef) {
+			return;
+		}
+		const updateHeight = () => {
+			setContainerHeight(containerRef.clientHeight);
+		};
+		updateHeight();
+		const resizeObserver = new ResizeObserver(updateHeight);
+		resizeObserver.observe(containerRef);
+		return () => resizeObserver.disconnect();
+	}, [containerRef]);
+
+	// Pixels per minute based on container height (minus padding) and scale
+	const effectiveHeight = containerHeight - BOTTOM_PADDING_PX;
+	const pxPerMinute = effectiveHeight / scaleMinutes;
+
+	// Convert MTCD conflicts to timeline events
 	const datablocks: TimelineEvent[] = Array.from(mtcdConflictIds.entries()).map(
-		([id, conflict]) => {
-			count++;
+		([id, conflict], index) => {
+			// Use actual conflict time if available, otherwise use placeholder
+			const conflictTime = conflict.conflictingFlightPosition?.time;
+			const conflictTimestamp = conflictTime
+				? Number(conflictTime.seconds)
+				: currentTimestamp + (index + 1) * 5 * 60; // Placeholder: 5min intervals
+
+			const minutesFromNow = (conflictTimestamp - currentTimestamp) / 60;
+
 			return {
 				id: id,
-				startMin: 60 + 6 + count * 20, // 1:06 from top of window - will be conflict.conflictingFlightPosition?.time
-				endMin: 60 + 20 + count * 20, // 1:20
+				startMin: minutesFromNow,
+				endMin: minutesFromNow + 2, // Event duration placeholder
 				code:
 					conflict.conflictingFlightPosition?.altitude !== undefined
 						? String(
@@ -73,91 +238,123 @@ export default observer(function Agenda({
 		},
 	);
 
-	// Grid height in minutes
-	const WINDOW_MINUTES = MAJOR_ROWS * MINUTES_PER_ROW;
-	const gridStyle: React.CSSProperties = {
-		gridTemplateRows: `repeat(${WINDOW_MINUTES}, ${PX_PER_MINUTE}px)`,
+	const allEvents = [...events, ...datablocks];
+
+	// Handle mouse wheel zoom
+	const handleWheel = useCallback((e: React.WheelEvent) => {
+		e.preventDefault();
+		setScaleMinutes((current) => {
+			const currentIndex = SCALE_PRESETS.indexOf(current);
+			if (e.deltaY > 0) {
+				// Scroll down = zoom out (more minutes visible)
+				return SCALE_PRESETS[
+					Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+				];
+			}
+			// Scroll up = zoom in (fewer minutes visible)
+			return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
+		});
+	}, []);
+
+	// Handle range slider change
+	const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const index = Number.parseInt(e.target.value, 10);
+		setScaleMinutes(SCALE_PRESETS[index]);
 	};
 
+	// Calculate separator lines with smooth scrolling
+	// Separators are positioned relative to "now" (exact current time)
+	const separatorInterval = getSeparatorInterval(scaleMinutes);
+	const separators: Array<{
+		bottomPx: number;
+		time: string;
+		minuteKey: number;
+	}> = [];
+
+	// Current time in minutes (floating point for sub-minute precision)
+	const currentTimeMinutes = currentTimestamp / 60;
+	// Round down to the nearest interval to find the base separator
+	const baseMinute =
+		Math.floor(currentTimeMinutes / separatorInterval) * separatorInterval;
+	// How far past the last interval mark we are (causes the "scrolling" effect)
+	const offsetFromBase = currentTimeMinutes - baseMinute;
+
+	// Generate separators, starting from the one at or before "now"
+	// We go one interval before and after the visible range to ensure smooth transitions
+	for (
+		let i = -separatorInterval;
+		i <= scaleMinutes + separatorInterval;
+		i += separatorInterval
+	) {
+		const absoluteMinute = baseMinute + i;
+		// Position relative to "now": subtract the offset so separators slide down over time
+		const minutesFromNow = i - offsetFromBase;
+		const bottomPx = minutesFromNow * pxPerMinute + BOTTOM_PADDING_PX;
+
+		// Only include separators within the visible area
+		if (bottomPx >= 0 && bottomPx <= containerHeight) {
+			separators.push({
+				bottomPx,
+				time: formatTime(absoluteMinute * 60),
+				minuteKey: absoluteMinute,
+			});
+		}
+	}
+
+	// Prepare event positions in pixels (filter events within time range)
+	const eventPositions: PositionedEvent[] = allEvents
+		.filter((ev) => ev.startMin >= 0 && ev.startMin <= scaleMinutes)
+		.map((ev) => {
+			// Position from bottom in pixels, with bottom padding offset
+			const bottomPx = ev.startMin * pxPerMinute + BOTTOM_PADDING_PX;
+			return { ...ev, bottomPx };
+		});
+
+	// Stack events to avoid overlaps
+	const stackedEvents = stackEvents(eventPositions);
+
+	// Filter out events that are pushed outside the visible area after stacking
+	const visibleEvents = stackedEvents.filter(
+		(ev) => ev.bottomPx >= -EVENT_HEIGHT_PX && ev.bottomPx < containerHeight,
+	);
+
 	return (
-		<div className="w-44 bg-base-300 text-base-content border-l border-base-200 z-40">
-			{/* Bottom time label (on right side) */}
-			<div className="absolute bottom-1 right-1 text-[10px] text-base-content/70 select-none">
-				{startLabel}
+		<div className="w-44 h-screen bg-base-300 text-base-content border-l-[1.5px] border-base-200 z-40 flex flex-col">
+			{/* Header */}
+			<div className="px-2 py-1 border-b border-base-200 shrink-0 bg-neutral-800">
+				<h2 className="text-xs font-semibold text-base-content/80">Agenda</h2>
 			</div>
 
-			{/* Minute grid */}
-			<div className="grid" style={gridStyle}>
-				{/* Major hour separators */}
-				{Array.from({ length: MAJOR_ROWS + 1 }).map((_, i) => (
-					<div
-						key={i}
-						className="pointer-events-none col-span-full border-b border-base-white"
-						style={{ gridRow: `${i * MINUTES_PER_ROW + 1}` }}
-					/>
+			{/* Scale slider control */}
+			<div className="p-2 border-b border-base-200 flex items-center gap-2 shrink-0">
+				<span className="text-[10px] text-base-content/70">
+					{scaleMinutes}m
+				</span>
+				<input
+					type="range"
+					min="0"
+					max={SCALE_PRESETS.length - 1}
+					value={SCALE_PRESETS.indexOf(scaleMinutes)}
+					onChange={handleRangeChange}
+					className="range range-xs flex-1 [--range-fill:0] [--range-bg:#666] text-primary"
+				/>
+			</div>
+
+			{/* Timeline container - fills remaining height */}
+			<div
+				ref={setContainerRef}
+				className="relative flex-1 overflow-hidden"
+				onWheel={handleWheel}
+			>
+				{/* Separator lines with time labels */}
+				{separators.map(({ bottomPx, time, minuteKey }) => (
+					<TimelineSeparator key={minuteKey} bottomPx={bottomPx} time={time} />
 				))}
 
-				{/* Events */}
-				{events.map((ev) => {
-					const topRow = clamp(Math.floor(ev.startMin) + 1, 1);
-					const bottomRow = clamp(Math.ceil(ev.endMin) + 1, topRow + 1);
-					return (
-						<article
-							key={ev.id}
-							className="relative mx-1 mt-[2px] rounded-xl border border-primary/60 bg-primary/15 shadow-sm backdrop-blur-[1px]"
-							style={{ gridRow: `${topRow} / ${bottomRow}` }}
-						>
-							<div className="flex items-stretch overflow-hidden rounded-xl">
-								{/* Left rail */}
-								<div className="w-1.5 bg-primary rounded-l-xl my-1 ml-1" />
-
-								{/* Text */}
-								<div className="flex-1 px-2 py-1 leading-tight text-[10px] text-right">
-									{ev.labels.map((l, i) => (
-										<div key={i} className="truncate">
-											{l}
-										</div>
-									))}
-								</div>
-
-								{/* Right badge */}
-								<div className="badge badge-warning rounded-r-xl rounded-l-none font-bold text-[10px] px-2 py-1 my-auto mr-1">
-									{ev.code}
-								</div>
-							</div>
-						</article>
-					);
-				})}
-				{datablocks.map((ev) => {
-					const topRow = clamp(Math.floor(ev.startMin) + 1, 1);
-					const bottomRow = clamp(Math.ceil(ev.endMin) + 1, topRow + 1);
-					return (
-						<article
-							key={ev.id}
-							className="relative mx-1 mt-[2px] rounded-xl border border-primary/60 bg-primary/15 shadow-sm backdrop-blur-[1px]"
-							style={{ gridRow: `${topRow} / ${bottomRow}` }}
-						>
-							<div className="flex items-stretch overflow-hidden rounded-xl">
-								{/* Left rail */}
-								<div className="w-1.5 bg-primary rounded-l-xl my-1 ml-1" />
-
-								{/* Text */}
-								<div className="flex-1 px-2 py-1 leading-tight text-[10px] text-right">
-									{ev.labels.map((l, i) => (
-										<div key={i} className="truncate">
-											{l}
-										</div>
-									))}
-								</div>
-
-								{/* Right badge */}
-								<div className="badge badge-warning rounded-r-xl rounded-l-none font-bold text-[10px] px-2 py-1 my-auto mr-1">
-									{ev.code}
-								</div>
-							</div>
-						</article>
-					);
-				})}
+				{/* Events with fixed height, positioned absolutely */}
+				{visibleEvents.map((ev) => (
+					<TimelineEventCard key={ev.id} event={ev} />
+				))}
 			</div>
 		</div>
 	);

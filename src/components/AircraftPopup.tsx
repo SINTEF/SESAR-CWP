@@ -159,11 +159,14 @@ export default observer(function AircraftPopup(properties: {
 	const hasStcaConflict = aircraftStore.hasStcaConflict(aircraft.aircraftId);
 	const hasTctConflict = aircraftStore.hasTctConflict(aircraft.aircraftId);
 
+	// Determine line color: selected takes priority, then hovered, then default iconColor
+	const lineColor = isSelected || isHoveredMarker ? "#00FFFF" : iconColor;
+
 	return (
 		<DraggablePopup
 			className="text-xs p-0 m-0 backdrop-blur-[1.5px] z-0"
 			style={{ color: flightColor }}
-			color={isHoveredMarker ? "#00FFFF" : iconColor}
+			color={lineColor}
 			offset={offset as DraggablePopupProperties["offset"]}
 			size={{ width, height }}
 			borderRadius={1.5}
@@ -192,8 +195,8 @@ export default observer(function AircraftPopup(properties: {
 					className={classNames(
 						"p-1 select-none",
 						isSelected
-							? "bg-gray-600/40 border-[0.5px] border-cyan-400"
-							: "bg-gray-500/50 rounded-sm border-0 border-transparent",
+							? "bg-neutral-800/40 rounded-xs border-[0.5px] border-cyan-400"
+							: "bg-neutral-800/50 rounded-sm border-0 border-transparent",
 						isHoveredMarker ? "text-pink-400" : "text-white",
 					)}
 					onWheel={onWheel}
