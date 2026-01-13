@@ -219,6 +219,13 @@ export default observer(function Agenda({
 
 			const minutesFromNow = (conflictTimestamp - currentTimestamp) / 60;
 
+			// Determine severity based on conflictType:
+			// 3 = MTCDInputSevere (severe), 4 = MTCDInputPotential (potential)
+			const severity =
+				conflict.conflictType === 4
+					? ("potential" as const)
+					: ("severe" as const);
+
 			return {
 				id: id,
 				startMin: minutesFromNow,
@@ -232,6 +239,7 @@ export default observer(function Agenda({
 						: undefined,
 				labels: [conflict.callSign, conflict.conflictingFlightCallSign],
 				aircraftIds: [conflict.flightId, conflict.conflictingFlightId],
+				severity,
 			};
 		},
 	);
@@ -319,14 +327,14 @@ export default observer(function Agenda({
 	);
 
 	return (
-		<div className="w-44 h-screen bg-base-300 text-base-content border-l-[1.5px] border-base-200 z-40 flex flex-col">
+		<div className="w-44 h-screen bg-base-300 text-base-content border-l-[1.5px] border-base-200 z-40 flex flex-col font-mono">
 			{/* Header */}
 			<div className="px-2 py-1 border-b border-base-200 shrink-0 bg-neutral-800">
 				<h2 className="text-xs font-semibold text-base-content/80">Agenda</h2>
 			</div>
 
 			{/* Scale slider control */}
-			<div className="p-2 border-b border-base-200 flex items-center gap-2 shrink-0">
+			<div className="p-2 border-b border-base-200 flex items-center gap-2 shrink-0 bg-[#333]">
 				<span className="text-[10px] text-base-content/70">
 					{scaleMinutes}m
 				</span>
