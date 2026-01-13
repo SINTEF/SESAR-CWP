@@ -5,7 +5,11 @@ import { DraggableCore } from "react-draggable";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
 import { cwpStore } from "../../state";
 import { WarningIconById } from "../AircraftLabelParts";
-import { EVENT_HEIGHT_PX, type PositionedEvent } from "./types";
+import {
+	BOTTOM_PADDING_PX,
+	EVENT_HEIGHT_PX,
+	type PositionedEvent,
+} from "./types";
 
 type EventCardProps = {
 	event: PositionedEvent;
@@ -160,29 +164,39 @@ const TimelineEventCard = observer(function TimelineEventCard({
 			return;
 		}
 
-		// Convert pixels to minutes and update offset
-		const deltaMinutes = dragOffsetY / pxPerMinute;
-		const newOffset = timeOffsetMin + deltaMinutes;
+		// Calculate the time at the ghost's drop position
+		const ghostBottomPx = displayBottomPx + dragOffsetY;
+		const dropTimeMin = (ghostBottomPx - BOTTOM_PADDING_PX) / pxPerMinute;
+
+		// The original startMin (without any offset) = event.startMin - timeOffsetMin
+		// since event.startMin already has the current offset applied
+		const originalStartMin = event.startMin - timeOffsetMin;
+
+		// New offset = difference between drop time and original time
+		const newOffset = dropTimeMin - originalStartMin;
+
 		onTimeOffsetChange(event.id, newOffset);
 		setDragOffsetY(0);
 	};
 
 	// Calculate positions
-	const originalBottomPx = event.bottomPx;
-	const ghostBottomPx = originalBottomPx + dragOffsetY;
+	// displayBottomPx is the stacked position (for visual display)
+	// event.originalBottomPx is the time-based position (for calculations)
+	const displayBottomPx = event.bottomPx;
+	const ghostBottomPx = displayBottomPx + dragOffsetY;
 
 	// Determine if ghost overlaps with original
 	const ghostTop = ghostBottomPx + EVENT_HEIGHT_PX;
-	const originalTop = originalBottomPx + EVENT_HEIGHT_PX;
+	const displayTop = displayBottomPx + EVENT_HEIGHT_PX;
 	const isOverlapping =
-		ghostBottomPx < originalTop && ghostTop > originalBottomPx;
+		ghostBottomPx < displayTop && ghostTop > displayBottomPx;
 
 	// Calculate connecting line positions (only when not overlapping)
 	const showConnectingLine = isDragging && !isOverlapping;
 	// Line connects the closer edges of ghost and original
-	const ghostIsAbove = ghostBottomPx > originalBottomPx;
-	const lineBottom = ghostIsAbove ? originalTop : ghostTop;
-	const lineTop = ghostIsAbove ? ghostBottomPx : originalBottomPx;
+	const ghostIsAbove = ghostBottomPx > displayBottomPx;
+	const lineBottom = ghostIsAbove ? displayTop : ghostTop;
+	const lineTop = ghostIsAbove ? ghostBottomPx : displayBottomPx;
 	const lineHeight = Math.abs(lineTop - lineBottom);
 
 	// Card content (shared between original and ghost)
@@ -253,7 +267,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 					ref={nodeRef}
 					className={`${cardClassName} ${isDragging ? "opacity-50" : ""} ${shouldAnimate ? "transition-[bottom] duration-300 ease-out" : ""} cursor-grab`}
 					style={{
-						bottom: originalBottomPx,
+						bottom: displayBottomPx,
 						height: EVENT_HEIGHT_PX,
 					}}
 				>

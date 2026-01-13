@@ -91,6 +91,7 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 			}
 		}
 
+		// Preserve originalBottomPx for time calculation, only update display position
 		result.push({ ...event, bottomPx: adjustedBottom });
 	}
 
@@ -301,7 +302,8 @@ export default observer(function Agenda({
 		.map((ev) => {
 			// Position from bottom in pixels, with bottom padding offset
 			const bottomPx = ev.startMin * pxPerMinute + BOTTOM_PADDING_PX;
-			return { ...ev, bottomPx };
+			// Store original position for accurate time offset calculation during drag
+			return { ...ev, bottomPx, originalBottomPx: bottomPx };
 		});
 
 	// Stack events to avoid overlaps

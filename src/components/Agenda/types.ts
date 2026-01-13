@@ -14,7 +14,8 @@ export type TimelineEvent = {
 
 /** Event with computed pixel position */
 export type PositionedEvent = TimelineEvent & {
-	bottomPx: number; // distance from container bottom in pixels
+	bottomPx: number; // distance from container bottom in pixels (may be adjusted for stacking)
+	originalBottomPx: number; // original time-based position before stacking adjustment
 };
 
 /** Scale presets in minutes (total visible window) */
