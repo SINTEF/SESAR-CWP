@@ -355,7 +355,8 @@ export default class AircraftStore {
 							flightConflictUpdate,
 						);
 						break;
-					case 3: // MTCD Conflict
+					case 3: // MTCD Conflict (Severe)
+					case 4: // MTCD Conflict (Potential)
 						this.mtcdConflictIds.set(
 							flightConflictUpdate.id.toString(),
 							flightConflictUpdate,
@@ -376,6 +377,7 @@ export default class AircraftStore {
 						this.tctConflictIds.delete(flightConflictUpdate.id.toString());
 						break;
 					case 3: // MTCD Conflict (MTCDInputSevere)
+					case 4: // MTCD Conflict (MTCDInputPotential)
 						this.mtcdConflictIds.delete(flightConflictUpdate.id.toString());
 						break;
 					default:

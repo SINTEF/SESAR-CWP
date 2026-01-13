@@ -2,13 +2,17 @@
  * Shared types for the Agenda timeline component.
  */
 
+/** Conflict severity for timeline events */
+export type ConflictSeverity = "severe" | "potential";
+
 /** An event to display on the timeline */
 export type TimelineEvent = {
 	id: string;
 	startMin: number; // minutes from now (positive = future)
-	code: string | undefined; // the orange badge text
+	code: string | undefined; // the badge text (flight level)
 	labels: string[]; // lines of text inside the chip
 	aircraftIds?: string[]; // optional aircraft IDs for hover functionality
+	severity?: ConflictSeverity; // conflict severity: severe (orange) or potential (yellow)
 };
 
 /** Event with computed pixel position */
