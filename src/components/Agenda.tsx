@@ -27,7 +27,7 @@ const SCALE_PRESETS = [5, 10, 15, 30, 60, 120, 240] as const;
 type ScalePreset = (typeof SCALE_PRESETS)[number];
 
 // Fixed height for event labels in pixels
-const EVENT_HEIGHT_PX = 36;
+const EVENT_HEIGHT_PX = 42;
 // Gap between stacked events
 const EVENT_GAP_PX = 2;
 // Bottom padding to prevent content being cropped at the bottom
@@ -145,34 +145,38 @@ const TimelineEventCard = memo(function TimelineEventCard({
 	event,
 }: EventCardProps) {
 	return (
-		<article
-			className="absolute left-1 right-1 rounded-xl border border-primary/60 bg-primary/15 shadow-sm backdrop-blur-[1px] transition-[bottom] duration-300 ease-out"
+		<div
+			className="absolute left-1 right-1
+			rounded-lg border-2 border-white/50
+			bg-primary/40
+			shadow-sm backdrop-blur-[1px]
+			transition-[bottom] duration-300 ease-out
+			flex justify-between items-center
+			"
 			style={{
 				bottom: event.bottomPx,
 				height: EVENT_HEIGHT_PX,
 			}}
 		>
-			<div className="flex items-stretch overflow-hidden rounded-xl h-full">
-				{/* Left rail */}
-				<div className="w-1.5 bg-primary rounded-l-xl my-1 ml-1" />
-
-				{/* Text */}
-				<div className="flex-1 px-2 py-1 leading-tight text-[10px] text-right flex flex-col justify-center">
-					{event.labels.map((l, i) => (
-						<div key={i} className="truncate">
-							{l}
-						</div>
-					))}
+			{/* Left badge */}
+			{event.code && (
+				<div className="h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square">
+					{event.code}
 				</div>
+			)}
 
-				{/* Right badge */}
-				{event.code && (
-					<div className="badge badge-warning rounded-r-xl rounded-l-none font-bold text-[10px] px-2 py-1 my-auto mr-1">
-						{event.code}
-					</div>
-				)}
-			</div>
-		</article>
+			{/* Text */}
+			<ul className="text-[10px] flex flex-col gap-0.5 mr-1 my-1">
+				{event.labels.map((l, i) => (
+					<li key={i} className="flex gap-0.5">
+						<div className="bg-neutral-800 pl-0.75 min-w-15 font-bold">{l}</div>
+						<div className="bg-neutral-800 aspect-square block min-w-3 text-center">
+							+
+						</div>
+					</li>
+				))}
+			</ul>
+		</div>
 	);
 });
 
