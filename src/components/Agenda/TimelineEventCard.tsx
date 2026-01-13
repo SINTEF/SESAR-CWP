@@ -199,13 +199,21 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	const lineTop = ghostIsAbove ? ghostBottomPx : displayBottomPx;
 	const lineHeight = Math.abs(lineTop - lineBottom);
 
+	// Check if all aircraft in the event are selected (for badge outline)
+	const allAircraftSelected =
+		event.aircraftIds &&
+		event.aircraftIds.length > 0 &&
+		event.aircraftIds.every((id) => cwpStore.selectedAircraftIds.has(id));
+
 	// Card content (shared between original and ghost)
 	const cardContent = (
 		<>
 			{/* Left badge */}
 			{event.code && (
 				<div
-					className="h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square cursor-pointer hover:brightness-110 transition-all"
+					className={`h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square cursor-pointer hover:brightness-110 transition-all ${
+						allAircraftSelected ? "outline outline-1 outline-cyan-400" : ""
+					}`}
 					onMouseEnter={handleBadgeMouseEnter}
 					onMouseLeave={handleBadgeMouseLeave}
 					onClick={handleBadgeClick}
@@ -218,10 +226,15 @@ const TimelineEventCard = observer(function TimelineEventCard({
 			<ul className="text-[10px] flex flex-col gap-0.5 mr-1 my-1">
 				{event.labels.map((l, i) => {
 					const aircraftId = event.aircraftIds?.[i];
+					const isSelected = aircraftId
+						? cwpStore.selectedAircraftIds.has(aircraftId)
+						: false;
 					return (
 						<li key={i} className="flex gap-0.5">
 							<div
-								className="bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors"
+								className={`bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors ${
+									isSelected ? "outline outline-1 outline-cyan-400" : ""
+								}`}
 								onMouseEnter={() => handleMouseEnter(i)}
 								onMouseLeave={() => handleMouseLeave(i)}
 								onClick={() => handleClick(i)}
