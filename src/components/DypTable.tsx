@@ -20,7 +20,7 @@ const _handleFlightClicked = (event: string): void => {
 export default observer(function DypTable(/* properties */) {
 	const draggableRef = React.createRef<HTMLDivElement>();
 	const { startDragging, stopDragging } = useDragging();
-	const { selectedAircraftIds } = cwpStore;
+	const { selectedAircraftIds, hoveredMarkerAircraftId } = cwpStore;
 	const _currentSector = roleConfigurationStore.currentControlledSector;
 	const [_filter, _setFilter] = useState("");
 	const [_valueSelected, _setSelectedValue] = useState("");
@@ -36,9 +36,13 @@ export default observer(function DypTable(/* properties */) {
 	// 	return null;
 	// }
 
-	const latestSelectedAircraft = Array.from(selectedAircraftIds).slice(-1)[0]; // last selected aircraft
+	// Prefer hovered aircraft, fall back to last selected aircraft
+	const targetAircraftId =
+		hoveredMarkerAircraftId ?? Array.from(selectedAircraftIds).slice(-1)[0];
 	const latestSelectedAircraftData = aircraftStore.aircraftsWithPosition.find(
-		(aircraft) => aircraft.assignedFlightId === latestSelectedAircraft,
+		(aircraft) =>
+			aircraft.assignedFlightId === targetAircraftId ||
+			aircraft.aircraftId === targetAircraftId,
 	);
 	const lastestSelectedAircraftType =
 		latestSelectedAircraftData?.aircraftInfo.get(
