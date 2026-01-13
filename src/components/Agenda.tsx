@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { aircraftStore, cwpStore, simulatorStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
+import { WarningIconById } from "./AircraftLabelParts";
 
 /**
  * VerticalTimeline — Tailwind + DaisyUI
@@ -220,20 +221,30 @@ const TimelineEventCard = memo(function TimelineEventCard({
 
 			{/* Text */}
 			<ul className="text-[10px] flex flex-col gap-0.5 mr-1 my-1">
-				{event.labels.map((l, i) => (
-					<li key={i} className="flex gap-0.5">
-						<div
-							className="bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors"
-							onMouseEnter={() => handleMouseEnter(i)}
-							onMouseLeave={() => handleMouseLeave(i)}
-						>
-							{l}
-						</div>
-						<div className="bg-neutral-800 aspect-square block min-w-3 text-center">
-							+
-						</div>
-					</li>
-				))}
+				{event.labels.map((l, i) => {
+					const aircraftId = event.aircraftIds?.[i];
+					return (
+						<li key={i} className="flex gap-0.5">
+							<div
+								className="bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors"
+								onMouseEnter={() => handleMouseEnter(i)}
+								onMouseLeave={() => handleMouseLeave(i)}
+							>
+								{l}
+							</div>
+							<div className="bg-neutral-800 flex items-center justify-center min-w-4 px-0.5">
+								{aircraftId ? (
+									<WarningIconById
+										aircraftId={aircraftId}
+										className="size-2.5"
+									/>
+								) : (
+									<span className="text-center">+</span>
+								)}
+							</div>
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	);
