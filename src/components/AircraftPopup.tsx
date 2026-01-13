@@ -195,8 +195,8 @@ export default observer(function AircraftPopup(properties: {
 					className={classNames(
 						"p-1 select-none",
 						isSelected
-							? "bg-gray-600/40 border-[0.5px] border-cyan-400"
-							: "bg-gray-500/50 rounded-sm border-0 border-transparent",
+							? "bg-neutral-800/40 rounded-xs border-[0.5px] border-cyan-400"
+							: "bg-neutral-800/50 rounded-sm border-0 border-transparent",
 						isHoveredMarker ? "text-pink-400" : "text-white",
 					)}
 					onWheel={onWheel}

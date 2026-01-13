@@ -170,11 +170,10 @@ export default observer(function DraggableAdminPanel() {
 		>
 			<div
 				ref={nodeRef}
-				className="absolute top-20 left-4 z-50 w-125 shadow-xl rounded-lg overflow-hidden"
-				style={{ background: "#1e1e1e" }}
+				className="absolute top-20 left-4 z-50 w-125 shadow-xl rounded-lg overflow-hidden bg-neutral-800"
 			>
 				{/* Header / Drag Handle */}
-				<div className="drag-handle flex items-center justify-between px-4 py-2 bg-base-300 cursor-move">
+				<div className="drag-handle flex items-center justify-between px-4 py-2 bg-neutral-900 cursor-move">
 					<h2 className="text-lg font-semibold text-white">Admin</h2>
 					<div className="flex items-center gap-1">
 						<button
