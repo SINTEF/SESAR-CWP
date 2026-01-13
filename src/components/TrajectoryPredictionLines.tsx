@@ -132,8 +132,20 @@ export default observer(function TrajectoryPredictionLines() {
 	// Check if this is a timeline drag (overrideTime is set) or a map drag
 	const isTimelineDrag = trajectoryPredictionStore.overrideTime !== null;
 
-	// Get all selected aircraft
-	const selectedAircrafts = [...cwpStore.selectedAircraftIds]
+	// Get aircraft for trajectory prediction:
+	// - For timeline drag: merge timelineDragAircraftIds with selectedAircraftIds
+	//   (shows both the card's aircraft and any already-selected aircraft)
+	// - For map drag: use cwpStore.selectedAircraftIds only
+	const aircraftIds = isTimelineDrag
+		? [
+				...new Set([
+					...trajectoryPredictionStore.timelineDragAircraftIds,
+					...cwpStore.selectedAircraftIds,
+				]),
+			]
+		: [...cwpStore.selectedAircraftIds];
+
+	const selectedAircrafts = aircraftIds
 		.map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
 		.filter((aircraft): aircraft is AircraftModel => aircraft !== undefined);
 

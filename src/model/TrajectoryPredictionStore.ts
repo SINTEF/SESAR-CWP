@@ -1,7 +1,7 @@
 import { distance } from "@turf/distance";
 import { lineString, point } from "@turf/helpers";
 import { length as turfLength } from "@turf/length";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, type ObservableSet, observable } from "mobx";
 import type AircraftStore from "./AircraftStore";
 import type SimulatorStore from "./SimulatorStore";
 import type Trajectory from "./Trajectory";
@@ -33,6 +33,13 @@ export default class TrajectoryPredictionStore {
 	 * Used for timeline drag where we know the exact future time directly.
 	 */
 	overrideTime: number | null = null;
+
+	/**
+	 * Aircraft IDs to show trajectory predictions for during timeline drag.
+	 * This is separate from cwpStore.selectedAircraftIds to avoid triggering
+	 * selection UI (DYP table, blue borders, etc.).
+	 */
+	timelineDragAircraftIds: ObservableSet<string> = observable.set();
 
 	private aircraftStore: AircraftStore;
 	private simulatorStore: SimulatorStore;
@@ -78,6 +85,13 @@ export default class TrajectoryPredictionStore {
 		this.overrideTime = time;
 	}
 
+	/**
+	 * Set aircraft IDs to show trajectory predictions for during timeline drag.
+	 */
+	setTimelineDragAircraftIds(ids: string[]): void {
+		this.timelineDragAircraftIds.replace(ids);
+	}
+
 	reset(): void {
 		this.mainAircraftId = null;
 		this.draggedHandleLat = 0;
@@ -85,6 +99,7 @@ export default class TrajectoryPredictionStore {
 		this.mouseLat = 0;
 		this.mouseLon = 0;
 		this.overrideTime = null;
+		this.timelineDragAircraftIds.clear();
 	}
 
 	get predictionData(): TrajectoryPredictionData {
@@ -120,16 +135,6 @@ export default class TrajectoryPredictionStore {
 			return null;
 		}
 
-		/*// Get future trajectories
-		const futureTrajectories = flightRoute.trajectory.filter(
-			(t) => t.timestamp >= this.simulatorStore.timestamp,
-		);
-
-		if (futureTrajectories.length === 0) {
-			return null;
-		}
-		*/
-
 		// Calculate distance from dragged handle to aircraft
 		const targetDistance = this.getDistanceInMeters(
 			aircraft.lastKnownLatitude,
@@ -153,14 +158,6 @@ export default class TrajectoryPredictionStore {
 			// All trajectories are in the past, return null
 			return null;
 		}
-		/*if (
-			firstFutureIndex > 0 &&
-			flightRoute.trajectory[firstFutureIndex].timestamp > now
-		) {
-			// Start from the last past trajectory to account for distance already traveled
-			firstFutureIndex -= 1;
-		}*/
-
 		for (let i = firstFutureIndex; i < flightRoute.trajectory.length; i++) {
 			const trajectory = flightRoute.trajectory[i];
 			const segmentDistance = this.getDistanceInMeters(

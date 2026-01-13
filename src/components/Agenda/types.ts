@@ -6,7 +6,6 @@
 export type TimelineEvent = {
 	id: string;
 	startMin: number; // minutes from now (positive = future)
-	endMin: number; // minutes from now
 	code: string | undefined; // the orange badge text
 	labels: string[]; // lines of text inside the chip
 	aircraftIds?: string[]; // optional aircraft IDs for hover functionality

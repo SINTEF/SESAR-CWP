@@ -14,6 +14,9 @@ import {
 	type TimelineEvent,
 } from "./types";
 
+/** Placeholder interval between conflicts when real time is unavailable (5 minutes in seconds) */
+const PLACEHOLDER_CONFLICT_INTERVAL_SEC = 5 * 60;
+
 /**
  * VerticalTimeline — Tailwind + DaisyUI
  *
@@ -210,14 +213,13 @@ export default observer(function Agenda({
 			const conflictTime = conflict.conflictingFlightPosition?.time;
 			const conflictTimestamp = conflictTime
 				? Number(conflictTime.seconds)
-				: currentTimestamp + (index + 1) * 5 * 60; // Placeholder: 5min intervals
+				: currentTimestamp + (index + 1) * PLACEHOLDER_CONFLICT_INTERVAL_SEC;
 
 			const minutesFromNow = (conflictTimestamp - currentTimestamp) / 60;
 
 			return {
 				id: id,
 				startMin: minutesFromNow,
-				endMin: minutesFromNow + 2, // Event duration placeholder
 				code:
 					conflict.conflictingFlightPosition?.altitude !== undefined
 						? String(
