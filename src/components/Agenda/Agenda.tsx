@@ -117,6 +117,8 @@ export default observer(function Agenda({
 	// Track whether we should animate positions (only on scale change, not on drag)
 	const [animatePosition, setAnimatePosition] = useState(true);
 	const prevScaleRef = useRef<ScalePreset>(scaleMinutes);
+	// Track if any card is being dragged (to disable hover on other cards)
+	const [isDraggingAny, setIsDraggingAny] = useState(false);
 
 	const currentTimestamp = simulatorStore.timestamp;
 	const { mtcdConflictIds } = aircraftStore;
@@ -360,6 +362,8 @@ export default observer(function Agenda({
 						pxPerMinute={pxPerMinute}
 						onTimeOffsetChange={handleTimeOffsetChange}
 						animatePosition={animatePosition}
+						isDraggingAny={isDraggingAny}
+						setIsDraggingAny={setIsDraggingAny}
 					/>
 				))}
 			</div>

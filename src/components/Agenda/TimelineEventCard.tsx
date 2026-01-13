@@ -25,6 +25,10 @@ type EventCardProps = {
 	onTimeOffsetChange: (eventId: string, offsetMin: number) => void;
 	/** Whether to animate position changes (disable during/after drag) */
 	animatePosition: boolean;
+	/** Whether any card in the timeline is being dragged */
+	isDraggingAny: boolean;
+	/** Callback to set the global dragging state */
+	setIsDraggingAny: (isDragging: boolean) => void;
 };
 
 /**
@@ -40,6 +44,8 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	pxPerMinute,
 	onTimeOffsetChange,
 	animatePosition,
+	isDraggingAny,
+	setIsDraggingAny,
 }: EventCardProps) {
 	const nodeRef = useRef<HTMLDivElement>(null);
 	// Whether mouse is pressed (DraggableCore active)
@@ -57,7 +63,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	};
 
 	const handleMouseEnter = (index: number) => {
-		if (isDragging) {
+		if (isDraggingAny) {
 			return;
 		}
 		const aircraftId = getAircraftId(index);
@@ -68,7 +74,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	};
 
 	const handleMouseLeave = (index: number) => {
-		if (isDragging) {
+		if (isDraggingAny) {
 			return;
 		}
 		const aircraftId = getAircraftId(index);
@@ -81,7 +87,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	};
 
 	const handleClick = (index: number) => {
-		if (isDragging || wasDraggingRef.current) {
+		if (isDraggingAny || wasDraggingRef.current) {
 			return;
 		}
 		const aircraftId = getAircraftId(index);
@@ -96,7 +102,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 
 	// Hover handlers for the badge - shows both flight routes
 	const handleBadgeMouseEnter = () => {
-		if (isDragging) {
+		if (isDraggingAny) {
 			return;
 		}
 		const ids = event.aircraftIds;
@@ -109,7 +115,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	};
 
 	const handleBadgeMouseLeave = () => {
-		if (isDragging) {
+		if (isDraggingAny) {
 			return;
 		}
 		const ids = event.aircraftIds;
@@ -124,7 +130,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	};
 
 	const handleBadgeClick = () => {
-		if (isDragging || wasDraggingRef.current) {
+		if (isDraggingAny || wasDraggingRef.current) {
 			return;
 		}
 		const ids = event.aircraftIds;
@@ -167,6 +173,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		// Only start visual dragging after exceeding threshold
 		if (!isDragging && Math.abs(deltaY) >= DRAG_THRESHOLD_PX) {
 			setIsDragging(true);
+			setIsDraggingAny(true);
 			wasDraggingRef.current = true;
 
 			// Enable trajectory prediction for all aircraft in the event
@@ -193,6 +200,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	const handleDragStop = (): void => {
 		setIsPressed(false);
 		setIsDragging(false);
+		setIsDraggingAny(false);
 
 		// Clear wasDraggingRef after the current event loop to ignore the click that fires on mouseup
 		requestAnimationFrame(() => {
