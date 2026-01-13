@@ -60,6 +60,8 @@ export default observer(function ATCMenu(properties: {
 				),
 			);
 		}
+
+		cwpStore.clearATCMenuAircraftId();
 	};
 
 	const handleTrfClick = (aircraftId: string): void => {
@@ -74,6 +76,8 @@ export default observer(function ATCMenu(properties: {
 			frequency: "130.165",
 			current_cwp: configurationStore.currentCWP,
 		});
+
+		cwpStore.clearATCMenuAircraftId();
 	};
 
 	const handleIntegreClick = (aircraftId: string): void => {
@@ -85,6 +89,8 @@ export default observer(function ATCMenu(properties: {
 			callsign: callSign,
 			current_cwp: configurationStore.currentCWP,
 		});
+
+		cwpStore.clearATCMenuAircraftId();
 	};
 
 	const handleDeIntegreClick = (aircraftId: string): void => {
@@ -96,6 +102,8 @@ export default observer(function ATCMenu(properties: {
 			callsign: callSign,
 			current_cwp: configurationStore.currentCWP,
 		});
+
+		cwpStore.clearATCMenuAircraftId();
 	};
 
 	const handleButtonClick = (action: string): void => {
@@ -105,6 +113,8 @@ export default observer(function ATCMenu(properties: {
 			callsign: callSign,
 			current_cwp: configurationStore.currentCWP,
 		});
+
+		cwpStore.clearATCMenuAircraftId();
 	};
 
 	const handleMeasurementClick = (mode: "sep" | "qdm"): void => {

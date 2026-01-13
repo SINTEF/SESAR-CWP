@@ -607,4 +607,41 @@ export default class CWPStore {
 	clearNextFixPreview(): void {
 		this.nextFixPreview = null;
 	}
+
+	/**
+	 * Reset all per-aircraft UI state (selections, warnings, popups).
+	 * Called by the RESET button in ImageConfiguration.
+	 * Does NOT reset display toggles (speed vectors, fixes, etc.) or SEP/QDM/MTCD state.
+	 */
+	resetUIState(): void {
+		// Clear per-aircraft state
+		this.selectedAircraftIds.clear();
+		this.aircraftWarningLevels.clear();
+		this.aircraftsWithSpeedVectors.clear();
+		this.aircraftsWithFlightRoutes.clear();
+		this.aircraftsWithManuallyOpenedPopup.clear();
+		this.aircraftsWithManuallyClosedPopup.clear();
+		this.aircraftsWithLevelPopup.clear();
+		this.aircraftsWithSectorPopup.clear();
+		this.aircraftsWithBearingPopup.clear();
+		this.aircraftsWithNextFixPopup.clear();
+		this.aircraftWithSpeedChangePopup.clear();
+
+		// Clear hover and highlight state
+		this.highlightedAircraftId = "";
+		this.ATCMenuAircraftId = "";
+		this.hoveredMarkerAircraftId = null;
+		this.hoveredFlightLabelId = null;
+		this.hoveredTaLabelAircraftId = null;
+		this.taArrowClickedAircraftId = null;
+
+		// Clear next fix preview
+		this.nextFixPreview = null;
+
+		// Clear highlighted aircraft timeout if active
+		if (this.highligtedAircraftIdTimeoutId !== 0) {
+			window.clearTimeout(this.highligtedAircraftIdTimeoutId);
+			this.highligtedAircraftIdTimeoutId = 0;
+		}
+	}
 }

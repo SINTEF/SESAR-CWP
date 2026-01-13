@@ -3,7 +3,12 @@ import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import React from "react";
 
-import { configurationStore, cwpStore } from "../state";
+import {
+	configurationStore,
+	cwpStore,
+	distanceLineStore,
+	trajectoryPredictionStore,
+} from "../state";
 import SpeedVectorNavbarControl from "./SpeedVectorNavbarControl";
 import Time from "./Time";
 
@@ -125,14 +130,22 @@ const AirwaysButton = observer(function AirwaysButton() {
 
 const ResetButton = observer(function ResetButton() {
 	const posthog = usePostHog();
-	const resetAllToggles = (): void => {
-		cwpStore.setShowSpeedVectors(false);
+	const resetAll = (): void => {
+		// Reset per-aircraft UI state (selections, warnings, popups)
+		cwpStore.resetUIState();
+
+		// Reset distance measurement markers
+		distanceLineStore.reset();
+
+		// Reset trajectory prediction state
+		trajectoryPredictionStore.reset();
+
 		posthog?.capture("ui_reset", {
-			speed_vectors_reset: true,
+			full_reset: true,
 		});
 	};
 	return (
-		<GenericButton onClick={(): void => resetAllToggles()} active={true}>
+		<GenericButton onClick={(): void => resetAll()} active={true}>
 			RESET
 		</GenericButton>
 	);
