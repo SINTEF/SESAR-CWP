@@ -3,6 +3,7 @@ import AircraftStore from "./model/AircraftStore";
 import AirspaceStore from "./model/AirspaceStore";
 import ConfigurationStore from "./model/ConfigurationStore";
 import CWPStore from "./model/CwpStore";
+import DatablockStore from "./model/DatablockStore";
 import DistanceLine from "./model/DistanceLine";
 import FixStore from "./model/FixStore";
 import PopupLinesStore from "./model/PopupLinesStore";
@@ -28,7 +29,12 @@ export const aircraftStore = new AircraftStore({
 	sectorStore,
 });
 export const fixStore = new FixStore();
+export const datablockStore = new DatablockStore();
 export const distanceLineStore = new DistanceLine();
+
+// Wire up datablockStore to aircraftStore for MTCD override logic
+aircraftStore.setDatablockStore(datablockStore);
+
 export const cwpStore = new CWPStore({
 	altitudeFilter: {
 		lowestBound: 285,
@@ -67,6 +73,7 @@ window.mobxDebugStores = {
 	airspaceStore,
 	sectorStore,
 	fixStore,
+	datablockStore,
 	distanceLineStore,
 	cwpStore,
 	configurationStore,

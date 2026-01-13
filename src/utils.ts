@@ -29,6 +29,34 @@ export function convertMetersToFlightLevel(altitude: number): number {
 }
 
 /**
+ * Convert nautical miles to feet.
+ * 1 NM = 6076.12 feet
+ */
+export function convertNMToFeet(nm: number): number {
+	return nm * 6076.12;
+}
+
+/**
+ * Format feet distance for compact display (max 3 characters).
+ * - Under 1000: show as integer (e.g., "500", "999")
+ * - 1000-9999: show as single digit k (e.g., "1k", "9k")
+ * - 10000-99499: show as double digit k (e.g., "10k", "99k")
+ * - 99500+: show as "∞" (capped, very far separation)
+ */
+export function formatFeetCompact(feet: number): string {
+	const rounded = Math.round(feet);
+	if (rounded < 1000) {
+		return rounded.toString();
+	}
+	const inK = Math.round(rounded / 1000);
+	if (inK < 100) {
+		return `${inK}k`;
+	}
+	// Cap at 99k for display (100k+ feet = ~16+ NM, very far)
+	return "∞";
+}
+
+/**
  * Format aircraft speed for display.
  * Converts from m/s to knots / 10.
  */

@@ -11,7 +11,10 @@ import {
 	aircraftStore,
 	configurationStore,
 	cwpStore,
+	datablockStore,
 	sepQdmStore,
+	simulatorStore,
+	trajectoryPredictionStore,
 } from "../state";
 
 export default observer(function ATCMenu(properties: {
@@ -166,6 +169,64 @@ export default observer(function ATCMenu(properties: {
 		handleMeasurementClick("qdm");
 	};
 
+	// +DB button logic: need exactly 1 other aircraft selected to form a pair
+	const otherSelectedId = Array.from(cwpStore.selectedAircraftIds).find(
+		(id) => id !== aircraftId,
+	);
+	const hasExactlyOneOther =
+		cwpStore.selectedAircraftIds.size === 1 ||
+		(cwpStore.selectedAircraftIds.size === 2 &&
+			cwpStore.selectedAircraftIds.has(aircraftId));
+
+	// Check if we can create: need a valid pair that doesn't already exist
+	const canCreateDatablock =
+		hasExactlyOneOther &&
+		otherSelectedId !== undefined &&
+		!datablockStore.hasPair(aircraftId, otherSelectedId) &&
+		!aircraftStore.hasMtcdConflictForPair(aircraftId, otherSelectedId);
+
+	const handleDatablockClick = (): void => {
+		if (!canCreateDatablock || !otherSelectedId) {
+			return;
+		}
+
+		const aircraftIds = [aircraftId, otherSelectedId];
+
+		// Calculate closest point of approach between the two aircraft
+		const cpa = trajectoryPredictionStore.findClosestPointOfApproach(
+			aircraftId,
+			otherSelectedId,
+		);
+
+		// Prepare CPA info if available
+		const cpaInfo = cpa
+			? {
+					distanceNM: cpa.distanceNM,
+					timeMin: (cpa.time - simulatorStore.timestamp) / 60, // Convert seconds to minutes from now
+				}
+			: undefined;
+
+		const datablock = datablockStore.createDatablock(aircraftIds, cpaInfo);
+
+		// If the datablock was created and has a startMin, request the agenda to adjust scale
+		if (datablock && datablock.startMin > 0) {
+			cwpStore.requestAgendaScaleToFit(datablock.startMin);
+		}
+
+		posthog?.capture("atc_menu_action", {
+			action: "create_datablock",
+			aircraft_ids: aircraftIds,
+			callsigns: aircraftIds
+				.map((id) => aircraftStore.aircrafts.get(id)?.callSign)
+				.filter(Boolean),
+			closest_separation_nm: cpaInfo?.distanceNM,
+			closest_separation_time_min: cpaInfo?.timeMin,
+			current_cwp: configurationStore.currentCWP,
+		});
+
+		cwpStore.clearATCMenuAircraftId();
+	};
+
 	return (
 		<div className="bg-neutral-900/60 p-2.5 w-30 ml-1 rounded-b-sm text-gray-200 font-sans flex flex-col items-center border-t border-t-neutral-800">
 			<div className="space-y-2 w-full">
@@ -219,6 +280,15 @@ export default observer(function ATCMenu(properties: {
 					className="btn btn-xs btn-primary w-full rounded-xs"
 				>
 					QDM
+				</button>
+				<hr className="border-t-2 border-neutral-700 w-full" />
+				<button
+					onClick={handleDatablockClick}
+					className={`btn btn-xs btn-primary w-full rounded-xs ${!canCreateDatablock ? "opacity-50 cursor-not-allowed" : ""}`}
+					disabled={!canCreateDatablock}
+					title="Create datablock with selected aircraft pair"
+				>
+					+DB
 				</button>
 			</div>
 		</div>

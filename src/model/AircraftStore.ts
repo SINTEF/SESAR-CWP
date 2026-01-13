@@ -19,6 +19,8 @@ import AircraftModel from "./AircraftModel";
 import AircraftType from "./AircraftType";
 import CoordinatePair from "./CoordinatePair";
 import convertTimestamp from "./convertTimestamp";
+import type DatablockStore from "./DatablockStore";
+import { createPairKey } from "./DatablockStore";
 import FlightRoute from "./FlightRoute";
 import type SectorStore from "./SectorStore";
 import type SimulatorStore from "./SimulatorStore";
@@ -69,6 +71,9 @@ export default class AircraftStore {
 			deep: false,
 		});
 
+	/** Optional reference to DatablockStore for MTCD override logic */
+	private datablockStore: DatablockStore | null = null;
+
 	constructor({
 		simulatorStore,
 		sectorStore,
@@ -86,6 +91,14 @@ export default class AircraftStore {
 		);
 		this.simulatorStore = simulatorStore;
 		this.sectorStore = sectorStore;
+	}
+
+	/**
+	 * Set the DatablockStore reference for MTCD override logic.
+	 * Called after both stores are initialized to avoid circular dependency.
+	 */
+	setDatablockStore(datablockStore: DatablockStore): void {
+		this.datablockStore = datablockStore;
 	}
 
 	get notHiddenAircrafts(): AircraftModel[] {
@@ -361,6 +374,14 @@ export default class AircraftStore {
 							flightConflictUpdate.id.toString(),
 							flightConflictUpdate,
 						);
+						// Remove any custom datablock for this pair (MTCD takes priority)
+						if (this.datablockStore) {
+							const pairKey = createPairKey(
+								flightConflictUpdate.flightId,
+								flightConflictUpdate.conflictingFlightId,
+							);
+							this.datablockStore.removeByPairKey(pairKey);
+						}
 						break;
 					default:
 						// Handle unexpected conflictType values
@@ -425,6 +446,21 @@ export default class AircraftStore {
 			}
 		}
 		return [...ids];
+	}
+
+	/**
+	 * Check if a pair of aircraft has an MTCD conflict.
+	 */
+	hasMtcdConflictForPair(id1: string, id2: string): boolean {
+		for (const msg of this.mtcdConflictIds.values()) {
+			if (
+				(msg.flightId === id1 && msg.conflictingFlightId === id2) ||
+				(msg.flightId === id2 && msg.conflictingFlightId === id1)
+			) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

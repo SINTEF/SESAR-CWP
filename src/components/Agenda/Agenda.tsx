@@ -1,7 +1,16 @@
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { aircraftStore, cwpStore, simulatorStore } from "../../state";
-import { convertMetersToFlightLevel } from "../../utils";
+import {
+	aircraftStore,
+	cwpStore,
+	datablockStore,
+	simulatorStore,
+} from "../../state";
+import {
+	convertMetersToFlightLevel,
+	convertNMToFeet,
+	formatFeetCompact,
+} from "../../utils";
 import TimelineEventCard from "./TimelineEventCard";
 import TimelineSeparator from "./TimelineSeparator";
 import {
@@ -131,6 +140,21 @@ export default observer(function Agenda({
 		}
 	}, [scaleMinutes]);
 
+	// React to external scale requests (e.g., when a new datablock is created)
+	useEffect(() => {
+		const requestedMinutes = cwpStore.requestedAgendaScaleMinutes;
+		if (requestedMinutes !== null) {
+			// Find the smallest scale preset that includes this time
+			const requiredScale = SCALE_PRESETS.find(
+				(preset) => preset >= requestedMinutes,
+			);
+			if (requiredScale && requiredScale > scaleMinutes) {
+				setScaleMinutes(requiredScale);
+			}
+			cwpStore.clearRequestedAgendaScale();
+		}
+	}, [cwpStore.requestedAgendaScaleMinutes, scaleMinutes]);
+
 	// Measure container height
 	useEffect(() => {
 		if (!containerRef) {
@@ -209,7 +233,7 @@ export default observer(function Agenda({
 	const pxPerMinute = effectiveHeight / scaleMinutes;
 
 	// Convert MTCD conflicts to timeline events
-	const datablocks: TimelineEvent[] = Array.from(mtcdConflictIds.entries()).map(
+	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictIds.entries()).map(
 		([id, conflict], index) => {
 			// Use actual conflict time if available, otherwise use placeholder
 			const conflictTime = conflict.conflictingFlightPosition?.time;
@@ -244,7 +268,32 @@ export default observer(function Agenda({
 		},
 	);
 
-	const allEvents = [...events, ...datablocks];
+	// Convert custom datablocks to timeline events
+	const customDatablockEvents: TimelineEvent[] =
+		datablockStore.allDatablocks.map((db) => {
+			// Get callsigns for the labels
+			const labels = db.aircraftIds
+				.map((id) => aircraftStore.aircrafts.get(id)?.callSign ?? id)
+				.slice(0, 2); // Limit to 2 labels
+
+			// Format separation distance for badge (convert NM to feet, format compactly)
+			const code =
+				db.closestSeparationNM !== null
+					? formatFeetCompact(convertNMToFeet(db.closestSeparationNM))
+					: undefined;
+
+			return {
+				id: db.id,
+				startMin: db.startMin,
+				code, // Show closest separation distance
+				labels,
+				aircraftIds: db.aircraftIds,
+				severity: undefined, // No severity for custom datablocks
+				eventType: "custom-datablock" as const,
+			};
+		});
+
+	const allEvents = [...events, ...mtcdEvents, ...customDatablockEvents];
 
 	// Handle range slider change
 	const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {

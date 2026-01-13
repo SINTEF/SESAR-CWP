@@ -136,6 +136,13 @@ export default class CWPStore {
 		{ deep: false },
 	);
 
+	/**
+	 * Requested minimum agenda scale in minutes.
+	 * When set, the Agenda component should adjust its scale to at least this value.
+	 * Reset to null after being consumed.
+	 */
+	requestedAgendaScaleMinutes: number | null = null;
+
 	activeMeasurements: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
@@ -632,6 +639,19 @@ export default class CWPStore {
 	/** Clear all agenda event time offsets */
 	clearAgendaEventTimeOffsets(): void {
 		this.agendaEventTimeOffsets.clear();
+	}
+
+	/**
+	 * Request the Agenda to adjust its scale to show events at the given time.
+	 * The Agenda will pick the smallest scale preset that includes this time.
+	 */
+	requestAgendaScaleToFit(timeMinutes: number): void {
+		this.requestedAgendaScaleMinutes = timeMinutes;
+	}
+
+	/** Clear the requested agenda scale (called after Agenda consumes it) */
+	clearRequestedAgendaScale(): void {
+		this.requestedAgendaScaleMinutes = null;
 	}
 
 	/**
