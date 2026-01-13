@@ -1,9 +1,18 @@
 import { observer } from "mobx-react-lite";
-import React, { memo, useCallback, useEffect, useState } from "react";
-import { setCurrentAircraftId } from "../model/CurrentAircraft";
-import { aircraftStore, cwpStore, simulatorStore } from "../state";
-import { convertMetersToFlightLevel } from "../utils";
-import { WarningIconById } from "./AircraftLabelParts";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { aircraftStore, cwpStore, simulatorStore } from "../../state";
+import { convertMetersToFlightLevel } from "../../utils";
+import TimelineEventCard from "./TimelineEventCard";
+import TimelineSeparator from "./TimelineSeparator";
+import {
+	BOTTOM_PADDING_PX,
+	EVENT_GAP_PX,
+	EVENT_HEIGHT_PX,
+	type PositionedEvent,
+	SCALE_PRESETS,
+	type ScalePreset,
+	type TimelineEvent,
+} from "./types";
 
 /**
  * VerticalTimeline — Tailwind + DaisyUI
@@ -13,28 +22,8 @@ import { WarningIconById } from "./AircraftLabelParts";
  * - Zoomable via mouse wheel or range slider.
  * - Separator lines adapt to current scale.
  * - Events have fixed height and stack vertically to avoid overlaps.
+ * - Events can be dragged up/down to adjust their time offset.
  */
-
-// Types
-export type TimelineEvent = {
-	id: string;
-	startMin: number; // minutes from now (positive = future)
-	endMin: number; // minutes from now
-	code: string | undefined; // the orange badge text
-	labels: string[]; // lines of text inside the chip
-	aircraftIds?: string[]; // optional aircraft IDs for hover functionality
-};
-
-// Scale presets in minutes (total visible window)
-const SCALE_PRESETS = [5, 10, 15, 30, 60, 120, 240] as const;
-type ScalePreset = (typeof SCALE_PRESETS)[number];
-
-// Fixed height for event labels in pixels
-const EVENT_HEIGHT_PX = 42;
-// Gap between stacked events
-const EVENT_GAP_PX = 2;
-// Bottom padding to prevent content being cropped at the bottom
-const BOTTOM_PADDING_PX = 16;
 
 /**
  * Determine separator interval based on scale
@@ -70,10 +59,6 @@ function formatTime(timestampSeconds: number): string {
 		hour12: false,
 	});
 }
-
-type PositionedEvent = TimelineEvent & {
-	bottomPx: number; // distance from container bottom in pixels
-};
 
 /**
  * Stack events vertically to avoid overlaps.
@@ -113,185 +98,6 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 }
 
 // ============================================================================
-// Memoized Sub-components for performance
-// ============================================================================
-
-type SeparatorProps = {
-	bottomPx: number;
-	time: string;
-};
-
-const TimelineSeparator = memo(function TimelineSeparator({
-	bottomPx,
-	time,
-}: SeparatorProps) {
-	return (
-		<div
-			className="absolute left-0 right-0 border-t border-base-content/20 pointer-events-none transition-[bottom] duration-300 ease-out"
-			style={{ bottom: bottomPx }}
-		>
-			<span
-				className="absolute left-1 text-[8px] bg-base-300 px-0.5 text-base-content/60 select-none"
-				style={{ transform: "translateY(-50%)" }}
-			>
-				{time}
-			</span>
-		</div>
-	);
-});
-
-type EventCardProps = {
-	event: PositionedEvent;
-};
-
-const TimelineEventCard = memo(function TimelineEventCard({
-	event,
-}: EventCardProps) {
-	// Get the aircraft ID for a given label index (if available)
-	const getAircraftId = (index: number): string | undefined => {
-		return event.aircraftIds?.[index];
-	};
-
-	const handleMouseEnter = (index: number) => {
-		const aircraftId = getAircraftId(index);
-		if (aircraftId) {
-			cwpStore.setHoveredMarkerAircraftId(aircraftId);
-			cwpStore.setFlightRouteForAircraft(aircraftId, true);
-		}
-	};
-
-	const handleMouseLeave = (index: number) => {
-		const aircraftId = getAircraftId(index);
-		if (aircraftId) {
-			cwpStore.removeHoveredMarkerAircraftId();
-			if (!cwpStore.selectedAircraftIds.has(aircraftId)) {
-				cwpStore.setFlightRouteForAircraft(aircraftId, false);
-			}
-		}
-	};
-
-	const handleClick = (index: number) => {
-		const aircraftId = getAircraftId(index);
-		if (aircraftId) {
-			const wasSelected = cwpStore.selectedAircraftIds.has(aircraftId);
-			cwpStore.toggleSelectedAircraftId(aircraftId);
-			setCurrentAircraftId(aircraftId);
-			// Clear hover state after click, like the map marker behavior
-			cwpStore.removeHoveredMarkerAircraftId();
-			// Only keep flight route visible if aircraft is now selected
-			cwpStore.setFlightRouteForAircraft(aircraftId, !wasSelected);
-		}
-	};
-
-	// Hover handlers for the badge - shows both flight routes
-	// Note: Only one aircraft can be "hovered" at a time in the current model,
-	// so we hover the first one but show both routes
-	const handleBadgeMouseEnter = () => {
-		const ids = event.aircraftIds;
-		if (ids && ids.length > 0) {
-			cwpStore.setHoveredMarkerAircraftId(ids[0]);
-			for (const id of ids) {
-				cwpStore.setFlightRouteForAircraft(id, true);
-			}
-		}
-	};
-
-	const handleBadgeMouseLeave = () => {
-		const ids = event.aircraftIds;
-		if (ids && ids.length > 0) {
-			cwpStore.removeHoveredMarkerAircraftId();
-			for (const id of ids) {
-				if (!cwpStore.selectedAircraftIds.has(id)) {
-					cwpStore.setFlightRouteForAircraft(id, false);
-				}
-			}
-		}
-	};
-
-	const handleBadgeClick = () => {
-		const ids = event.aircraftIds;
-		if (ids && ids.length > 0) {
-			// Check if all aircraft are currently selected
-			const allSelected = ids.every((id) =>
-				cwpStore.selectedAircraftIds.has(id),
-			);
-			for (const id of ids) {
-				if (allSelected) {
-					// Deselect all
-					cwpStore.selectedAircraftIds.delete(id);
-					cwpStore.setFlightRouteForAircraft(id, false);
-				} else {
-					// Select all
-					cwpStore.selectedAircraftIds.add(id);
-					cwpStore.setFlightRouteForAircraft(id, true);
-				}
-			}
-			// Set the first aircraft as current
-			setCurrentAircraftId(ids[0]);
-			// Clear hover state after click
-			cwpStore.removeHoveredMarkerAircraftId();
-		}
-	};
-
-	return (
-		<div
-			className="absolute left-1 right-1
-			rounded-lg border-2 border-white/50
-			bg-primary/40
-			shadow-sm backdrop-blur-[1px]
-			transition-[bottom] duration-300 ease-out
-			flex justify-between items-center
-			"
-			style={{
-				bottom: event.bottomPx,
-				height: EVENT_HEIGHT_PX,
-			}}
-		>
-			{/* Left badge */}
-			{event.code && (
-				<div
-					className="h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square cursor-pointer hover:brightness-110 transition-all"
-					onMouseEnter={handleBadgeMouseEnter}
-					onMouseLeave={handleBadgeMouseLeave}
-					onClick={handleBadgeClick}
-				>
-					{event.code}
-				</div>
-			)}
-
-			{/* Text */}
-			<ul className="text-[10px] flex flex-col gap-0.5 mr-1 my-1">
-				{event.labels.map((l, i) => {
-					const aircraftId = event.aircraftIds?.[i];
-					return (
-						<li key={i} className="flex gap-0.5">
-							<div
-								className="bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors"
-								onMouseEnter={() => handleMouseEnter(i)}
-								onMouseLeave={() => handleMouseLeave(i)}
-								onClick={() => handleClick(i)}
-							>
-								{l}
-							</div>
-							<div className="bg-neutral-800 flex items-center justify-center min-w-4 px-0.5">
-								{aircraftId ? (
-									<WarningIconById
-										aircraftId={aircraftId}
-										className="size-2.5"
-									/>
-								) : (
-									<span className="text-center">+</span>
-								)}
-							</div>
-						</li>
-					);
-				})}
-			</ul>
-		</div>
-	);
-});
-
-// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -303,9 +109,21 @@ export default observer(function Agenda({
 	const [scaleMinutes, setScaleMinutes] = useState<ScalePreset>(30);
 	const [containerHeight, setContainerHeight] = useState(600);
 	const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
+	const timelineContainerRef = useRef<HTMLDivElement | null>(null);
+	// Track whether we should animate positions (only on scale change, not on drag)
+	const [animatePosition, setAnimatePosition] = useState(true);
+	const prevScaleRef = useRef<ScalePreset>(scaleMinutes);
 
 	const currentTimestamp = simulatorStore.timestamp;
 	const { mtcdConflictIds } = aircraftStore;
+
+	// Enable animation only when scale changes
+	useEffect(() => {
+		if (prevScaleRef.current !== scaleMinutes) {
+			setAnimatePosition(true);
+			prevScaleRef.current = scaleMinutes;
+		}
+	}, [scaleMinutes]);
 
 	// Measure container height
 	useEffect(() => {
@@ -320,6 +138,32 @@ export default observer(function Agenda({
 		resizeObserver.observe(containerRef);
 		return () => resizeObserver.disconnect();
 	}, [containerRef]);
+
+	// Handle mouse wheel zoom with non-passive listener to allow preventDefault
+	useEffect(() => {
+		const container = timelineContainerRef.current;
+		if (!container) {
+			return;
+		}
+
+		const handleWheel = (e: WheelEvent) => {
+			e.preventDefault();
+			setScaleMinutes((current) => {
+				const currentIndex = SCALE_PRESETS.indexOf(current);
+				if (e.deltaY > 0) {
+					// Scroll down = zoom out (more minutes visible)
+					return SCALE_PRESETS[
+						Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+					];
+				}
+				// Scroll up = zoom in (fewer minutes visible)
+				return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
+			});
+		};
+
+		container.addEventListener("wheel", handleWheel, { passive: false });
+		return () => container.removeEventListener("wheel", handleWheel);
+	}, []);
 
 	// Pixels per minute based on container height (minus padding) and scale
 	const effectiveHeight = containerHeight - BOTTOM_PADDING_PX;
@@ -356,27 +200,21 @@ export default observer(function Agenda({
 
 	const allEvents = [...events, ...datablocks];
 
-	// Handle mouse wheel zoom
-	const handleWheel = useCallback((e: React.WheelEvent) => {
-		e.preventDefault();
-		setScaleMinutes((current) => {
-			const currentIndex = SCALE_PRESETS.indexOf(current);
-			if (e.deltaY > 0) {
-				// Scroll down = zoom out (more minutes visible)
-				return SCALE_PRESETS[
-					Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
-				];
-			}
-			// Scroll up = zoom in (fewer minutes visible)
-			return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
-		});
-	}, []);
-
 	// Handle range slider change
 	const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const index = Number.parseInt(e.target.value, 10);
 		setScaleMinutes(SCALE_PRESETS[index]);
 	};
+
+	// Handle time offset changes from dragging events
+	const handleTimeOffsetChange = useCallback(
+		(eventId: string, offsetMin: number) => {
+			// Disable animation when dragging completes to prevent jarring movement
+			setAnimatePosition(false);
+			cwpStore.setAgendaEventTimeOffset(eventId, offsetMin);
+		},
+		[],
+	);
 
 	// Calculate separator lines with smooth scrolling
 	// Separators are positioned relative to "now" (exact current time)
@@ -418,7 +256,14 @@ export default observer(function Agenda({
 	}
 
 	// Prepare event positions in pixels (filter events within time range)
+	// Apply time offsets from cwpStore
 	const eventPositions: PositionedEvent[] = allEvents
+		.map((ev) => {
+			// Apply the stored time offset
+			const timeOffset = cwpStore.getAgendaEventTimeOffset(ev.id);
+			const adjustedStartMin = ev.startMin + timeOffset;
+			return { ...ev, startMin: adjustedStartMin };
+		})
 		.filter((ev) => ev.startMin >= 0 && ev.startMin <= scaleMinutes)
 		.map((ev) => {
 			// Position from bottom in pixels, with bottom padding offset
@@ -458,9 +303,11 @@ export default observer(function Agenda({
 
 			{/* Timeline container - fills remaining height */}
 			<div
-				ref={setContainerRef}
+				ref={(el) => {
+					setContainerRef(el);
+					timelineContainerRef.current = el;
+				}}
 				className="relative flex-1 overflow-hidden"
-				onWheel={handleWheel}
 			>
 				{/* Separator lines with time labels */}
 				{separators.map(({ bottomPx, time, minuteKey }) => (
@@ -469,9 +316,19 @@ export default observer(function Agenda({
 
 				{/* Events with fixed height, positioned absolutely */}
 				{visibleEvents.map((ev) => (
-					<TimelineEventCard key={ev.id} event={ev} />
+					<TimelineEventCard
+						key={ev.id}
+						event={ev}
+						timeOffsetMin={cwpStore.getAgendaEventTimeOffset(ev.id)}
+						pxPerMinute={pxPerMinute}
+						onTimeOffsetChange={handleTimeOffsetChange}
+						animatePosition={animatePosition}
+					/>
 				))}
 			</div>
 		</div>
 	);
 });
+
+// Re-export types for external use
+export type { TimelineEvent } from "./types";

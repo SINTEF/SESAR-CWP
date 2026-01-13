@@ -130,6 +130,12 @@ export default class CWPStore {
 		{ deep: false },
 	);
 
+	/** Time offsets for agenda events in minutes (positive = moved into future) */
+	agendaEventTimeOffsets: ObservableMap<string, number> = observable.map(
+		undefined,
+		{ deep: false },
+	);
+
 	activeMeasurements: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
@@ -606,6 +612,26 @@ export default class CWPStore {
 	/** Clear the next fix preview */
 	clearNextFixPreview(): void {
 		this.nextFixPreview = null;
+	}
+
+	/** Set the time offset for an agenda event (in minutes, positive = future) */
+	setAgendaEventTimeOffset(eventId: string, offsetMinutes: number): void {
+		if (Math.abs(offsetMinutes) < 0.1) {
+			// Clear offset if effectively zero
+			this.agendaEventTimeOffsets.delete(eventId);
+		} else {
+			this.agendaEventTimeOffsets.set(eventId, offsetMinutes);
+		}
+	}
+
+	/** Get the time offset for an agenda event (in minutes) */
+	getAgendaEventTimeOffset(eventId: string): number {
+		return this.agendaEventTimeOffsets.get(eventId) ?? 0;
+	}
+
+	/** Clear all agenda event time offsets */
+	clearAgendaEventTimeOffsets(): void {
+		this.agendaEventTimeOffsets.clear();
 	}
 
 	/**
