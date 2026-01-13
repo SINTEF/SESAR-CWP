@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { memo, useCallback, useEffect, useState } from "react";
+import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import { aircraftStore, cwpStore, simulatorStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 import { WarningIconById } from "./AircraftLabelParts";
@@ -169,6 +170,19 @@ const TimelineEventCard = memo(function TimelineEventCard({
 		}
 	};
 
+	const handleClick = (index: number) => {
+		const aircraftId = getAircraftId(index);
+		if (aircraftId) {
+			const wasSelected = cwpStore.selectedAircraftIds.has(aircraftId);
+			cwpStore.toggleSelectedAircraftId(aircraftId);
+			setCurrentAircraftId(aircraftId);
+			// Clear hover state after click, like the map marker behavior
+			cwpStore.removeHoveredMarkerAircraftId();
+			// Only keep flight route visible if aircraft is now selected
+			cwpStore.setFlightRouteForAircraft(aircraftId, !wasSelected);
+		}
+	};
+
 	// Hover handlers for the badge - shows both flight routes
 	// Note: Only one aircraft can be "hovered" at a time in the current model,
 	// so we hover the first one but show both routes
@@ -229,6 +243,7 @@ const TimelineEventCard = memo(function TimelineEventCard({
 								className="bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors"
 								onMouseEnter={() => handleMouseEnter(i)}
 								onMouseLeave={() => handleMouseLeave(i)}
+								onClick={() => handleClick(i)}
 							>
 								{l}
 							</div>
