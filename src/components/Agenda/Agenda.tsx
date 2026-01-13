@@ -1,6 +1,12 @@
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { aircraftStore, cwpStore, simulatorStore } from "../../state";
+import { createPairKey } from "../../model/DatablockStore";
+import {
+	aircraftStore,
+	cwpStore,
+	datablockStore,
+	simulatorStore,
+} from "../../state";
 import { convertMetersToFlightLevel } from "../../utils";
 import TimelineEventCard from "./TimelineEventCard";
 import TimelineSeparator from "./TimelineSeparator";
@@ -209,7 +215,7 @@ export default observer(function Agenda({
 	const pxPerMinute = effectiveHeight / scaleMinutes;
 
 	// Convert MTCD conflicts to timeline events
-	const datablocks: TimelineEvent[] = Array.from(mtcdConflictIds.entries()).map(
+	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictIds.entries()).map(
 		([id, conflict], index) => {
 			// Use actual conflict time if available, otherwise use placeholder
 			const conflictTime = conflict.conflictingFlightPosition?.time;
@@ -244,7 +250,39 @@ export default observer(function Agenda({
 		},
 	);
 
-	const allEvents = [...events, ...datablocks];
+	// Build set of pair keys from MTCD conflicts for fast lookup
+	const mtcdPairKeys = new Set(
+		Array.from(mtcdConflictIds.values()).map((conflict) =>
+			createPairKey(conflict.flightId, conflict.conflictingFlightId),
+		),
+	);
+
+	// Remove any custom datablocks that now have MTCD conflicts (MTCD takes priority)
+	for (const pairKey of datablockStore.existingPairKeys) {
+		if (mtcdPairKeys.has(pairKey)) {
+			datablockStore.removeByPairKey(pairKey);
+		}
+	}
+
+	// Convert custom datablocks to timeline events (after MTCD override check)
+	const customDatablockEvents: TimelineEvent[] =
+		datablockStore.allDatablocks.map((db) => {
+			// Get callsigns for the labels
+			const labels = db.aircraftIds
+				.map((id) => aircraftStore.aircrafts.get(id)?.callSign ?? id)
+				.slice(0, 2); // Limit to 2 labels
+
+			return {
+				id: db.id,
+				startMin: db.startMin,
+				code: undefined, // No flight level badge for custom datablocks
+				labels,
+				aircraftIds: db.aircraftIds,
+				severity: undefined, // No severity for custom datablocks (neutral color)
+			};
+		});
+
+	const allEvents = [...events, ...mtcdEvents, ...customDatablockEvents];
 
 	// Handle range slider change
 	const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -3,6 +3,7 @@ import AircraftStore from "./model/AircraftStore";
 import AirspaceStore from "./model/AirspaceStore";
 import ConfigurationStore from "./model/ConfigurationStore";
 import CWPStore from "./model/CwpStore";
+import DatablockStore from "./model/DatablockStore";
 import DistanceLine from "./model/DistanceLine";
 import FixStore from "./model/FixStore";
 import PopupLinesStore from "./model/PopupLinesStore";
@@ -28,6 +29,7 @@ export const aircraftStore = new AircraftStore({
 	sectorStore,
 });
 export const fixStore = new FixStore();
+export const datablockStore = new DatablockStore();
 export const distanceLineStore = new DistanceLine();
 export const cwpStore = new CWPStore({
 	altitudeFilter: {
@@ -67,6 +69,7 @@ window.mobxDebugStores = {
 	airspaceStore,
 	sectorStore,
 	fixStore,
+	datablockStore,
 	distanceLineStore,
 	cwpStore,
 	configurationStore,

@@ -428,6 +428,21 @@ export default class AircraftStore {
 	}
 
 	/**
+	 * Check if a pair of aircraft has an MTCD conflict.
+	 */
+	hasMtcdConflictForPair(id1: string, id2: string): boolean {
+		for (const msg of this.mtcdConflictIds.values()) {
+			if (
+				(msg.flightId === id1 && msg.conflictingFlightId === id2) ||
+				(msg.flightId === id2 && msg.conflictingFlightId === id1)
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Find the nearest aircraft to a screen position within a pixel threshold
 	 * @param mouseScreenX Screen X coordinate in pixels
 	 * @param mouseScreenY Screen Y coordinate in pixels

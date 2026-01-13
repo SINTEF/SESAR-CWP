@@ -11,6 +11,7 @@ import {
 	aircraftStore,
 	configurationStore,
 	cwpStore,
+	datablockStore,
 	sepQdmStore,
 } from "../state";
 
@@ -166,6 +167,42 @@ export default observer(function ATCMenu(properties: {
 		handleMeasurementClick("qdm");
 	};
 
+	// +DB button logic: need exactly 1 other aircraft selected to form a pair
+	const otherSelectedId = Array.from(cwpStore.selectedAircraftIds).find(
+		(id) => id !== aircraftId,
+	);
+	const hasExactlyOneOther =
+		cwpStore.selectedAircraftIds.size === 1 ||
+		(cwpStore.selectedAircraftIds.size === 2 &&
+			cwpStore.selectedAircraftIds.has(aircraftId));
+
+	// Check if we can create: need a valid pair that doesn't already exist
+	const canCreateDatablock =
+		hasExactlyOneOther &&
+		otherSelectedId !== undefined &&
+		!datablockStore.hasPair(aircraftId, otherSelectedId) &&
+		!aircraftStore.hasMtcdConflictForPair(aircraftId, otherSelectedId);
+
+	const handleDatablockClick = (): void => {
+		if (!canCreateDatablock || !otherSelectedId) {
+			return;
+		}
+
+		const aircraftIds = [aircraftId, otherSelectedId];
+		datablockStore.createDatablock(aircraftIds);
+
+		posthog?.capture("atc_menu_action", {
+			action: "create_datablock",
+			aircraft_ids: aircraftIds,
+			callsigns: aircraftIds
+				.map((id) => aircraftStore.aircrafts.get(id)?.callSign)
+				.filter(Boolean),
+			current_cwp: configurationStore.currentCWP,
+		});
+
+		cwpStore.clearATCMenuAircraftId();
+	};
+
 	return (
 		<div className="bg-neutral-900/60 p-2.5 w-30 ml-1 rounded-b-sm text-gray-200 font-sans flex flex-col items-center border-t border-t-neutral-800">
 			<div className="space-y-2 w-full">
@@ -219,6 +256,15 @@ export default observer(function ATCMenu(properties: {
 					className="btn btn-xs btn-primary w-full rounded-xs"
 				>
 					QDM
+				</button>
+				<hr className="border-t-2 border-neutral-700 w-full" />
+				<button
+					onClick={handleDatablockClick}
+					className={`btn btn-xs btn-primary w-full rounded-xs ${!canCreateDatablock ? "opacity-50 cursor-not-allowed" : ""}`}
+					disabled={!canCreateDatablock}
+					title="Create datablock with selected aircraft pair"
+				>
+					+DB
 				</button>
 			</div>
 		</div>
