@@ -31,6 +31,10 @@ export const aircraftStore = new AircraftStore({
 export const fixStore = new FixStore();
 export const datablockStore = new DatablockStore();
 export const distanceLineStore = new DistanceLine();
+
+// Wire up datablockStore to aircraftStore for MTCD override logic
+aircraftStore.setDatablockStore(datablockStore);
+
 export const cwpStore = new CWPStore({
 	altitudeFilter: {
 		lowestBound: 285,

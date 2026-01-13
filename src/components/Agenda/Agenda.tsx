@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createPairKey } from "../../model/DatablockStore";
 import {
 	aircraftStore,
 	cwpStore,
@@ -250,21 +249,7 @@ export default observer(function Agenda({
 		},
 	);
 
-	// Build set of pair keys from MTCD conflicts for fast lookup
-	const mtcdPairKeys = new Set(
-		Array.from(mtcdConflictIds.values()).map((conflict) =>
-			createPairKey(conflict.flightId, conflict.conflictingFlightId),
-		),
-	);
-
-	// Remove any custom datablocks that now have MTCD conflicts (MTCD takes priority)
-	for (const pairKey of datablockStore.existingPairKeys) {
-		if (mtcdPairKeys.has(pairKey)) {
-			datablockStore.removeByPairKey(pairKey);
-		}
-	}
-
-	// Convert custom datablocks to timeline events (after MTCD override check)
+	// Convert custom datablocks to timeline events
 	const customDatablockEvents: TimelineEvent[] =
 		datablockStore.allDatablocks.map((db) => {
 			// Get callsigns for the labels
