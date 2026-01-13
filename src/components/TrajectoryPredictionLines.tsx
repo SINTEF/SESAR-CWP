@@ -15,11 +15,12 @@ function buildPredictedTrajectories(
 	futureTime: number,
 	mouseLat: number,
 	mouseLon: number,
+	showReferenceLine: boolean,
 ): GeoJSON.Feature[] {
 	const features: GeoJSON.Feature[] = [];
 
-	// Add dotted line from main aircraft to mouse position
-	if (mainAircraftId) {
+	// Add dotted line from main aircraft to mouse position (only for map drag, not timeline)
+	if (showReferenceLine && mainAircraftId) {
 		const mainAircraft = selectedAircrafts.find(
 			(a) => a.aircraftId === mainAircraftId,
 		);
@@ -128,8 +129,23 @@ export default observer(function TrajectoryPredictionLines() {
 		return null;
 	}
 
-	// Get all selected aircraft
-	const selectedAircrafts = [...cwpStore.selectedAircraftIds]
+	// Check if this is a timeline drag (overrideTime is set) or a map drag
+	const isTimelineDrag = trajectoryPredictionStore.overrideTime !== null;
+
+	// Get aircraft for trajectory prediction:
+	// - For timeline drag: merge timelineDragAircraftIds with selectedAircraftIds
+	//   (shows both the card's aircraft and any already-selected aircraft)
+	// - For map drag: use cwpStore.selectedAircraftIds only
+	const aircraftIds = isTimelineDrag
+		? [
+				...new Set([
+					...trajectoryPredictionStore.timelineDragAircraftIds,
+					...cwpStore.selectedAircraftIds,
+				]),
+			]
+		: [...cwpStore.selectedAircraftIds];
+
+	const selectedAircrafts = aircraftIds
 		.map((aircraftId) => aircraftStore.aircrafts.get(aircraftId))
 		.filter((aircraft): aircraft is AircraftModel => aircraft !== undefined);
 
@@ -137,10 +153,14 @@ export default observer(function TrajectoryPredictionLines() {
 		return null;
 	}
 
-	if (!isDragging) {
-		// Don't render while dragging to avoid flickering
+	// For map drag, require isDragging from DraggingContext
+	// For timeline drag, we rely on the store's enabled state
+	if (!isTimelineDrag && !isDragging) {
 		return null;
 	}
+
+	// Show reference line only for map drag (we don't have mouse position for timeline drag)
+	const showReferenceLine = !isTimelineDrag;
 
 	const features = buildPredictedTrajectories(
 		selectedAircrafts,
@@ -148,6 +168,7 @@ export default observer(function TrajectoryPredictionLines() {
 		trajectoryPredictionStore.computedFutureTime,
 		trajectoryPredictionStore.mouseLat,
 		trajectoryPredictionStore.mouseLon,
+		showReferenceLine,
 	);
 
 	// Separate features into dotted and solid lines

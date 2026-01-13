@@ -1,7 +1,21 @@
 import { observer } from "mobx-react-lite";
-import React, { memo, useCallback, useEffect, useState } from "react";
-import { aircraftStore, simulatorStore } from "../state";
-import { convertMetersToFlightLevel } from "../utils";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { aircraftStore, cwpStore, simulatorStore } from "../../state";
+import { convertMetersToFlightLevel } from "../../utils";
+import TimelineEventCard from "./TimelineEventCard";
+import TimelineSeparator from "./TimelineSeparator";
+import {
+	BOTTOM_PADDING_PX,
+	EVENT_GAP_PX,
+	EVENT_HEIGHT_PX,
+	type PositionedEvent,
+	SCALE_PRESETS,
+	type ScalePreset,
+	type TimelineEvent,
+} from "./types";
+
+/** Placeholder interval between conflicts when real time is unavailable (5 minutes in seconds) */
+const PLACEHOLDER_CONFLICT_INTERVAL_SEC = 5 * 60;
 
 /**
  * VerticalTimeline — Tailwind + DaisyUI
@@ -11,27 +25,8 @@ import { convertMetersToFlightLevel } from "../utils";
  * - Zoomable via mouse wheel or range slider.
  * - Separator lines adapt to current scale.
  * - Events have fixed height and stack vertically to avoid overlaps.
+ * - Events can be dragged up/down to adjust their time offset.
  */
-
-// Types
-export type TimelineEvent = {
-	id: string;
-	startMin: number; // minutes from now (positive = future)
-	endMin: number; // minutes from now
-	code: string | undefined; // the orange badge text
-	labels: string[]; // lines of text inside the chip
-};
-
-// Scale presets in minutes (total visible window)
-const SCALE_PRESETS = [5, 10, 15, 30, 60, 120, 240] as const;
-type ScalePreset = (typeof SCALE_PRESETS)[number];
-
-// Fixed height for event labels in pixels
-const EVENT_HEIGHT_PX = 42;
-// Gap between stacked events
-const EVENT_GAP_PX = 2;
-// Bottom padding to prevent content being cropped at the bottom
-const BOTTOM_PADDING_PX = 16;
 
 /**
  * Determine separator interval based on scale
@@ -68,10 +63,6 @@ function formatTime(timestampSeconds: number): string {
 	});
 }
 
-type PositionedEvent = TimelineEvent & {
-	bottomPx: number; // distance from container bottom in pixels
-};
-
 /**
  * Stack events vertically to avoid overlaps.
  * Events are positioned from bottom (now) upward (future).
@@ -103,82 +94,12 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 			}
 		}
 
+		// Preserve originalBottomPx for time calculation, only update display position
 		result.push({ ...event, bottomPx: adjustedBottom });
 	}
 
 	return result;
 }
-
-// ============================================================================
-// Memoized Sub-components for performance
-// ============================================================================
-
-type SeparatorProps = {
-	bottomPx: number;
-	time: string;
-};
-
-const TimelineSeparator = memo(function TimelineSeparator({
-	bottomPx,
-	time,
-}: SeparatorProps) {
-	return (
-		<div
-			className="absolute left-0 right-0 border-t border-base-content/20 pointer-events-none transition-[bottom] duration-300 ease-out"
-			style={{ bottom: bottomPx }}
-		>
-			<span
-				className="absolute left-1 text-[8px] bg-base-300 px-0.5 text-base-content/60 select-none"
-				style={{ transform: "translateY(-50%)" }}
-			>
-				{time}
-			</span>
-		</div>
-	);
-});
-
-type EventCardProps = {
-	event: PositionedEvent;
-};
-
-const TimelineEventCard = memo(function TimelineEventCard({
-	event,
-}: EventCardProps) {
-	return (
-		<div
-			className="absolute left-1 right-1
-			rounded-lg border-2 border-white/50
-			bg-primary/40
-			shadow-sm backdrop-blur-[1px]
-			transition-[bottom] duration-300 ease-out
-			flex justify-between items-center
-			"
-			style={{
-				bottom: event.bottomPx,
-				height: EVENT_HEIGHT_PX,
-			}}
-		>
-			{/* Left badge */}
-			{event.code && (
-				<div className="h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square">
-					{event.code}
-				</div>
-			)}
-
-			{/* Text */}
-			<ul className="text-[10px] flex flex-col gap-0.5 mr-1 my-1">
-				{event.labels.map((l, i) => (
-					<li key={i} className="flex gap-0.5">
-						<div className="bg-neutral-800 pl-0.75 min-w-15 font-bold">{l}</div>
-						<div className="bg-neutral-800 aspect-square block min-w-3 text-center">
-							+
-						</div>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-});
 
 // ============================================================================
 // Main Component
@@ -192,9 +113,23 @@ export default observer(function Agenda({
 	const [scaleMinutes, setScaleMinutes] = useState<ScalePreset>(30);
 	const [containerHeight, setContainerHeight] = useState(600);
 	const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
+	const timelineContainerRef = useRef<HTMLDivElement | null>(null);
+	// Track whether we should animate positions (only on scale change, not on drag)
+	const [animatePosition, setAnimatePosition] = useState(true);
+	const prevScaleRef = useRef<ScalePreset>(scaleMinutes);
+	// Track if any card is being dragged (to disable hover on other cards)
+	const [isDraggingAny, setIsDraggingAny] = useState(false);
 
 	const currentTimestamp = simulatorStore.timestamp;
 	const { mtcdConflictIds } = aircraftStore;
+
+	// Enable animation only when scale changes
+	useEffect(() => {
+		if (prevScaleRef.current !== scaleMinutes) {
+			setAnimatePosition(true);
+			prevScaleRef.current = scaleMinutes;
+		}
+	}, [scaleMinutes]);
 
 	// Measure container height
 	useEffect(() => {
@@ -210,6 +145,65 @@ export default observer(function Agenda({
 		return () => resizeObserver.disconnect();
 	}, [containerRef]);
 
+	// Handle mouse wheel zoom with non-passive listener to allow preventDefault
+	// Uses threshold-based accumulation to smooth trackpad scrolling while
+	// allowing quick mouse wheel notches
+	useEffect(() => {
+		const container = timelineContainerRef.current;
+		if (!container) {
+			return;
+		}
+
+		let accumulatedDelta = 0;
+		let resetTimeout: ReturnType<typeof setTimeout> | null = null;
+		const THRESHOLD = 30; // Mouse wheel notches are ~100-120, trackpad events are small
+		const RESET_TIMEOUT_MS = 150; // Reset accumulated delta after pause
+
+		const handleWheel = (e: WheelEvent) => {
+			e.preventDefault();
+
+			// Clear any existing reset timeout
+			if (resetTimeout) {
+				clearTimeout(resetTimeout);
+			}
+
+			// Accumulate the delta
+			accumulatedDelta += e.deltaY;
+
+			// Check if we've accumulated enough to trigger a scale change
+			if (Math.abs(accumulatedDelta) >= THRESHOLD) {
+				const direction = accumulatedDelta > 0 ? 1 : -1;
+				// Reset accumulator after triggering
+				accumulatedDelta = 0;
+
+				setScaleMinutes((current) => {
+					const currentIndex = SCALE_PRESETS.indexOf(current);
+					if (direction > 0) {
+						// Scroll down = zoom out (more minutes visible)
+						return SCALE_PRESETS[
+							Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+						];
+					}
+					// Scroll up = zoom in (fewer minutes visible)
+					return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
+				});
+			}
+
+			// Reset accumulator after a pause in scrolling
+			resetTimeout = setTimeout(() => {
+				accumulatedDelta = 0;
+			}, RESET_TIMEOUT_MS);
+		};
+
+		container.addEventListener("wheel", handleWheel, { passive: false });
+		return () => {
+			container.removeEventListener("wheel", handleWheel);
+			if (resetTimeout) {
+				clearTimeout(resetTimeout);
+			}
+		};
+	}, []);
+
 	// Pixels per minute based on container height (minus padding) and scale
 	const effectiveHeight = containerHeight - BOTTOM_PADDING_PX;
 	const pxPerMinute = effectiveHeight / scaleMinutes;
@@ -221,14 +215,13 @@ export default observer(function Agenda({
 			const conflictTime = conflict.conflictingFlightPosition?.time;
 			const conflictTimestamp = conflictTime
 				? Number(conflictTime.seconds)
-				: currentTimestamp + (index + 1) * 5 * 60; // Placeholder: 5min intervals
+				: currentTimestamp + (index + 1) * PLACEHOLDER_CONFLICT_INTERVAL_SEC;
 
 			const minutesFromNow = (conflictTimestamp - currentTimestamp) / 60;
 
 			return {
 				id: id,
 				startMin: minutesFromNow,
-				endMin: minutesFromNow + 2, // Event duration placeholder
 				code:
 					conflict.conflictingFlightPosition?.altitude !== undefined
 						? String(
@@ -238,33 +231,28 @@ export default observer(function Agenda({
 							)
 						: undefined,
 				labels: [conflict.callSign, conflict.conflictingFlightCallSign],
+				aircraftIds: [conflict.flightId, conflict.conflictingFlightId],
 			};
 		},
 	);
 
 	const allEvents = [...events, ...datablocks];
 
-	// Handle mouse wheel zoom
-	const handleWheel = useCallback((e: React.WheelEvent) => {
-		e.preventDefault();
-		setScaleMinutes((current) => {
-			const currentIndex = SCALE_PRESETS.indexOf(current);
-			if (e.deltaY > 0) {
-				// Scroll down = zoom out (more minutes visible)
-				return SCALE_PRESETS[
-					Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
-				];
-			}
-			// Scroll up = zoom in (fewer minutes visible)
-			return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
-		});
-	}, []);
-
 	// Handle range slider change
 	const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const index = Number.parseInt(e.target.value, 10);
 		setScaleMinutes(SCALE_PRESETS[index]);
 	};
+
+	// Handle time offset changes from dragging events
+	const handleTimeOffsetChange = useCallback(
+		(eventId: string, offsetMin: number) => {
+			// Disable animation when dragging completes to prevent jarring movement
+			setAnimatePosition(false);
+			cwpStore.setAgendaEventTimeOffset(eventId, offsetMin);
+		},
+		[],
+	);
 
 	// Calculate separator lines with smooth scrolling
 	// Separators are positioned relative to "now" (exact current time)
@@ -306,12 +294,20 @@ export default observer(function Agenda({
 	}
 
 	// Prepare event positions in pixels (filter events within time range)
+	// Apply time offsets from cwpStore
 	const eventPositions: PositionedEvent[] = allEvents
+		.map((ev) => {
+			// Apply the stored time offset
+			const timeOffset = cwpStore.getAgendaEventTimeOffset(ev.id);
+			const adjustedStartMin = ev.startMin + timeOffset;
+			return { ...ev, startMin: adjustedStartMin };
+		})
 		.filter((ev) => ev.startMin >= 0 && ev.startMin <= scaleMinutes)
 		.map((ev) => {
 			// Position from bottom in pixels, with bottom padding offset
 			const bottomPx = ev.startMin * pxPerMinute + BOTTOM_PADDING_PX;
-			return { ...ev, bottomPx };
+			// Store original position for accurate time offset calculation during drag
+			return { ...ev, bottomPx, originalBottomPx: bottomPx };
 		});
 
 	// Stack events to avoid overlaps
@@ -346,9 +342,11 @@ export default observer(function Agenda({
 
 			{/* Timeline container - fills remaining height */}
 			<div
-				ref={setContainerRef}
+				ref={(el) => {
+					setContainerRef(el);
+					timelineContainerRef.current = el;
+				}}
 				className="relative flex-1 overflow-hidden"
-				onWheel={handleWheel}
 			>
 				{/* Separator lines with time labels */}
 				{separators.map(({ bottomPx, time, minuteKey }) => (
@@ -357,9 +355,21 @@ export default observer(function Agenda({
 
 				{/* Events with fixed height, positioned absolutely */}
 				{visibleEvents.map((ev) => (
-					<TimelineEventCard key={ev.id} event={ev} />
+					<TimelineEventCard
+						key={ev.id}
+						event={ev}
+						timeOffsetMin={cwpStore.getAgendaEventTimeOffset(ev.id)}
+						pxPerMinute={pxPerMinute}
+						onTimeOffsetChange={handleTimeOffsetChange}
+						animatePosition={animatePosition}
+						isDraggingAny={isDraggingAny}
+						setIsDraggingAny={setIsDraggingAny}
+					/>
 				))}
 			</div>
 		</div>
 	);
 });
+
+// Re-export types for external use
+export type { TimelineEvent } from "./types";

@@ -71,6 +71,12 @@ export default class DistanceLine {
 		}
 	}
 
+	/** Clear all distance measurement markers */
+	reset(): void {
+		this.markers.clear();
+		this.markersCounter = 0;
+	}
+
 	get measureLines(): GeoJSON.FeatureCollection<
 		GeoJSON.LineString,
 		{

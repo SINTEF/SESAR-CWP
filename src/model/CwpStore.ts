@@ -130,6 +130,12 @@ export default class CWPStore {
 		{ deep: false },
 	);
 
+	/** Time offsets for agenda events in minutes (positive = moved into future) */
+	agendaEventTimeOffsets: ObservableMap<string, number> = observable.map(
+		undefined,
+		{ deep: false },
+	);
+
 	activeMeasurements: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
@@ -606,5 +612,62 @@ export default class CWPStore {
 	/** Clear the next fix preview */
 	clearNextFixPreview(): void {
 		this.nextFixPreview = null;
+	}
+
+	/** Set the time offset for an agenda event (in minutes, positive = future) */
+	setAgendaEventTimeOffset(eventId: string, offsetMinutes: number): void {
+		if (Math.abs(offsetMinutes) < 0.1) {
+			// Clear offset if effectively zero
+			this.agendaEventTimeOffsets.delete(eventId);
+		} else {
+			this.agendaEventTimeOffsets.set(eventId, offsetMinutes);
+		}
+	}
+
+	/** Get the time offset for an agenda event (in minutes) */
+	getAgendaEventTimeOffset(eventId: string): number {
+		return this.agendaEventTimeOffsets.get(eventId) ?? 0;
+	}
+
+	/** Clear all agenda event time offsets */
+	clearAgendaEventTimeOffsets(): void {
+		this.agendaEventTimeOffsets.clear();
+	}
+
+	/**
+	 * Reset all per-aircraft UI state (selections, warnings, popups).
+	 * Called by the RESET button in ImageConfiguration.
+	 * Does NOT reset display toggles (speed vectors, fixes, etc.) or SEP/QDM/MTCD state.
+	 */
+	resetUIState(): void {
+		// Clear per-aircraft state
+		this.selectedAircraftIds.clear();
+		this.aircraftWarningLevels.clear();
+		this.aircraftsWithSpeedVectors.clear();
+		this.aircraftsWithFlightRoutes.clear();
+		this.aircraftsWithManuallyOpenedPopup.clear();
+		this.aircraftsWithManuallyClosedPopup.clear();
+		this.aircraftsWithLevelPopup.clear();
+		this.aircraftsWithSectorPopup.clear();
+		this.aircraftsWithBearingPopup.clear();
+		this.aircraftsWithNextFixPopup.clear();
+		this.aircraftWithSpeedChangePopup.clear();
+
+		// Clear hover and highlight state
+		this.highlightedAircraftId = "";
+		this.ATCMenuAircraftId = "";
+		this.hoveredMarkerAircraftId = null;
+		this.hoveredFlightLabelId = null;
+		this.hoveredTaLabelAircraftId = null;
+		this.taArrowClickedAircraftId = null;
+
+		// Clear next fix preview
+		this.nextFixPreview = null;
+
+		// Clear highlighted aircraft timeout if active
+		if (this.highligtedAircraftIdTimeoutId !== 0) {
+			window.clearTimeout(this.highligtedAircraftIdTimeoutId);
+			this.highligtedAircraftIdTimeoutId = 0;
+		}
 	}
 }
