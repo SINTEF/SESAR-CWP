@@ -140,14 +140,25 @@ export default observer(function Agenda({
 	}, [containerRef]);
 
 	// Handle mouse wheel zoom with non-passive listener to allow preventDefault
+	// Uses debouncing to prevent trackpad scroll from jumping through all presets
 	useEffect(() => {
 		const container = timelineContainerRef.current;
 		if (!container) {
 			return;
 		}
 
+		let lastScaleChangeTime = 0;
+		const DEBOUNCE_MS = 200; // Minimum time between scale changes
+
 		const handleWheel = (e: WheelEvent) => {
 			e.preventDefault();
+
+			const now = Date.now();
+			if (now - lastScaleChangeTime < DEBOUNCE_MS) {
+				return; // Ignore wheel events that come too quickly
+			}
+
+			lastScaleChangeTime = now;
 			setScaleMinutes((current) => {
 				const currentIndex = SCALE_PRESETS.indexOf(current);
 				if (e.deltaY > 0) {
