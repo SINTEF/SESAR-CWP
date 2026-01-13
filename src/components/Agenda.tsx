@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { aircraftStore, simulatorStore } from "../state";
+import { aircraftStore, cwpStore, simulatorStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 
 /**
@@ -20,6 +20,7 @@ export type TimelineEvent = {
 	endMin: number; // minutes from now
 	code: string | undefined; // the orange badge text
 	labels: string[]; // lines of text inside the chip
+	aircraftIds?: string[]; // optional aircraft IDs for hover functionality
 };
 
 // Scale presets in minutes (total visible window)
@@ -144,6 +145,54 @@ type EventCardProps = {
 const TimelineEventCard = memo(function TimelineEventCard({
 	event,
 }: EventCardProps) {
+	// Get the aircraft ID for a given label index (if available)
+	const getAircraftId = (index: number): string | undefined => {
+		return event.aircraftIds?.[index];
+	};
+
+	const handleMouseEnter = (index: number) => {
+		const aircraftId = getAircraftId(index);
+		if (aircraftId) {
+			cwpStore.setHoveredMarkerAircraftId(aircraftId);
+			cwpStore.setFlightRouteForAircraft(aircraftId, true);
+		}
+	};
+
+	const handleMouseLeave = (index: number) => {
+		const aircraftId = getAircraftId(index);
+		if (aircraftId) {
+			cwpStore.removeHoveredMarkerAircraftId();
+			if (!cwpStore.selectedAircraftIds.has(aircraftId)) {
+				cwpStore.setFlightRouteForAircraft(aircraftId, false);
+			}
+		}
+	};
+
+	// Hover handlers for the badge - shows both flight routes
+	// Note: Only one aircraft can be "hovered" at a time in the current model,
+	// so we hover the first one but show both routes
+	const handleBadgeMouseEnter = () => {
+		const ids = event.aircraftIds;
+		if (ids && ids.length > 0) {
+			cwpStore.setHoveredMarkerAircraftId(ids[0]);
+			for (const id of ids) {
+				cwpStore.setFlightRouteForAircraft(id, true);
+			}
+		}
+	};
+
+	const handleBadgeMouseLeave = () => {
+		const ids = event.aircraftIds;
+		if (ids && ids.length > 0) {
+			cwpStore.removeHoveredMarkerAircraftId();
+			for (const id of ids) {
+				if (!cwpStore.selectedAircraftIds.has(id)) {
+					cwpStore.setFlightRouteForAircraft(id, false);
+				}
+			}
+		}
+	};
+
 	return (
 		<div
 			className="absolute left-1 right-1
@@ -160,7 +209,11 @@ const TimelineEventCard = memo(function TimelineEventCard({
 		>
 			{/* Left badge */}
 			{event.code && (
-				<div className="h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square">
+				<div
+					className="h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square cursor-pointer hover:brightness-110 transition-all"
+					onMouseEnter={handleBadgeMouseEnter}
+					onMouseLeave={handleBadgeMouseLeave}
+				>
 					{event.code}
 				</div>
 			)}
@@ -169,7 +222,13 @@ const TimelineEventCard = memo(function TimelineEventCard({
 			<ul className="text-[10px] flex flex-col gap-0.5 mr-1 my-1">
 				{event.labels.map((l, i) => (
 					<li key={i} className="flex gap-0.5">
-						<div className="bg-neutral-800 pl-0.75 min-w-15 font-bold">{l}</div>
+						<div
+							className="bg-neutral-800 pl-0.75 min-w-15 font-bold cursor-pointer hover:bg-neutral-700 transition-colors"
+							onMouseEnter={() => handleMouseEnter(i)}
+							onMouseLeave={() => handleMouseLeave(i)}
+						>
+							{l}
+						</div>
 						<div className="bg-neutral-800 aspect-square block min-w-3 text-center">
 							+
 						</div>
@@ -238,6 +297,7 @@ export default observer(function Agenda({
 							)
 						: undefined,
 				labels: [conflict.callSign, conflict.conflictingFlightCallSign],
+				aircraftIds: [conflict.flightId, conflict.conflictingFlightId],
 			};
 		},
 	);

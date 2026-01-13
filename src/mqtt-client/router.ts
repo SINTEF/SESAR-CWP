@@ -77,7 +77,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/status/time": newSimulatorTime,
 	"ats/:clientId/status/:status": ignored,
 	"ats/:clientId/logs": simulatorLogs,
-	"ats/:clientId/data/flight-conflicts/:flightUniqueId1/:flightUniqueId2":
+	"ats/:clientId/data/flight-conflicts/:conflictType/:flightUniqueId1/:flightUniqueId2":
 		flightConflictMessage,
 	"frontend/:clientId/flight/:flightId/controller": frontendFlightController,
 	"frontend/:clientId/flight/:flightId/ACCFL": frontendACCFlightLevel,
