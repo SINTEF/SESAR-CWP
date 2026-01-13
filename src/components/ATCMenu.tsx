@@ -13,6 +13,8 @@ import {
 	cwpStore,
 	datablockStore,
 	sepQdmStore,
+	simulatorStore,
+	trajectoryPredictionStore,
 } from "../state";
 
 export default observer(function ATCMenu(properties: {
@@ -189,7 +191,27 @@ export default observer(function ATCMenu(properties: {
 		}
 
 		const aircraftIds = [aircraftId, otherSelectedId];
-		datablockStore.createDatablock(aircraftIds);
+
+		// Calculate closest point of approach between the two aircraft
+		const cpa = trajectoryPredictionStore.findClosestPointOfApproach(
+			aircraftId,
+			otherSelectedId,
+		);
+
+		// Prepare CPA info if available
+		const cpaInfo = cpa
+			? {
+					distanceNM: cpa.distanceNM,
+					timeMin: (cpa.time - simulatorStore.timestamp) / 60, // Convert seconds to minutes from now
+				}
+			: undefined;
+
+		const datablock = datablockStore.createDatablock(aircraftIds, cpaInfo);
+
+		// If the datablock was created and has a startMin, request the agenda to adjust scale
+		if (datablock && datablock.startMin > 0) {
+			cwpStore.requestAgendaScaleToFit(datablock.startMin);
+		}
 
 		posthog?.capture("atc_menu_action", {
 			action: "create_datablock",
@@ -197,6 +219,8 @@ export default observer(function ATCMenu(properties: {
 			callsigns: aircraftIds
 				.map((id) => aircraftStore.aircrafts.get(id)?.callSign)
 				.filter(Boolean),
+			closest_separation_nm: cpaInfo?.distanceNM,
+			closest_separation_time_min: cpaInfo?.timeMin,
 			current_cwp: configurationStore.currentCWP,
 		});
 

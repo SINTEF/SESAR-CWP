@@ -11,8 +11,10 @@ export interface Datablock {
 	aircraftIds: string[];
 	/** Normalized pair key for fast lookup (sorted IDs joined with `:`) */
 	pairKey: string;
-	/** Time in minutes from now (positive = future) */
+	/** Time in minutes from now (positive = future) - set to closest separation time */
 	startMin: number;
+	/** Closest separation between the two aircraft in nautical miles */
+	closestSeparationNM: number | null;
 	/** Creation timestamp (for ID generation) */
 	createdAt: number;
 }
@@ -23,6 +25,14 @@ export interface Datablock {
  */
 export function createPairKey(id1: string, id2: string): string {
 	return id1 < id2 ? `${id1}:${id2}` : `${id2}:${id1}`;
+}
+
+/** CPA info passed when creating a datablock */
+export interface CpaInfo {
+	/** Closest separation in nautical miles */
+	distanceNM: number;
+	/** Time of closest approach in minutes from now */
+	timeMin: number;
 }
 
 /**
@@ -62,10 +72,10 @@ export default class DatablockStore {
 	 * Create a new datablock with the given aircraft IDs.
 	 * Returns null if a datablock with this pair already exists.
 	 * @param aircraftIds The aircraft IDs to include in the datablock (must be exactly 2)
-	 * @param startMin Time offset in minutes from now (default: 15 = middle of default 30min scale)
+	 * @param cpaInfo Optional CPA info - if provided, uses closest approach time and distance
 	 * @returns The created datablock, or null if pair already exists
 	 */
-	createDatablock(aircraftIds: string[], startMin = 15): Datablock | null {
+	createDatablock(aircraftIds: string[], cpaInfo?: CpaInfo): Datablock | null {
 		if (aircraftIds.length !== 2) {
 			return null;
 		}
@@ -80,11 +90,17 @@ export default class DatablockStore {
 
 		const id = `db-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 		const sortedIds = id1 < id2 ? [id1, id2] : [id2, id1];
+
+		// Use CPA time if available, otherwise default to 15 minutes
+		const startMin = cpaInfo?.timeMin ?? 15;
+		const closestSeparationNM = cpaInfo?.distanceNM ?? null;
+
 		const datablock: Datablock = {
 			id,
 			aircraftIds: sortedIds,
 			pairKey,
 			startMin,
+			closestSeparationNM,
 			createdAt: Date.now(),
 		};
 

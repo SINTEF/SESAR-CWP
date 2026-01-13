@@ -5,14 +5,18 @@
 /** Conflict severity for timeline events */
 export type ConflictSeverity = "severe" | "potential";
 
+/** Event type for custom datablocks (manual aircraft pairing) */
+export type EventType = "mtcd" | "custom-datablock";
+
 /** An event to display on the timeline */
 export type TimelineEvent = {
 	id: string;
 	startMin: number; // minutes from now (positive = future)
-	code: string | undefined; // the badge text (flight level)
+	code: string | undefined; // the badge text (flight level or separation distance)
 	labels: string[]; // lines of text inside the chip
 	aircraftIds?: string[]; // optional aircraft IDs for hover functionality
 	severity?: ConflictSeverity; // conflict severity: severe (orange) or potential (yellow)
+	eventType?: EventType; // type of event for styling (mtcd vs custom-datablock)
 };
 
 /** Event with computed pixel position */

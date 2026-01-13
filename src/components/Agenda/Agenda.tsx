@@ -6,7 +6,11 @@ import {
 	datablockStore,
 	simulatorStore,
 } from "../../state";
-import { convertMetersToFlightLevel } from "../../utils";
+import {
+	convertMetersToFlightLevel,
+	convertNMToFeet,
+	formatFeetCompact,
+} from "../../utils";
 import TimelineEventCard from "./TimelineEventCard";
 import TimelineSeparator from "./TimelineSeparator";
 import {
@@ -136,6 +140,21 @@ export default observer(function Agenda({
 		}
 	}, [scaleMinutes]);
 
+	// React to external scale requests (e.g., when a new datablock is created)
+	useEffect(() => {
+		const requestedMinutes = cwpStore.requestedAgendaScaleMinutes;
+		if (requestedMinutes !== null) {
+			// Find the smallest scale preset that includes this time
+			const requiredScale = SCALE_PRESETS.find(
+				(preset) => preset >= requestedMinutes,
+			);
+			if (requiredScale && requiredScale > scaleMinutes) {
+				setScaleMinutes(requiredScale);
+			}
+			cwpStore.clearRequestedAgendaScale();
+		}
+	}, [cwpStore.requestedAgendaScaleMinutes, scaleMinutes]);
+
 	// Measure container height
 	useEffect(() => {
 		if (!containerRef) {
@@ -257,13 +276,20 @@ export default observer(function Agenda({
 				.map((id) => aircraftStore.aircrafts.get(id)?.callSign ?? id)
 				.slice(0, 2); // Limit to 2 labels
 
+			// Format separation distance for badge (convert NM to feet, format compactly)
+			const code =
+				db.closestSeparationNM !== null
+					? formatFeetCompact(convertNMToFeet(db.closestSeparationNM))
+					: undefined;
+
 			return {
 				id: db.id,
 				startMin: db.startMin,
-				code: undefined, // No flight level badge for custom datablocks
+				code, // Show closest separation distance
 				labels,
 				aircraftIds: db.aircraftIds,
-				severity: undefined, // No severity for custom datablocks (neutral color)
+				severity: undefined, // No severity for custom datablocks
+				eventType: "custom-datablock" as const,
 			};
 		});
 

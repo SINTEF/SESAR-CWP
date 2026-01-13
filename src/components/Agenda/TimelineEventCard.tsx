@@ -260,12 +260,18 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		event.aircraftIds.length > 0 &&
 		event.aircraftIds.every((id) => cwpStore.selectedAircraftIds.has(id));
 
-	// Determine badge color based on severity
-	// severe = orange (badge-warning), potential = yellow (bg-yellow-300)
-	const badgeColorClass =
-		event.severity === "potential"
-			? "bg-yellow-300 text-black"
-			: "badge-warning";
+	// Determine badge color based on severity and event type
+	// Custom datablocks = purple, severe MTCD = orange, potential MTCD = yellow
+	const getBadgeColorClass = () => {
+		if (event.eventType === "custom-datablock") {
+			return "bg-violet-400 text-black";
+		}
+		if (event.severity === "potential") {
+			return "bg-yellow-300 text-black";
+		}
+		return "badge-warning"; // orange for severe
+	};
+	const badgeColorClass = getBadgeColorClass();
 
 	// Card content (shared between original and ghost)
 	const cardContent = (
