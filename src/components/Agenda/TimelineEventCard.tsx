@@ -3,7 +3,11 @@ import { useRef, useState } from "react";
 import type { DraggableEvent } from "react-draggable";
 import { DraggableCore } from "react-draggable";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
-import { cwpStore } from "../../state";
+import {
+	cwpStore,
+	simulatorStore,
+	trajectoryPredictionStore,
+} from "../../state";
 import { WarningIconById } from "../AircraftLabelParts";
 import {
 	BOTTOM_PADDING_PX,
@@ -44,6 +48,10 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragOffsetY, setDragOffsetY] = useState(0);
 	const [dragStartY, setDragStartY] = useState(0);
+	// Track aircraft IDs that were temporarily added to selection during drag
+	const temporarilySelectedRef = useRef<Set<string>>(new Set());
+	// Track if a drag just occurred to prevent click events firing after drag
+	const wasDraggingRef = useRef(false);
 
 	// Get the aircraft ID for a given label index (if available)
 	const getAircraftId = (index: number): string | undefined => {
@@ -75,7 +83,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	};
 
 	const handleClick = (index: number) => {
-		if (isDragging) {
+		if (isDragging || wasDraggingRef.current) {
 			return;
 		}
 		const aircraftId = getAircraftId(index);
@@ -118,7 +126,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	};
 
 	const handleBadgeClick = () => {
-		if (isDragging) {
+		if (isDragging || wasDraggingRef.current) {
 			return;
 		}
 		const ids = event.aircraftIds;
@@ -161,14 +169,54 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		// Only start visual dragging after exceeding threshold
 		if (!isDragging && Math.abs(deltaY) >= DRAG_THRESHOLD_PX) {
 			setIsDragging(true);
+			wasDraggingRef.current = true;
+
+			// Enable trajectory prediction for all aircraft in the event
+			const aircraftIds = event.aircraftIds;
+			if (aircraftIds && aircraftIds.length > 0) {
+				// Track which aircraft we're temporarily adding to selection
+				temporarilySelectedRef.current.clear();
+				for (const id of aircraftIds) {
+					if (!cwpStore.selectedAircraftIds.has(id)) {
+						temporarilySelectedRef.current.add(id);
+						cwpStore.selectedAircraftIds.add(id);
+					}
+				}
+				// Enable trajectory prediction with the first aircraft as the "main" one
+				trajectoryPredictionStore.setEnabled(true);
+				trajectoryPredictionStore.setMainAircraft(aircraftIds[0]);
+			}
 		}
 
 		setDragOffsetY(deltaY);
+
+		// Update trajectory prediction time while dragging
+		if (isDragging && event.aircraftIds && event.aircraftIds.length > 0) {
+			// Calculate the future time based on drag position
+			const ghostBottomPx = displayBottomPx + deltaY;
+			const dropTimeMin = (ghostBottomPx - BOTTOM_PADDING_PX) / pxPerMinute;
+			const futureTimestamp = simulatorStore.timestamp + dropTimeMin * 60;
+			trajectoryPredictionStore.setOverrideTime(futureTimestamp);
+		}
 	};
 
 	const handleDragStop = (): void => {
 		setIsPressed(false);
 		setIsDragging(false);
+
+		// Clear wasDraggingRef after the current event loop to ignore the click that fires on mouseup
+		requestAnimationFrame(() => {
+			wasDraggingRef.current = false;
+		});
+
+		// Disable trajectory prediction
+		trajectoryPredictionStore.setEnabled(false);
+
+		// Restore original selection state by removing temporarily added aircraft
+		for (const id of temporarilySelectedRef.current) {
+			cwpStore.selectedAircraftIds.delete(id);
+		}
+		temporarilySelectedRef.current.clear();
 
 		// Check if ghost overlaps with original (small movement threshold)
 		const movementThreshold = EVENT_HEIGHT_PX / 2;

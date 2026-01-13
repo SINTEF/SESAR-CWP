@@ -28,6 +28,12 @@ export default class TrajectoryPredictionStore {
 
 	mouseLon = 0;
 
+	/**
+	 * When set, this overrides the distance-based futureTime calculation.
+	 * Used for timeline drag where we know the exact future time directly.
+	 */
+	overrideTime: number | null = null;
+
 	private aircraftStore: AircraftStore;
 	private simulatorStore: SimulatorStore;
 
@@ -64,12 +70,21 @@ export default class TrajectoryPredictionStore {
 		this.mouseLon = lon;
 	}
 
+	/**
+	 * Set a direct future time, bypassing distance-based calculation.
+	 * Used for timeline drag where time is known directly from vertical position.
+	 */
+	setOverrideTime(time: number | null): void {
+		this.overrideTime = time;
+	}
+
 	reset(): void {
 		this.mainAircraftId = null;
 		this.draggedHandleLat = 0;
 		this.draggedHandleLon = 0;
 		this.mouseLat = 0;
 		this.mouseLon = 0;
+		this.overrideTime = null;
 	}
 
 	get predictionData(): TrajectoryPredictionData {
@@ -86,6 +101,11 @@ export default class TrajectoryPredictionStore {
 	get computedFutureTime(): number | null {
 		if (!this.enabled || !this.mainAircraftId) {
 			return null;
+		}
+
+		// If overrideTime is set (e.g., from timeline drag), use it directly
+		if (this.overrideTime !== null) {
+			return this.overrideTime;
 		}
 
 		const aircraft = this.aircraftStore.aircrafts.get(this.mainAircraftId);
