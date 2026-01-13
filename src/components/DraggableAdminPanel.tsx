@@ -71,7 +71,7 @@ const AdminControlButtons = observer(function AdminControlButtons() {
 	};
 
 	return (
-		<div className="flex flex-wrap gap-2 p-3 border-b border-base-300 bg-neutral-800/70">
+		<div className="flex flex-wrap gap-2 p-3 border-y border-t-neutral-700 border-b-base-200 bg-neutral-800">
 			<button
 				type="button"
 				className="btn btn-sm btn-success"
@@ -121,7 +121,7 @@ const AdminLogs = observer(function AdminLogs() {
 	// CSS-only auto-scroll: outer wrapper with flex-direction: column-reverse
 	// keeps scroll pinned to bottom without any JavaScript
 	return (
-		<div className="logs-container h-64 overflow-y-auto flex flex-col-reverse bg-black/70">
+		<div className="logs-container h-64 overflow-y-auto flex flex-col-reverse bg-black">
 			<div className="p-3 font-mono text-xs">
 				{adminStore.logs.length === 0 ? (
 					<div className="text-gray-500 italic">No logs yet...</div>
@@ -167,10 +167,10 @@ export default observer(function DraggableAdminPanel() {
 		>
 			<div
 				ref={nodeRef}
-				className="absolute top-20 left-4 z-501 w-125 shadow-xl rounded-lg overflow-hidden backdrop-blur-md"
+				className="absolute top-20 left-4 z-501 w-125 shadow-xl rounded-lg overflow-hidden"
 			>
 				{/* Header / Drag Handle */}
-				<div className="drag-handle flex items-center justify-between px-4 py-2 bg-black/50 cursor-move">
+				<div className="drag-handle flex items-center justify-between px-4 py-2 bg-black/50 cursor-move backdrop-blur-md">
 					<h2 className="text-lg font-semibold text-white">Admin</h2>
 					<div className="flex items-center gap-1">
 						<button
