@@ -140,40 +140,62 @@ export default observer(function Agenda({
 	}, [containerRef]);
 
 	// Handle mouse wheel zoom with non-passive listener to allow preventDefault
-	// Uses debouncing to prevent trackpad scroll from jumping through all presets
+	// Uses threshold-based accumulation to smooth trackpad scrolling while
+	// allowing quick mouse wheel notches
 	useEffect(() => {
 		const container = timelineContainerRef.current;
 		if (!container) {
 			return;
 		}
 
-		let lastScaleChangeTime = 0;
-		const DEBOUNCE_MS = 200; // Minimum time between scale changes
+		let accumulatedDelta = 0;
+		let resetTimeout: ReturnType<typeof setTimeout> | null = null;
+		const THRESHOLD = 30; // Mouse wheel notches are ~100-120, trackpad events are small
+		const RESET_TIMEOUT_MS = 150; // Reset accumulated delta after pause
 
 		const handleWheel = (e: WheelEvent) => {
 			e.preventDefault();
 
-			const now = Date.now();
-			if (now - lastScaleChangeTime < DEBOUNCE_MS) {
-				return; // Ignore wheel events that come too quickly
+			// Clear any existing reset timeout
+			if (resetTimeout) {
+				clearTimeout(resetTimeout);
 			}
 
-			lastScaleChangeTime = now;
-			setScaleMinutes((current) => {
-				const currentIndex = SCALE_PRESETS.indexOf(current);
-				if (e.deltaY > 0) {
-					// Scroll down = zoom out (more minutes visible)
-					return SCALE_PRESETS[
-						Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
-					];
-				}
-				// Scroll up = zoom in (fewer minutes visible)
-				return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
-			});
+			// Accumulate the delta
+			accumulatedDelta += e.deltaY;
+
+			// Check if we've accumulated enough to trigger a scale change
+			if (Math.abs(accumulatedDelta) >= THRESHOLD) {
+				const direction = accumulatedDelta > 0 ? 1 : -1;
+				// Reset accumulator after triggering
+				accumulatedDelta = 0;
+
+				setScaleMinutes((current) => {
+					const currentIndex = SCALE_PRESETS.indexOf(current);
+					if (direction > 0) {
+						// Scroll down = zoom out (more minutes visible)
+						return SCALE_PRESETS[
+							Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+						];
+					}
+					// Scroll up = zoom in (fewer minutes visible)
+					return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
+				});
+			}
+
+			// Reset accumulator after a pause in scrolling
+			resetTimeout = setTimeout(() => {
+				accumulatedDelta = 0;
+			}, RESET_TIMEOUT_MS);
 		};
 
 		container.addEventListener("wheel", handleWheel, { passive: false });
-		return () => container.removeEventListener("wheel", handleWheel);
+		return () => {
+			container.removeEventListener("wheel", handleWheel);
+			if (resetTimeout) {
+				clearTimeout(resetTimeout);
+			}
+		};
 	}, []);
 
 	// Pixels per minute based on container height (minus padding) and scale
