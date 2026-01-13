@@ -208,6 +208,31 @@ const TimelineEventCard = memo(function TimelineEventCard({
 		}
 	};
 
+	const handleBadgeClick = () => {
+		const ids = event.aircraftIds;
+		if (ids && ids.length > 0) {
+			// Check if all aircraft are currently selected
+			const allSelected = ids.every((id) =>
+				cwpStore.selectedAircraftIds.has(id),
+			);
+			for (const id of ids) {
+				if (allSelected) {
+					// Deselect all
+					cwpStore.selectedAircraftIds.delete(id);
+					cwpStore.setFlightRouteForAircraft(id, false);
+				} else {
+					// Select all
+					cwpStore.selectedAircraftIds.add(id);
+					cwpStore.setFlightRouteForAircraft(id, true);
+				}
+			}
+			// Set the first aircraft as current
+			setCurrentAircraftId(ids[0]);
+			// Clear hover state after click
+			cwpStore.removeHoveredMarkerAircraftId();
+		}
+	};
+
 	return (
 		<div
 			className="absolute left-1 right-1
@@ -228,6 +253,7 @@ const TimelineEventCard = memo(function TimelineEventCard({
 					className="h-auto badge badge-warning rounded font-bold text-xs ml-0.75 px-1 aspect-square cursor-pointer hover:brightness-110 transition-all"
 					onMouseEnter={handleBadgeMouseEnter}
 					onMouseLeave={handleBadgeMouseLeave}
+					onClick={handleBadgeClick}
 				>
 					{event.code}
 				</div>
