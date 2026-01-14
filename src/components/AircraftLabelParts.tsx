@@ -135,6 +135,8 @@ export const Altitude = observer(({ aircraft }: SubContentProperties) => {
 export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
 	const posthog = usePostHog();
 	const { isDragging } = useDragging();
+	const { isNextSectorFLFlashing } = aircraft;
+
 	const openNSFLPopup = (): void => {
 		if (isDragging) {
 			return;
@@ -148,12 +150,29 @@ export const NextSectorFL = observer(({ aircraft }: SubContentProperties) => {
 			next_sector_fl: aircraft.nextSectorFL,
 		});
 	};
+
+	const flashingClassName = isNextSectorFLFlashing
+		? "bg-blue-500 text-white outline-2 outline-blue-500"
+		: "bg-transparent outline-0 outline-transparent transition-[background-color,outline-width,outline-color] duration-500";
+
+	// Should we use aircraft.nextSectorFL or sectorTimes?.exitPosition?.altitude ?
+	if (aircraft.nextSectorFL === null || aircraft.nextSectorFL === undefined) {
+		return (
+			<span
+				className={`hover:outline-2 hover:outline-white ${flashingClassName}`}
+				onClick={openNSFLPopup}
+			>
+				x
+			</span>
+		);
+	}
+	// const flightLevel = Math.round(convertMetersToFlightLevel(altitude) / 10);
 	return (
 		<span
+			className={`hover:outline-2 hover:outline-white ${flashingClassName}`}
 			onClick={openNSFLPopup}
-			className="hover:outline-2 hover:outline-white"
 		>
-			{aircraft.nextSectorFL}
+			x{aircraft.nextSectorFL}
 		</span>
 	);
 });

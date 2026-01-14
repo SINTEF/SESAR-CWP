@@ -11,7 +11,7 @@ import {
 	NextACCFlightLevel,
 	NextNav,
 	NextSectorFL,
-	TransferAltitude,
+	// TransferAltitude,
 	VerticalSpeedIcon,
 	WarningIcon,
 } from "./AircraftLabelParts";
@@ -48,7 +48,7 @@ export default observer(function AircraftPopupContent(properties: {
 				<span className="ml-0.5"></span>
 				<span>{nextSector}</span>
 				<span className="ml-0.5"></span>
-				<NextSectorFL aircraft={aircraft} />
+				{/* <NextSectorFL aircraft={aircraft} /> */}
 				<span className="ml-0.5"></span>
 				<WarningIcon aircraft={aircraft} skipNone={false} />
 			</div>
@@ -66,7 +66,8 @@ export default observer(function AircraftPopupContent(properties: {
 			</div>
 			{/* Line 3 - exit */}
 			<div>
-				<TransferAltitude altitude={sectorTimes?.exitPosition?.altitude} />
+				{/* <TransferAltitude altitude={sectorTimes?.exitPosition?.altitude} /> */}
+				<NextSectorFL aircraft={aircraft} />
 				<span className="ml-0.5"></span>
 				<span>{aircraft.nextSectorExitPoint}</span>
 				{/* <NextSectorController aircraft={aircraft} /> */}

@@ -3,6 +3,7 @@ import { usePostHog } from "posthog-js/react";
 import React from "react";
 import type AircraftModel from "../model/AircraftModel";
 import {
+	changeExitFlightLevelOfAircraft,
 	changeFlightLevelOfAircraft,
 	handlePublishPromise,
 	persistACCFlightLevel,
@@ -172,6 +173,13 @@ export default observer(function AircraftLevelPopup(properties: {
 			setNextSectorFL(stringFlightLevel);
 			handlePublishPromise(
 				persistNextSectorFlightLevel(assignedFlightId, stringFlightLevel),
+			);
+			handlePublishPromise(
+				changeExitFlightLevelOfAircraft(
+					controlledBy,
+					assignedFlightId,
+					stringFlightLevel,
+				),
 			);
 		} else if (cwpStore.flightLevelNextAccActivated) {
 			changeType = "next_acc_fl";

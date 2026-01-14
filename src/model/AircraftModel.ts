@@ -84,6 +84,12 @@ export default class AircraftModel {
 	/** Timeout handle for clearing the flash state (not observable) */
 	private nextACCFLFlashTimeout: ReturnType<typeof setTimeout> | null = null;
 
+	/** Whether the nextSectorFL value is currently flashing (recently changed) */
+	isNextSectorFLFlashing = false;
+
+	/** Timeout handle for clearing the flash state (not observable) */
+	private nextSectorFLFlashTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	localAssignedFlightLevel = "";
 
 	aircraftInfo: ObservableMap<string, AircraftInfo>;
@@ -168,6 +174,7 @@ export default class AircraftModel {
 			manualNextSectorFL: observable,
 			nextACCFL: observable,
 			isNextACCFLFlashing: observable,
+			isNextSectorFLFlashing: observable,
 			positionHistory: observable,
 			transponderCode: observable,
 			currentTime: observable,
@@ -456,7 +463,7 @@ export default class AircraftModel {
 			}
 		}
 
-		return "NSFL";
+		return ""; // Removed NSFL default
 	}
 
 	get aircraftType(): string {
@@ -591,12 +598,27 @@ export default class AircraftModel {
 	}
 
 	setNextSectorFL(nextSectorFL: string): void {
+		const previousValue = this.manualNextSectorFL;
 		// "NSFL" is the default/unset value - clear manual setting to use derived value
 		if (nextSectorFL === "NSFL") {
 			this.manualNextSectorFL = undefined;
 		} else {
 			const parsed = Number.parseInt(nextSectorFL, 10);
 			this.manualNextSectorFL = Number.isNaN(parsed) ? undefined : parsed;
+		}
+
+		const hasChanged = previousValue !== this.manualNextSectorFL;
+		if (hasChanged) {
+			// Clear any existing flash timeout
+			if (this.nextSectorFLFlashTimeout) {
+				clearTimeout(this.nextSectorFLFlashTimeout);
+			}
+			// Start flashing
+			this.isNextSectorFLFlashing = true;
+			// Stop flashing after 3 seconds
+			this.nextSectorFLFlashTimeout = setTimeout(() => {
+				this.isNextSectorFLFlashing = false;
+			}, 3000);
 		}
 	}
 

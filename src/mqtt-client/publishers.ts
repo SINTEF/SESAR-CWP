@@ -117,6 +117,17 @@ export async function changeNextWaypointOfAircraft({
 	);
 }
 
+export async function changeExitFlightLevelOfAircraft(
+	pilotId: string,
+	flightUniqueId: string,
+	flightLevel: string,
+): Promise<void> {
+	await publish(
+		`ats/${clientId}/commands/change-xfl/`,
+		serializeForSimulator(pilotId, flightUniqueId, flightLevel),
+	);
+}
+
 export async function acceptFlight(
 	fromControllableSector: string,
 	toControllableSector: string,
