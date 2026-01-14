@@ -366,9 +366,18 @@ export const WarningIcon = observer(
 export const AssignedBearing = observer(
 	({ aircraft }: SubContentProperties) => {
 		const { assignedBearing } = aircraft;
-
+		const changeBearing = (current_bearing: number): void => {
+			cwpStore.openChangeBearingForAircraft(aircraft.aircraftId);
+		};
 		if (assignedBearing === -1 || assignedBearing === undefined) {
-			return <span>h...</span>;
+			return (
+				<span
+					onClick={() => changeBearing(aircraft.lastKnownBearing)}
+					className="hover:outline-2 hover:outline-white cursor-pointer"
+				>
+					h...
+				</span>
+			);
 		}
 
 		let displayedBearing = Math.round(assignedBearing) % 360;
@@ -376,7 +385,14 @@ export const AssignedBearing = observer(
 			displayedBearing = 360;
 		}
 
-		return <span>{`${displayedBearing.toString().padStart(3, "0")}`}</span>;
+		return (
+			<span
+				onClick={() => changeBearing(assignedBearing)}
+				className="hover:outline-2 hover:outline-white cursor-pointer"
+			>
+				{`${displayedBearing.toString().padStart(3, "0")}`}
+			</span>
+		);
 	},
 );
 
