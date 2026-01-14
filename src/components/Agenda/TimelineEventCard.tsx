@@ -6,6 +6,7 @@ import { setCurrentAircraftId } from "../../model/CurrentAircraft";
 import {
 	aircraftStore,
 	cwpStore,
+	roleConfigurationStore,
 	simulatorStore,
 	trajectoryPredictionStore,
 } from "../../state";
@@ -312,6 +313,11 @@ const TimelineEventCard = observer(function TimelineEventCard({
 								onMouseEnter={() => handleMouseEnter(i)}
 								onMouseLeave={() => handleMouseLeave(i)}
 								onClick={() => handleClick(i)}
+								style={{
+									color: aircraftId
+										? roleConfigurationStore.getBaseColorOfAircraft(aircraftId)
+										: undefined,
+								}}
 							>
 								{l}
 							</div>
