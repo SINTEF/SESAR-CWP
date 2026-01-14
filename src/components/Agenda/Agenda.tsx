@@ -384,7 +384,7 @@ export default observer(function Agenda({
 
 			{/* Scale slider control */}
 			<div className="p-2 border-b border-base-200 flex items-center gap-2 shrink-0 bg-[#333]">
-				<span className="text-[10px] text-base-content/70">
+				<span className="text-[10px] text-base-content/70 w-[4ch] text-right">
 					{scaleMinutes}m
 				</span>
 				<input

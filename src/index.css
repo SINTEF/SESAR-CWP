@@ -280,15 +280,20 @@ input[type="range"].range-vertical {
 
 /* Make the control buttons of the maps dark */
 .maplibregl-ctrl-group {
+	/*filter: invert() hue-rotate(180deg);*/
+	background-color: #25262c;
+	color: white;
+}
+.maplibregl-ctrl-group .maplibregl-ctrl-icon {
 	filter: invert() hue-rotate(180deg);
-	background-color: #aaa;
 }
 
-.maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
-	filter: invert() hue-rotate(180deg);
+#radar-map .maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+	filter: none;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%234a90db' viewBox='0 0 29 29'%3E%3Cpath d='m10.5 14 4-8 4 8z'/%3E%3Cpath fill='%23ccc' d='m10.5 16 4 8 4-8z'/%3E%3C/svg%3E");
 }
-#radar-map .maplibregl-ctrl-compass .mapboxgl-ctrl-icon {
-	filter: hue-rotate(180deg);
+.maplibregl-ctrl-group button + button {
+	border-top-color: #444;
 }
 
 html .btn {

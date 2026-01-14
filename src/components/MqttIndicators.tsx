@@ -137,23 +137,23 @@ export default class MqttIndicators extends Component<
 	render() {
 		const { connected, receiving, sending } = this.state;
 		return (
-			<div className="flex flex-col justify-around items-center h-full ml-auto p-1 justify-self-end">
+			<div className="flex flex-col justify-around items-center h-full ml-auto p-1 justify-self-end gap-0.5">
 				<div
 					className={classNames(
 						"w-1.5 h-1.5 rounded-full",
-						connected ? "bg-[#86ce00]" : "bg-gray-700",
+						connected ? "bg-[#86ce00]" : "bg-error",
 					)}
 				/>
 				<div
 					className={classNames(
 						"w-1.5 h-1.5 rounded-full",
-						receiving ? "bg-[#ff5e00]" : "bg-gray-700",
+						receiving ? "bg-[#ff5e00]" : "bg-zinc-800",
 					)}
 				/>
 				<div
 					className={classNames(
 						"w-1.5 h-1.5 rounded-full",
-						sending ? "bg-[#3d86e6]" : "bg-gray-700",
+						sending ? "bg-[#3d86e6]" : "bg-zinc-800",
 					)}
 				/>
 			</div>

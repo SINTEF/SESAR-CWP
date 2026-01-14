@@ -57,7 +57,7 @@ export default function ViewportPresetsControl() {
 					title={preset.title}
 					aria-label={preset.title}
 					onClick={() => handleViewportClick(preset)}
-					className="flex items-center justify-center text-sm font-bold text-gray-700"
+					className="flex items-center justify-center text-sm font-bold text-neutral-300"
 				>
 					{preset.label}
 				</button>
