@@ -38,7 +38,7 @@ export default function App(/* properties */) {
 			<ImageConfiguration />
 			<SepQdmOverlay />
 			<ConnectionErrorModal />
-			<div className="fixed bottom-1 right-1 z-50">
+			<div className="fixed bottom-0.5 right-0.5 z-50">
 				<MqttIndicators />
 			</div>
 		</main>
