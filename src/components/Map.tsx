@@ -1,5 +1,9 @@
 import classNames from "classnames";
-import type { MapMouseEvent, StyleSpecification } from "maplibre-gl";
+import type {
+	Map as MaplibreMap,
+	MapMouseEvent,
+	StyleSpecification,
+} from "maplibre-gl";
 import * as maplibregl from "maplibre-gl";
 import { usePostHog } from "posthog-js/react";
 import React from "react";
@@ -29,13 +33,9 @@ import SpeedVectors from "./SpeedVectors";
 import TrajectoryPredictionLines from "./TrajectoryPredictionLines";
 import ViewportPresetsControl from "./ViewportPresetsControl";
 
-// Do not load the RTL plugin because it is unecessary
-try {
-	// @ts-expect-error invalid type
-	maplibregl.setRTLTextPlugin("", () => {}, true);
-} catch {
-	/* ignore error */
-}
+// Do not load the RTL plugin because it is unnecessary
+// @ts-expect-error invalid type
+maplibregl.setRTLTextPlugin("", () => {}, true).catch(() => {});
 
 const mapStyle: StyleSpecification = {
 	version: 8,
@@ -144,6 +144,9 @@ export default function Map() {
 	const posthog = usePostHog();
 	const [isMoving, setIsMoving] = React.useState(false);
 	const mapRef = React.useRef<MapRef>(null);
+	const [mapInstance, setMapInstance] = React.useState<MaplibreMap | null>(
+		null,
+	);
 	// Track number of concurrent move operations to handle overlapping animations
 	const moveCountRef = React.useRef(0);
 	// const { isDragging } = useDragging();
@@ -162,6 +165,7 @@ export default function Map() {
 		if (mapRef.current) {
 			mapViewportStore.setMapRef(mapRef.current);
 			mapViewportStore.updateViewportState();
+			setMapInstance(mapRef.current.getMap());
 		}
 	}, []);
 
@@ -206,7 +210,7 @@ export default function Map() {
 	};
 
 	useMapImage({
-		mapRef,
+		map: mapInstance,
 		url: "/fixes.png",
 		name: "fixes",
 		sdf: true,
