@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 
 import type AircraftModel from "../model/AircraftModel";
-import { roleConfigurationStore } from "../state";
+// import { roleConfigurationStore } from "../state";
 import { formatSpeed, formatVerticalSpeed } from "../utils";
 import {
 	Altitude,
@@ -21,12 +21,12 @@ export default observer(function AircraftPopupContent(properties: {
 	flightColor: string;
 }) {
 	const { aircraft, flightColor } = properties;
-	const currentSector = roleConfigurationStore.currentControlledSector;
+	// const currentSector = roleConfigurationStore.currentControlledSector;
 	const { lastKnownSpeed, lastKnownVerticalSpeed, aircraftType, nextSector } =
 		aircraft;
-	const sectorTimes = currentSector
-		? aircraft.flightInSectorTimes?.get(currentSector)
-		: undefined;
+	// const sectorTimes = currentSector
+	// 	? aircraft.flightInSectorTimes?.get(currentSector)
+	// 	: undefined;
 	return (
 		<div
 			style={{ color: flightColor }}

@@ -6,6 +6,7 @@ import {
 	Altitude,
 	CallSign,
 	NextACCFlightLevel,
+	NextSectorFL,
 	VerticalSpeedIcon,
 	WarningIcon,
 } from "./AircraftLabelParts";
@@ -17,6 +18,7 @@ export default observer(function AircraftContentSmall(properties: {
 }) {
 	const { aircraft, flightColor } = properties;
 	const { lastKnownSpeed } = aircraft;
+
 	return (
 		<div
 			style={{ color: flightColor }}
@@ -44,6 +46,12 @@ export default observer(function AircraftContentSmall(properties: {
 				<span className="ml-0.5"></span>
 				<NextACCFlightLevel aircraft={aircraft} hideIfMatchesAltitude={true} />
 			</div>
+			{Math.round(aircraft.lastKnownAltitude) / 10 !==
+				Number.parseInt(aircraft.nextSectorFL) && (
+				<div>
+					<NextSectorFL aircraft={aircraft} />
+				</div>
+			)}
 		</div>
 	);
 });

@@ -112,7 +112,11 @@ export default observer(function AircraftPopup(properties: {
 
 	// Show expanded content when hovering OR when any popup is open
 	const showExpandedContent = isHoveredLabel || hasOpenPopup;
-	const height = showExpandedContent ? 70 : 56;
+	const height =
+		Math.round(aircraft.lastKnownAltitude) / 10 !==
+			Number.parseInt(aircraft.nextSectorFL) || showExpandedContent
+			? 70
+			: 56;
 	const width = showExpandedContent ? 135 : 74;
 	const Content = showExpandedContent
 		? AircraftPopupContent
