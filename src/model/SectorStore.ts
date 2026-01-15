@@ -142,7 +142,7 @@ export default class SectorStore {
 
 	get sectorIndex(): Flatbush {
 		const sectorList = this.sectorList;
-		const index = new Flatbush(sectorList.length);
+		const index = new Flatbush(Math.max(sectorList.length, 10));
 
 		for (const sector of sectorList) {
 			const [minLon, minLat, maxLon, maxLat] = sector.bounds;
