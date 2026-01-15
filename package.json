@@ -26,7 +26,7 @@
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "mqtt": "^5.14.1",
-    "posthog-js": "^1.321.2",
+    "posthog-js": "^1.321.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-draggable": "^4.5.0",
