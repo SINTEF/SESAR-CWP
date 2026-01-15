@@ -1,24 +1,28 @@
 import * as Sentry from "@sentry/react";
+import type { Map as MaplibreMap } from "maplibre-gl";
 import React from "react";
-import { MapRef } from "react-map-gl/maplibre";
 
 type UseMapImageOptions = {
-	mapRef: React.RefObject<MapRef | null>;
+	map: MaplibreMap | null;
 	url: string;
 	name: string;
 	sdf?: boolean;
 };
 
 export function useMapImage({
-	mapRef,
+	map,
 	url,
 	name,
 	sdf = true,
 }: UseMapImageOptions) {
 	React.useEffect(() => {
-		if (mapRef.current) {
-			const map = mapRef.current.getMap();
+		if (!map) {
+			return;
+		}
 
+		// If map is already loaded, add the image immediately
+		// Otherwise, wait for the load event
+		const addImage = () => {
 			map
 				.loadImage(url)
 				.then((image) => {
@@ -31,6 +35,16 @@ export function useMapImage({
 					console.error(`Could not load image ${name} from ${url}:`, error);
 					Sentry.captureException(error);
 				});
+		};
+
+		if (map.loaded()) {
+			addImage();
+			return;
 		}
-	}, [mapRef.current]);
+
+		map.once("load", addImage);
+		return () => {
+			map.off("load", addImage);
+		};
+	}, [map, url, name, sdf]);
 }
