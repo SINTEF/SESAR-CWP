@@ -60,7 +60,7 @@ export default class FixStore {
 	/** Spatial index for KNN queries - points added as degenerate rectangles */
 	get fixIndex(): Flatbush {
 		const fixList = this.fixList;
-		const index = new Flatbush(fixList.length);
+		const index = new Flatbush(Math.max(fixList.length, 10));
 
 		for (const fix of fixList) {
 			// Add point as degenerate rectangle (min == max)
