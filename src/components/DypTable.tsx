@@ -28,6 +28,10 @@ export default observer(function DypTable(/* properties */) {
 	const [_listOfAircraft, _setListOfAircraft] = React.useState<AircraftModel[]>(
 		[],
 	);
+	const [isTableHovered, setIsTableHovered] = useState(false);
+	const [hoveredAircraftId, setHoveredAircraftId] = useState<string | null>(
+		null,
+	);
 	const simulatorTime = simulatorStore.timestamp;
 	const _fixSelect = React.createRef<HTMLSelectElement>();
 	const xDomain = [simulatorTime, simulatorTime + 1800]; // 1 hour later
@@ -36,9 +40,22 @@ export default observer(function DypTable(/* properties */) {
 	// 	return null;
 	// }
 
-	// Prefer hovered aircraft, fall back to last selected aircraft
+	React.useEffect(() => {
+		if (hoveredMarkerAircraftId) {
+			setHoveredAircraftId(hoveredMarkerAircraftId);
+			return;
+		}
+
+		if (!isTableHovered) {
+			setHoveredAircraftId(null);
+		}
+	}, [hoveredMarkerAircraftId, isTableHovered]);
+
+	// Prefer hovered aircraft, fall back to last selected
 	const targetAircraftId =
-		hoveredMarkerAircraftId ?? Array.from(selectedAircraftIds).slice(-1)[0];
+		hoveredMarkerAircraftId ??
+		(isTableHovered ? hoveredAircraftId : null) ??
+		Array.from(selectedAircraftIds).slice(-1)[0];
 	const latestSelectedAircraftData = aircraftStore.aircraftsWithPosition.find(
 		(aircraft) =>
 			aircraft.assignedFlightId === targetAircraftId ||
@@ -97,8 +114,17 @@ export default observer(function DypTable(/* properties */) {
 			nodeRef={draggableRef}
 		>
 			<div
-				className="absolute bottom-14 left-12 text-[11px] leading-tight uppercase font-mono z-[500]"
+				className="absolute bottom-14 left-12 text-[11px] leading-tight uppercase font-mono z-500"
 				ref={draggableRef}
+				onMouseEnter={() => {
+					setIsTableHovered(true);
+				}}
+				onMouseLeave={() => {
+					setIsTableHovered(false);
+					if (!hoveredMarkerAircraftId) {
+						setHoveredAircraftId(null);
+					}
+				}}
 			>
 				<table className="border border-[#182937] border-collapse text-[#ffffff] text-center h-full bg-[#315070]">
 					<tbody>
