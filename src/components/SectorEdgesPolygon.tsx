@@ -12,7 +12,13 @@ const sectorFillPaint = {
 	"fill-opacity": 0.8,
 };
 
-export default observer(function SectorEdgesPolygon(/* properties */) {
+interface SectorEdgesPolygonProps {
+	beforeId?: string;
+}
+
+export default observer(function SectorEdgesPolygon({
+	beforeId,
+}: SectorEdgesPolygonProps) {
 	const { edgesPolygon } = configurationStore;
 	const coordinates =
 		edgesPolygon?.length > 0 ? [...edgesPolygon, edgesPolygon[0]] : [];
@@ -28,11 +34,17 @@ export default observer(function SectorEdgesPolygon(/* properties */) {
 
 	return (
 		<Source id="sector_edges_polygon_source" type="geojson" data={geoJson}>
-			<Layer id="sector_edges_polygon" type="line" paint={sectorLinePaint} />
+			<Layer
+				id="sector_edges_polygon"
+				type="line"
+				paint={sectorLinePaint}
+				beforeId={beforeId}
+			/>
 			<Layer
 				id="sector_edges_polygon_fill"
 				type="fill"
 				paint={sectorFillPaint}
+				beforeId="sector_edges_polygon"
 			/>
 		</Source>
 	);

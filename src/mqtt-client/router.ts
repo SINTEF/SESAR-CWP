@@ -4,11 +4,9 @@ import {
 	airspaceAvailability,
 	airspaces,
 	airTrafficControllerMessage,
-	bearingPilotRequest,
 	currentAirspaceConfiguration,
 	flightConflictMessage,
 	flightEnteringAirspaceMessage,
-	flightLevelPilotRequest,
 	flightRoutes,
 	frontendACCBearing,
 	frontendACCFlightLevel,
@@ -29,6 +27,7 @@ import {
 	newSector,
 	newSimulatorTime,
 	notFound,
+	pilotRequest,
 	roleConfiguration,
 	simulatorLogs,
 	targetReport,
@@ -64,10 +63,7 @@ const router = rlite<Buffer>(notFound, {
 		airTrafficControllerMessage,
 	"ats/:clientId/data/flight-entering-airspace/:flightUniqueId/:time":
 		flightEnteringAirspaceMessage,
-	"ats/:clientId/data/flight-level-pilot-request/:flightUniqueId":
-		flightLevelPilotRequest,
-	"ats/:clientId/data/bearing-pilot-request/:flightUniqueId":
-		bearingPilotRequest,
+	"ats/:clientId/data/pilot-request/:flightUniqueId/:requestId": pilotRequest,
 	"ats/:clientId/data/tessellated-volumes/:airspaceVolumeId": ignored,
 	"ats/:clientId/data/volume-flight-lists/:airspaceVolumeId": ignored,
 	"ats/:clientId/data/accepted-flights/:toControllableAirspaceVolume/:flightId":

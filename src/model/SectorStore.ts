@@ -140,9 +140,12 @@ export default class SectorStore {
 		return Array.from(this.sectors.values());
 	}
 
-	get sectorIndex(): Flatbush {
+	get sectorIndex(): Flatbush | undefined {
 		const sectorList = this.sectorList;
-		const index = new Flatbush(Math.max(sectorList.length, 10));
+		if (sectorList.length === 0) {
+			return undefined;
+		}
+		const index = new Flatbush(sectorList.length);
 
 		for (const sector of sectorList) {
 			const [minLon, minLat, maxLon, maxLat] = sector.bounds;
@@ -156,6 +159,9 @@ export default class SectorStore {
 	findSector(longitude: number, latitude: number): Sector | undefined {
 		const sectorList = this.sectorList;
 		const sectorIndex = this.sectorIndex;
+		if (!sectorIndex) {
+			return undefined;
+		}
 		const sectorIds = sectorIndex.search(
 			longitude,
 			latitude,

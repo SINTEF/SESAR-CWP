@@ -19,12 +19,14 @@ export default observer(function TaHoveredFull(properties: {
 	const { aircraft } = properties;
 	// const currentSector = roleConfigurationStore.currentControlledSector;
 
-	const pilotRequest = aircraftStore.teamAssistantRequest.get(
+	const pilotRequest = aircraftStore.getFirstRequestForAircraft(
 		aircraft.aircraftId,
 	);
 
 	const onClickAccept = () => {
-		const request = aircraftStore.teamAssistantRequest.get(aircraft.aircraftId);
+		const request = aircraftStore.getFirstRequestForAircraft(
+			aircraft.aircraftId,
+		);
 		if (request) {
 			request.status = 1;
 		}

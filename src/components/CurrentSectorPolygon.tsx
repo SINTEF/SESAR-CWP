@@ -20,7 +20,13 @@ const sectorFillPaint: FillLayerSpecification["paint"] = {
 	"fill-opacity": 0.6,
 };
 
-export default observer(function SectorPolygons(/* properties */) {
+interface CurrentSectorPolygonProps {
+	beforeId?: string;
+}
+
+export default observer(function SectorPolygons({
+	beforeId,
+}: CurrentSectorPolygonProps) {
 	const { areaOfCurrentControlledSector, currentControlledSectorByCWP } =
 		roleConfigurationStore;
 	const { currentCWP, areaOfIncludedAirspaces } = configurationStore;
@@ -105,11 +111,13 @@ export default observer(function SectorPolygons(/* properties */) {
 					id="current_sector_polygons"
 					type="line"
 					paint={sectorOutlinePaint}
+					beforeId={beforeId}
 				/>
 				<Layer
 					id="current_sector_polygons_fill"
 					type="fill"
 					paint={sectorFillPaint}
+					beforeId="current_sector_polygons"
 				/>
 			</Source>
 			<Source
@@ -122,7 +130,7 @@ export default observer(function SectorPolygons(/* properties */) {
 					type="symbol"
 					layout={sectorNameslayout}
 					paint={sectorNamesPaint}
-					beforeId="current_sector_polygons"
+					beforeId="current_sector_polygons_fill"
 				/>
 			</Source>
 		</>

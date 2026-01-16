@@ -53,7 +53,13 @@ const sectorNameslayout: SymbolLayerSpecification["layout"] = {
 	"text-size": 14,
 };
 
-export default observer(function SectorPolygons(/* properties */) {
+interface SectorPolygonsProps {
+	beforeId?: string;
+}
+
+export default observer(function SectorPolygons({
+	beforeId,
+}: SectorPolygonsProps) {
 	const { highestBound, lowestBound } = cwpStore.altitudeFilter;
 	const { showSectorLabels, showClickedSector, clickedSectorId } = cwpStore;
 	const { areaOfAirspacesToDisplay, currentConfigurationId } =
@@ -203,7 +209,7 @@ export default observer(function SectorPolygons(/* properties */) {
 					type="symbol"
 					layout={sectorNamesText}
 					paint={sectorNamesPaint}
-					beforeId="sector_edges_polygon"
+					beforeId={beforeId}
 				/>
 			</Source>
 			{sourceAndALayersForSectors}
@@ -217,6 +223,7 @@ export default observer(function SectorPolygons(/* properties */) {
 						id="sector_highlight"
 						type="fill"
 						paint={sectorHighlightPaint}
+						beforeId={beforeId}
 					/>
 				</Source>
 			) : null}

@@ -43,7 +43,13 @@ const measurePointsLayout: SymbolLayerSpecification["layout"] = {
 	"text-anchor": "center",
 };
 
-export default observer(function DistanceMeasurements() {
+interface DistanceMeasurementsProps {
+	beforeId?: string;
+}
+
+export default observer(function DistanceMeasurements({
+	beforeId,
+}: DistanceMeasurementsProps) {
 	const { measureLines, measurePoints } = distanceLineStore;
 
 	return (
@@ -58,12 +64,14 @@ export default observer(function DistanceMeasurements() {
 					type="line"
 					paint={linePaint}
 					layout={lineLayout}
+					beforeId={beforeId}
 				/>
 				<Layer
 					id="measure-length"
 					type="symbol"
 					paint={measureNamePaint}
 					layout={measureLinesLayout}
+					beforeId="measure-lines"
 				/>
 			</Source>
 			<Source
@@ -76,6 +84,7 @@ export default observer(function DistanceMeasurements() {
 					type="symbol"
 					paint={measureNamePaint}
 					layout={measurePointsLayout}
+					beforeId="measure-length"
 				/>
 			</Source>
 		</>

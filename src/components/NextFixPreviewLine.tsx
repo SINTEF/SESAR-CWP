@@ -10,11 +10,17 @@ const paintLine: LineLayerSpecification["paint"] = {
 	"line-dasharray": [2, 2],
 };
 
+interface NextFixPreviewLineProps {
+	beforeId?: string;
+}
+
 /**
  * Renders a dotted white line from an aircraft to a fix when previewing
  * a next fix selection in the ChangeNextFixPopup.
  */
-export default observer(function NextFixPreviewLine() {
+export default observer(function NextFixPreviewLine({
+	beforeId,
+}: NextFixPreviewLineProps) {
 	const preview = cwpStore.nextFixPreview;
 
 	// No preview active
@@ -55,7 +61,12 @@ export default observer(function NextFixPreviewLine() {
 
 	return (
 		<Source id="nextfix_preview_source" type="geojson" data={geoJson}>
-			<Layer id="nextfix_preview_line" type="line" paint={paintLine} />
+			<Layer
+				id="nextfix_preview_line"
+				type="line"
+				paint={paintLine}
+				beforeId={beforeId}
+			/>
 		</Source>
 	);
 });

@@ -16,6 +16,7 @@ import {
 	NewFlightMessage,
 	NewPointMessage,
 	NewSectorMessage,
+	PilotRequestMessage,
 	RoleConfigurationMessage,
 	SimulatorTime,
 	TargetReportMessage,
@@ -220,20 +221,24 @@ export function flightConflictMessage(
 	aircraftStore.handleNewConflictMessage(protoMessage);
 }
 
-export function flightLevelPilotRequest(
-	{ flightUniqueId }: { [key: string]: string },
+export function pilotRequest(
+	{ flightUniqueId, requestId }: { [key: string]: string },
 	message: Buffer,
 ): void {
-	const json_message = JSON.parse(message.toString());
-	aircraftStore.handleFlightLevelPilotRequest(flightUniqueId, json_message);
-}
+	// Empty message means delete the request (MQTT retained message clearing)
+	if (message.length === 0) {
+		aircraftStore.removeTeamAssistantRequest(flightUniqueId, requestId);
+		return;
+	}
 
-export function bearingPilotRequest(
-	{ flightUniqueId }: { [key: string]: string },
-	message: Buffer,
-): void {
-	const bearing = Number.parseInt(message.toString(), 10) || 0;
-	aircraftStore.handleBearingPilotRequest(flightUniqueId, bearing.toString()); // Should it be string or number?
+	try {
+		const request = PilotRequestMessage.fromBinary(message);
+		aircraftStore.setTeamAssistantRequest(flightUniqueId, requestId, request);
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: error logging
+		console.error("Failed to decode PilotRequestMessage:", error);
+		Sentry.captureException(error);
+	}
 }
 
 export function simulatorLogs(_parameters: unknown, message: Buffer): void {

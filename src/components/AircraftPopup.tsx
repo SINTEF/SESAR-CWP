@@ -6,7 +6,13 @@ import { useMap } from "react-map-gl/maplibre";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
-import { aircraftStore, cwpStore, roleConfigurationStore } from "../state";
+import {
+	adminStore,
+	aircraftStore,
+	configurationStore,
+	cwpStore,
+	roleConfigurationStore,
+} from "../state";
 import AircraftContentSmall from "./AircraftContentSmall";
 import AircraftLevelPopup from "./AircraftLevelPopup";
 import AircraftPopupContent from "./AircraftPopupContent";
@@ -18,7 +24,7 @@ import Stca from "./conflict-detection-tools/Stca";
 import Tct from "./conflict-detection-tools/Tct";
 import DraggablePopup, { DraggablePopupProperties } from "./DraggablePopup";
 import NextSectorPopup from "./NextSectorPopup";
-import TaLabel from "./team-assistant/TaLabel";
+import RequestPanelContainer from "./team-assistant/RequestPanelContainer";
 
 /**
  * REQUIREMENTS:
@@ -168,7 +174,7 @@ export default observer(function AircraftPopup(properties: {
 
 	return (
 		<DraggablePopup
-			className="text-xs p-0 m-0 backdrop-blur-[1.5px] z-0"
+			className="text-xs p-0 m-0 z-0"
 			style={{ color: flightColor }}
 			color={lineColor}
 			offset={offset as DraggablePopupProperties["offset"]}
@@ -197,7 +203,7 @@ export default observer(function AircraftPopup(properties: {
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
 					className={classNames(
-						"p-1 select-none",
+						"p-1 select-none backdrop-blur-[1.5px]",
 						isSelected
 							? "bg-neutral-800/40 rounded-xs border-[0.5px] border-cyan-400"
 							: "bg-neutral-800/50 rounded-sm border-0 border-transparent",
@@ -212,10 +218,15 @@ export default observer(function AircraftPopup(properties: {
 						width={width}
 					/>
 				</div>
-				{aircraftStore.teamAssistantRequest.has(
-					properties.aircraft.aircraftId,
-				) && <TaLabel aircraft={properties.aircraft} />}
-				{/* <TaLabel aircraft={properties.aircraft} /> */}
+				{(aircraftStore.hasTeamAssistantRequests(
+					properties.aircraft.assignedFlightId,
+				) ||
+					cwpStore.pseudoPilot ||
+					adminStore.adminModeEnabled ||
+					configurationStore.currentCWP === "All") && (
+					<RequestPanelContainer aircraft={properties.aircraft} />
+				)}
+				{/* <RequestPanelContainer aircraft={properties.aircraft} /> */}
 			</div>
 			<div className="pt-0 pl-0.5">
 				<AircraftLevelPopup aircraft={aircraft} />

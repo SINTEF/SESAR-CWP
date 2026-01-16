@@ -51,26 +51,6 @@ function ListOfBearings(properties: {
 	return <>{rows}</>;
 }
 
-function RelativeBearingColumn(properties: {
-	values: number[];
-	onClickRelative: (delta: number) => void;
-}) {
-	const { values, onClickRelative } = properties;
-	return (
-		<div className="flex flex-col justify-center gap-0.5 bg-[#2a5a8f] p-1">
-			{values.map((delta) => (
-				<button
-					key={delta}
-					onClick={(): void => onClickRelative(delta)}
-					className="px-2 py-1 text-xs text-center bg-[#3a6a9f] text-white hover:bg-[#4b90db] border-none outline-none"
-				>
-					{delta > 0 ? `+${delta}` : delta}
-				</button>
-			))}
-		</div>
-	);
-}
-
 export default observer(function ChangeBearingPopup(properties: {
 	aircraft: AircraftModel;
 }) {
@@ -157,6 +137,7 @@ export default observer(function ChangeBearingPopup(properties: {
 	};
 
 	const close = (): void => {
+		cwpStore.clearTaRequestCallback();
 		cwpStore.closeChangeBearingForAircraft(aircraftId);
 		posthog?.capture("bearing_popup_closed", {
 			aircraft_id: aircraftId,
@@ -166,6 +147,14 @@ export default observer(function ChangeBearingPopup(properties: {
 	};
 
 	const applyBearing = (newBearing: number): void => {
+		// If TA request callback is set, call it instead of normal behavior
+		if (cwpStore.taRequestCallback) {
+			cwpStore.taRequestCallback(newBearing.toString());
+			cwpStore.clearTaRequestCallback();
+			cwpStore.closeChangeBearingForAircraft(aircraftId);
+			return;
+		}
+
 		setAssignedBearing(newBearing);
 		const pilotId = currentCWP === "All" ? "All" : controlledBy;
 
@@ -187,6 +176,11 @@ export default observer(function ChangeBearingPopup(properties: {
 	};
 
 	const handleBearingClick = (clickedBearing: number): void => {
+		// In TA request mode, always apply (even if clicking default bearing)
+		if (cwpStore.taRequestCallback) {
+			applyBearing(clickedBearing);
+			return;
+		}
 		if (clickedBearing === defaultBearing) {
 			// If clicking on the default bearing (no change), just close the popup
 			close();
@@ -196,70 +190,52 @@ export default observer(function ChangeBearingPopup(properties: {
 		}
 	};
 
-	const handleRelativeBearingClick = (delta: number): void => {
-		// Calculate new bearing based on current bearing + delta
-		let newBearing = (currentBearingRounded + delta) % 360;
-		if (newBearing <= 0) {
-			newBearing += 360;
-		}
-		applyBearing(newBearing);
-	};
-
 	const submit = (): void => {
 		applyBearing(bearing);
 	};
 
-	// Relative bearing values for left and right columns
-	const negativeDeltaValues = [-5, -10, -15, -20, -25, -30];
-	const positiveDeltaValues = [5, 10, 15, 20, 25, 30];
+	const isTaRequestMode = !!cwpStore.taRequestCallback;
 
 	return (
 		<div
 			className={`
-			bg-[#0d1f30] p-1 shadow-lg
+			w-20 bg-[#0d1f30] p-0 shadow-lg
 			${accepted ? "border-2 border-green-400" : ""}
+			${isTaRequestMode ? "border-2 border-yellow-400" : ""}
 		`}
 			style={{ borderRadius: 0 }}
 		>
+			{isTaRequestMode && (
+				<div className="text-center text-[10px] py-0.5 bg-yellow-500 text-black font-medium">
+					TA Request
+				</div>
+			)}
 			<div className="text-center font-bold text-xs py-1 bg-black text-white">
 				{callSign}
 			</div>
-			<div className="flex flex-row gap-1 justify-center items-center mt-1">
-				{/* Left column: negative relative changes */}
-				<RelativeBearingColumn
-					values={negativeDeltaValues}
-					onClickRelative={handleRelativeBearingClick}
-				/>
-				{/* Center: absolute bearing list */}
-				<div className="flex flex-col bg-[#1e3a5f] p-1">
-					<button
-						onClick={(): void => BearingChange("up")}
-						className="btn btn-ghost btn-xs text-xs"
-					>
-						▲
-					</button>
-					<div
-						className="h-40 overflow-y-scroll scrollbar-hide bg-[#1e3a5f] flex flex-col"
-						ref={listOfBearingsReference}
-					>
-						<ListOfBearings
-							value={bearing}
-							onClick={handleBearingClick}
-							currentBearing={currentBearingRounded}
-						/>
-					</div>
-					<button
-						onClick={(): void => BearingChange("down")}
-						className="btn btn-ghost btn-xs text-xs"
-					>
-						▼
-					</button>
+			<div className="flex flex-col bg-[#1e3a5f]">
+				<button
+					onClick={(): void => BearingChange("up")}
+					className="btn btn-ghost btn-xs text-xs"
+				>
+					▲
+				</button>
+				<div
+					className="h-40 overflow-y-scroll scrollbar-hide bg-[#1e3a5f] flex flex-col"
+					ref={listOfBearingsReference}
+				>
+					<ListOfBearings
+						value={bearing}
+						onClick={handleBearingClick}
+						currentBearing={currentBearingRounded}
+					/>
 				</div>
-				{/* Right column: positive relative changes */}
-				<RelativeBearingColumn
-					values={positiveDeltaValues}
-					onClickRelative={handleRelativeBearingClick}
-				/>
+				<button
+					onClick={(): void => BearingChange("down")}
+					className="btn btn-ghost btn-xs text-xs"
+				>
+					▼
+				</button>
 			</div>
 			<div className="flex gap-0.5 mt-1">
 				<button

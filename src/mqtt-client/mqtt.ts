@@ -279,11 +279,15 @@ export function setupMessageHandler(): void {
 
 export function publish(
 	topic: string,
-	message: string | { [key: string]: unknown },
+	message: string | Uint8Array | { [key: string]: unknown },
 	settings?: IClientPublishOptions,
 ): Promise<void> {
 	const messageData =
-		typeof message === "string" ? message : JSON.stringify(message);
+		typeof message === "string"
+			? message
+			: message instanceof Uint8Array
+				? message
+				: JSON.stringify(message);
 
 	return new Promise((resolve, reject) => {
 		if (!client) {
@@ -292,7 +296,9 @@ export function publish(
 		}
 		client.publish(
 			topic,
-			messageData,
+			// Type assertion needed because MQTT.js types expect Buffer,
+			// but Uint8Array works fine at runtime in browsers
+			messageData as string | Buffer,
 			{
 				qos: 1,
 				...settings,

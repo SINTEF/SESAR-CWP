@@ -167,7 +167,7 @@ export default observer(function DraggableAdminPanel() {
 		>
 			<div
 				ref={nodeRef}
-				className="absolute top-20 left-4 z-501 w-125 shadow-xl rounded-lg overflow-hidden"
+				className="absolute top-2 right-46 z-501 w-125 shadow-xl rounded-lg overflow-hidden"
 			>
 				{/* Header / Drag Handle */}
 				<div className="drag-handle flex items-center justify-between px-4 py-2 bg-black/50 cursor-move backdrop-blur-md">

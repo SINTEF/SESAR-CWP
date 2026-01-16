@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react";
 import type { ObservableMap } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
+import type { Timestamp } from "../proto/google/protobuf/timestamp";
 import type {
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
@@ -66,7 +67,11 @@ export default class AircraftStore {
 			deep: false,
 		});
 
-	teamAssistantRequest: ObservableMap<string, PilotRequestMessage> =
+	/**
+	 * Team assistant requests stored with composite key: `${flightId}:${requestId}`
+	 * This supports multiple requests per aircraft.
+	 */
+	teamAssistantRequests: ObservableMap<string, TeamAssistantRequest> =
 		observable.map(undefined, {
 			deep: false,
 		});
@@ -525,29 +530,102 @@ export default class AircraftStore {
 		return nearestAircraft;
 	}
 
-	handleFlightLevelPilotRequest(
-		flightId: string,
-		pilotRequestMessage: PilotRequestMessage,
-	): void {
-		this.teamAssistantRequest.set(flightId, {
-			flightId,
-			requestType: 0, // Flight Level
-			requestParameter: pilotRequestMessage.requestParameter,
-			callSign:
-				pilotRequestMessage.callSign ||
-				this.aircrafts.get(flightId)?.callSign ||
-				"",
-			status: pilotRequestMessage.status,
-			responseDetails: pilotRequestMessage.responseDetails,
-			tasks: pilotRequestMessage.tasks,
-			suggestion: pilotRequestMessage.suggestion,
-		});
-		this.aircrafts
-			.get(flightId)
-			?.setPilotRequestFlightLevel(pilotRequestMessage.requestParameter);
+	// =========================================================================
+	// Team Assistant Request Methods
+	// =========================================================================
+
+	/**
+	 * Create a composite key for team assistant requests.
+	 * Format: `${flightId}:${requestId}`
+	 */
+	private createRequestKey(flightId: string, requestId: string): string {
+		return `${flightId}:${requestId}`;
 	}
 
-	handleBearingPilotRequest(flightId: string, bearing: string): void {
-		this.aircrafts.get(flightId)?.setPilotRequestedBearing(bearing);
+	/**
+	 * Extract flightId from a composite request key.
+	 */
+	private extractFlightIdFromKey(key: string): string {
+		return key.split(":")[0];
 	}
+
+	/**
+	 * Get all requests for an aircraft, sorted by time (newest first), limited to 5.
+	 */
+	getRequestsForAircraft(flightId: string): TeamAssistantRequest[] {
+		const requests: TeamAssistantRequest[] = [];
+		for (const [key, request] of this.teamAssistantRequests) {
+			if (this.extractFlightIdFromKey(key) === flightId) {
+				requests.push(request);
+			}
+		}
+		// Sort by time (newest first) - handle undefined time
+		requests.sort((a, b) => {
+			const timeA = a.time ? this.timestampToNumber(a.time) : 0;
+			const timeB = b.time ? this.timestampToNumber(b.time) : 0;
+			return timeB - timeA;
+		});
+		// Limit to 5 requests
+		return requests.slice(0, 5);
+	}
+
+	/**
+	 * Convert protobuf Timestamp to number for comparison.
+	 */
+	private timestampToNumber(timestamp: Timestamp): number {
+		return Number(timestamp.seconds) * 1000 + timestamp.nanos / 1_000_000;
+	}
+
+	/**
+	 * Add or update a team assistant request.
+	 */
+	setTeamAssistantRequest(
+		flightId: string,
+		requestId: string,
+		request: PilotRequestMessage,
+	): void {
+		const key = this.createRequestKey(flightId, requestId);
+		const teamAssistantRequest: TeamAssistantRequest = {
+			...request,
+			requestId,
+		};
+		this.teamAssistantRequests.set(key, teamAssistantRequest);
+	}
+
+	/**
+	 * Remove a team assistant request.
+	 */
+	removeTeamAssistantRequest(flightId: string, requestId: string): void {
+		const key = this.createRequestKey(flightId, requestId);
+		this.teamAssistantRequests.delete(key);
+	}
+
+	/**
+	 * Check if an aircraft has any team assistant requests.
+	 */
+	hasTeamAssistantRequests(flightId: string): boolean {
+		for (const key of this.teamAssistantRequests.keys()) {
+			if (this.extractFlightIdFromKey(key) === flightId) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get the first (most recent) request for an aircraft, for backward compatibility.
+	 */
+	getFirstRequestForAircraft(
+		flightId: string,
+	): TeamAssistantRequest | undefined {
+		return this.getRequestsForAircraft(flightId)[0];
+	}
+}
+
+/**
+ * Extended type that wraps PilotRequestMessage with a unique request ID.
+ * This allows storing multiple requests per aircraft.
+ */
+export interface TeamAssistantRequest extends PilotRequestMessage {
+	requestId: string;
 }

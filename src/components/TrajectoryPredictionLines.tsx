@@ -118,7 +118,13 @@ const layoutSymbol: SymbolLayerSpecification["layout"] = {
 	"text-anchor": "bottom",
 };
 
-export default observer(function TrajectoryPredictionLines() {
+interface TrajectoryPredictionLinesProps {
+	beforeId?: string;
+}
+
+export default observer(function TrajectoryPredictionLines({
+	beforeId,
+}: TrajectoryPredictionLinesProps) {
 	const { isDragging } = useDragging();
 
 	// Only render if trajectory prediction is enabled and we have a future time
@@ -207,6 +213,7 @@ export default observer(function TrajectoryPredictionLines() {
 					id="trajectoryprediction_dotted_line"
 					type="line"
 					paint={paintDottedLine}
+					beforeId={beforeId}
 				/>
 			</Source>
 			<Source
@@ -218,6 +225,7 @@ export default observer(function TrajectoryPredictionLines() {
 					id="trajectoryprediction_solid_line"
 					type="line"
 					paint={paintSolidLine}
+					beforeId="trajectoryprediction_dotted_line"
 				/>
 			</Source>
 			<Source
@@ -229,12 +237,14 @@ export default observer(function TrajectoryPredictionLines() {
 					id="trajectoryprediction_point"
 					type="circle"
 					paint={paintCircle}
+					beforeId="trajectoryprediction_solid_line"
 				/>
 				<Layer
 					id="trajectoryprediction_names"
 					type="symbol"
 					layout={layoutSymbol}
 					paint={paintSymbol}
+					beforeId="trajectoryprediction_point"
 				/>
 			</Source>
 		</>

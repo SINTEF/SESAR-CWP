@@ -79,7 +79,11 @@ const layoutSymbol: SymbolLayerSpecification["layout"] = {
 	"text-anchor": "top",
 };
 
-export default observer(function FlightRoutes() {
+interface FlightRoutesProps {
+	beforeId?: string;
+}
+
+export default observer(function FlightRoutes({ beforeId }: FlightRoutesProps) {
 	// Load data from states
 	const { aircraftsWithFlightRoutes } = cwpStore;
 	const flightRoutes = getAircraftsWithFlightRoutes({
@@ -103,13 +107,24 @@ export default observer(function FlightRoutes() {
 
 	return (
 		<Source id="flightroutes_source" type="geojson" data={geoJson}>
-			<Layer id="flightroutesline" type="line" paint={paintLine} />
-			<Layer id="flightroutespoint" type="circle" paint={paintCircle} />
+			<Layer
+				id="flightroutesline"
+				type="line"
+				paint={paintLine}
+				beforeId={beforeId}
+			/>
+			<Layer
+				id="flightroutespoint"
+				type="circle"
+				paint={paintCircle}
+				beforeId="flightroutesline"
+			/>
 			<Layer
 				id="flightroutesnames"
 				type="symbol"
 				layout={layoutSymbol}
 				paint={paintSymbol}
+				beforeId="flightroutespoint"
 			/>
 		</Source>
 	);

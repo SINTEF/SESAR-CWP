@@ -42,7 +42,7 @@ export default observer(function TaHoveredSmall(properties: {
 	const { aircraft /*, flightColor */ } = properties;
 	const { setTaArrowClickedAircraftId, setHoveredFlightLabelId } = cwpStore;
 
-	const pilotRequest = aircraftStore.teamAssistantRequest.get(
+	const pilotRequest = aircraftStore.getFirstRequestForAircraft(
 		aircraft.aircraftId,
 	);
 

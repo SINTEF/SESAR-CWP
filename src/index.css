@@ -347,3 +347,7 @@ html .btn {
 .w-screen {
 	width: 100dvw;
 }
+
+.front-on-hover:hover {
+	z-index: 10000 !important;
+}

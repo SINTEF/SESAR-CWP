@@ -194,6 +194,13 @@ export default class CWPStore {
 	/** Preview state for next fix selection: shows a line from aircraft to hovered/matched fix */
 	nextFixPreview: { aircraftId: string; fixName: string } | null = null;
 
+	/**
+	 * Team Assistant request callback mode.
+	 * When set, popup components (AircraftLevelPopup, ChangeNextFixPopup, ChangeBearingPopup)
+	 * will call this callback with the selected value instead of their normal behavior.
+	 */
+	taRequestCallback: ((value: string) => void) | null = null;
+
 	constructor({
 		altitudeFilter,
 	}: {
@@ -351,10 +358,33 @@ export default class CWPStore {
 		this.closeChangeBearingForAircraft(aircraftId);
 		this.closeChangeNextFixForAircraft(aircraftId);
 		this.closeChangeSpeedForAircraft(aircraftId);
+		this.clearTaRequestCallback();
 	}
 
-	openLevelPopupForAircraft(aircraftId: string): void {
+	/**
+	 * Set a callback for TA request mode. When set, popup components will call this
+	 * callback with the selected value instead of their normal behavior.
+	 */
+	setTaRequestCallback(callback: (value: string) => void): void {
+		this.taRequestCallback = callback;
+	}
+
+	/**
+	 * Clear the TA request callback.
+	 */
+	clearTaRequestCallback(): void {
+		this.taRequestCallback = null;
+	}
+
+	openLevelPopupForAircraft(
+		aircraftId: string,
+		preserveCallback = false,
+	): void {
+		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		this.closeAllSubPopupsForAircraft(aircraftId);
+		if (savedCallback) {
+			this.taRequestCallback = savedCallback;
+		}
 		this.aircraftsWithLevelPopup.add(aircraftId);
 	}
 
@@ -371,8 +401,15 @@ export default class CWPStore {
 		this.aircraftsWithSectorPopup.delete(aircraftId);
 	}
 
-	openChangeBearingForAircraft(aircraftId: string): void {
+	openChangeBearingForAircraft(
+		aircraftId: string,
+		preserveCallback = false,
+	): void {
+		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		this.closeAllSubPopupsForAircraft(aircraftId);
+		if (savedCallback) {
+			this.taRequestCallback = savedCallback;
+		}
 		this.aircraftsWithBearingPopup.add(aircraftId);
 	}
 
@@ -380,8 +417,15 @@ export default class CWPStore {
 		this.aircraftsWithBearingPopup.delete(aircraftId);
 	}
 
-	openChangeNextFixForAircraft(aircraftId: string): void {
+	openChangeNextFixForAircraft(
+		aircraftId: string,
+		preserveCallback = false,
+	): void {
+		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		this.closeAllSubPopupsForAircraft(aircraftId);
+		if (savedCallback) {
+			this.taRequestCallback = savedCallback;
+		}
 		this.aircraftsWithNextFixPopup.add(aircraftId);
 	}
 

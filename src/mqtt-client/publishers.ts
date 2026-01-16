@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { PilotRequestMessage } from "../proto/ProtobufAirTrafficSimulator";
 import clientId from "./clientId";
 import { publish } from "./mqtt";
 
@@ -242,6 +243,38 @@ export async function persistHiddenAircraft(
 	await publish(
 		`frontend/${clientId}/flight/${flightUniqueId}/hidden`,
 		hidden ? "true" : "",
+		{ retain: true },
+	);
+}
+
+/**
+ * Clear a pilot request retained message.
+ * Publishing an empty retained message clears the retained message on the broker.
+ */
+export async function publishPilotRequestClear(
+	flightId: string,
+	requestId: string,
+): Promise<void> {
+	await publish(
+		`ats/${clientId}/data/pilot-request/${flightId}/${requestId}`,
+		"",
+		{ retain: true },
+	);
+}
+
+/**
+ * Publish a pilot request message.
+ * The message will be received back via the MQTT subscriber and added to the store.
+ */
+export async function publishPilotRequest(
+	flightId: string,
+	requestId: string,
+	request: PilotRequestMessage,
+): Promise<void> {
+	const binary = PilotRequestMessage.toBinary(request);
+	await publish(
+		`ats/${clientId}/data/pilot-request/${flightId}/${requestId}`,
+		binary,
 		{ retain: true },
 	);
 }

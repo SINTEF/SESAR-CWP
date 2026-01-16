@@ -114,7 +114,7 @@ export default observer(function DypTable(/* properties */) {
 			nodeRef={draggableRef}
 		>
 			<div
-				className="absolute bottom-14 left-12 text-[11px] leading-tight uppercase font-mono z-500"
+				className="absolute bottom-2.75 left-22 text-[11px] leading-tight uppercase font-mono z-500"
 				ref={draggableRef}
 				onMouseEnter={() => {
 					setIsTableHovered(true);
@@ -126,7 +126,7 @@ export default observer(function DypTable(/* properties */) {
 					}
 				}}
 			>
-				<table className="border border-[#182937] border-collapse text-[#ffffff] text-center h-full bg-[#315070]">
+				<table className="border border-[#182937] border-collapse text-[#ffffff] text-center h-full bg-[#315070] min-w-175">
 					<tbody>
 						{/* Header Row */}
 						<tr className="font-bold">
