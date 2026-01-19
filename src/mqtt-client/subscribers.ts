@@ -10,6 +10,7 @@ import {
 	FlightEnteringAirspaceMessage,
 	FlightMilestonePositionMessage,
 	FlightRouteMessage,
+	FrequenciesMessage,
 	NewAircraftMessage,
 	NewAircraftTypeMessage,
 	NewAirspaceConfigurationMessage,
@@ -29,6 +30,7 @@ import {
 	airwaysStore,
 	configurationStore,
 	fixStore,
+	frequenciesStore,
 	roleConfigurationStore,
 	sectorStore,
 	simulatorStore,
@@ -251,4 +253,9 @@ export function simulatorLogs(_parameters: unknown, message: Buffer): void {
 export function airways(_parameters: unknown, message: Buffer): void {
 	const protoMessage = AirwaysMessage.fromBinary(message);
 	airwaysStore.handleAirwaysMessage(protoMessage);
+}
+
+export function frequencies(_parameters: unknown, message: Buffer): void {
+	const protoMessage = FrequenciesMessage.fromBinary(message);
+	frequenciesStore.handleFrequenciesMessage(protoMessage);
 }

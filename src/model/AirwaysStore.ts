@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, observable } from "mobx";
 import type { AirwaysMessage } from "../proto/ProtobufAirTrafficSimulator";
 
 /** Represents an airway segment connecting two positions */
@@ -18,7 +18,13 @@ export default class AirwaysStore {
 	segments: AirwaySegment[] = [];
 
 	constructor() {
-		makeAutoObservable(this, {}, { autoBind: true });
+		makeAutoObservable(
+			this,
+			{
+				segments: observable.shallow,
+			},
+			{ autoBind: true },
+		);
 	}
 
 	/** Handle incoming airways message from MQTT */

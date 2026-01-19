@@ -9,6 +9,7 @@ import {
 	flightConflictMessage,
 	flightEnteringAirspaceMessage,
 	flightRoutes,
+	frequencies,
 	frontendACCBearing,
 	frontendACCFlightLevel,
 	frontendAssignedFlightLevel,
@@ -59,6 +60,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/data/waypoints/:objectId": ignored,
 	"ats/:clientId/data/points/:nodeId": newPointMessage,
 	"ats/:clientId/data/airways": airways,
+	"ats/:clientId/data/frequencies": frequencies,
 	"ats/:clientId/data/role-configs/:roleName": roleConfiguration,
 	"ats/:clientId/data/current-config": currentAirspaceConfiguration,
 	"ats/:clientId/data/controller-assignments/:objectId/:time":
