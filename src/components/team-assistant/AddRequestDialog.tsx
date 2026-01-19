@@ -18,20 +18,24 @@ interface AddRequestDialogProps {
 
 type RequestTypeOption = {
 	type: PilotRequestTypes;
+	label: string;
 	icon: string;
 };
 
 const REQUEST_TYPES: RequestTypeOption[] = [
 	{
 		type: PilotRequestTypes.FLIGHT_LEVEL,
+		label: "Flight Level",
 		icon: "/icon_flight_level_change.svg",
 	},
 	{
 		type: PilotRequestTypes.DIRECTTO,
+		label: "Direct To",
 		icon: "/icon_direct_request.svg",
 	},
 	{
 		type: PilotRequestTypes.HEADING,
+		label: "Heading",
 		icon: "/icon_thunderstorm.svg",
 	},
 ];
