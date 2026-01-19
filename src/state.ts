@@ -1,6 +1,7 @@
 import AdminStore from "./model/AdminStore";
 import AircraftStore from "./model/AircraftStore";
 import AirspaceStore from "./model/AirspaceStore";
+import AirwaysStore from "./model/AirwaysStore";
 import ConfigurationStore from "./model/ConfigurationStore";
 import CWPStore from "./model/CwpStore";
 import DatablockStore from "./model/DatablockStore";
@@ -29,6 +30,7 @@ export const aircraftStore = new AircraftStore({
 	sectorStore,
 });
 export const fixStore = new FixStore();
+export const airwaysStore = new AirwaysStore();
 export const datablockStore = new DatablockStore();
 export const distanceLineStore = new DistanceLine();
 
@@ -73,6 +75,7 @@ window.mobxDebugStores = {
 	airspaceStore,
 	sectorStore,
 	fixStore,
+	airwaysStore,
 	datablockStore,
 	distanceLineStore,
 	cwpStore,

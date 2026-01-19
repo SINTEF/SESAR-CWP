@@ -79,6 +79,8 @@ export default class CWPStore {
 
 	showFixes = false;
 
+	showAirways = false;
+
 	showVerticalWindow = false; /* should be true by default, if you see this, Antoine made a mistake by pushing this change */
 
 	showControllerSelection = true;
@@ -234,6 +236,10 @@ export default class CWPStore {
 
 	toggleFixes(): void {
 		this.showFixes = !this.showFixes;
+	}
+
+	toggleAirways(): void {
+		this.showAirways = !this.showAirways;
 	}
 
 	toggleVerticalWindow(): void {

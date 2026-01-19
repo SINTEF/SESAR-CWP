@@ -11,6 +11,7 @@
  * BOTTOM (rendered first, appears below)
  * ├─ SECTOR_BACKGROUND (sector fill, edges)
  * ├─ SECTOR_POLYGONS (sector outlines, names)
+ * ├─ AIRWAYS (airway segment lines)
  * ├─ CENTER_TEXT (center text overlay)
  * ├─ FIXES (navigation fixes)
  * ├─ FLIGHT_ROUTES (flight route lines)
@@ -28,6 +29,8 @@ export const LAYER_ORDER = {
 	SECTOR_BACKGROUND: "anchor-sector-background",
 	/** Sector polygon outlines and names */
 	SECTOR_POLYGONS: "anchor-sector-polygons",
+	/** Airway segment lines */
+	AIRWAYS: "anchor-airways",
 	/** Center text overlay showing current sector info */
 	CENTER_TEXT: "anchor-center-text",
 	/** Navigation fixes/waypoints */

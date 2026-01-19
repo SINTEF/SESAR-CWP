@@ -1289,6 +1289,48 @@ export interface PilotRequestMessage {
      */
     responseDetails: string; // E.g. reason for rejection or additional information.
 }
+/**
+ * A segment of an airway connecting two named positions.
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.AirwaySegment
+ */
+export interface AirwaySegment {
+    /**
+     * @generated from protobuf field: string from_id = 1
+     */
+    fromId: string; // Identifier of the starting named position.
+    /**
+     * @generated from protobuf field: string to_id = 2
+     */
+    toId: string; // Identifier of the ending named position.
+    /**
+     * @generated from protobuf field: float from_lat = 3
+     */
+    fromLat: number; // Latitude of the starting position (WGS84).
+    /**
+     * @generated from protobuf field: float from_lon = 4
+     */
+    fromLon: number; // Longitude of the starting position (WGS84).
+    /**
+     * @generated from protobuf field: float to_lat = 5
+     */
+    toLat: number; // Latitude of the ending position (WGS84).
+    /**
+     * @generated from protobuf field: float to_lon = 6
+     */
+    toLon: number; // Longitude of the ending position (WGS84).
+}
+/**
+ * Collection of airway segments for display on the CWP.
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.AirwaysMessage
+ */
+export interface AirwaysMessage {
+    /**
+     * @generated from protobuf field: repeated ProtobufAirTrafficSimulator.AirwaySegment segments = 1
+     */
+    segments: AirwaySegment[]; // All airway segments.
+}
 // Changing the file
 // protoc --js_out=import_style=commonjs,binary:. ProtobufAirTrafficSimulator.proto
 // For changing file here: npm run protoc
@@ -5792,3 +5834,137 @@ class PilotRequestMessage$Type extends MessageType<PilotRequestMessage> {
  * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.PilotRequestMessage
  */
 export const PilotRequestMessage = new PilotRequestMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class AirwaySegment$Type extends MessageType<AirwaySegment> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.AirwaySegment", [
+            { no: 1, name: "from_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "from_lat", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
+            { no: 4, name: "from_lon", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
+            { no: 5, name: "to_lat", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
+            { no: 6, name: "to_lon", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ }
+        ]);
+    }
+    create(value?: PartialMessage<AirwaySegment>): AirwaySegment {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.fromId = "";
+        message.toId = "";
+        message.fromLat = 0;
+        message.fromLon = 0;
+        message.toLat = 0;
+        message.toLon = 0;
+        if (value !== undefined)
+            reflectionMergePartial<AirwaySegment>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: AirwaySegment): AirwaySegment {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string from_id */ 1:
+                    message.fromId = reader.string();
+                    break;
+                case /* string to_id */ 2:
+                    message.toId = reader.string();
+                    break;
+                case /* float from_lat */ 3:
+                    message.fromLat = reader.float();
+                    break;
+                case /* float from_lon */ 4:
+                    message.fromLon = reader.float();
+                    break;
+                case /* float to_lat */ 5:
+                    message.toLat = reader.float();
+                    break;
+                case /* float to_lon */ 6:
+                    message.toLon = reader.float();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: AirwaySegment, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string from_id = 1; */
+        if (message.fromId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.fromId);
+        /* string to_id = 2; */
+        if (message.toId !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.toId);
+        /* float from_lat = 3; */
+        if (message.fromLat !== 0)
+            writer.tag(3, WireType.Bit32).float(message.fromLat);
+        /* float from_lon = 4; */
+        if (message.fromLon !== 0)
+            writer.tag(4, WireType.Bit32).float(message.fromLon);
+        /* float to_lat = 5; */
+        if (message.toLat !== 0)
+            writer.tag(5, WireType.Bit32).float(message.toLat);
+        /* float to_lon = 6; */
+        if (message.toLon !== 0)
+            writer.tag(6, WireType.Bit32).float(message.toLon);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.AirwaySegment
+ */
+export const AirwaySegment = new AirwaySegment$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class AirwaysMessage$Type extends MessageType<AirwaysMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.AirwaysMessage", [
+            { no: 1, name: "segments", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => AirwaySegment }
+        ]);
+    }
+    create(value?: PartialMessage<AirwaysMessage>): AirwaysMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.segments = [];
+        if (value !== undefined)
+            reflectionMergePartial<AirwaysMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: AirwaysMessage): AirwaysMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated ProtobufAirTrafficSimulator.AirwaySegment segments */ 1:
+                    message.segments.push(AirwaySegment.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: AirwaysMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated ProtobufAirTrafficSimulator.AirwaySegment segments = 1; */
+        for (let i = 0; i < message.segments.length; i++)
+            AirwaySegment.internalBinaryWrite(message.segments[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.AirwaysMessage
+ */
+export const AirwaysMessage = new AirwaysMessage$Type();
