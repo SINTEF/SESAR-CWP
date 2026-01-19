@@ -83,6 +83,7 @@ export default observer(function ChangeBearingPopup(properties: {
 		callSign,
 		lastKnownBearing,
 		assignedBearing,
+		assignedBearing,
 	} = properties.aircraft;
 
 	// Round current bearing to nearest 5 degrees for default selection
@@ -97,7 +98,53 @@ export default observer(function ChangeBearingPopup(properties: {
 
 	const [bearing, setBearing] = React.useState(defaultBearing);
 	const listOfBearingsReference = React.createRef<HTMLDivElement>();
+	// Round current bearing to nearest 5 degrees for default selection
+	const currentBearingRounded = Math.round(lastKnownBearing / 5) * 5 || 360;
+	const getDefaultBearing = (): number => {
+		if (assignedBearing && assignedBearing > 0) {
+			return Math.round(assignedBearing / 5) * 5 || 360;
+		}
+		return currentBearingRounded;
+	};
+	const defaultBearing = getDefaultBearing();
+
+	const [bearing, setBearing] = React.useState(defaultBearing);
+	const listOfBearingsReference = React.createRef<HTMLDivElement>();
 	const shouldShow = cwpStore.aircraftsWithBearingPopup.has(aircraftId);
+
+	const { currentCWP } = configurationStore;
+	const accepted = controlledBy === currentCWP;
+
+	// Reset bearing to default when popup opens
+	React.useEffect(() => {
+		if (shouldShow) {
+			setBearing(defaultBearing);
+		}
+	}, [shouldShow, defaultBearing]);
+
+	React.useEffect(() => {
+		// Scroll to the bearing in the list
+		const container = listOfBearingsReference.current;
+		if (!container) {
+			return;
+		}
+
+		const listElement = ([...container.children] as HTMLButtonElement[]).find(
+			(element) => element.dataset.bearing === `${bearing}`,
+		);
+
+		if (listElement) {
+			const containerRect = container.getBoundingClientRect();
+			const elementRect = listElement.getBoundingClientRect();
+			const elementTopRelativeToContainer =
+				elementRect.top - containerRect.top + container.scrollTop;
+			container.scrollTop =
+				elementTopRelativeToContainer -
+				container.clientHeight / 2 +
+				listElement.offsetHeight / 2;
+		}
+	}, [bearing, shouldShow]);
+
 
 	const { currentCWP } = configurationStore;
 	const accepted = controlledBy === currentCWP;
@@ -156,6 +203,27 @@ export default observer(function ChangeBearingPopup(properties: {
 		setBearing(newValue);
 	};
 
+
+	const bearingStep = 5;
+	const bearingMin = 5;
+	const bearingMax = 360;
+
+	const BearingChange = (direction: "up" | "down"): void => {
+		let newValue: number;
+		if (direction === "up") {
+			newValue = bearing + bearingStep;
+			if (newValue > bearingMax) {
+				newValue = bearingMin;
+			}
+		} else {
+			newValue = bearing - bearingStep;
+			if (newValue < bearingMin) {
+				newValue = bearingMax;
+			}
+		}
+		setBearing(newValue);
+	};
+
 	const close = (): void => {
 		cwpStore.closeChangeBearingForAircraft(aircraftId);
 		posthog?.capture("bearing_popup_closed", {
@@ -168,6 +236,9 @@ export default observer(function ChangeBearingPopup(properties: {
 	const applyBearing = (newBearing: number): void => {
 		setAssignedBearing(newBearing);
 		const pilotId = currentCWP === "All" ? "All" : controlledBy;
+	const applyBearing = (newBearing: number): void => {
+		setAssignedBearing(newBearing);
+		const pilotId = currentCWP === "All" ? "All" : controlledBy;
 
 		posthog?.capture("bearing_changed", {
 			aircraft_id: aircraftId,
@@ -175,11 +246,14 @@ export default observer(function ChangeBearingPopup(properties: {
 			previous_bearing: lastKnownBearing,
 			new_bearing: newBearing,
 			bearing_change: newBearing - lastKnownBearing,
+			new_bearing: newBearing,
+			bearing_change: newBearing - lastKnownBearing,
 			controlled_by: controlledBy,
 			pilot_id: pilotId,
 		});
 
 		handlePublishPromise(
+			changeBearingOfAircraft(pilotId, assignedFlightId, newBearing),
 			changeBearingOfAircraft(pilotId, assignedFlightId, newBearing),
 		);
 		handlePublishPromise(persistACCBearing(aircraftId, newBearing));
@@ -265,13 +339,16 @@ export default observer(function ChangeBearingPopup(properties: {
 				<button
 					onClick={close}
 					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
+					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
 				>
 					Cancel
 				</button>
 				<button
 					onClick={submit}
 					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
+					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
 				>
+					Apply
 					Apply
 				</button>
 			</div>
