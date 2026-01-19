@@ -112,6 +112,13 @@ export default observer(function ChangeBearingPopup(properties: {
 		}
 	}, [bearing, shouldShow]);
 
+	console.log(
+		"ChangeBearingPopup shouldShow:",
+		shouldShow,
+		"for aircraft:",
+		aircraftId,
+	);
+
 	if (!shouldShow) {
 		return null;
 	}

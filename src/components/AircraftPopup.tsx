@@ -24,6 +24,8 @@ import Stca from "./conflict-detection-tools/Stca";
 import Tct from "./conflict-detection-tools/Tct";
 import DraggablePopup, { DraggablePopupProperties } from "./DraggablePopup";
 import NextSectorPopup from "./NextSectorPopup";
+import AddRequestButton from "./team-assistant/AddRequestButton";
+import AddRequestDialog from "./team-assistant/AddRequestDialog";
 import RequestPanelContainer from "./team-assistant/RequestPanelContainer";
 
 /**
@@ -172,6 +174,19 @@ export default observer(function AircraftPopup(properties: {
 	// Determine line color: selected takes priority, then hovered, then default iconColor
 	const lineColor = isSelected || isHoveredMarker ? "#00FFFF" : iconColor;
 
+	const showAddTaRequestButton =
+		showExpandedContent &&
+		(cwpStore.pseudoPilot ||
+			adminStore.adminModeEnabled ||
+			configurationStore.currentCWP === "All");
+
+	const showAddTaDialogOpened =
+		cwpStore.aircraftsWithAddRequestDialog.has(aircraftId);
+
+	const showRequestPanelContainer = aircraftStore.hasTeamAssistantRequests(
+		properties.aircraft.assignedFlightId,
+	);
+
 	return (
 		<DraggablePopup
 			className="text-xs p-0 m-0 z-0"
@@ -208,6 +223,7 @@ export default observer(function AircraftPopup(properties: {
 							? "bg-neutral-800/40 rounded-xs border-[0.5px] border-cyan-400"
 							: "bg-neutral-800/50 rounded-sm border-0 border-transparent",
 						isHoveredMarker ? "text-pink-400" : "text-white",
+						showAddTaDialogOpened ? "rounded-tr-none" : "",
 					)}
 					onWheel={onWheel}
 					style={{ width: `${width}px`, height: `${height}px` }}
@@ -217,24 +233,31 @@ export default observer(function AircraftPopup(properties: {
 						aircraft={aircraft}
 						width={width}
 					/>
+					{showAddTaRequestButton && <AddRequestButton aircraft={aircraft} />}
 				</div>
-				{(aircraftStore.hasTeamAssistantRequests(
-					properties.aircraft.assignedFlightId,
-				) ||
-					cwpStore.pseudoPilot ||
-					adminStore.adminModeEnabled ||
-					configurationStore.currentCWP === "All") && (
-					<RequestPanelContainer aircraft={properties.aircraft} />
-				)}
-				{/* <RequestPanelContainer aircraft={properties.aircraft} /> */}
 			</div>
+			{showRequestPanelContainer || showAddTaDialogOpened ? (
+				<div className="absolute left-full top-0">
+					{showRequestPanelContainer && (
+						<RequestPanelContainer aircraft={properties.aircraft} />
+					)}
+					{showAddTaDialogOpened && (
+						<AddRequestDialog
+							aircraft={aircraft}
+							onClose={() => {
+								cwpStore.closeAddRequestDialogForAircraft(aircraftId);
+								cwpStore.removeHoveredFlightLabelId();
+							}}
+						/>
+					)}
+				</div>
+			) : null}
 			<div className="pt-0 pl-0.5">
 				<AircraftLevelPopup aircraft={aircraft} />
 				<ChangeNextFixPopup aircraft={aircraft} />
 				<NextSectorPopup aircraft={aircraft} />
 				<ChangeSpeedPopup aircraft={aircraft} />
 				<ChangeBearingPopup aircraft={aircraft} />
-				{/* <ATCMenu aircraft={aircraft} /> */}
 			</div>
 			<ATCMenu aircraft={properties.aircraft} />
 			{hasStcaConflict || hasTctConflict ? (

@@ -130,6 +130,12 @@ export default class CWPStore {
 		{ deep: false },
 	);
 
+	/** Tracks aircraft that have the AddRequestDialog open */
+	aircraftsWithAddRequestDialog: ObservableSet<string> = observable.set(
+		undefined,
+		{ deep: false },
+	);
+
 	/** Time offsets for agenda events in minutes (positive = moved into future) */
 	agendaEventTimeOffsets: ObservableMap<string, number> = observable.map(
 		undefined,
@@ -200,6 +206,9 @@ export default class CWPStore {
 	 * will call this callback with the selected value instead of their normal behavior.
 	 */
 	taRequestCallback: ((value: string) => void) | null = null;
+
+	/** The aircraft ID for which a TA request flow is in progress */
+	taRequestAircraftId: string | null = null;
 
 	constructor({
 		altitudeFilter,
@@ -358,6 +367,7 @@ export default class CWPStore {
 		this.closeChangeBearingForAircraft(aircraftId);
 		this.closeChangeNextFixForAircraft(aircraftId);
 		this.closeChangeSpeedForAircraft(aircraftId);
+		this.closeAddRequestDialogForAircraft(aircraftId);
 		this.clearTaRequestCallback();
 	}
 
@@ -365,8 +375,12 @@ export default class CWPStore {
 	 * Set a callback for TA request mode. When set, popup components will call this
 	 * callback with the selected value instead of their normal behavior.
 	 */
-	setTaRequestCallback(callback: (value: string) => void): void {
+	setTaRequestCallback(
+		callback: (value: string) => void,
+		aircraftId: string,
+	): void {
 		this.taRequestCallback = callback;
+		this.taRequestAircraftId = aircraftId;
 	}
 
 	/**
@@ -374,6 +388,7 @@ export default class CWPStore {
 	 */
 	clearTaRequestCallback(): void {
 		this.taRequestCallback = null;
+		this.taRequestAircraftId = null;
 	}
 
 	openLevelPopupForAircraft(
@@ -381,9 +396,11 @@ export default class CWPStore {
 		preserveCallback = false,
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
+		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
 		this.closeAllSubPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
+			this.taRequestAircraftId = savedAircraftId;
 		}
 		this.aircraftsWithLevelPopup.add(aircraftId);
 	}
@@ -406,9 +423,11 @@ export default class CWPStore {
 		preserveCallback = false,
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
+		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
 		this.closeAllSubPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
+			this.taRequestAircraftId = savedAircraftId;
 		}
 		this.aircraftsWithBearingPopup.add(aircraftId);
 	}
@@ -422,9 +441,11 @@ export default class CWPStore {
 		preserveCallback = false,
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
+		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
 		this.closeAllSubPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
+			this.taRequestAircraftId = savedAircraftId;
 		}
 		this.aircraftsWithNextFixPopup.add(aircraftId);
 	}
@@ -440,6 +461,14 @@ export default class CWPStore {
 
 	closeChangeSpeedForAircraft(aircraftId: string): void {
 		this.aircraftWithSpeedChangePopup.delete(aircraftId);
+	}
+
+	openAddRequestDialogForAircraft(aircraftId: string): void {
+		this.aircraftsWithAddRequestDialog.add(aircraftId);
+	}
+
+	closeAddRequestDialogForAircraft(aircraftId: string): void {
+		this.aircraftsWithAddRequestDialog.delete(aircraftId);
 	}
 
 	setSpeedVectorMinutes(value: number): void {
@@ -651,6 +680,7 @@ export default class CWPStore {
 			this.aircraftsWithBearingPopup.has(aircraftId) ||
 			this.aircraftsWithNextFixPopup.has(aircraftId) ||
 			this.aircraftWithSpeedChangePopup.has(aircraftId) ||
+			this.aircraftsWithAddRequestDialog.has(aircraftId) ||
 			this.ATCMenuAircraftId === aircraftId
 		);
 	}
@@ -716,6 +746,7 @@ export default class CWPStore {
 		this.aircraftsWithBearingPopup.clear();
 		this.aircraftsWithNextFixPopup.clear();
 		this.aircraftWithSpeedChangePopup.clear();
+		this.aircraftsWithAddRequestDialog.clear();
 
 		// Clear hover and highlight state
 		this.highlightedAircraftId = "";

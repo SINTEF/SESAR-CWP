@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { observer } from "mobx-react-lite";
 import type AircraftModel from "../../model/AircraftModel";
 import {
@@ -78,7 +79,7 @@ export default observer(function AddRequestDialog({
 		// Set up the callback that will receive the selected value from the popup
 		cwpStore.setTaRequestCallback((value: string) => {
 			createRequest(type, value);
-		});
+		}, aircraftId);
 
 		// Open the appropriate existing popup, preserving the callback
 		switch (type) {
@@ -93,6 +94,9 @@ export default observer(function AddRequestDialog({
 				break;
 			default:
 				// SPEED type not supported in this dialog
+				Sentry.captureMessage(
+					`AddRequestDialog: Unsupported request type selected: ${type}`,
+				);
 				break;
 		}
 
@@ -101,31 +105,19 @@ export default observer(function AddRequestDialog({
 	};
 
 	return (
-		<div className="absolute left-full top-0 ml-1 z-50 bg-base-200 border border-base-content/20 rounded p-1 shadow-lg">
-			<div className="flex items-center gap-1 mb-1">
-				<span className="text-[10px] text-base-content/70">{callSign}</span>
+		<div className="absolute top-0 w-max bg-neutral-800/40 border-l border-l-neutral-800 select-none backdrop-blur-[1.5px] rounded rounded-l-none flex gap-1 p-1">
+			{REQUEST_TYPES.map(({ type, label, icon }) => (
 				<button
+					key={type}
 					type="button"
-					onClick={onClose}
-					className="text-base-content/50 hover:text-base-content text-[10px] leading-none ml-auto"
+					onClick={() => handleTypeSelect(type)}
+					className="btn btn-neutral btn-xs h-auto flex flex-col gap-0"
+					title={label}
 				>
-					✕
+					<img src={icon} alt={label} className="w-4 h-4" />
+					<span className="text-[8px]">{label}</span>
 				</button>
-			</div>
-			<div className="flex gap-0.5">
-				{REQUEST_TYPES.map(({ type, label, icon }) => (
-					<button
-						key={type}
-						type="button"
-						onClick={() => handleTypeSelect(type)}
-						className="btn btn-xs btn-ghost p-0.5 h-auto flex flex-col gap-0"
-						title={label}
-					>
-						<img src={icon} alt={label} className="w-4 h-4" />
-						<span className="text-[8px]">{label}</span>
-					</button>
-				))}
-			</div>
+			))}
 		</div>
 	);
 });

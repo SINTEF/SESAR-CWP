@@ -1,12 +1,6 @@
 import { observer } from "mobx-react-lite";
 import type AircraftModel from "../../model/AircraftModel";
-import {
-	adminStore,
-	aircraftStore,
-	configurationStore,
-	cwpStore,
-} from "../../state";
-import AddRequestButton from "./AddRequestButton";
+import { aircraftStore } from "../../state";
 import RequestPanel from "./RequestPanel";
 
 interface RequestPanelContainerProps {
@@ -25,19 +19,14 @@ export default observer(function RequestPanelContainer({
 	const requests = aircraftStore.getRequestsForAircraft(
 		aircraft.assignedFlightId,
 	);
-	// Show when pseudo-pilot mode, admin mode, or master mode is enabled
-	const showAddButton =
-		cwpStore.pseudoPilot ||
-		adminStore.adminModeEnabled ||
-		configurationStore.currentCWP === "All";
 
 	// Show container if there are requests OR if we need to show the add button
-	if (requests.length === 0 && !showAddButton) {
+	if (requests.length === 0) {
 		return null;
 	}
 
 	return (
-		<div className="flex flex-row gap-1 items-start">
+		<div className="absolute top-0 w-max flex flex-row ml-0.75 gap-0.75 items-start">
 			{requests.map((request) => (
 				<RequestPanel
 					key={request.requestId}
@@ -45,7 +34,6 @@ export default observer(function RequestPanelContainer({
 					request={request}
 				/>
 			))}
-			{showAddButton && <AddRequestButton aircraft={aircraft} />}
 		</div>
 	);
 });

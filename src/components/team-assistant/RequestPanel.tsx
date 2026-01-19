@@ -37,22 +37,6 @@ function getIconForRequestType(
 }
 
 /**
- * Get the status color based on request status.
- */
-function getStatusColor(status: PilotRequestStatus): string {
-	switch (status) {
-		case PilotRequestStatus.PR_PENDING:
-			return "bg-yellow-500";
-		case PilotRequestStatus.PR_ACCEPTED:
-			return "bg-green-500";
-		case PilotRequestStatus.PR_REJECTED:
-			return "bg-red-500";
-		default:
-			return "bg-yellow-500";
-	}
-}
-
-/**
  * Format the request parameter for display.
  * Adds "FL" prefix for flight level requests if not already present.
  */
@@ -83,10 +67,9 @@ export default observer(function RequestPanel({
 	flightId,
 	request,
 }: RequestPanelProps) {
-	const { requestId, requestType, requestParameter, status } = request;
+	const { requestId, requestType, requestParameter } = request;
 
 	const iconSrc = getIconForRequestType(requestType, requestParameter);
-	const statusColor = getStatusColor(status);
 	const displayParameter = formatRequestParameter(
 		requestType,
 		requestParameter,
@@ -107,31 +90,52 @@ export default observer(function RequestPanel({
 	};
 
 	return (
-		<div className="flex flex-col gap-1 bg-base-300 border border-base-content/20 rounded p-1.5 min-w-[70px]">
-			{/* Status indicator */}
+		<div className="flex flex-col gap-1 bg-neutral-800/40 rounded p-1.5 min-w-15 backdrop-blur-[1.5px] text-[#40c4ff]">
 			<div className="flex items-center gap-1.5">
-				<div className={`w-2 h-2 rounded-full ${statusColor}`} />
 				<img src={iconSrc} alt="Request type" className="w-4 h-4" />
-				<span className="text-xs font-medium text-white truncate">
-					{displayParameter}
-				</span>
+				<span className="text-xs">{displayParameter}</span>
 			</div>
 
 			{/* Action buttons */}
-			<div className="flex gap-1">
+			<div className="flex gap-1 text-white">
 				<button
 					type="button"
-					className="btn btn-xs btn-success flex-1 text-[10px] px-1"
-					onClick={handleAccept}
+					className="btn btn-xs btn-ghost"
+					onClick={handleDismiss}
 				>
-					Accept
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
 				</button>
 				<button
 					type="button"
-					className="btn btn-xs btn-ghost border-base-content/30 flex-1 text-[10px] px-1"
-					onClick={handleDismiss}
+					className="btn btn-xs btn-ghost"
+					onClick={handleAccept}
 				>
-					Dismiss
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<polyline points="20 6 9 17 4 12"></polyline>
+					</svg>
 				</button>
 			</div>
 		</div>
