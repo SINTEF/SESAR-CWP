@@ -125,7 +125,7 @@ export default observer(function AircraftPopup(properties: {
 			Number.parseInt(aircraft.nextSectorFL) || showExpandedContent
 			? 70
 			: 56;
-	const width = showExpandedContent ? 135 : 74;
+	const width = showExpandedContent ? 135 : 83;
 	const Content = showExpandedContent
 		? AircraftPopupContent
 		: AircraftContentSmall;

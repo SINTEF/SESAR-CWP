@@ -79,9 +79,6 @@ export default observer(function ChangeBearingPopup(properties: {
 	const listOfBearingsReference = React.createRef<HTMLDivElement>();
 	const shouldShow = cwpStore.aircraftsWithBearingPopup.has(aircraftId);
 
-	const { currentCWP } = configurationStore;
-	const accepted = controlledBy === currentCWP;
-
 	// Reset bearing to default when popup opens
 	React.useEffect(() => {
 		if (shouldShow) {
@@ -112,12 +109,8 @@ export default observer(function ChangeBearingPopup(properties: {
 		}
 	}, [bearing, shouldShow]);
 
-	console.log(
-		"ChangeBearingPopup shouldShow:",
-		shouldShow,
-		"for aircraft:",
-		aircraftId,
-	);
+	const { currentCWP } = configurationStore;
+	const accepted = controlledBy === currentCWP;
 
 	if (!shouldShow) {
 		return null;
