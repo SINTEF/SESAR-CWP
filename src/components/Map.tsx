@@ -12,6 +12,7 @@ import { LAYER_ORDER } from "../constants/layerOrder";
 import { MapImage } from "../MapImage";
 import { cwpStore, distanceLineStore, mapViewportStore } from "../state";
 import Aircrafts from "./Aircrafts";
+import Airways from "./Airways";
 import CenterTextOverlay from "./CenterTextOverlay";
 import DistanceMarkers from "./DistanceMarkers";
 import DistanceMeasurements from "./DistanceMeasurements";
@@ -60,7 +61,7 @@ const mapStyle: StyleSpecification = {
 			source: "countries",
 			paint: {
 				"line-color": "#565656",
-				"line-width": 1,
+				"line-width": 2,
 			},
 		},
 	],
@@ -242,6 +243,7 @@ export default function Map() {
 				{/* Order is bottom to top: layers with beforeId="X" appear BELOW layer X */}
 				<EmptyLayer id={LAYER_ORDER.SECTOR_BACKGROUND} />
 				<EmptyLayer id={LAYER_ORDER.SECTOR_POLYGONS} />
+				<EmptyLayer id={LAYER_ORDER.AIRWAYS} />
 				<EmptyLayer id={LAYER_ORDER.CENTER_TEXT} />
 				<EmptyLayer id={LAYER_ORDER.FIXES} />
 				<EmptyLayer id={LAYER_ORDER.FLIGHT_ROUTES} />
@@ -258,6 +260,7 @@ export default function Map() {
 
 				{/* Background */}
 				<Sectors beforeId={LAYER_ORDER.SECTOR_POLYGONS} />
+				<Airways beforeId={LAYER_ORDER.AIRWAYS} />
 				<CenterTextOverlay beforeId={LAYER_ORDER.CENTER_TEXT} />
 				<FixesPoints beforeId={LAYER_ORDER.FIXES} />
 
