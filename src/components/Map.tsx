@@ -1,9 +1,5 @@
 import classNames from "classnames";
-import type {
-	Map as MaplibreMap,
-	MapMouseEvent,
-	StyleSpecification,
-} from "maplibre-gl";
+import type { MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import * as maplibregl from "maplibre-gl";
 import { usePostHog } from "posthog-js/react";
 import React from "react";
@@ -12,12 +8,14 @@ import ReactMapGL, {
 	FullscreenControl,
 	NavigationControl,
 } from "react-map-gl/maplibre";
+import { LAYER_ORDER } from "../constants/layerOrder";
+import { MapImage } from "../MapImage";
 import { cwpStore, distanceLineStore, mapViewportStore } from "../state";
-import { useMapImage } from "../useMapImage";
 import Aircrafts from "./Aircrafts";
 import CenterTextOverlay from "./CenterTextOverlay";
 import DistanceMarkers from "./DistanceMarkers";
 import DistanceMeasurements from "./DistanceMeasurements";
+import EmptyLayer from "./EmptyLayer";
 import FixesPoints from "./FixesPoints";
 import FlightRoutes from "./FlightRoutes";
 import HighlightedAircraft from "./HighlightedAircraft";
@@ -144,9 +142,6 @@ export default function Map() {
 	const posthog = usePostHog();
 	const [isMoving, setIsMoving] = React.useState(false);
 	const mapRef = React.useRef<MapRef>(null);
-	const [mapInstance, setMapInstance] = React.useState<MaplibreMap | null>(
-		null,
-	);
 	// Track number of concurrent move operations to handle overlapping animations
 	const moveCountRef = React.useRef(0);
 	// const { isDragging } = useDragging();
@@ -165,7 +160,6 @@ export default function Map() {
 		if (mapRef.current) {
 			mapViewportStore.setMapRef(mapRef.current);
 			mapViewportStore.updateViewportState();
-			setMapInstance(mapRef.current.getMap());
 		}
 	}, []);
 
@@ -209,13 +203,6 @@ export default function Map() {
 		});
 	};
 
-	useMapImage({
-		map: mapInstance,
-		url: "/fixes.png",
-		name: "fixes",
-		sdf: true,
-	});
-
 	return (
 		<div
 			className={classNames(
@@ -248,26 +235,55 @@ export default function Map() {
 				// dragRotate={false}
 				canvasContextAttributes={CANVAS_CONTEXT_ATTRIBUTES}
 			>
-				<CenterTextOverlay />
-				<DistanceMarkers />
-				<DistanceMeasurements />
-				<Sectors />
-				<FixesPoints />
-				<FlightRoutes />
-				<NextFixPreviewLine />
-				<TrajectoryPredictionLines />
-				<SpeedVectors />
-				<SepQdmLines />
-				<QdmLabelPopups />
-				<SepLabelPopups />
-				<SepQdmCurrentLine />
-				<PopupLines />
-				<Aircrafts />
-				<HighlightedAircraft />
-				<LimboAircrafts />
+				{/* Map resources */}
+				<MapImage url="/fixes.png" name="fixes" sdf={true} />
+
+				{/* Layer ordering anchors - these empty layers establish z-order for dynamic layers */}
+				{/* Order is bottom to top: layers with beforeId="X" appear BELOW layer X */}
+				<EmptyLayer id={LAYER_ORDER.SECTOR_BACKGROUND} />
+				<EmptyLayer id={LAYER_ORDER.SECTOR_POLYGONS} />
+				<EmptyLayer id={LAYER_ORDER.CENTER_TEXT} />
+				<EmptyLayer id={LAYER_ORDER.FIXES} />
+				<EmptyLayer id={LAYER_ORDER.FLIGHT_ROUTES} />
+				<EmptyLayer id={LAYER_ORDER.SPEED_VECTORS} />
+				<EmptyLayer id={LAYER_ORDER.TRAJECTORY_PREDICTION} />
+				<EmptyLayer id={LAYER_ORDER.DISTANCE_MEASUREMENTS} />
+				<EmptyLayer id={LAYER_ORDER.SEP_QDM_LINES} />
+				<EmptyLayer id={LAYER_ORDER.INTERACTIVE_LINES} />
+
+				{/* Controls */}
 				<NavigationControl position="bottom-left" visualizePitch={true} />
 				<FullscreenControl position="bottom-left" containerId="root" />
 				<ViewportPresetsControl />
+
+				{/* Background */}
+				<Sectors beforeId={LAYER_ORDER.SECTOR_POLYGONS} />
+				<CenterTextOverlay beforeId={LAYER_ORDER.CENTER_TEXT} />
+				<FixesPoints beforeId={LAYER_ORDER.FIXES} />
+
+				{/* Aircrafts layers */}
+				<FlightRoutes beforeId={LAYER_ORDER.FLIGHT_ROUTES} />
+				<Aircrafts />
+				<HighlightedAircraft />
+				<LimboAircrafts />
+
+				{/* Future */}
+				<SpeedVectors beforeId={LAYER_ORDER.SPEED_VECTORS} />
+				<TrajectoryPredictionLines
+					beforeId={LAYER_ORDER.TRAJECTORY_PREDICTION}
+				/>
+				<DistanceMarkers />
+				<DistanceMeasurements beforeId={LAYER_ORDER.DISTANCE_MEASUREMENTS} />
+
+				{/* Popups */}
+				<PopupLines />
+				<QdmLabelPopups />
+				<SepLabelPopups />
+
+				{/* Interactive lines */}
+				<SepQdmLines beforeId={LAYER_ORDER.SEP_QDM_LINES} />
+				<SepQdmCurrentLine beforeId={LAYER_ORDER.INTERACTIVE_LINES} />
+				<NextFixPreviewLine beforeId={LAYER_ORDER.INTERACTIVE_LINES} />
 			</ReactMapGL>
 		</div>
 	);

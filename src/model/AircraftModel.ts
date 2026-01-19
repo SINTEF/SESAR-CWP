@@ -115,8 +115,16 @@ export default class AircraftModel {
 
 	frequency = "";
 
+	/**
+	 * @deprecated Use AircraftStore.getRequestsForAircraft() instead.
+	 * This field is kept for backward compatibility and will store the most recent flight level request parameter.
+	 */
 	flightLevelPilotRequest: string | boolean = false;
 
+	/**
+	 * @deprecated Use AircraftStore.getRequestsForAircraft() instead.
+	 * This field is kept for backward compatibility and will store the most recent bearing request parameter.
+	 */
 	bearingPilotRequest: string | boolean = false;
 
 	/** Whether the aircraft has been "degreased" (acknowledged). Once true, popup text is no longer bold. */

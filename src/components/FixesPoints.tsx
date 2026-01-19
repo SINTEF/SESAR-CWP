@@ -21,8 +21,13 @@ const fixNameLayout: SymbolLayerSpecification["layout"] = {
 	"text-allow-overlap": true,
 	"icon-allow-overlap": true,
 };
+
+interface FixesPointsProps {
+	beforeId?: string;
+}
+
 //Removed for now, as it is not used in DSNA version
-export default observer(function FixesPoints(/* properties */) {
+export default observer(function FixesPoints({ beforeId }: FixesPointsProps) {
 	// Load required data
 	const fixData = fixStore.fixes;
 	// const bounds = configurationStore.extendedEdgesBounds; // TODO: Change bounds
@@ -57,6 +62,7 @@ export default observer(function FixesPoints(/* properties */) {
 				type="symbol"
 				layout={fixNameLayout}
 				paint={fixNamePaint}
+				beforeId={beforeId}
 			/>
 		</Source>
 	);

@@ -58,9 +58,12 @@ export default class FixStore {
 	}
 
 	/** Spatial index for KNN queries - points added as degenerate rectangles */
-	get fixIndex(): Flatbush {
+	get fixIndex(): Flatbush | undefined {
 		const fixList = this.fixList;
-		const index = new Flatbush(Math.max(fixList.length, 10));
+		if (fixList.length === 0) {
+			return undefined;
+		}
+		const index = new Flatbush(fixList.length);
 
 		for (const fix of fixList) {
 			// Add point as degenerate rectangle (min == max)
@@ -91,6 +94,9 @@ export default class FixStore {
 		}
 
 		const fixIndex = this.fixIndex;
+		if (!fixIndex) {
+			return [];
+		}
 		const neighborIndices = fixIndex.neighbors(
 			longitude,
 			latitude,

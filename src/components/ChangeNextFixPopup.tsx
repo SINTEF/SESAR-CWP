@@ -214,6 +214,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 	}
 
 	const close = (): void => {
+		cwpStore.clearTaRequestCallback();
 		cwpStore.closeChangeNextFixForAircraft(aircraftId);
 		posthog?.capture("next_fix_popup_closed", {
 			aircraft_id: aircraftId,
@@ -224,6 +225,20 @@ export default observer(function ChangeNextFixPopup(properties: {
 
 	const applyFix = (fixName: string): void => {
 		const upperFixName = fixName.toLocaleUpperCase();
+
+		// If TA request callback is set, call it instead of normal behavior
+		if (cwpStore.taRequestCallback) {
+			// Still validate that the fix exists
+			if (!fixStore.fixes.has(upperFixName)) {
+				setShowWarning(true);
+				return;
+			}
+			cwpStore.taRequestCallback(upperFixName);
+			cwpStore.clearTaRequestCallback();
+			cwpStore.closeChangeNextFixForAircraft(aircraftId);
+			return;
+		}
+
 		const latOfFix = fixStore.fixes.get(upperFixName)?.latitude;
 		const longOfFix = fixStore.fixes.get(upperFixName)?.longitude;
 
@@ -262,6 +277,11 @@ export default observer(function ChangeNextFixPopup(properties: {
 	};
 
 	const handleFixClick = (fix: string): void => {
+		// In TA request mode, always apply (even if clicking current fix)
+		if (cwpStore.taRequestCallback) {
+			applyFix(fix);
+			return;
+		}
 		if (fix === nextFix) {
 			// If clicking on the current fix (no change), just close the popup
 			close();
@@ -324,11 +344,18 @@ export default observer(function ChangeNextFixPopup(properties: {
 	const hasNoDisplayedFixes =
 		displayedTrajectoryFixes.length === 0 && displayedNearbyFixes.length === 0;
 
+	const isTaRequestMode = !!cwpStore.taRequestCallback;
+
 	return (
 		<div
-			className="w-24 bg-[#1e3a5f] p-0 shadow-lg"
+			className={`w-24 bg-[#1e3a5f] p-0 shadow-lg ${isTaRequestMode ? "border-2 border-yellow-400" : ""}`}
 			style={{ borderRadius: 0 }}
 		>
+			{isTaRequestMode && (
+				<div className="text-center text-[10px] py-0.5 bg-yellow-500 text-black font-medium">
+					TA Request
+				</div>
+			)}
 			<div className="text-center font-bold text-xs py-1 bg-black text-white">
 				{callSign}
 			</div>

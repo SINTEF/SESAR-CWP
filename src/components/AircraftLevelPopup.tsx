@@ -154,6 +154,7 @@ export default observer(function AircraftLevelPopup(properties: {
 	};
 
 	const close = (): void => {
+		cwpStore.clearTaRequestCallback();
 		cwpStore.closeLevelPopupForAircraft(aircraftId);
 		posthog?.capture("altitude_popup_closed", {
 			aircraft_id: aircraftId,
@@ -164,6 +165,15 @@ export default observer(function AircraftLevelPopup(properties: {
 
 	const applyFlightLevel = (level: number): void => {
 		const stringFlightLevel = level.toString();
+
+		// If TA request callback is set, call it instead of normal behavior
+		if (cwpStore.taRequestCallback) {
+			cwpStore.taRequestCallback(stringFlightLevel);
+			cwpStore.clearTaRequestCallback();
+			cwpStore.closeLevelPopupForAircraft(aircraftId);
+			return;
+		}
+
 		const previousAltitude = currentAircraftLevel;
 		let changeType = "";
 
@@ -230,6 +240,11 @@ export default observer(function AircraftLevelPopup(properties: {
 
 	// Handler for clicking a flight level button in the list
 	const handleFlightLevelClick = (level: number): void => {
+		// In TA request mode, always apply (even if clicking default level)
+		if (cwpStore.taRequestCallback) {
+			applyFlightLevel(level);
+			return;
+		}
 		if (level === defaultLevel) {
 			// If clicking on the default level (no change), just close the popup
 			close();
@@ -239,14 +254,22 @@ export default observer(function AircraftLevelPopup(properties: {
 		}
 	};
 
+	const isTaRequestMode = !!cwpStore.taRequestCallback;
+
 	return (
 		<div
 			className={`
 			w-20 bg-[#1e3a5f] p-0 shadow-lg
 			${accepted ? "border-2 border-green-400" : ""}
+			${isTaRequestMode ? "border-2 border-yellow-400" : ""}
 		`}
 			style={{ borderRadius: 0 }}
 		>
+			{isTaRequestMode && (
+				<div className="text-center text-[10px] py-0.5 bg-yellow-500 text-black font-medium">
+					TA Request
+				</div>
+			)}
 			<div className="text-center font-bold text-xs py-1 bg-black text-white">
 				{callSign}
 			</div>

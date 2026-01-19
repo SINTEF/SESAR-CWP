@@ -2,12 +2,16 @@ import CurrentSectorPolygon from "./CurrentSectorPolygon";
 import SectorEdgesPolygon from "./SectorEdgesPolygon";
 import SectorPolygons from "./SectorPolygons";
 
-export default function Sectors() {
+interface SectorsProps {
+	beforeId?: string;
+}
+
+export default function Sectors({ beforeId }: SectorsProps) {
 	return (
 		<>
-			<SectorEdgesPolygon />
-			<SectorPolygons />
-			<CurrentSectorPolygon />
+			<SectorEdgesPolygon beforeId={beforeId} />
+			<SectorPolygons beforeId={beforeId} />
+			<CurrentSectorPolygon beforeId={beforeId} />
 		</>
 	);
 }

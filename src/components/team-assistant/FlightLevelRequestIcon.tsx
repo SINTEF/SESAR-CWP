@@ -12,7 +12,7 @@ const FlightLevelRequestIcon: React.FC<FlightLevelRequestIconProps> = ({
 	flightId,
 }) => {
 	const messageStatus = flightId
-		? aircraftStore.teamAssistantRequest.get(flightId)?.status
+		? aircraftStore.getFirstRequestForAircraft(flightId)?.status
 		: undefined;
 	if (messageStatus === 2) {
 		primaryColor = "#FF0000"; // Red for error

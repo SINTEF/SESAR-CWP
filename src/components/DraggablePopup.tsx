@@ -272,7 +272,7 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 				zIndex,
 				maxWidth: "inherit",
 			}}
-			className="max-w-none"
+			className="max-w-none front-on-hover"
 		>
 			<div
 				className={`absolute ${isDragging ? "cursor-grabbing" : ""} ${className ?? ""}`}

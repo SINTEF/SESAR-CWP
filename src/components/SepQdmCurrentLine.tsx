@@ -26,7 +26,13 @@ const paintText: SymbolLayerSpecification["paint"] = {
 	"text-color": ACTIVE_COLOR,
 };
 
-export default observer(function SepQdmCurrentLine() {
+interface SepQdmCurrentLineProps {
+	beforeId?: string;
+}
+
+export default observer(function SepQdmCurrentLine({
+	beforeId,
+}: SepQdmCurrentLineProps) {
 	// Only render if currently drawing
 	if (!sepQdmStore.isDrawing) {
 		return null;
@@ -79,7 +85,12 @@ export default observer(function SepQdmCurrentLine() {
 				type="geojson"
 				data={lineGeoJson}
 			>
-				<Layer id="sep_qdm_current_line" type="line" paint={paintLine} />
+				<Layer
+					id="sep_qdm_current_line"
+					type="line"
+					paint={paintLine}
+					beforeId={beforeId}
+				/>
 			</Source>
 			<Source
 				id="sep_qdm_current_text_source"
@@ -91,6 +102,7 @@ export default observer(function SepQdmCurrentLine() {
 					type="symbol"
 					layout={layoutText}
 					paint={paintText}
+					beforeId="sep_qdm_current_line"
 				/>
 			</Source>
 		</>

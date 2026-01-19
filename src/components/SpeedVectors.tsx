@@ -109,7 +109,11 @@ const SPEED_VECTOR_LAYER_IDS = [
 	SPEED_VECTOR_POINT_LAYER_ID,
 ];
 
-export default observer(function SpeedVectors() {
+interface SpeedVectorsProps {
+	beforeId?: string;
+}
+
+export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 	const _aircraftIds = cwpStore.aircraftsWithSpeedVectors;
 	// const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const { speedVectorMinutes, showSpeedVectors } = cwpStore;
@@ -222,8 +226,18 @@ export default observer(function SpeedVectors() {
 
 	return (
 		<Source id="speedvectors_source" type="geojson" data={geoJson}>
-			<Layer id="speedvectorsline" type="line" paint={paintLine} />
-			<Layer id="speedvectorspoint" type="circle" paint={paintCircle} />
+			<Layer
+				id="speedvectorsline"
+				type="line"
+				paint={paintLine}
+				beforeId={beforeId}
+			/>
+			<Layer
+				id="speedvectorspoint"
+				type="circle"
+				paint={paintCircle}
+				beforeId="speedvectorsline"
+			/>
 		</Source>
 	);
 });

@@ -3,7 +3,11 @@ import { observer } from "mobx-react-lite";
 import { Layer, Source } from "react-map-gl/maplibre";
 import { sepQdmStore, trajectoryPredictionStore } from "../state";
 
-export default observer(function SepQdmLines() {
+interface SepQdmLinesProps {
+	beforeId?: string;
+}
+
+export default observer(function SepQdmLines({ beforeId }: SepQdmLinesProps) {
 	// Build features for SEP lines from separation instances
 	const sepFeatures: GeoJSON.Feature<GeoJSON.LineString>[] = [];
 	const sepTrajectoryFeatures: GeoJSON.Feature<GeoJSON.LineString>[] = [];
@@ -131,17 +135,28 @@ export default observer(function SepQdmLines() {
 						id="sep_trajectory_lines"
 						type="line"
 						paint={paintTrajectoryLine}
+						beforeId={beforeId}
 					/>
 				</Source>
 			)}
 			{sepFeatures.length > 0 && (
 				<Source id="sep_lines_source" type="geojson" data={sepGeoJson}>
-					<Layer id="sep_lines" type="line" paint={paintLine} />
+					<Layer
+						id="sep_lines"
+						type="line"
+						paint={paintLine}
+						beforeId={beforeId}
+					/>
 				</Source>
 			)}
 			{qdmFeatures.length > 0 && (
 				<Source id="qdm_lines_source" type="geojson" data={qdmGeoJson}>
-					<Layer id="qdm_lines" type="line" paint={paintLine} />
+					<Layer
+						id="qdm_lines"
+						type="line"
+						paint={paintLine}
+						beforeId={beforeId}
+					/>
 				</Source>
 			)}
 		</>
