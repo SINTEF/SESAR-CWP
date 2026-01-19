@@ -2,10 +2,15 @@
 import { SphericalMercator } from "@mapbox/sphericalmercator";
 import type { MapLayerMouseEvent } from "maplibre-gl";
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Layer, Source, useMap } from "react-map-gl/maplibre";
 import type AircraftModel from "../model/AircraftModel";
-import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
+import {
+	aircraftStore,
+	configurationStore,
+	cwpStore,
+	roleConfigurationStore,
+} from "../state";
 
 const degreesToRad = Math.PI / 180;
 const sphericalMercator = new SphericalMercator();
@@ -51,6 +56,7 @@ function buildSpeedVectorLocations(
 function buildGeoJsonSpeedVector(
 	aircraft: AircraftModel,
 	minutesInTheFuture: number,
+	hasConflict: boolean,
 ): GeoJSON.Feature[] {
 	const locations = buildSpeedVectorLocations(aircraft, minutesInTheFuture);
 	const vectorColor = roleConfigurationStore.getOriginalColorOfAircraft(
@@ -62,6 +68,7 @@ function buildGeoJsonSpeedVector(
 			properties: {
 				aircraftId: aircraft.aircraftId,
 				color: vectorColor,
+				hasConflict,
 			},
 			geometry: {
 				type: "LineString",
@@ -73,6 +80,7 @@ function buildGeoJsonSpeedVector(
 			properties: {
 				aircraftId: aircraft.aircraftId,
 				color: vectorColor,
+				hasConflict,
 			},
 			geometry: {
 				type: "MultiPoint",
@@ -83,22 +91,12 @@ function buildGeoJsonSpeedVector(
 }
 
 const paintLine = {
-	"line-color": [
-		"case",
-		["has", "color"],
-		["get", "color"],
-		"#ffffff",
-	] as unknown as string,
+	"line-color": ["get", "displayColor"] as unknown as string,
 	"line-width": 1,
 };
 
 const paintCircle = {
-	"circle-color": [
-		"case",
-		["has", "color"],
-		["get", "color"],
-		"#ffffff",
-	] as unknown as string,
+	"circle-color": ["get", "displayColor"] as unknown as string,
 	"circle-radius": 1.5,
 };
 
@@ -114,10 +112,36 @@ interface SpeedVectorsProps {
 }
 
 export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
-	const _aircraftIds = cwpStore.aircraftsWithSpeedVectors;
 	// const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const { speedVectorMinutes, showSpeedVectors } = cwpStore;
 	const { current: map } = useMap();
+
+	// Blink state synchronized with the CSS animation (1s period, 0.5s per phase)
+	// Phase true = show red (first half), phase false = show normal color (second half)
+	const [blinkPhaseRed, setBlinkPhaseRed] = useState(() => {
+		return Date.now() % 1000 < 500;
+	});
+
+	// Timer to toggle blink phase, aligned to half-second boundaries (CSS epoch sync)
+	useEffect(() => {
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+		const scheduleNextTick = (): void => {
+			const now = Date.now();
+			const msToNextHalfSecond = 500 - (now % 500);
+			timeoutId = setTimeout(() => {
+				setBlinkPhaseRed(Date.now() % 1000 < 500);
+				scheduleNextTick();
+			}, msToNextHalfSecond);
+		};
+
+		scheduleNextTick();
+		return () => {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		};
+	}, []);
 
 	// Handle right-click (contextmenu) to reset warning level
 	const handleContextMenu = useCallback((event: MapLayerMouseEvent) => {
@@ -215,10 +239,27 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 	// 		aircraft.lastKnownAltitude < highestBound,
 	// );
 
-	const speedVectors = aircrafts.flatMap((aircraft) =>
-		buildGeoJsonSpeedVector(aircraft, speedVectorMinutes),
-	);
+	const speedVectors = aircrafts.flatMap((aircraft) => {
+		const flightId = aircraft.assignedFlightId || aircraft.aircraftId;
+		const hasConflict =
+			aircraftStore.hasStcaConflict(flightId) ||
+			aircraftStore.hasTctConflict(flightId);
+		return buildGeoJsonSpeedVector(aircraft, speedVectorMinutes, hasConflict);
+	});
 
+	// Compute displayColor for each feature based on conflict state and blink phase
+	// Also track if any aircraft has a conflict for the source key
+	for (const feature of speedVectors) {
+		if (feature.properties) {
+			const hasConflict = feature.properties.hasConflict;
+			const normalColor = feature.properties.color ?? "#ffffff";
+			// When blinkPhaseRed is true and aircraft has conflict, show red
+			feature.properties.displayColor =
+				hasConflict && blinkPhaseRed ? "#dc2626" : normalColor;
+		}
+	}
+
+	// Create geoJson fresh each render - the data prop on Source triggers MapLibre update
 	const geoJson: GeoJSON.FeatureCollection = {
 		type: "FeatureCollection",
 		features: speedVectors,
@@ -227,16 +268,16 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 	return (
 		<Source id="speedvectors_source" type="geojson" data={geoJson}>
 			<Layer
-				id="speedvectorsline"
+				id={SPEED_VECTOR_LINE_LAYER_ID}
 				type="line"
 				paint={paintLine}
 				beforeId={beforeId}
 			/>
 			<Layer
-				id="speedvectorspoint"
+				id={SPEED_VECTOR_POINT_LAYER_ID}
 				type="circle"
 				paint={paintCircle}
-				beforeId="speedvectorsline"
+				beforeId={SPEED_VECTOR_LINE_LAYER_ID}
 			/>
 		</Source>
 	);
