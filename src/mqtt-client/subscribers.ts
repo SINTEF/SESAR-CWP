@@ -2,9 +2,9 @@ import * as Sentry from "@sentry/react";
 import {
 	AirspaceAvailabilityMessage,
 	AirTrafficControllerAssignmentMessage,
+	AirwaysMessage,
 	// AvailabilityIntervalsMessage,
 	AvailabilitySchedule,
-	AirwaysMessage,
 	CurrentAirspaceConfigurationMessage,
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
