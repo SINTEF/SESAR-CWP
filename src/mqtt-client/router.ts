@@ -4,6 +4,7 @@ import {
 	airspaceAvailability,
 	airspaces,
 	airTrafficControllerMessage,
+	airways,
 	currentAirspaceConfiguration,
 	flightConflictMessage,
 	flightEnteringAirspaceMessage,
@@ -57,6 +58,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/data/segments/:segmentId": ignored,
 	"ats/:clientId/data/waypoints/:objectId": ignored,
 	"ats/:clientId/data/points/:nodeId": newPointMessage,
+	"ats/:clientId/data/airways": airways,
 	"ats/:clientId/data/role-configs/:roleName": roleConfiguration,
 	"ats/:clientId/data/current-config": currentAirspaceConfiguration,
 	"ats/:clientId/data/controller-assignments/:objectId/:time":

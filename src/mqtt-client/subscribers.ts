@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/react";
 import {
 	AirspaceAvailabilityMessage,
 	AirTrafficControllerAssignmentMessage,
+	AirwaysMessage,
 	// AvailabilityIntervalsMessage,
 	AvailabilitySchedule,
 	CurrentAirspaceConfigurationMessage,
@@ -25,6 +26,7 @@ import {
 	adminStore,
 	aircraftStore,
 	airspaceStore,
+	airwaysStore,
 	configurationStore,
 	fixStore,
 	roleConfigurationStore,
@@ -244,4 +246,9 @@ export function pilotRequest(
 export function simulatorLogs(_parameters: unknown, message: Buffer): void {
 	const logMessage = message.toString();
 	adminStore.handleLogMessage(logMessage);
+}
+
+export function airways(_parameters: unknown, message: Buffer): void {
+	const protoMessage = AirwaysMessage.fromBinary(message);
+	airwaysStore.handleAirwaysMessage(protoMessage);
 }

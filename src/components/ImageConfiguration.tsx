@@ -116,13 +116,13 @@ const SectorLabelsButton = observer(function SectorLabelsButton() {
 const AirwaysButton = observer(function AirwaysButton() {
 	const posthog = usePostHog();
 	const onClick = (): void => {
-		cwpStore.toggleSectorLabels(); // Not correct but might be useful?
+		cwpStore.toggleAirways();
 		posthog?.capture("airways_toggled", {
-			enabled: !cwpStore.showSectorLabels,
+			enabled: !cwpStore.showAirways,
 		});
 	};
 	return (
-		<GenericButton onClick={onClick} active={cwpStore.showSectorLabels}>
+		<GenericButton onClick={onClick} active={cwpStore.showAirways}>
 			Airways
 		</GenericButton>
 	);
