@@ -329,7 +329,8 @@ html .btn {
  * or being interacted with (dragging, zooming, rotating) */
 .radar-map-container:not(.map-is-moving):not(.map-is-resizing)
 .maplibregl-marker:not(.disable-animation-marker),
-.radar-map-container:not(.map-is-moving):not(.map-is-resizing) .maplibregl-popup {
+.radar-map-container:not(.map-is-moving):not(.map-is-resizing)
+	.maplibregl-popup {
 	transition-duration: 300ms !important;
 	transition-timing-function: ease-in-out !important;
 	transition-property: transform !important;
