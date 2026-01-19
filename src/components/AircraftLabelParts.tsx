@@ -402,8 +402,57 @@ export const AssignedBearing = observer(
 				onClick={() => changeBearing(assignedBearing)}
 				className="hover:outline-2 hover:outline-white cursor-pointer"
 			>
+				<BearingChangeIcon aircraft={aircraft} />
 				{`${displayedBearing.toString().padStart(3, "0")}`}
 			</span>
+		);
+	},
+);
+
+/**
+ * Icon shown when the aircraft bearing is changing (assigned bearing differs from current bearing).
+ * Displays an "H" with an arrow indicating heading change in progress.
+ */
+export const BearingChangeIcon = observer(
+	({ aircraft }: SubContentProperties) => {
+		const { assignedBearing, lastKnownBearing } = aircraft;
+
+		// Only show icon when bearing is assigned and aircraft hasn't reached target heading yet
+		const hasBearingAssigned =
+			assignedBearing !== undefined && assignedBearing !== -1;
+
+		if (!hasBearingAssigned) {
+			return null;
+		}
+
+		// Check if bearing is still changing (with a small tolerance of 2 degrees)
+		const bearingDifference = Math.abs(assignedBearing - lastKnownBearing);
+		const normalizedDiff = Math.min(bearingDifference, 360 - bearingDifference);
+		const isBearingChanging = normalizedDiff > 2;
+
+		if (!isBearingChanging) {
+			return null;
+		}
+
+		return (
+			<svg
+				width="16"
+				height="11"
+				viewBox="0 0 61 42"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+				className="inline-block ml-0.5 -mt-0.5"
+			>
+				<circle cx="19.5" cy="22.5" r="19.5" fill="currentColor" />
+				<path
+					d="M54.6559 13.9084C56.5043 14.532 56.4576 17.1625 54.5881 17.72L22.2443 27.3664C20.9475 27.7531 19.6489 26.7673 19.673 25.4142L20.0361 4.97852C20.0601 3.62549 21.3929 2.68641 22.6751 3.119L54.6559 13.9084Z"
+					fill="currentColor"
+				/>
+				<path
+					d="M28.7951 33V11.1818H24.1822V20.184H14.8178V11.1818H10.2156V33H14.8178V23.9872H24.1822V33H28.7951Z"
+					fill="black"
+				/>
+			</svg>
 		);
 	},
 );
