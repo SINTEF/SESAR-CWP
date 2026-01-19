@@ -1,10 +1,7 @@
 import { observer } from "mobx-react-lite";
 import type { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
-import {
-	PilotRequestStatus,
-	PilotRequestTypes,
-} from "../../proto/ProtobufAirTrafficSimulator";
+import { PilotRequestTypes } from "../../proto/ProtobufAirTrafficSimulator";
 import { aircraftStore } from "../../state";
 
 interface RequestPanelProps {
