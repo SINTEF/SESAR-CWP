@@ -749,6 +749,17 @@ message AirwaySegment {
 message AirwaysMessage {
   repeated AirwaySegment segments = 1; // All airway segments.
 }
+
+// A frequency entry mapping a sector identifier to its radio frequency.
+message FrequencyEntry {
+  string sector_id  = 1; // Sector identifier (e.g., "L1", "G3").
+  float frequency   = 2; // Radio frequency in MHz (e.g., 134.850).
+}
+
+// Collection of sector frequencies for display on the CWP.
+message FrequenciesMessage {
+  repeated FrequencyEntry frequencies = 1; // All sector frequencies.
+}
 // ###################################################################################
 // * Messages, end.                                                                  |
 //  ##################################################################################

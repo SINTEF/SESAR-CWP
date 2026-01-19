@@ -40,10 +40,11 @@ function GenericButton({
 			type="button"
 			onClick={onClick}
 			className={classNames(
-				"h-full text-white text-xs bg-[#1e3a5f] rounded-none overflow-hidden whitespace-nowrap shrink",
-				"hover:bg-[#2a5d8f] active:bg-[#366fa3]",
-				"focus:outline-none focus:shadow-none focus:bg-[#3f77b2] p-1.5 pt-1 pb-1",
-				active && "bg-[#4b90db]",
+				"h-full text-white text-xs rounded-none overflow-hidden whitespace-nowrap shrink",
+				"focus:outline-none focus:shadow-none p-1.5 pt-1 pb-1",
+				active
+					? "bg-[#4b90db] hover:bg-[#5898dd] active:bg-[#4b90db]"
+					: "bg-[#1e3a5f] hover:bg-[#25436b] active:bg-[#1e3a5f]",
 			)}
 		>
 			{children}

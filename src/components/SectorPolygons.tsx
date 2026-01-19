@@ -5,14 +5,13 @@ import type {
 	LineLayerSpecification,
 	SymbolLayerSpecification,
 } from "maplibre-gl";
-import { computed } from "mobx";
 import { observer } from "mobx-react-lite";
 import { Layer, Source } from "react-map-gl/maplibre";
 import {
 	airspaceStore,
-	configurationStore,
+	//configurationStore,
 	cwpStore,
-	roleConfigurationStore,
+	sectorStore,
 } from "../state";
 
 const sectorOutlinePaint: LineLayerSpecification["paint"] = {
@@ -36,21 +35,32 @@ const sectorHighlightPaint: FillLayerSpecification["paint"] = {
 
 const sectorNameslayout: SymbolLayerSpecification["layout"] = {
 	"text-field": ["get", "title"],
+	"text-font": ["IBM Plex Mono"],
+	"text-size": 9.5,
+	"text-offset": [0.25, 0],
+	"text-anchor": "left",
 	"text-allow-overlap": true,
-	"text-radial-offset": 0.3,
-	"text-variable-anchor": [
-		"center",
-		"left",
-		"right",
-		"top",
-		"bottom",
-		"top-left",
-		"top-right",
-		"bottom-left",
-		"bottom-right",
-	],
-	"text-font": ["IBM Plex Mono Bold"],
-	"text-size": 14,
+	"text-ignore-placement": true,
+};
+
+// Layout for sector names displayed along the polygon boundary (like road names)
+const sectorBoundaryNamesLayout: SymbolLayerSpecification["layout"] = {
+	"symbol-placement": "line",
+	"text-field": ["get", "key"],
+	"text-font": ["IBM Plex Mono"],
+	"text-size": 10,
+	"text-offset": [0, -0.8], // Offset perpendicular to the line (positive = right side of line direction)
+	"text-allow-overlap": false,
+	"text-ignore-placement": false,
+	"symbol-spacing": 80,
+	"text-rotation-alignment": "map",
+	"text-pitch-alignment": "viewport",
+};
+
+const sectorBoundaryNamesPaint: SymbolLayerSpecification["paint"] = {
+	"text-color": ["get", "color"],
+	"text-halo-color": "#000",
+	"text-halo-width": 2,
 };
 
 interface SectorPolygonsProps {
@@ -62,16 +72,49 @@ export default observer(function SectorPolygons({
 }: SectorPolygonsProps) {
 	const { highestBound, lowestBound } = cwpStore.altitudeFilter;
 	const { showSectorLabels, showClickedSector, clickedSectorId } = cwpStore;
-	const { areaOfAirspacesToDisplay, currentConfigurationId } =
-		configurationStore;
-	const sectorData = areaOfAirspacesToDisplay.filter(
-		(area) =>
-			((area.bottomFlightLevel >= lowestBound &&
-				area.bottomFlightLevel <= highestBound) ||
-				(area.topFlightLevel <= highestBound &&
-					area.topFlightLevel >= lowestBound)) &&
-			area.sectorArea.length > 0,
-	);
+	//const configBounds = configurationStore.currentConfigurationFlightLevelBounds;
+	const sectorList = sectorStore.sectorList;
+	const sectorData = sectorList
+		.map((sector) => {
+			const volumes = sector.includedAirspaceVolumes;
+			const bottomFlightLevel =
+				volumes.length > 0
+					? Math.min(...volumes.map((v) => v.bottomFlightLevel))
+					: 0;
+			const topFlightLevel =
+				volumes.length > 0
+					? Math.max(...volumes.map((v) => v.topFlightLevel))
+					: 0;
+			return {
+				sectorId: sector.sectorId,
+				bottomFlightLevel,
+				topFlightLevel,
+				sectorArea: sector.area,
+			};
+		})
+		.filter((area) => area.sectorArea.length > 0);
+	// Filter sectors that intersect with the current configuration's flight level range
+	/*.filter((area) => {
+			if (!configBounds) {
+				return true; // No configuration bounds, show all sectors
+			}
+			console.log(
+				"configBounds",
+				configBounds,
+				area.bottomFlightLevel,
+				area.topFlightLevel,
+			);
+			// Check if sector flight levels intersect with configuration flight levels
+			return (
+				area.bottomFlightLevel <= configBounds.maxFlightLevel &&
+				area.topFlightLevel >= configBounds.minFlightLevel
+			);
+		}*/
+
+	// Early return if sectors toggle is off
+	if (!showSectorLabels || sectorData.length === 0) {
+		return null;
+	}
 
 	const sectorNamesText: SymbolLayerSpecification["layout"] = {
 		...sectorNameslayout,
@@ -86,57 +129,33 @@ export default observer(function SectorPolygons({
 		}
 		return "#fff";
 	};
-	const setSectorName = (
-		bottomFL: number,
-		topFL: number,
-		sectorId: string,
-	): string =>
-		computed(() => {
-			for (const key of roleConfigurationStore.roleConfigurations.keys()) {
-				const sector = roleConfigurationStore.findCurrentSectorByCWP(
-					key,
-					currentConfigurationId,
-				);
-				if (sector === sectorId) {
-					return `${key}-${bottomFL}-${topFL}`;
-				}
-			}
-			return "";
-		}).get();
-	const sectors: Feature<
-		Geometry,
-		{ t: string; color: string; key: string }
-	>[] = sectorData.map((area) => {
-		const { bottomFlightLevel, topFlightLevel, sectorArea, sectorId } = area;
-		const coordinates = sectorArea.map((point) => [
-			point.longitude,
-			point.latitude,
-		]);
-		return {
-			type: "Feature",
-			properties: {
-				key: sectorId,
-				t: setSectorName(bottomFlightLevel, topFlightLevel, sectorId),
-				color: getSectorColor(bottomFlightLevel, topFlightLevel),
-			},
-			geometry: {
-				type: "LineString",
-				coordinates: [...coordinates, coordinates[0]],
-			},
-		};
-	});
+	// Line features for sector outlines (dashed lines)
+	const sectorOutlines: Feature<Geometry, { color: string; key: string }>[] =
+		sectorData.map((area) => {
+			const { bottomFlightLevel, topFlightLevel, sectorArea, sectorId } = area;
+			const coordinates = sectorArea.map((point) => [
+				point.longitude,
+				point.latitude,
+			]);
+			return {
+				type: "Feature",
+				properties: {
+					key: sectorId,
+					color: getSectorColor(bottomFlightLevel, topFlightLevel),
+				},
+				geometry: {
+					type: "LineString",
+					coordinates: [...coordinates, coordinates[0]],
+				},
+			};
+		});
+
 	const centroidPoints = [];
-	const coeff = 0.001;
-	const sectorsLength = sectors.length;
-	for (const feature of sectors) {
+	for (const feature of sectorOutlines) {
 		const centroidPt = centroid<{ title: string }>(feature);
-		const index = centroidPoints.length;
-		// Add some little offset to avoid overlapping
-		centroidPt.geometry.coordinates[0] +=
-			(index * sectorsLength - sectorsLength / 2) * coeff;
-		centroidPt.geometry.coordinates[1] +=
-			(index * sectorsLength - sectorsLength / 2) * coeff;
-		centroidPt.properties.title = feature.properties.t;
+		centroidPt.properties = {
+			title: feature.properties.key,
+		};
 		centroidPoints.push(centroidPt);
 	}
 	const centroidPointsCollection: GeoJSON.FeatureCollection = {
@@ -144,7 +163,13 @@ export default observer(function SectorPolygons({
 		features: centroidPoints,
 	};
 
-	const sourceAndALayersForSectors = sectors.map((sector) => {
+	// FeatureCollection for all sector outlines (used for boundary labels)
+	const sectorOutlinesCollection: GeoJSON.FeatureCollection = {
+		type: "FeatureCollection",
+		features: sectorOutlines,
+	};
+
+	const sourceAndLayersForSectorOutlines = sectorOutlines.map((sector) => {
 		const data = {
 			type: "FeatureCollection",
 			features: [sector],
@@ -179,7 +204,8 @@ export default observer(function SectorPolygons({
 	};
 
 	const highlightedSectorArea = showClickedSector
-		? airspaceStore.getAreaFromId(clickedSectorId)
+		? (airspaceStore.getAreaFromId(clickedSectorId) ??
+			sectorStore.getSector(clickedSectorId))
 		: undefined;
 	if (highlightedSectorArea) {
 		sectorHighlightJSON.features.push({
@@ -188,10 +214,10 @@ export default observer(function SectorPolygons({
 			geometry: {
 				type: "Polygon",
 				coordinates: [
-					highlightedSectorArea.sectorArea.map((point) => [
-						point.longitude,
-						point.latitude,
-					]),
+					("sectorArea" in highlightedSectorArea
+						? highlightedSectorArea.sectorArea
+						: highlightedSectorArea.area
+					).map((point) => [point.longitude, point.latitude]),
 				],
 			},
 		});
@@ -212,7 +238,20 @@ export default observer(function SectorPolygons({
 					beforeId={beforeId}
 				/>
 			</Source>
-			{sourceAndALayersForSectors}
+			<Source
+				id="sector_boundary_names"
+				type="geojson"
+				data={sectorOutlinesCollection}
+			>
+				<Layer
+					id="sector_boundary_names_layer"
+					type="symbol"
+					layout={sectorBoundaryNamesLayout}
+					paint={sectorBoundaryNamesPaint}
+					beforeId={beforeId}
+				/>
+			</Source>
+			{sourceAndLayersForSectorOutlines}
 			{showClickedSector ? (
 				<Source
 					id="sector_polygons_highlight"

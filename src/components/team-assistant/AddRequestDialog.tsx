@@ -25,17 +25,17 @@ type RequestTypeOption = {
 const REQUEST_TYPES: RequestTypeOption[] = [
 	{
 		type: PilotRequestTypes.FLIGHT_LEVEL,
-		label: "FL",
+		label: "Flight Level",
 		icon: "/icon_flight_level_change.svg",
 	},
 	{
 		type: PilotRequestTypes.DIRECTTO,
-		label: "DCT",
+		label: "Direct To",
 		icon: "/icon_direct_request.svg",
 	},
 	{
 		type: PilotRequestTypes.HEADING,
-		label: "WX",
+		label: "Heading",
 		icon: "/icon_thunderstorm.svg",
 	},
 ];
@@ -111,11 +111,10 @@ export default observer(function AddRequestDialog({
 					key={type}
 					type="button"
 					onClick={() => handleTypeSelect(type)}
-					className="btn btn-neutral btn-xs h-auto flex flex-col gap-0"
+					className="btn btn-neutral btn-xs flex flex-col gap-0"
 					title={label}
 				>
 					<img src={icon} alt={label} className="w-4 h-4" />
-					<span className="text-[8px]">{label}</span>
 				</button>
 			))}
 		</div>

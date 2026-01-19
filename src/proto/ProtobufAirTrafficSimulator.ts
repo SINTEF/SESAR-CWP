@@ -1331,6 +1331,32 @@ export interface AirwaysMessage {
      */
     segments: AirwaySegment[]; // All airway segments.
 }
+/**
+ * A frequency entry mapping a sector identifier to its radio frequency.
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.FrequencyEntry
+ */
+export interface FrequencyEntry {
+    /**
+     * @generated from protobuf field: string sector_id = 1
+     */
+    sectorId: string; // Sector identifier (e.g., "L1", "G3").
+    /**
+     * @generated from protobuf field: float frequency = 2
+     */
+    frequency: number; // Radio frequency in MHz (e.g., 134.850).
+}
+/**
+ * Collection of sector frequencies for display on the CWP.
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.FrequenciesMessage
+ */
+export interface FrequenciesMessage {
+    /**
+     * @generated from protobuf field: repeated ProtobufAirTrafficSimulator.FrequencyEntry frequencies = 1
+     */
+    frequencies: FrequencyEntry[]; // All sector frequencies.
+}
 // Changing the file
 // protoc --js_out=import_style=commonjs,binary:. ProtobufAirTrafficSimulator.proto
 // For changing file here: npm run protoc
@@ -5968,3 +5994,105 @@ class AirwaysMessage$Type extends MessageType<AirwaysMessage> {
  * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.AirwaysMessage
  */
 export const AirwaysMessage = new AirwaysMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class FrequencyEntry$Type extends MessageType<FrequencyEntry> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.FrequencyEntry", [
+            { no: 1, name: "sector_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "frequency", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ }
+        ]);
+    }
+    create(value?: PartialMessage<FrequencyEntry>): FrequencyEntry {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.sectorId = "";
+        message.frequency = 0;
+        if (value !== undefined)
+            reflectionMergePartial<FrequencyEntry>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: FrequencyEntry): FrequencyEntry {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string sector_id */ 1:
+                    message.sectorId = reader.string();
+                    break;
+                case /* float frequency */ 2:
+                    message.frequency = reader.float();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: FrequencyEntry, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string sector_id = 1; */
+        if (message.sectorId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.sectorId);
+        /* float frequency = 2; */
+        if (message.frequency !== 0)
+            writer.tag(2, WireType.Bit32).float(message.frequency);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.FrequencyEntry
+ */
+export const FrequencyEntry = new FrequencyEntry$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class FrequenciesMessage$Type extends MessageType<FrequenciesMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.FrequenciesMessage", [
+            { no: 1, name: "frequencies", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => FrequencyEntry }
+        ]);
+    }
+    create(value?: PartialMessage<FrequenciesMessage>): FrequenciesMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.frequencies = [];
+        if (value !== undefined)
+            reflectionMergePartial<FrequenciesMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: FrequenciesMessage): FrequenciesMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated ProtobufAirTrafficSimulator.FrequencyEntry frequencies */ 1:
+                    message.frequencies.push(FrequencyEntry.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: FrequenciesMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated ProtobufAirTrafficSimulator.FrequencyEntry frequencies = 1; */
+        for (let i = 0; i < message.frequencies.length; i++)
+            FrequencyEntry.internalBinaryWrite(message.frequencies[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.FrequenciesMessage
+ */
+export const FrequenciesMessage = new FrequenciesMessage$Type();

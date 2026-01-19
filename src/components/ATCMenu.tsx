@@ -16,6 +16,7 @@ import {
 	simulatorStore,
 	trajectoryPredictionStore,
 } from "../state";
+import TransferFrequencyButton from "./TransferFrequencyButton";
 
 export default observer(function ATCMenu(properties: {
 	aircraft: AircraftModel;
@@ -231,12 +232,10 @@ export default observer(function ATCMenu(properties: {
 		<div className="bg-neutral-900/60 p-2.5 w-30 ml-1 rounded-b-sm text-gray-200 font-sans flex flex-col items-center border-t border-t-neutral-800">
 			<div className="space-y-2 w-full">
 				{controlledBy === configurationStore.currentCWP && (
-					<button
+					<TransferFrequencyButton
+						aircraft={properties.aircraft}
 						onClick={() => handleTrfClick(aircraftId)}
-						className="btn btn-xs btn-primary w-full rounded-xs"
-					>
-						TRF 130.165
-					</button>
+					/>
 				)}
 				<button
 					onClick={toggleAssumeFlight}

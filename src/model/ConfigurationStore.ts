@@ -310,6 +310,20 @@ export default class ConfigurationStore {
 		return this.getAreaOfIncludedAirpaces(this.currentConfigurationId);
 	}
 
+	/** Returns the flight level bounds for the current configuration, or undefined if none */
+	get currentConfigurationFlightLevelBounds():
+		| { minFlightLevel: number; maxFlightLevel: number }
+		| undefined {
+		const configuration = this.configurations.get(this.currentConfigurationId);
+		if (!configuration) {
+			return undefined;
+		}
+		return {
+			minFlightLevel: configuration.minFlightLevel,
+			maxFlightLevel: configuration.maxFlightLevel,
+		};
+	}
+
 	get areaOfIncludedAirspacesForNextConfiguration(): ISectorModel[] {
 		const { nextConfigurationId } = this;
 		if (!nextConfigurationId) {

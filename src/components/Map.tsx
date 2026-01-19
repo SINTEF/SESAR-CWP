@@ -142,9 +142,13 @@ const initialViewState: Partial<ViewState> = {
 export default function Map() {
 	const posthog = usePostHog();
 	const [isMoving, setIsMoving] = React.useState(false);
+	const [isResizing, setIsResizing] = React.useState(false);
 	const mapRef = React.useRef<MapRef>(null);
 	// Track number of concurrent move operations to handle overlapping animations
 	const moveCountRef = React.useRef(0);
+	const resizeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+		null,
+	);
 	// const { isDragging } = useDragging();
 
 	// Set map reference for viewport store when available
@@ -162,6 +166,29 @@ export default function Map() {
 			mapViewportStore.setMapRef(mapRef.current);
 			mapViewportStore.updateViewportState();
 		}
+	}, []);
+
+	// Disable animations briefly during window resize (debounced)
+	React.useEffect(() => {
+		const handleResize = (): void => {
+			setIsResizing(true);
+			if (resizeTimeoutRef.current) {
+				clearTimeout(resizeTimeoutRef.current);
+			}
+			resizeTimeoutRef.current = setTimeout(() => {
+				setIsResizing(false);
+				resizeTimeoutRef.current = null;
+			}, 250);
+		};
+
+		window.addEventListener("resize", handleResize);
+		return () => {
+			window.removeEventListener("resize", handleResize);
+			if (resizeTimeoutRef.current) {
+				clearTimeout(resizeTimeoutRef.current);
+				resizeTimeoutRef.current = null;
+			}
+		};
 	}, []);
 
 	const onMoveStart = (): void => {
@@ -209,6 +236,7 @@ export default function Map() {
 			className={classNames(
 				"radar-map-container grow",
 				isMoving && "map-is-moving",
+				isResizing && "map-is-resizing",
 			)}
 		>
 			<ReactMapGL

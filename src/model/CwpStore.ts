@@ -65,7 +65,7 @@ export default class CWPStore {
 
 	showFlightLabels = true;
 
-	showSectorLabels = true;
+	showSectorLabels = false;
 
 	showFlightLabelsForCurrentSector = true;
 
