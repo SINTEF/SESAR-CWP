@@ -101,10 +101,14 @@ const paintCircle = {
 };
 
 const SPEED_VECTOR_LINE_LAYER_ID = "speedvectorsline";
+const SPEED_VECTOR_LINE_CONFLICT_LAYER_ID = "speedvectorsline-conflict";
 const SPEED_VECTOR_POINT_LAYER_ID = "speedvectorspoint";
+const SPEED_VECTOR_POINT_CONFLICT_LAYER_ID = "speedvectorspoint-conflict";
 const SPEED_VECTOR_LAYER_IDS = [
 	SPEED_VECTOR_LINE_LAYER_ID,
+	SPEED_VECTOR_LINE_CONFLICT_LAYER_ID,
 	SPEED_VECTOR_POINT_LAYER_ID,
+	SPEED_VECTOR_POINT_CONFLICT_LAYER_ID,
 ];
 
 interface SpeedVectorsProps {
@@ -270,14 +274,30 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 			<Layer
 				id={SPEED_VECTOR_LINE_LAYER_ID}
 				type="line"
+				filter={["!=", ["get", "hasConflict"], true]}
+				paint={paintLine}
+				beforeId={beforeId}
+			/>
+			<Layer
+				id={SPEED_VECTOR_LINE_CONFLICT_LAYER_ID}
+				type="line"
+				filter={["==", ["get", "hasConflict"], true]}
 				paint={paintLine}
 				beforeId={beforeId}
 			/>
 			<Layer
 				id={SPEED_VECTOR_POINT_LAYER_ID}
 				type="circle"
+				filter={["!=", ["get", "hasConflict"], true]}
 				paint={paintCircle}
 				beforeId={SPEED_VECTOR_LINE_LAYER_ID}
+			/>
+			<Layer
+				id={SPEED_VECTOR_POINT_CONFLICT_LAYER_ID}
+				type="circle"
+				filter={["==", ["get", "hasConflict"], true]}
+				paint={paintCircle}
+				beforeId={SPEED_VECTOR_LINE_CONFLICT_LAYER_ID}
 			/>
 		</Source>
 	);
