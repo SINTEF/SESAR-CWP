@@ -28,6 +28,7 @@ import {
 	aircraftStore,
 	airspaceStore,
 	airwaysStore,
+	brainStore,
 	configurationStore,
 	fixStore,
 	frequenciesStore,
@@ -258,4 +259,40 @@ export function airways(_parameters: unknown, message: Buffer): void {
 export function frequencies(_parameters: unknown, message: Buffer): void {
 	const protoMessage = FrequenciesMessage.fromBinary(message);
 	frequenciesStore.handleFrequenciesMessage(protoMessage);
+}
+
+/**
+ * Handle WorkloadUpdate messages from MQTT topic TAS/{clientId}/WorkloadUpdate
+ *
+ * Expected message format:
+ * {
+ *   "jsonrpc": "2.0",
+ *   "method": "workloadUpdate",
+ *   "params": {
+ *     "workload": 1,
+ *     "reliability": 0.94,
+ *     "source": "Agent" | "ISA",
+ *     "timestamp": "2025-11-04 13:14:20.444"
+ *   },
+ *   "id": 42
+ * }
+ */
+export function workloadUpdate(_parameters: unknown, message: Buffer): void {
+	try {
+		const parsed = JSON.parse(message.toString());
+		const { workload, reliability, source, timestamp } = parsed.params;
+
+		if (source === "Agent") {
+			brainStore.updateAgentWorkload(workload, reliability, timestamp);
+		} else if (source === "ISA") {
+			brainStore.updateISAWorkload(workload, reliability, timestamp);
+		} else {
+			// biome-ignore lint/suspicious/noConsole: Warning for unknown workload source
+			console.warn(`Unknown workload source: ${source}`);
+		}
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: Error logging for debugging
+		console.error("Error parsing WorkloadUpdate message:", error);
+		Sentry.captureException(error);
+	}
 }
