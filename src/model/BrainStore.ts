@@ -102,7 +102,7 @@ export default class BrainStore {
 	/**
 	 * Delta - ISA Time Decay (0-1)
 	 *
-	 * Linear decay: 1.0 when fresh, 0.0 after 60 seconds
+	 * Linear decay: 1.0 when fresh, 0.0 after maxAgeSeconds (5 minutes)
 	 */
 	get delta(): number {
 		if (!this.timestampISA || !simulatorStore.timestamp) {
@@ -112,8 +112,8 @@ export default class BrainStore {
 		const ageInSeconds = simulatorStore.timestamp - this.timestampISA;
 		const maxAgeSeconds = 60 * 5;
 
-		// Linear decay: 1.0 at age 0, 0.0 at age 60s
-		return Math.max(0, Math.min(0, 1 - ageInSeconds / maxAgeSeconds));
+		// Linear decay: 1.0 at age 0, 0.0 at maxAgeSeconds
+		return Math.max(0, 1 - Math.max(1, ageInSeconds / maxAgeSeconds));
 	}
 
 	/**
@@ -166,45 +166,33 @@ export default class BrainStore {
 	}
 
 	/**
-	 * Autonomy Profile - Reported AP (1 or 2)
+	 * Autonomy Profile - Reported AP (null = error/no data, 1 = AP1, 2 = AP2)
 	 *
-	 * Uses manual override if set, otherwise thresholds normalizedAP to determine AP1 or AP2
+	 * Returns:
+	 * - Manual override value (1 or 2) if set, regardless of data availability
+	 * - null if data is missing/incomplete and no manual override
+	 * - Computed AP (1 or 2) based on normalizedAP threshold
 	 */
-	get autonomyProfile(): number {
+	get autonomyProfile(): number | null {
+		// Manual override always takes precedence
 		if (this.manualAP !== null) {
 			return this.manualAP;
 		}
-		return this.normalizedAP > this.swapValue ? 2 : 1;
-	}
 
-	/**
-	 * Has Error State - Indicates if data is missing or stale
-	 *
-	 * Returns true if:
-	 * - No Agent workload data received yet
-	 * - No ISA workload data received yet
-	 * - ISA data is completely stale (delta = 0)
-	 */
-	get hasError(): boolean {
-		// No Agent data received yet
+		// Check if we have minimum required data for computation
 		if (
 			this.workloadAgent === null ||
 			this.reliabilityAgent === null ||
-			this.timestampAgent === null
-		) {
-			return true;
-		}
-
-		// No ISA data received yet
-		if (
+			this.timestampAgent === null ||
 			this.workloadISA === null ||
 			this.reliabilityISA === null ||
 			this.timestampISA === null
 		) {
-			return true;
+			return null;
 		}
 
-		return false;
+		// Compute AP based on threshold
+		return this.normalizedAP > this.swapValue ? 2 : 1;
 	}
 
 	// ========== Action Methods ==========

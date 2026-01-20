@@ -43,7 +43,7 @@ export default observer(function BrainPanel() {
 					</button>
 				</div>
 				<span className="text-xs text-gray-500">
-					Current: {autonomyProfile}
+					Current: {autonomyProfile ?? "—"}
 				</span>
 			</div>
 
