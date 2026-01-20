@@ -28,6 +28,9 @@ export default class BrainStore {
 	maxNumberOfConflicts = 20; // Default, should be scenario-specific
 	swapValue = 0.5; // Threshold for AP1/AP2 decision
 
+	// Manual override for AP (null = use computed, 1 or 2 = manual override)
+	manualAP: number | null = null;
+
 	// Constants
 	readonly GAMMA = 1.0;
 
@@ -107,10 +110,10 @@ export default class BrainStore {
 		}
 
 		const ageInSeconds = simulatorStore.timestamp - this.timestampISA;
-		const maxAgeSeconds = 60;
+		const maxAgeSeconds = 60 * 5;
 
 		// Linear decay: 1.0 at age 0, 0.0 at age 60s
-		return Math.max(0, 1 - ageInSeconds / maxAgeSeconds);
+		return Math.max(0, Math.min(0, 1 - ageInSeconds / maxAgeSeconds));
 	}
 
 	/**
@@ -165,9 +168,12 @@ export default class BrainStore {
 	/**
 	 * Autonomy Profile - Reported AP (1 or 2)
 	 *
-	 * Thresholds normalizedAP to determine AP1 or AP2
+	 * Uses manual override if set, otherwise thresholds normalizedAP to determine AP1 or AP2
 	 */
 	get autonomyProfile(): number {
+		if (this.manualAP !== null) {
+			return this.manualAP;
+		}
 		return this.normalizedAP > this.swapValue ? 2 : 1;
 	}
 
@@ -254,5 +260,9 @@ export default class BrainStore {
 
 	setSwapValue(value: number): void {
 		this.swapValue = value;
+	}
+
+	setManualAP(value: number | null): void {
+		this.manualAP = value;
 	}
 }

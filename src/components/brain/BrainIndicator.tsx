@@ -15,20 +15,18 @@ const BrainIndicator = observer(() => {
 	if (hasError) {
 		return (
 			<div
-				className="badge badge-error"
+				className="badge badge-soft badge-error badge-sm"
 				title="Error: Missing or stale data (Agent or ISA not received)"
-			>
-				ERROR
-			</div>
+			></div>
 		);
 	}
 
 	return (
 		<div
-			className={`badge ${ap === 2 ? "badge-primary" : "badge-success"}`}
+			className={`badge badge-soft badge-sm ${ap === 2 ? "badge-primary" : "badge-success"}`}
 			title={`Autonomy Profile ${ap} (normalized AP: ${brainStore.normalizedAP.toFixed(3)})`}
 		>
-			AP{ap}
+			{ap}
 		</div>
 	);
 });

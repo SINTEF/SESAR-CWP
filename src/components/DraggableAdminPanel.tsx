@@ -12,6 +12,7 @@ import {
 	startSimulator,
 } from "../mqtt-client/publishers";
 import { adminStore } from "../state";
+import BrainPanel from "./brain/BrainPanel";
 
 function formatTimestamp(timestamp: number): string {
 	const date = new Date(timestamp);
@@ -194,6 +195,9 @@ export default observer(function DraggableAdminPanel() {
 				{!adminStore.isMinimized && (
 					<>
 						<AdminControlButtons />
+						<div className="divider my-0 text-xs text-gray-500">Brain</div>
+						<BrainPanel />
+						<div className="divider my-0 text-xs text-gray-500">Logs</div>
 						<AdminLogs />
 					</>
 				)}
