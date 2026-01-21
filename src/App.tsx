@@ -1,6 +1,7 @@
 import { usePostHog } from "posthog-js/react";
 import Agenda from "./components/Agenda";
 import AltitudeFilterPanel from "./components/AltitudeFilterPanel";
+import BrainIndicator from "./components/brain/BrainIndicator";
 import ConnectionErrorModal from "./components/ConnectionErrorModal";
 import Draggable2DView from "./components/Draggable2DView";
 import DraggableAdminPanel from "./components/DraggableAdminPanel";
@@ -38,7 +39,8 @@ export default function App(/* properties */) {
 			<ImageConfiguration />
 			<SepQdmOverlay />
 			<ConnectionErrorModal />
-			<div className="fixed bottom-0.5 right-0.5 z-50">
+			<div className="fixed bottom-0.5 right-0.5 z-50 flex flex-row items-center gap-2">
+				<BrainIndicator />
 				<MqttIndicators />
 			</div>
 		</main>

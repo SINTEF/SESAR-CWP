@@ -5,6 +5,7 @@ const baseTopics = [
 	`ats/${clientId}/data/#`,
 	`ats/${clientId}/status/#`,
 	`frontend/${clientId}/#`,
+	`TAS/${clientId}/WorkloadUpdate`,
 ];
 
 /** Admin-only topics */

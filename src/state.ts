@@ -2,6 +2,7 @@ import AdminStore from "./model/AdminStore";
 import AircraftStore from "./model/AircraftStore";
 import AirspaceStore from "./model/AirspaceStore";
 import AirwaysStore from "./model/AirwaysStore";
+import BrainStore from "./model/BrainStore";
 import ConfigurationStore from "./model/ConfigurationStore";
 import CWPStore from "./model/CwpStore";
 import DatablockStore from "./model/DatablockStore";
@@ -35,6 +36,7 @@ export const airwaysStore = new AirwaysStore();
 export const frequenciesStore = new FrequenciesStore();
 export const datablockStore = new DatablockStore();
 export const distanceLineStore = new DistanceLine();
+export const brainStore = new BrainStore();
 
 // Wire up datablockStore to aircraftStore for MTCD override logic
 aircraftStore.setDatablockStore(datablockStore);
@@ -81,6 +83,7 @@ window.mobxDebugStores = {
 	frequenciesStore,
 	datablockStore,
 	distanceLineStore,
+	brainStore,
 	cwpStore,
 	configurationStore,
 	roleConfigurationStore,

@@ -34,6 +34,7 @@ import {
 	roleConfiguration,
 	simulatorLogs,
 	targetReport,
+	workloadUpdate,
 } from "./subscribers";
 
 const router = rlite<Buffer>(notFound, {
@@ -90,6 +91,7 @@ const router = rlite<Buffer>(notFound, {
 		frontendLocalAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/hidden": frontendFlightHidden,
 	"IIS/PilotRequest/:flightId/:requestId": pilotRequestJson,
+	"TAS/:clientId/WorkloadUpdate": workloadUpdate,
 });
 
 export default router;
