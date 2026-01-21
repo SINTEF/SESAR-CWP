@@ -7,6 +7,7 @@ import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
 import { cwpStore, roleConfigurationStore } from "../../state";
+import TaHoveredFull from "./TaHoveredFull";
 import TaPopupFull from "./TaPopupFull";
 import TaPopupSmall from "./TaPopupSmall";
 
@@ -42,9 +43,10 @@ export default observer(function TaLabel(properties: {
 	request: TeamAssistantRequest;
 	height: number;
 	pseudo?: boolean;
+	autonomyProfile: number;
 }) {
 	const posthog = usePostHog();
-	const { aircraft, request, height } = properties;
+	const { aircraft, request, height, autonomyProfile } = properties;
 	const {
 		aircraftId,
 		// lastKnownLongitude: longitude,
@@ -55,6 +57,16 @@ export default observer(function TaLabel(properties: {
 		lastKnownSpeed: speed,
 		setLocalAssignedFlightLevel,
 	} = aircraft;
+
+	// Autonomy Profile determines display behavior:
+	// AP1 (autonomyProfile === 1): Information
+	// AP2 (autonomyProfile === 2): Decision
+	const isAP2 = autonomyProfile === 2;
+	// biome-ignore lint/suspicious/noConsole: debugging autonomy level
+	console.log(
+		`TaLabel: requestType=${request.context?.requestType}, autonomyProfile=${autonomyProfile}, isAP2=${isAP2}`,
+	);
+
 	const {
 		setHoveredTaLabelAircraftId,
 		removeHoveredTaLabelAircraftId,
@@ -98,41 +110,15 @@ export default observer(function TaLabel(properties: {
 		case isHoveredLabel === true && isTaArrowClicked === true:
 			width = 140;
 			break;
+		case isHoveredLabel === true && !isAP2:
+			width = 140;
+			break;
 		case isHoveredLabel === true && isTaArrowClicked === false:
 			width = 85;
 			break;
 		default:
 			width = 35;
 			break;
-	}
-
-	/**
-	 * Format the request parameter for display.
-	 * Adds "FL" prefix for flight level requests if not already present.
-	 * requestType: 0=flight_level_request, 1=direct_request, 2=absolute_heading_request, 3=relative_heading_request
-	 */
-	function formatRequestParameter(
-		requestType: number,
-		parameter: number,
-	): string {
-		const paramStr = String(parameter);
-		if (requestType === 0) {
-			// FLIGHT_LEVEL
-			return paramStr;
-		}
-		if (requestType === 1) {
-			// DIRECT_REQUEST
-			return paramStr;
-		}
-		if (requestType === 2) {
-			// ABSOLUTE_HEADING
-			return `HDG${paramStr}`;
-		}
-		if (requestType === 3) {
-			// RELATIVE_HEADING
-			return `${parameter > 0 ? "+" : ""}${paramStr}°`;
-		}
-		return paramStr;
 	}
 
 	/**
@@ -157,7 +143,12 @@ export default observer(function TaLabel(properties: {
 		}
 	}
 
-	const Content = isHoveredLabel ? TaPopupFull : TaPopupSmall;
+	const Content =
+		isHoveredLabel && isAP2
+			? TaPopupFull
+			: isHoveredLabel && !isAP2
+				? TaHoveredFull
+				: TaPopupSmall;
 
 	const onClick = (): void => {
 		if (isDragging) {
@@ -214,7 +205,7 @@ export default observer(function TaLabel(properties: {
 				onWheel={onWheel}
 				style={{
 					width: `${width}px`,
-					height: isTaArrowClicked ? "auto" : `${TA_height}px`,
+					height: isTaArrowClicked || !isAP2 ? "auto" : `${TA_height}px`,
 				}}
 			>
 				<Content
@@ -222,14 +213,12 @@ export default observer(function TaLabel(properties: {
 					aircraft={aircraft}
 					width={width}
 					request={request}
-					requestParameter={formatRequestParameter(
-						request.context?.requestType ?? 0,
-						request.context?.requestParameter ?? 0,
-					)}
+					requestParameter={String(request.context?.requestParameter)}
 					requestTypeIcon={getIconForRequestType(
 						request.context?.requestType ?? 0,
 						request.context?.requestParameter ?? 0,
 					)}
+					autonomyProfile={autonomyProfile}
 				/>
 			</div>
 		</div>

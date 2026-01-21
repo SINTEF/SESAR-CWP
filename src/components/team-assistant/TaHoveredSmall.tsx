@@ -53,7 +53,7 @@ export default observer(function TaHoveredSmall(properties: {
 						>
 							●
 						</span>
-						{requestParameter}
+						<span className="text-xs text-[#40c4ff]">{requestParameter}</span>
 					</td>
 					<td className="p-0 cursor-pointer text-right">
 						<svg
