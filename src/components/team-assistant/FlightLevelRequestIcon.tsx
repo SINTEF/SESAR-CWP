@@ -1,5 +1,4 @@
 import React from "react";
-import { aircraftStore } from "../../state";
 
 interface FlightLevelRequestIconProps {
 	primaryColor?: string;
@@ -7,20 +6,20 @@ interface FlightLevelRequestIconProps {
 	flightId?: string;
 }
 const FlightLevelRequestIcon: React.FC<FlightLevelRequestIconProps> = ({
-	primaryColor = "#FFF703",
+	primaryColor = "#d9d9d9",
 	className = "size-4",
 	flightId,
 }) => {
-	const messageStatus = flightId
-		? aircraftStore.getFirstRequestForAircraft(flightId)?.status
-		: undefined;
-	if (messageStatus === 2) {
-		primaryColor = "#FF0000"; // Red for error
-	} else if (messageStatus === 1) {
-		primaryColor = "#00FF00"; // Green for success
-	} else if (messageStatus === 0) {
-		primaryColor = "#FFFF00"; // Yellow for pending
-	}
+	// const messageStatus = flightId // Change this to the point, and just yes/no
+	// 	? aircraftStore.getFirstRequestForAircraft(flightId)?.status
+	// 	: undefined;
+	// if (messageStatus === 2) {
+	// 	primaryColor = "#FF0000"; // Red for error
+	// } else if (messageStatus === 1) {
+	// 	primaryColor = "#00FF00"; // Green for success
+	// } else if (messageStatus === 0) {
+	// 	primaryColor = "#FFFF00"; // Yellow for pending
+	// }
 
 	return (
 		<svg

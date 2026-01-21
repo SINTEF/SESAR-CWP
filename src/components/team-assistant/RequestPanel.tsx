@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite";
 import type { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
-import { PilotRequestTypes } from "../../proto/ProtobufAirTrafficSimulator";
 import { aircraftStore } from "../../state";
 
 interface RequestPanelProps {
@@ -12,48 +11,47 @@ interface RequestPanelProps {
 /**
  * Get the icon path based on request type.
  * HEADING type can be used for weather avoidance requests.
+ * requestType: 0=FLIGHT_LEVEL, 1=HEADING, 2=DIRECTTO, 3=SPEED
+ * TODO: Update to fit with Serge values (1 is direct, 2 is absolute heading, 3 is relative heading)
  */
-function getIconForRequestType(
-	requestType: PilotRequestTypes,
-	_requestParameter: string,
-): string {
+function getIconForRequestType(requestType: number): string {
 	switch (requestType) {
-		case PilotRequestTypes.FLIGHT_LEVEL:
-			return "/icon_flight_level_change.svg";
-		case PilotRequestTypes.DIRECTTO:
+		case 0: // FLIGHT_LEVEL
+			return "/flight_level_request.svg";
+		case 2: // DIRECTTO
 			return "/icon_direct_request.svg";
-		case PilotRequestTypes.HEADING:
-			// Weather avoidance uses HEADING type
+		case 1: // HEADING - Weather avoidance uses HEADING type
 			return "/icon_thunderstorm.svg";
-		case PilotRequestTypes.SPEED:
-			// Use flight level icon as fallback for speed
-			return "/icon_flight_level_change.svg";
+		case 3: // SPEED - Use flight level icon as fallback for speed
+			return "/flight_level_request.svg";
 		default:
-			return "/icon_flight_level_change.svg";
+			return "/flight_level_request.svg";
 	}
 }
 
 /**
  * Format the request parameter for display.
  * Adds "FL" prefix for flight level requests if not already present.
+ * requestType: 0=FLIGHT_LEVEL, 1=HEADING, 2=DIRECTTO, 3=SPEED
  */
 function formatRequestParameter(
-	requestType: PilotRequestTypes,
-	parameter: string,
+	requestType: number,
+	parameter: number,
 ): string {
-	if (
-		requestType === PilotRequestTypes.FLIGHT_LEVEL &&
-		!parameter.startsWith("FL")
-	) {
-		return `FL${parameter}`;
+	const paramStr = String(parameter);
+	if (requestType === 0) {
+		// FLIGHT_LEVEL
+		return paramStr;
 	}
-	if (requestType === PilotRequestTypes.SPEED) {
-		return `${parameter}kt`;
+	if (requestType === 3) {
+		// SPEED
+		return `${paramStr}kt`;
 	}
-	if (requestType === PilotRequestTypes.HEADING) {
-		return `HDG${parameter}`;
+	if (requestType === 1) {
+		// HEADING
+		return `HDG${paramStr}`;
 	}
-	return parameter;
+	return paramStr;
 }
 
 /**
@@ -64,9 +62,11 @@ export default observer(function RequestPanel({
 	flightId,
 	request,
 }: RequestPanelProps) {
-	const { requestId, requestType, requestParameter } = request;
+	const { requestId } = request;
+	const requestType = request.context?.requestType ?? 0;
+	const requestParameter = request.context?.requestParameter ?? 0;
 
-	const iconSrc = getIconForRequestType(requestType, requestParameter);
+	const iconSrc = getIconForRequestType(requestType);
 	const displayParameter = formatRequestParameter(
 		requestType,
 		requestParameter,

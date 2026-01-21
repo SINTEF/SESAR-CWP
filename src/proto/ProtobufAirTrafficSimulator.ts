@@ -1249,45 +1249,170 @@ export interface SuggestionMessage {
     suggestedAt?: Timestamp;
 }
 /**
+ * Conflict coordination information within required_coordinations
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.ConflictCoordinationMessage
+ */
+export interface ConflictCoordinationMessage {
+    /**
+     * @generated from protobuf field: string conflictId = 1
+     */
+    conflictId: string; // conflict_id
+    /**
+     * @generated from protobuf field: float machNumber = 2
+     */
+    machNumber: number; // mach_number
+    /**
+     * @generated from protobuf field: float minSeparation = 3
+     */
+    minSeparation: number; // min_separation
+    /**
+     * @generated from protobuf field: float distanceToExit = 4
+     */
+    distanceToExit: number; // distance_to_exit
+    /**
+     * @generated from protobuf field: string firstFlightIdAtCPA = 5
+     */
+    firstFlightIdAtCPA: string; // first_flight_id_at_CPA
+    /**
+     * @generated from protobuf field: int32 conflictFL = 6
+     */
+    conflictFL: number; // conflict_FL
+    /**
+     * @generated from protobuf field: bool compatible = 7
+     */
+    compatible: boolean; // compatible
+}
+/**
+ * A coordination item can be either a string or a conflict object
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.CoordinationItem
+ */
+export interface CoordinationItem {
+    /**
+     * @generated from protobuf oneof: item
+     */
+    item: {
+        oneofKind: "textCoordination";
+        /**
+         * @generated from protobuf field: string textCoordination = 1
+         */
+        textCoordination: string; // e.g. "Flight plan non-conformity"
+    } | {
+        oneofKind: "conflict";
+        /**
+         * @generated from protobuf field: ProtobufAirTrafficSimulator.ConflictCoordinationMessage conflict = 2
+         */
+        conflict: ConflictCoordinationMessage; // Conflict coordination object
+    } | {
+        oneofKind: undefined;
+    };
+}
+/**
+ * Goal results containing analysis outcomes
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.GoalResultsMessage
+ */
+export interface GoalResultsMessage {
+    /**
+     * @generated from protobuf field: int32 exitLevel = 1
+     */
+    exitLevel: number; // exit_level
+    /**
+     * @generated from protobuf field: int32 initialClimb = 2
+     */
+    initialClimb: number; // initial_climb
+    /**
+     * @generated from protobuf field: bool exitProblemsAreManageable = 3
+     */
+    exitProblemsAreManageable: boolean; // exit_problems_are_manageable
+    /**
+     * @generated from protobuf field: bool trafficComplexityManageable = 4
+     */
+    trafficComplexityManageable: boolean; // traffic_complexity_manageable
+    /**
+     * @generated from protobuf field: repeated ProtobufAirTrafficSimulator.CoordinationItem requiredCoordinations = 5
+     */
+    requiredCoordinations: CoordinationItem[]; // required_coordinations
+    /**
+     * @generated from protobuf field: bool higherLevelAvailable = 6
+     */
+    higherLevelAvailable: boolean; // higher_level_available
+    /**
+     * @generated from protobuf field: bool isConformToFlightPlan = 7
+     */
+    isConformToFlightPlan: boolean; // is_conform_to_flight_plan
+    /**
+     * @generated from protobuf field: string nextSector = 8
+     */
+    nextSector: string; // next_sector
+    /**
+     * @generated from protobuf field: bool nextSectorCapacityOk = 9
+     */
+    nextSectorCapacityOk: boolean; // next_sector_capacity_ok
+    /**
+     * @generated from protobuf field: bool altitudeRestriction = 10
+     */
+    altitudeRestriction: boolean; // altitude_restriction
+}
+/**
+ * A goal entry with RFL and results
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.GoalMessage
+ */
+export interface GoalMessage {
+    /**
+     * @generated from protobuf field: int32 RFL = 1
+     */
+    rFL: number; // Requested Flight Level
+    /**
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.GoalResultsMessage results = 2
+     */
+    results?: GoalResultsMessage; // Analysis results
+}
+/**
+ * Request context information
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.RequestContextMessage
+ */
+export interface RequestContextMessage {
+    /**
+     * @generated from protobuf field: string requestId = 1
+     */
+    requestId: string; // request_id
+    /**
+     * @generated from protobuf field: string flightId = 2
+     */
+    flightId: string; // flight_id
+    /**
+     * @generated from protobuf field: int32 requestType = 3
+     */
+    requestType: number; // request_type (0 = FL, 1 = HDG, etc.)
+    /**
+     * @generated from protobuf field: int32 requestParameter = 4
+     */
+    requestParameter: number; // request_parameter (e.g. 390)
+}
+/**
  * @generated from protobuf message ProtobufAirTrafficSimulator.PilotRequestMessage
  */
 export interface PilotRequestMessage {
     /**
-     * @generated from protobuf field: string flightId = 1
+     * @generated from protobuf field: google.protobuf.Timestamp timestamp = 1
      */
-    flightId: string;
+    timestamp?: Timestamp; // timestamp
     /**
-     * @generated from protobuf field: string callSign = 2
+     * @generated from protobuf field: int32 iterationCount = 2
      */
-    callSign: string;
+    iterationCount: number; // iteration_count
     /**
-     * @generated from protobuf field: ProtobufAirTrafficSimulator.PilotRequestTypes requestType = 3
+     * @generated from protobuf field: ProtobufAirTrafficSimulator.RequestContextMessage context = 3
      */
-    requestType: PilotRequestTypes; // "DCT", "FL", "HDG"
+    context?: RequestContextMessage; // context object
     /**
-     * @generated from protobuf field: string requestParameter = 4
+     * @generated from protobuf field: repeated ProtobufAirTrafficSimulator.GoalMessage goals = 4
      */
-    requestParameter: string; // E.g. "350", "35", "USANO"
-    /**
-     * @generated from protobuf field: repeated ProtobufAirTrafficSimulator.TaskMessage tasks = 5
-     */
-    tasks: TaskMessage[]; // Optional task associated with the request.
-    /**
-     * @generated from protobuf field: ProtobufAirTrafficSimulator.SuggestionMessage suggestion = 6
-     */
-    suggestion?: SuggestionMessage; // Optional suggestions associated with the request.
-    /**
-     * @generated from protobuf field: google.protobuf.Timestamp time = 7
-     */
-    time?: Timestamp; // The time when the request was made.
-    /**
-     * @generated from protobuf field: ProtobufAirTrafficSimulator.PilotRequestStatus status = 8
-     */
-    status: PilotRequestStatus; // E.g. "Pending", "Accepted", "Rejected"
-    /**
-     * @generated from protobuf field: string responseDetails = 9
-     */
-    responseDetails: string; // E.g. reason for rejection or additional information.
+    goals: GoalMessage[]; // goals array
 }
 /**
  * A segment of an airway connecting two named positions.
@@ -5752,29 +5877,418 @@ class SuggestionMessage$Type extends MessageType<SuggestionMessage> {
  */
 export const SuggestionMessage = new SuggestionMessage$Type();
 // @generated message type with reflection information, may provide speed optimized methods
+class ConflictCoordinationMessage$Type extends MessageType<ConflictCoordinationMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.ConflictCoordinationMessage", [
+            { no: 1, name: "conflictId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "machNumber", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
+            { no: 3, name: "minSeparation", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
+            { no: 4, name: "distanceToExit", kind: "scalar", T: 2 /*ScalarType.FLOAT*/ },
+            { no: 5, name: "firstFlightIdAtCPA", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 6, name: "conflictFL", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 7, name: "compatible", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ConflictCoordinationMessage>): ConflictCoordinationMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.conflictId = "";
+        message.machNumber = 0;
+        message.minSeparation = 0;
+        message.distanceToExit = 0;
+        message.firstFlightIdAtCPA = "";
+        message.conflictFL = 0;
+        message.compatible = false;
+        if (value !== undefined)
+            reflectionMergePartial<ConflictCoordinationMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ConflictCoordinationMessage): ConflictCoordinationMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string conflictId */ 1:
+                    message.conflictId = reader.string();
+                    break;
+                case /* float machNumber */ 2:
+                    message.machNumber = reader.float();
+                    break;
+                case /* float minSeparation */ 3:
+                    message.minSeparation = reader.float();
+                    break;
+                case /* float distanceToExit */ 4:
+                    message.distanceToExit = reader.float();
+                    break;
+                case /* string firstFlightIdAtCPA */ 5:
+                    message.firstFlightIdAtCPA = reader.string();
+                    break;
+                case /* int32 conflictFL */ 6:
+                    message.conflictFL = reader.int32();
+                    break;
+                case /* bool compatible */ 7:
+                    message.compatible = reader.bool();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ConflictCoordinationMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string conflictId = 1; */
+        if (message.conflictId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.conflictId);
+        /* float machNumber = 2; */
+        if (message.machNumber !== 0)
+            writer.tag(2, WireType.Bit32).float(message.machNumber);
+        /* float minSeparation = 3; */
+        if (message.minSeparation !== 0)
+            writer.tag(3, WireType.Bit32).float(message.minSeparation);
+        /* float distanceToExit = 4; */
+        if (message.distanceToExit !== 0)
+            writer.tag(4, WireType.Bit32).float(message.distanceToExit);
+        /* string firstFlightIdAtCPA = 5; */
+        if (message.firstFlightIdAtCPA !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.firstFlightIdAtCPA);
+        /* int32 conflictFL = 6; */
+        if (message.conflictFL !== 0)
+            writer.tag(6, WireType.Varint).int32(message.conflictFL);
+        /* bool compatible = 7; */
+        if (message.compatible !== false)
+            writer.tag(7, WireType.Varint).bool(message.compatible);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.ConflictCoordinationMessage
+ */
+export const ConflictCoordinationMessage = new ConflictCoordinationMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CoordinationItem$Type extends MessageType<CoordinationItem> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.CoordinationItem", [
+            { no: 1, name: "textCoordination", kind: "scalar", oneof: "item", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "conflict", kind: "message", oneof: "item", T: () => ConflictCoordinationMessage }
+        ]);
+    }
+    create(value?: PartialMessage<CoordinationItem>): CoordinationItem {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = { oneofKind: undefined };
+        if (value !== undefined)
+            reflectionMergePartial<CoordinationItem>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CoordinationItem): CoordinationItem {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string textCoordination */ 1:
+                    message.item = {
+                        oneofKind: "textCoordination",
+                        textCoordination: reader.string()
+                    };
+                    break;
+                case /* ProtobufAirTrafficSimulator.ConflictCoordinationMessage conflict */ 2:
+                    message.item = {
+                        oneofKind: "conflict",
+                        conflict: ConflictCoordinationMessage.internalBinaryRead(reader, reader.uint32(), options, (message.item as any).conflict)
+                    };
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CoordinationItem, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string textCoordination = 1; */
+        if (message.item.oneofKind === "textCoordination")
+            writer.tag(1, WireType.LengthDelimited).string(message.item.textCoordination);
+        /* ProtobufAirTrafficSimulator.ConflictCoordinationMessage conflict = 2; */
+        if (message.item.oneofKind === "conflict")
+            ConflictCoordinationMessage.internalBinaryWrite(message.item.conflict, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.CoordinationItem
+ */
+export const CoordinationItem = new CoordinationItem$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GoalResultsMessage$Type extends MessageType<GoalResultsMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.GoalResultsMessage", [
+            { no: 1, name: "exitLevel", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 2, name: "initialClimb", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "exitProblemsAreManageable", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 4, name: "trafficComplexityManageable", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 5, name: "requiredCoordinations", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => CoordinationItem },
+            { no: 6, name: "higherLevelAvailable", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 7, name: "isConformToFlightPlan", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 8, name: "nextSector", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 9, name: "nextSectorCapacityOk", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 10, name: "altitudeRestriction", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GoalResultsMessage>): GoalResultsMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.exitLevel = 0;
+        message.initialClimb = 0;
+        message.exitProblemsAreManageable = false;
+        message.trafficComplexityManageable = false;
+        message.requiredCoordinations = [];
+        message.higherLevelAvailable = false;
+        message.isConformToFlightPlan = false;
+        message.nextSector = "";
+        message.nextSectorCapacityOk = false;
+        message.altitudeRestriction = false;
+        if (value !== undefined)
+            reflectionMergePartial<GoalResultsMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GoalResultsMessage): GoalResultsMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* int32 exitLevel */ 1:
+                    message.exitLevel = reader.int32();
+                    break;
+                case /* int32 initialClimb */ 2:
+                    message.initialClimb = reader.int32();
+                    break;
+                case /* bool exitProblemsAreManageable */ 3:
+                    message.exitProblemsAreManageable = reader.bool();
+                    break;
+                case /* bool trafficComplexityManageable */ 4:
+                    message.trafficComplexityManageable = reader.bool();
+                    break;
+                case /* repeated ProtobufAirTrafficSimulator.CoordinationItem requiredCoordinations */ 5:
+                    message.requiredCoordinations.push(CoordinationItem.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                case /* bool higherLevelAvailable */ 6:
+                    message.higherLevelAvailable = reader.bool();
+                    break;
+                case /* bool isConformToFlightPlan */ 7:
+                    message.isConformToFlightPlan = reader.bool();
+                    break;
+                case /* string nextSector */ 8:
+                    message.nextSector = reader.string();
+                    break;
+                case /* bool nextSectorCapacityOk */ 9:
+                    message.nextSectorCapacityOk = reader.bool();
+                    break;
+                case /* bool altitudeRestriction */ 10:
+                    message.altitudeRestriction = reader.bool();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GoalResultsMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* int32 exitLevel = 1; */
+        if (message.exitLevel !== 0)
+            writer.tag(1, WireType.Varint).int32(message.exitLevel);
+        /* int32 initialClimb = 2; */
+        if (message.initialClimb !== 0)
+            writer.tag(2, WireType.Varint).int32(message.initialClimb);
+        /* bool exitProblemsAreManageable = 3; */
+        if (message.exitProblemsAreManageable !== false)
+            writer.tag(3, WireType.Varint).bool(message.exitProblemsAreManageable);
+        /* bool trafficComplexityManageable = 4; */
+        if (message.trafficComplexityManageable !== false)
+            writer.tag(4, WireType.Varint).bool(message.trafficComplexityManageable);
+        /* repeated ProtobufAirTrafficSimulator.CoordinationItem requiredCoordinations = 5; */
+        for (let i = 0; i < message.requiredCoordinations.length; i++)
+            CoordinationItem.internalBinaryWrite(message.requiredCoordinations[i], writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* bool higherLevelAvailable = 6; */
+        if (message.higherLevelAvailable !== false)
+            writer.tag(6, WireType.Varint).bool(message.higherLevelAvailable);
+        /* bool isConformToFlightPlan = 7; */
+        if (message.isConformToFlightPlan !== false)
+            writer.tag(7, WireType.Varint).bool(message.isConformToFlightPlan);
+        /* string nextSector = 8; */
+        if (message.nextSector !== "")
+            writer.tag(8, WireType.LengthDelimited).string(message.nextSector);
+        /* bool nextSectorCapacityOk = 9; */
+        if (message.nextSectorCapacityOk !== false)
+            writer.tag(9, WireType.Varint).bool(message.nextSectorCapacityOk);
+        /* bool altitudeRestriction = 10; */
+        if (message.altitudeRestriction !== false)
+            writer.tag(10, WireType.Varint).bool(message.altitudeRestriction);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.GoalResultsMessage
+ */
+export const GoalResultsMessage = new GoalResultsMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GoalMessage$Type extends MessageType<GoalMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.GoalMessage", [
+            { no: 1, name: "RFL", kind: "scalar", jsonName: "RFL", T: 5 /*ScalarType.INT32*/ },
+            { no: 2, name: "results", kind: "message", T: () => GoalResultsMessage }
+        ]);
+    }
+    create(value?: PartialMessage<GoalMessage>): GoalMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.rFL = 0;
+        if (value !== undefined)
+            reflectionMergePartial<GoalMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GoalMessage): GoalMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* int32 RFL */ 1:
+                    message.rFL = reader.int32();
+                    break;
+                case /* ProtobufAirTrafficSimulator.GoalResultsMessage results */ 2:
+                    message.results = GoalResultsMessage.internalBinaryRead(reader, reader.uint32(), options, message.results);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GoalMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* int32 RFL = 1; */
+        if (message.rFL !== 0)
+            writer.tag(1, WireType.Varint).int32(message.rFL);
+        /* ProtobufAirTrafficSimulator.GoalResultsMessage results = 2; */
+        if (message.results)
+            GoalResultsMessage.internalBinaryWrite(message.results, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.GoalMessage
+ */
+export const GoalMessage = new GoalMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RequestContextMessage$Type extends MessageType<RequestContextMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.RequestContextMessage", [
+            { no: 1, name: "requestId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "flightId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "requestType", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 4, name: "requestParameter", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
+        ]);
+    }
+    create(value?: PartialMessage<RequestContextMessage>): RequestContextMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.requestId = "";
+        message.flightId = "";
+        message.requestType = 0;
+        message.requestParameter = 0;
+        if (value !== undefined)
+            reflectionMergePartial<RequestContextMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RequestContextMessage): RequestContextMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string requestId */ 1:
+                    message.requestId = reader.string();
+                    break;
+                case /* string flightId */ 2:
+                    message.flightId = reader.string();
+                    break;
+                case /* int32 requestType */ 3:
+                    message.requestType = reader.int32();
+                    break;
+                case /* int32 requestParameter */ 4:
+                    message.requestParameter = reader.int32();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RequestContextMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string requestId = 1; */
+        if (message.requestId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.requestId);
+        /* string flightId = 2; */
+        if (message.flightId !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.flightId);
+        /* int32 requestType = 3; */
+        if (message.requestType !== 0)
+            writer.tag(3, WireType.Varint).int32(message.requestType);
+        /* int32 requestParameter = 4; */
+        if (message.requestParameter !== 0)
+            writer.tag(4, WireType.Varint).int32(message.requestParameter);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.RequestContextMessage
+ */
+export const RequestContextMessage = new RequestContextMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
 class PilotRequestMessage$Type extends MessageType<PilotRequestMessage> {
     constructor() {
         super("ProtobufAirTrafficSimulator.PilotRequestMessage", [
-            { no: 1, name: "flightId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "callSign", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "requestType", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.PilotRequestTypes", PilotRequestTypes] },
-            { no: 4, name: "requestParameter", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "tasks", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => TaskMessage },
-            { no: 6, name: "suggestion", kind: "message", T: () => SuggestionMessage },
-            { no: 7, name: "time", kind: "message", T: () => Timestamp },
-            { no: 8, name: "status", kind: "enum", T: () => ["ProtobufAirTrafficSimulator.PilotRequestStatus", PilotRequestStatus] },
-            { no: 9, name: "responseDetails", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "timestamp", kind: "message", T: () => Timestamp },
+            { no: 2, name: "iterationCount", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "context", kind: "message", T: () => RequestContextMessage },
+            { no: 4, name: "goals", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => GoalMessage }
         ]);
     }
     create(value?: PartialMessage<PilotRequestMessage>): PilotRequestMessage {
         const message = globalThis.Object.create((this.messagePrototype!));
-        message.flightId = "";
-        message.callSign = "";
-        message.requestType = 0;
-        message.requestParameter = "";
-        message.tasks = [];
-        message.status = 0;
-        message.responseDetails = "";
+        message.iterationCount = 0;
+        message.goals = [];
         if (value !== undefined)
             reflectionMergePartial<PilotRequestMessage>(this, message, value);
         return message;
@@ -5784,32 +6298,17 @@ class PilotRequestMessage$Type extends MessageType<PilotRequestMessage> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* string flightId */ 1:
-                    message.flightId = reader.string();
+                case /* google.protobuf.Timestamp timestamp */ 1:
+                    message.timestamp = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.timestamp);
                     break;
-                case /* string callSign */ 2:
-                    message.callSign = reader.string();
+                case /* int32 iterationCount */ 2:
+                    message.iterationCount = reader.int32();
                     break;
-                case /* ProtobufAirTrafficSimulator.PilotRequestTypes requestType */ 3:
-                    message.requestType = reader.int32();
+                case /* ProtobufAirTrafficSimulator.RequestContextMessage context */ 3:
+                    message.context = RequestContextMessage.internalBinaryRead(reader, reader.uint32(), options, message.context);
                     break;
-                case /* string requestParameter */ 4:
-                    message.requestParameter = reader.string();
-                    break;
-                case /* repeated ProtobufAirTrafficSimulator.TaskMessage tasks */ 5:
-                    message.tasks.push(TaskMessage.internalBinaryRead(reader, reader.uint32(), options));
-                    break;
-                case /* ProtobufAirTrafficSimulator.SuggestionMessage suggestion */ 6:
-                    message.suggestion = SuggestionMessage.internalBinaryRead(reader, reader.uint32(), options, message.suggestion);
-                    break;
-                case /* google.protobuf.Timestamp time */ 7:
-                    message.time = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.time);
-                    break;
-                case /* ProtobufAirTrafficSimulator.PilotRequestStatus status */ 8:
-                    message.status = reader.int32();
-                    break;
-                case /* string responseDetails */ 9:
-                    message.responseDetails = reader.string();
+                case /* repeated ProtobufAirTrafficSimulator.GoalMessage goals */ 4:
+                    message.goals.push(GoalMessage.internalBinaryRead(reader, reader.uint32(), options));
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -5823,33 +6322,18 @@ class PilotRequestMessage$Type extends MessageType<PilotRequestMessage> {
         return message;
     }
     internalBinaryWrite(message: PilotRequestMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* string flightId = 1; */
-        if (message.flightId !== "")
-            writer.tag(1, WireType.LengthDelimited).string(message.flightId);
-        /* string callSign = 2; */
-        if (message.callSign !== "")
-            writer.tag(2, WireType.LengthDelimited).string(message.callSign);
-        /* ProtobufAirTrafficSimulator.PilotRequestTypes requestType = 3; */
-        if (message.requestType !== 0)
-            writer.tag(3, WireType.Varint).int32(message.requestType);
-        /* string requestParameter = 4; */
-        if (message.requestParameter !== "")
-            writer.tag(4, WireType.LengthDelimited).string(message.requestParameter);
-        /* repeated ProtobufAirTrafficSimulator.TaskMessage tasks = 5; */
-        for (let i = 0; i < message.tasks.length; i++)
-            TaskMessage.internalBinaryWrite(message.tasks[i], writer.tag(5, WireType.LengthDelimited).fork(), options).join();
-        /* ProtobufAirTrafficSimulator.SuggestionMessage suggestion = 6; */
-        if (message.suggestion)
-            SuggestionMessage.internalBinaryWrite(message.suggestion, writer.tag(6, WireType.LengthDelimited).fork(), options).join();
-        /* google.protobuf.Timestamp time = 7; */
-        if (message.time)
-            Timestamp.internalBinaryWrite(message.time, writer.tag(7, WireType.LengthDelimited).fork(), options).join();
-        /* ProtobufAirTrafficSimulator.PilotRequestStatus status = 8; */
-        if (message.status !== 0)
-            writer.tag(8, WireType.Varint).int32(message.status);
-        /* string responseDetails = 9; */
-        if (message.responseDetails !== "")
-            writer.tag(9, WireType.LengthDelimited).string(message.responseDetails);
+        /* google.protobuf.Timestamp timestamp = 1; */
+        if (message.timestamp)
+            Timestamp.internalBinaryWrite(message.timestamp, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* int32 iterationCount = 2; */
+        if (message.iterationCount !== 0)
+            writer.tag(2, WireType.Varint).int32(message.iterationCount);
+        /* ProtobufAirTrafficSimulator.RequestContextMessage context = 3; */
+        if (message.context)
+            RequestContextMessage.internalBinaryWrite(message.context, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* repeated ProtobufAirTrafficSimulator.GoalMessage goals = 4; */
+        for (let i = 0; i < message.goals.length; i++)
+            GoalMessage.internalBinaryWrite(message.goals[i], writer.tag(4, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

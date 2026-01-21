@@ -4,6 +4,7 @@ import { usePostHog } from "posthog-js/react";
 import { useMap } from "react-map-gl/maplibre";
 import { useDragging } from "../../contexts/DraggingContext";
 import type AircraftModel from "../../model/AircraftModel";
+import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
 import { cwpStore, roleConfigurationStore } from "../../state";
 import TaPopupFull from "./TaPopupFull";
@@ -38,10 +39,12 @@ import TaPopupSmall from "./TaPopupSmall";
 
 export default observer(function TaLabel(properties: {
 	aircraft: AircraftModel;
+	request: TeamAssistantRequest;
+	height: number;
 	pseudo?: boolean;
 }) {
 	const posthog = usePostHog();
-	const { aircraft } = properties;
+	const { aircraft, request, height } = properties;
 	const {
 		aircraftId,
 		// lastKnownLongitude: longitude,
@@ -89,18 +92,69 @@ export default observer(function TaLabel(properties: {
 		});
 	};
 
-	const height = isTaArrowClicked ? 150 : 70;
+	const TA_height = isTaArrowClicked ? 150 : height;
 	let width;
 	switch (true) {
 		case isHoveredLabel === true && isTaArrowClicked === true:
 			width = 140;
 			break;
 		case isHoveredLabel === true && isTaArrowClicked === false:
-			width = 70;
+			width = 85;
 			break;
 		default:
-			width = 30;
+			width = 35;
 			break;
+	}
+
+	/**
+	 * Format the request parameter for display.
+	 * Adds "FL" prefix for flight level requests if not already present.
+	 * requestType: 0=flight_level_request, 1=direct_request, 2=absolute_heading_request, 3=relative_heading_request
+	 */
+	function formatRequestParameter(
+		requestType: number,
+		parameter: number,
+	): string {
+		const paramStr = String(parameter);
+		if (requestType === 0) {
+			// FLIGHT_LEVEL
+			return paramStr;
+		}
+		if (requestType === 1) {
+			// DIRECT_REQUEST
+			return paramStr;
+		}
+		if (requestType === 2) {
+			// ABSOLUTE_HEADING
+			return `HDG${paramStr}`;
+		}
+		if (requestType === 3) {
+			// RELATIVE_HEADING
+			return `${parameter > 0 ? "+" : ""}${paramStr}°`;
+		}
+		return paramStr;
+	}
+
+	/**
+	 * Get the icon path based on request type.
+	 * requestType: 0=flight_level_request, 1=direct_request, 2=absolute_heading_request, 3=relative_heading_request
+	 */
+	function getIconForRequestType(
+		requestType: number,
+		_requestParameter: number,
+	): string {
+		switch (requestType) {
+			case 0: // FLIGHT_LEVEL
+				return "/flight_level_request.svg";
+			case 1: // DIRECT_REQUEST
+				return "/icon_direct_request.svg";
+			case 2: // ABSOLUTE_HEADING
+				return "/icon_thunderstorm.svg";
+			case 3: // RELATIVE_HEADING
+				return "/icon_thunderstorm.svg";
+			default:
+				return "/flight_level_request.svg";
+		}
 	}
 
 	const Content = isHoveredLabel ? TaPopupFull : TaPopupSmall;
@@ -154,16 +208,29 @@ export default observer(function TaLabel(properties: {
 					"p-1 select-none",
 					isSelected
 						? "bg-gray-600/40 border-[0.5px] border-cyan-400"
-						: "bg-gray-500/50 rounded-sm border-0 border-transparent",
+						: "bg-gray-800/40 rounded-sm border-0 border-transparent",
 					isHoveredMarker ? "text-pink-400" : "text-white",
 				)}
 				onWheel={onWheel}
 				style={{
 					width: `${width}px`,
-					height: isTaArrowClicked ? "auto" : `${height}px`,
+					height: isTaArrowClicked ? "auto" : `${TA_height}px`,
 				}}
 			>
-				<Content flightColor={flightColor} aircraft={aircraft} width={width} />
+				<Content
+					flightColor={flightColor}
+					aircraft={aircraft}
+					width={width}
+					request={request}
+					requestParameter={formatRequestParameter(
+						request.context?.requestType ?? 0,
+						request.context?.requestParameter ?? 0,
+					)}
+					requestTypeIcon={getIconForRequestType(
+						request.context?.requestType ?? 0,
+						request.context?.requestParameter ?? 0,
+					)}
+				/>
 			</div>
 		</div>
 	);

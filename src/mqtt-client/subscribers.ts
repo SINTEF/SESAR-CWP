@@ -23,6 +23,7 @@ import {
 	SimulatorTime,
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
+import { PilotRequestJsonSchema } from "../schemas/pilotRequestSchema";
 import {
 	adminStore,
 	aircraftStore,
@@ -262,6 +263,30 @@ export function frequencies(_parameters: unknown, message: Buffer): void {
 }
 
 /**
+ * Handle JSON-based pilot request messages validated with Zod.
+ */
+export function pilotRequestJson(
+	{ flightId, requestId }: { [key: string]: string },
+	message: Buffer,
+): void {
+	// Empty message means delete the request (MQTT retained message clearing)
+	if (message.length === 0) {
+		aircraftStore.removePilotRequestJson(flightId, requestId);
+		return;
+	}
+
+	try {
+		const jsonString = message.toString();
+		const parsed = JSON.parse(jsonString);
+		const validated = PilotRequestJsonSchema.parse(parsed);
+		aircraftStore.setPilotRequestJson(flightId, requestId, validated);
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: error logging
+		console.error("Failed to decode PilotRequestJson:", error);
+    Sentry.captureException(error);
+	}
+}
+    
  * Handle WorkloadUpdate messages from MQTT topic TAS/{clientId}/WorkloadUpdate
  *
  * Expected message format:

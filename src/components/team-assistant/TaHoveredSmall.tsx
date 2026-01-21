@@ -3,86 +3,66 @@ import { observer } from "mobx-react-lite";
 // import React from "react";
 
 import type AircraftModel from "../../model/AircraftModel";
-import { aircraftStore, cwpStore } from "../../state";
-import FlightLevelRequestIcon from "./FlightLevelRequestIcon";
-
-// const NextFix = observer(({ aircraft }: SubContentProperties) => {
-// 	const posthog = usePostHog();
-// 	const middleClickNextWaypoint = (
-// 		_event: React.MouseEvent<HTMLElement>,
-// 	): void => {
-// 		// if (event.button === 1) {
-// 		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
-// 		posthog?.capture("next_fix_clicked", {
-// 			aircraft_id: aircraft.aircraftId,
-// 			callsign: aircraft.callSign,
-// 			next_fix: aircraft.nextFix,
-// 			flight_route_visible: cwpStore.aircraftsWithFlightRoutes.has(
-// 				aircraft.aircraftId,
-// 			),
-// 		});
-// 		// }
-// 	};
-
-// 	const { nextFix, assignedBearing } = aircraft;
-// 	const showNextFix = assignedBearing === -1 || assignedBearing === undefined;
-
-// 	return (
-// 		<td onMouseDown={middleClickNextWaypoint}>
-// 			{showNextFix ? nextFix : "--"}
-// 		</td>
-// 	);
-// });
+import { TeamAssistantRequest } from "../../model/AircraftStore";
+import { cwpStore } from "../../state";
+import {
+	formatRequestSuggestion,
+	getRequestStatusColorClass,
+} from "../../utils/teamAssistantHelper";
 
 export default observer(function TaHoveredSmall(properties: {
 	aircraft: AircraftModel;
 	flightColor: string;
+	requestParameter: string;
+	requestTypeIcon: string;
+	request: TeamAssistantRequest;
 	width?: number;
 }) {
-	const { aircraft /*, flightColor */ } = properties;
+	const { aircraft, request, requestParameter, requestTypeIcon, width } =
+		properties;
 	const { setTaArrowClickedAircraftId, setHoveredFlightLabelId } = cwpStore;
-
-	const pilotRequest = aircraftStore.getFirstRequestForAircraft(
-		aircraft.aircraftId,
-	);
 
 	const showMoreArrowClicked = () => {
 		setTaArrowClickedAircraftId(aircraft.aircraftId);
 		setHoveredFlightLabelId(aircraft.aircraftId);
 	};
 	return (
-		<table className="border-spacing-w w-full h-full pl-1 pb-1 pr-1">
-			<tbody
-			// style={{ color: flightColor }}
-			>
-				<tr className="w-1/2 border-spacing-2">
-					<td className="">
-						<FlightLevelRequestIcon
-							flightId={aircraft.aircraftId}
-							primaryColor="#FFF703"
-						/>
-					</td>
-					<td>{pilotRequest?.requestParameter}</td>
-				</tr>
+		<table className="h-full border-collapse" style={{ width: `${width}px` }}>
+			{/* <colgroup>
+				<col style={{ width: "12px" }} />
+				<col />
+				<col style={{ width: "12px" }} />
+			</colgroup> */}
+			<tbody>
+				{/* Row 1: Icon | Parameter | Cross */}
 				<tr>
-					<td>
-						{pilotRequest?.suggestion?.suggestionName ? (
-							<strong>{pilotRequest?.suggestion?.suggestionName}</strong>
-						) : (
-							" "
-						)}
+					<td className="flex flex-row">
+						<div className="flex items-center gap-1.5">
+							<img
+								src={requestTypeIcon}
+								alt="Request type"
+								className="w-4 h-4"
+							/>
+						</div>
 					</td>
-					<td>{pilotRequest?.suggestion?.suggestionParameter}</td>
-				</tr>
-				<tr className="w-1/2">
-					<td>
+					<td className="p-0 text-xs">
+						<span
+							className={getRequestStatusColorClass(
+								request.goals?.[0]?.results,
+							)}
+						>
+							●
+						</span>
+						{requestParameter}
+					</td>
+					<td className="p-0 cursor-pointer text-right">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
 							viewBox="0 0 24 24"
 							strokeWidth="1.5"
 							stroke="currentColor"
-							className="size-4"
+							className="w-3 h-3 inline-block"
 						>
 							<path
 								strokeLinecap="round"
@@ -91,14 +71,28 @@ export default observer(function TaHoveredSmall(properties: {
 							/>
 						</svg>
 					</td>
-					<td>
+				</tr>
+				{/* Row 2: Dot | Suggestion | Checkmark */}
+				<tr>
+					<td className="p-0">
+						<span className="text-green-400 text-xs">●</span>
+					</td>
+					<td className="p-0 text-xs">
+						<strong>
+							{formatRequestSuggestion(
+								request.context?.requestType ?? 0,
+								requestParameter,
+							)}
+						</strong>
+					</td>
+					<td className="p-0 cursor-pointer text-right">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
 							viewBox="0 0 24 24"
 							strokeWidth="1.5"
 							stroke="currentColor"
-							className="size-4"
+							className="w-3 h-3 inline-block"
 						>
 							<path
 								strokeLinecap="round"
@@ -108,16 +102,21 @@ export default observer(function TaHoveredSmall(properties: {
 						</svg>
 					</td>
 				</tr>
+				{/* Row 3: Empty | Empty | Arrow */}
 				<tr>
-					<td></td>
-					<td onClick={() => showMoreArrowClicked()}>
+					<td className="p-0"></td>
+					<td className="p-0"></td>
+					<td
+						className="p-0 cursor-pointer text-right"
+						onClick={() => showMoreArrowClicked()}
+					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
 							viewBox="0 0 24 24"
 							strokeWidth="1.5"
 							stroke="currentColor"
-							className="size-4"
+							className="w-3 h-3"
 						>
 							<path
 								strokeLinecap="round"
