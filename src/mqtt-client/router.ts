@@ -30,6 +30,7 @@ import {
 	newSimulatorTime,
 	notFound,
 	pilotRequest,
+	pilotRequestJson,
 	roleConfiguration,
 	simulatorLogs,
 	targetReport,
@@ -88,6 +89,7 @@ const router = rlite<Buffer>(notFound, {
 	"frontend/:clientId/flight/:flightId/localAssignedFL":
 		frontendLocalAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/hidden": frontendFlightHidden,
+	"IIS/PilotRequest/:flightId/:requestId": pilotRequestJson,
 });
 
 export default router;

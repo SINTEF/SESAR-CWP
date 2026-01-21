@@ -15,6 +15,7 @@ import type {
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
 import { PlanningStage } from "../proto/ProtobufAirTrafficSimulator";
+import type { PilotRequestJson } from "../schemas/pilotRequestSchema";
 import AircraftInfo from "./AircraftInfo";
 import AircraftModel from "./AircraftModel";
 import AircraftType from "./AircraftType";
@@ -72,6 +73,14 @@ export default class AircraftStore {
 	 * This supports multiple requests per aircraft.
 	 */
 	teamAssistantRequests: ObservableMap<string, TeamAssistantRequest> =
+		observable.map(undefined, {
+			deep: false,
+		});
+
+	/**
+	 * Pilot request JSON messages (validated with Zod) stored with composite key: `${flightId}:${requestId}`
+	 */
+	pilotRequestJsonMap: ObservableMap<string, StoredPilotRequestJson> =
 		observable.map(undefined, {
 			deep: false,
 		});
@@ -559,10 +568,10 @@ export default class AircraftStore {
 				requests.push(request);
 			}
 		}
-		// Sort by time (newest first) - handle undefined time
+		// Sort by timestamp (newest first) - handle undefined timestamp
 		requests.sort((a, b) => {
-			const timeA = a.time ? this.timestampToNumber(a.time) : 0;
-			const timeB = b.time ? this.timestampToNumber(b.time) : 0;
+			const timeA = a.timestamp ? this.timestampToNumber(a.timestamp) : 0;
+			const timeB = b.timestamp ? this.timestampToNumber(b.timestamp) : 0;
 			return timeB - timeA;
 		});
 		// Limit to 5 requests
@@ -620,6 +629,67 @@ export default class AircraftStore {
 	): TeamAssistantRequest | undefined {
 		return this.getRequestsForAircraft(flightId)[0];
 	}
+
+	// ========== Pilot Request JSON (Zod-validated) Methods ==========
+
+	/**
+	 * Add or update a pilot request JSON.
+	 */
+	setPilotRequestJson(
+		flightId: string,
+		requestId: string,
+		request: PilotRequestJson,
+	): void {
+		const key = this.createRequestKey(flightId, requestId);
+		const storedRequest: StoredPilotRequestJson = {
+			...request,
+			flightId,
+			requestId,
+		};
+		this.pilotRequestJsonMap.set(key, storedRequest);
+	}
+
+	/**
+	 * Remove a pilot request JSON.
+	 */
+	removePilotRequestJson(flightId: string, requestId: string): void {
+		const key = this.createRequestKey(flightId, requestId);
+		this.pilotRequestJsonMap.delete(key);
+	}
+
+	/**
+	 * Get all pilot request JSONs for an aircraft.
+	 */
+	getPilotRequestJsonsForAircraft(flightId: string): StoredPilotRequestJson[] {
+		const requests: StoredPilotRequestJson[] = [];
+		for (const [key, request] of this.pilotRequestJsonMap) {
+			if (this.extractFlightIdFromKey(key) === flightId) {
+				requests.push(request);
+			}
+		}
+		return requests;
+	}
+
+	/**
+	 * Get the first pilot request JSON for an aircraft.
+	 */
+	getFirstPilotRequestJsonForAircraft(
+		flightId: string,
+	): StoredPilotRequestJson | undefined {
+		return this.getPilotRequestJsonsForAircraft(flightId)[0];
+	}
+
+	/**
+	 * Check if an aircraft has any pilot request JSONs.
+	 */
+	hasPilotRequestJsons(flightId: string): boolean {
+		for (const key of this.pilotRequestJsonMap.keys()) {
+			if (this.extractFlightIdFromKey(key) === flightId) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 /**
@@ -627,5 +697,13 @@ export default class AircraftStore {
  * This allows storing multiple requests per aircraft.
  */
 export interface TeamAssistantRequest extends PilotRequestMessage {
+	requestId: string;
+}
+
+/**
+ * Extended type that wraps PilotRequestJson with flight ID and request ID.
+ */
+export interface StoredPilotRequestJson extends PilotRequestJson {
+	flightId: string;
 	requestId: string;
 }

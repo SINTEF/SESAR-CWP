@@ -723,16 +723,58 @@ message SuggestionMessage {
   google.protobuf.Timestamp suggestedAt = 5;
 }
 
+// Conflict coordination information within required_coordinations
+message ConflictCoordinationMessage {
+  string conflictId               = 1;  // conflict_id
+  float machNumber                = 2;  // mach_number
+  float minSeparation             = 3;  // min_separation
+  float distanceToExit            = 4;  // distance_to_exit
+  string firstFlightIdAtCPA       = 5;  // first_flight_id_at_CPA
+  int32 conflictFL                = 6;  // conflict_FL
+  bool compatible                 = 7;  // compatible
+}
+
+// A coordination item can be either a string or a conflict object
+message CoordinationItem {
+  oneof item {
+    string textCoordination               = 1;  // e.g. "Flight plan non-conformity"
+    ConflictCoordinationMessage conflict  = 2;  // Conflict coordination object
+  }
+}
+
+// Goal results containing analysis outcomes
+message GoalResultsMessage {
+  int32 exitLevel                              = 1;   // exit_level
+  int32 initialClimb                           = 2;   // initial_climb
+  bool exitProblemsAreManageable               = 3;   // exit_problems_are_manageable
+  bool trafficComplexityManageable             = 4;   // traffic_complexity_manageable
+  repeated CoordinationItem requiredCoordinations = 5; // required_coordinations
+  bool higherLevelAvailable                    = 6;   // higher_level_available
+  bool isConformToFlightPlan                   = 7;   // is_conform_to_flight_plan
+  string nextSector                            = 8;   // next_sector
+  bool nextSectorCapacityOk                    = 9;   // next_sector_capacity_ok
+  bool altitudeRestriction                     = 10;  // altitude_restriction
+}
+
+// A goal entry with RFL and results
+message GoalMessage {
+  int32 RFL                       = 1;  // Requested Flight Level
+  GoalResultsMessage results      = 2;  // Analysis results
+}
+
+// Request context information
+message RequestContextMessage {
+  string requestId                = 1;  // request_id
+  string flightId                 = 2;  // flight_id
+  int32 requestType               = 3;  // request_type (0 = FL, 1 = HDG, etc.)
+  int32 requestParameter          = 4;  // request_parameter (e.g. 390)
+}
+
 message PilotRequestMessage {
-  string flightId                  = 1;
-  string callSign                  = 2;
-  PilotRequestTypes requestType    = 3; // "DCT", "FL", "HDG"
-  string requestParameter          = 4; // E.g. "350", "35", "USANO"
-  repeated TaskMessage tasks       = 5; // Optional task associated with the request.
-  SuggestionMessage suggestion = 6; // Optional suggestions associated with the request.
-  google.protobuf.Timestamp time   = 7; // The time when the request was made.
-  PilotRequestStatus status        = 8; // E.g. "Pending", "Accepted", "Rejected"
-  string responseDetails           = 9; // E.g. reason for rejection or additional information.
+  google.protobuf.Timestamp timestamp = 1;  // timestamp
+  int32 iterationCount            = 2;      // iteration_count
+  RequestContextMessage context   = 3;      // context object
+  repeated GoalMessage goals      = 4;      // goals array
 }
 
 // A segment of an airway connecting two named positions.

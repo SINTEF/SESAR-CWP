@@ -1,10 +1,12 @@
 import { observer } from "mobx-react-lite";
 import type AircraftModel from "../../model/AircraftModel";
-import { aircraftStore } from "../../state";
-import RequestPanel from "./RequestPanel";
+import { TeamAssistantRequest } from "../../model/AircraftStore";
+// import { aircraftStore } from "../../state";
+import TaLabel from "./TaLabel";
 
 interface RequestPanelContainerProps {
 	aircraft: AircraftModel;
+	height: number;
 }
 
 /**
@@ -15,10 +17,44 @@ interface RequestPanelContainerProps {
  */
 export default observer(function RequestPanelContainer({
 	aircraft,
+	height,
 }: RequestPanelContainerProps) {
-	const requests = aircraftStore.getRequestsForAircraft(
-		aircraft.assignedFlightId,
-	);
+	// const requests = aircraftStore.getRequestsForAircraft(
+	// 	aircraft.assignedFlightId,
+	// );
+	const requests: TeamAssistantRequest[] = [
+		{
+			requestId: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
+			timestamp: {
+				seconds: BigInt(Math.floor(Date.now() / 1000)),
+				nanos: 0,
+			},
+			iterationCount: 0,
+			context: {
+				requestId: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
+				flightId: "FPO215H",
+				requestType: 0,
+				requestParameter: 390,
+			},
+			goals: [
+				{
+					rFL: 390,
+					results: {
+						exitLevel: 390,
+						initialClimb: 350,
+						exitProblemsAreManageable: true,
+						trafficComplexityManageable: true,
+						requiredCoordinations: [],
+						higherLevelAvailable: true,
+						isConformToFlightPlan: false,
+						nextSector: "E3",
+						nextSectorCapacityOk: true,
+						altitudeRestriction: false,
+					},
+				},
+			],
+		},
+	];
 
 	// Show container if there are requests OR if we need to show the add button
 	if (requests.length === 0) {
@@ -28,10 +64,11 @@ export default observer(function RequestPanelContainer({
 	return (
 		<div className="absolute top-0 w-max flex flex-row ml-0.75 gap-0.75 items-start">
 			{requests.map((request) => (
-				<RequestPanel
+				<TaLabel
 					key={request.requestId}
-					flightId={aircraft.assignedFlightId}
+					aircraft={aircraft}
 					request={request}
+					height={height}
 				/>
 			))}
 		</div>

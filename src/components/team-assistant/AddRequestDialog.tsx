@@ -5,10 +5,7 @@ import {
 	handlePublishPromise,
 	publishPilotRequest,
 } from "../../mqtt-client/publishers";
-import {
-	PilotRequestStatus,
-	PilotRequestTypes,
-} from "../../proto/ProtobufAirTrafficSimulator";
+import { PilotRequestTypes } from "../../proto/ProtobufAirTrafficSimulator";
 import { cwpStore } from "../../state";
 
 interface AddRequestDialogProps {
@@ -26,7 +23,7 @@ const REQUEST_TYPES: RequestTypeOption[] = [
 	{
 		type: PilotRequestTypes.FLIGHT_LEVEL,
 		label: "Flight Level",
-		icon: "/icon_flight_level_change.svg",
+		icon: "/flight_level_request.svg",
 	},
 	{
 		type: PilotRequestTypes.DIRECTTO,
@@ -49,24 +46,25 @@ export default observer(function AddRequestDialog({
 	aircraft,
 	onClose,
 }: AddRequestDialogProps) {
-	const { aircraftId, callSign, assignedFlightId } = aircraft;
+	const { aircraftId, assignedFlightId } = aircraft;
 
 	const createRequest = (type: PilotRequestTypes, parameter: string): void => {
 		const requestId = crypto.randomUUID();
 		const now = new Date();
 
 		const request = {
-			flightId: assignedFlightId,
-			callSign,
-			requestType: type,
-			requestParameter: parameter,
-			status: PilotRequestStatus.PR_PENDING,
-			tasks: [],
-			responseDetails: "",
-			time: {
+			timestamp: {
 				seconds: BigInt(Math.floor(now.getTime() / 1000)),
 				nanos: (now.getTime() % 1000) * 1_000_000,
 			},
+			iterationCount: 0,
+			context: {
+				requestId,
+				flightId: assignedFlightId,
+				requestType: type,
+				requestParameter: Number.parseInt(parameter, 10) || 0,
+			},
+			goals: [],
 		};
 
 		// Publish to MQTT - the message will be received back via subscriber
