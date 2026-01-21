@@ -4,7 +4,8 @@ import { observer } from "mobx-react-lite";
 
 import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
-import { cwpStore } from "../../state";
+import { publishPilotRequestClear } from "../../mqtt-client/publishers";
+import { aircraftStore, cwpStore } from "../../state";
 import {
 	formatRequestSuggestion,
 	getRequestStatusColorClass,
@@ -26,6 +27,27 @@ export default observer(function TaHoveredSmall(properties: {
 		setTaArrowClickedAircraftId(aircraft.aircraftId);
 		setHoveredFlightLabelId(aircraft.aircraftId);
 	};
+
+	const handleAccept = async (): Promise<void> => {
+		// Clear the retained MQTT message
+		await publishPilotRequestClear(aircraft.aircraftId, request.requestId);
+		// Remove from store
+		aircraftStore.removeTeamAssistantRequest(
+			aircraft.aircraftId,
+			request.requestId,
+		);
+	};
+
+	const handleDismiss = async (): Promise<void> => {
+		// Clear the retained MQTT message
+		await publishPilotRequestClear(aircraft.aircraftId, request.requestId);
+		// Remove from store
+		aircraftStore.removeTeamAssistantRequest(
+			aircraft.aircraftId,
+			request.requestId,
+		);
+	};
+
 	return (
 		<table className="h-full border-collapse" style={{ width: `${width}px` }}>
 			{/* <colgroup>
@@ -55,35 +77,19 @@ export default observer(function TaHoveredSmall(properties: {
 						</span>
 						<span className="text-xs text-[#40c4ff]">{requestParameter}</span>
 					</td>
-					<td className="p-0 cursor-pointer text-right">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							strokeWidth="1.5"
-							stroke="currentColor"
-							className="w-3 h-3 inline-block"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="M6 18 18 6M6 6l12 12"
-							/>
-						</svg>
-					</td>
 				</tr>
 				{/* Row 2: Dot | Suggestion | Checkmark */}
 				<tr>
 					<td className="p-0">
 						<span className="text-green-400 text-xs">●</span>
-					</td>
-					<td className="p-0 text-xs">
-						<strong>
+						{/* </td>
+					<td className="p-0 text-xs"> */}
+						<span>
 							{formatRequestSuggestion(
 								request.context?.requestType ?? 0,
 								requestParameter,
 							)}
-						</strong>
+						</span>
 					</td>
 					<td className="p-0 cursor-pointer text-right">
 						<svg
@@ -93,11 +99,29 @@ export default observer(function TaHoveredSmall(properties: {
 							strokeWidth="1.5"
 							stroke="currentColor"
 							className="w-3 h-3 inline-block"
+							onClick={() => handleAccept()}
 						>
 							<path
 								strokeLinecap="round"
 								strokeLinejoin="round"
 								d="m4.5 12.75 6 6 9-13.5"
+							/>
+						</svg>
+					</td>
+					<td className="p-0 cursor-pointer text-right">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							strokeWidth="1.5"
+							stroke="currentColor"
+							className="w-3 h-3 inline-block"
+							onClick={() => handleDismiss()}
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								d="M6 18 18 6M6 6l12 12"
 							/>
 						</svg>
 					</td>

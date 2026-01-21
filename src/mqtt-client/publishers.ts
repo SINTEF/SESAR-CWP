@@ -260,6 +260,13 @@ export async function publishPilotRequestClear(
 		"",
 		{ retain: true },
 	);
+	await publish(
+		`IIS/PilotRequest/${requestId}`,
+		{
+			finished: true,
+		},
+		{ retain: true },
+	);
 }
 
 /**

@@ -266,7 +266,7 @@ export function frequencies(_parameters: unknown, message: Buffer): void {
  * Handle JSON-based pilot request messages validated with Zod.
  */
 export function pilotRequestJson(
-	{ flightId, requestId }: { [key: string]: string },
+	{ flightId, requestId }: { [key: string]: string }, // TODO: Change depending on Serges topic
 	message: Buffer,
 ): void {
 	// Empty message means delete the request (MQTT retained message clearing)
