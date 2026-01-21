@@ -283,10 +283,11 @@ export function pilotRequestJson(
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode PilotRequestJson:", error);
-    Sentry.captureException(error);
+		Sentry.captureException(error);
 	}
 }
-    
+
+/**
  * Handle WorkloadUpdate messages from MQTT topic TAS/{clientId}/WorkloadUpdate
  *
  * Expected message format:
