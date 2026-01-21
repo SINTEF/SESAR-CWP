@@ -15,9 +15,16 @@ export default observer(function TaPopupFull(properties: {
 	requestTypeIcon: string;
 	width: number;
 	request: TeamAssistantRequest;
+	autonomyProfile: number;
 }) {
-	const { aircraft, flightColor, requestParameter, requestTypeIcon, request } =
-		properties;
+	const {
+		aircraft,
+		flightColor,
+		requestParameter,
+		requestTypeIcon,
+		request,
+		autonomyProfile,
+	} = properties;
 
 	const IsTaArrowClicked =
 		cwpStore.taArrowClickedAircraftId === aircraft.aircraftId;
@@ -34,6 +41,7 @@ export default observer(function TaPopupFull(properties: {
 				requestParameter={requestParameter}
 				requestTypeIcon={requestTypeIcon}
 				request={request}
+				autonomyProfile={autonomyProfile}
 			/>
 		</div>
 	);
