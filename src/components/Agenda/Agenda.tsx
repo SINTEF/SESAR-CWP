@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	aircraftStore,
@@ -119,6 +120,7 @@ export default observer(function Agenda({
 }: {
 	events?: TimelineEvent[];
 }) {
+	const posthog = usePostHog();
 	const [scaleMinutes, setScaleMinutes] = useState<ScalePreset>(30);
 	const [containerHeight, setContainerHeight] = useState(600);
 	const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
@@ -202,14 +204,25 @@ export default observer(function Agenda({
 
 				setScaleMinutes((current) => {
 					const currentIndex = SCALE_PRESETS.indexOf(current);
+					let newScale: ScalePreset;
 					if (direction > 0) {
 						// Scroll down = zoom out (more minutes visible)
-						return SCALE_PRESETS[
-							Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
-						];
+						newScale =
+							SCALE_PRESETS[
+								Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+							];
+					} else {
+						// Scroll up = zoom in (fewer minutes visible)
+						newScale = SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
 					}
-					// Scroll up = zoom in (fewer minutes visible)
-					return SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
+					if (newScale !== current) {
+						posthog.capture("agenda_scale_changed", {
+							previous_scale: current,
+							new_scale: newScale,
+							method: "wheel",
+						});
+					}
+					return newScale;
 				});
 			}
 
@@ -298,7 +311,15 @@ export default observer(function Agenda({
 	// Handle range slider change
 	const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const index = Number.parseInt(e.target.value, 10);
-		setScaleMinutes(SCALE_PRESETS[index]);
+		const newScale = SCALE_PRESETS[index];
+		if (newScale !== scaleMinutes) {
+			posthog.capture("agenda_scale_changed", {
+				previous_scale: scaleMinutes,
+				new_scale: newScale,
+				method: "slider",
+			});
+		}
+		setScaleMinutes(newScale);
 	};
 
 	// Handle time offset changes from dragging events

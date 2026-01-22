@@ -1,3 +1,4 @@
+import { usePostHog } from "posthog-js/react";
 import { useCallback } from "react";
 import { useMap } from "react-map-gl/maplibre";
 
@@ -32,6 +33,7 @@ const VIEWPORT_PRESETS = [
 
 export default function ViewportPresetsControl() {
 	const { current: map } = useMap();
+	const posthog = usePostHog();
 
 	const handleViewportClick = useCallback(
 		(preset: (typeof VIEWPORT_PRESETS)[number]) => {
@@ -39,13 +41,21 @@ export default function ViewportPresetsControl() {
 				return;
 			}
 
+			posthog.capture("viewport_preset_clicked", {
+				preset_id: preset.id,
+				preset_label: preset.label,
+				longitude: preset.longitude,
+				latitude: preset.latitude,
+				zoom: preset.zoom,
+			});
+
 			map.flyTo({
 				center: [preset.longitude, preset.latitude],
 				zoom: preset.zoom,
 				duration: 1000,
 			});
 		},
-		[map],
+		[map, posthog],
 	);
 
 	return (

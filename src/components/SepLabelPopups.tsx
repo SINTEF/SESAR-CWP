@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { Popup, useMap } from "react-map-gl/maplibre";
 import type SepQdmSeparation from "../model/SepQdmSeparation";
 import { sepQdmStore } from "../state";
@@ -9,6 +10,7 @@ const SepLabelPopup = observer(function SepLabelPopup({
 	separation: SepQdmSeparation;
 }) {
 	const { current } = useMap();
+	const posthog = usePostHog();
 
 	// Skip if separation is no longer valid
 	if (!separation.isValid) {
@@ -26,6 +28,10 @@ const SepLabelPopup = observer(function SepLabelPopup({
 	const handleContextMenu = (event: React.MouseEvent): void => {
 		event.preventDefault();
 		sepQdmStore.removeSepLine(separation.fromId, separation.toId);
+		posthog.capture("sep_line_removed", {
+			from_aircraft_id: separation.fromId,
+			to_aircraft_id: separation.toId,
+		});
 	};
 
 	const onWheel = (event: React.WheelEvent): void => {
