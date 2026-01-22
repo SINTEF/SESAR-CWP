@@ -236,7 +236,7 @@ export default observer(function AircraftPopup(properties: {
 					{showAddTaRequestButton && <AddRequestButton aircraft={aircraft} />}
 				</div>
 			</div>
-			{showRequestPanelContainer ? (
+			{showRequestPanelContainer || showAddTaDialogOpened ? (
 				<div className="absolute left-full top-0">
 					{showRequestPanelContainer && (
 						<RequestPanelContainer
