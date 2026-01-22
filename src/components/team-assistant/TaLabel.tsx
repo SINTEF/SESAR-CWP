@@ -106,8 +106,11 @@ export default observer(function TaLabel(properties: {
 		case isHoveredLabel === true && isTaArrowClicked === false:
 			width = 85;
 			break;
+		case request.context?.request_type === 1: // DIRECT_REQUEST
+			width = 55;
+			break;
 		default:
-			width = 35;
+			width = 37;
 			break;
 	}
 
