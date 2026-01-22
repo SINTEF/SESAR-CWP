@@ -49,6 +49,11 @@ export const CallSign = observer(
 		const handleContextMenu = (event: React.MouseEvent): void => {
 			event.preventDefault();
 			aircraft.degrease();
+			posthog?.capture("aircraft_degrease_context_menu", {
+				aircraft_id: aircraft.aircraftId,
+				callsign: callSign,
+				source: "callsign",
+			});
 		};
 
 		/**
@@ -305,6 +310,24 @@ function getWarningIconPath(warningLevel: string): React.ReactNode {
 }
 
 /**
+ * Compute the next warning level in the cycle: none -> blue -> yellow -> orange -> none
+ */
+function getNextWarningLevel(currentLevel: string): string {
+	switch (currentLevel) {
+		case "none":
+			return "blue";
+		case "blue":
+			return "yellow";
+		case "yellow":
+			return "orange";
+		case "orange":
+			return "none";
+		default:
+			return "blue";
+	}
+}
+
+/**
  * Warning icon component that works with just an aircraftId.
  * Can be used anywhere without needing the full AircraftModel.
  */
@@ -318,6 +341,7 @@ export const WarningIconById = observer(
 		skipNone?: boolean;
 		className?: string;
 	}) => {
+		const posthog = usePostHog();
 		const warningLevel = cwpStore.getWarningLevel(aircraftId);
 		const warningColor =
 			roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
@@ -328,7 +352,15 @@ export const WarningIconById = observer(
 
 		const handleClick = (event: React.MouseEvent): void => {
 			event.stopPropagation();
+			const previousLevel = warningLevel;
+			const newLevel = getNextWarningLevel(previousLevel);
 			cwpStore.cycleWarningLevel(aircraftId);
+			posthog.capture("warning_level_cycled", {
+				aircraft_id: aircraftId,
+				callsign: undefined,
+				previous_level: previousLevel,
+				new_level: newLevel,
+			});
 		};
 
 		return (
@@ -347,6 +379,7 @@ export const WarningIconById = observer(
 
 export const WarningIcon = observer(
 	({ aircraft, skipNone }: { aircraft: AircraftModel; skipNone?: boolean }) => {
+		const posthog = usePostHog();
 		const warningLevel = cwpStore.getWarningLevel(aircraft.aircraftId);
 		const warningColor = roleConfigurationStore.getOriginalColorOfAircraft(
 			aircraft.aircraftId,
@@ -358,7 +391,15 @@ export const WarningIcon = observer(
 
 		const handleClick = (event: React.MouseEvent): void => {
 			event.stopPropagation();
+			const previousLevel = warningLevel;
+			const newLevel = getNextWarningLevel(previousLevel);
 			cwpStore.cycleWarningLevel(aircraft.aircraftId);
+			posthog.capture("warning_level_cycled", {
+				aircraft_id: aircraft.aircraftId,
+				callsign: aircraft.callSign,
+				previous_level: previousLevel,
+				new_level: newLevel,
+			});
 		};
 
 		return (
@@ -514,9 +555,15 @@ export const TransferAltitude = ({
 };
 
 export const ArrivalAirport = observer(({ aircraft }: SubContentProperties) => {
+	const posthog = usePostHog();
 	const handleContextMenu = (event: React.MouseEvent): void => {
 		event.preventDefault();
 		aircraft.degrease();
+		posthog?.capture("aircraft_degrease_context_menu", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			source: "arrival_airport",
+		});
 	};
 
 	return (

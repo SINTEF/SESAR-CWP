@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { useRef, useState } from "react";
 import type { DraggableEvent } from "react-draggable";
 import { DraggableCore } from "react-draggable";
@@ -49,6 +50,7 @@ const TimelineEventCard = observer(function TimelineEventCard({
 	isDraggingAny,
 	setIsDraggingAny,
 }: EventCardProps) {
+	const posthog = usePostHog();
 	const nodeRef = useRef<HTMLDivElement>(null);
 	// Whether mouse is pressed (DraggableCore active)
 	const [isPressed, setIsPressed] = useState(false);
@@ -94,6 +96,11 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		}
 		const aircraftId = getAircraftId(index);
 		if (aircraftId) {
+			posthog.capture("agenda_card_aircraft_clicked", {
+				event_id: event.id,
+				aircraft_id: aircraftId,
+				aircraft_index: index,
+			});
 			const wasSelected = cwpStore.selectedAircraftIds.has(aircraftId);
 			cwpStore.toggleSelectedAircraftId(aircraftId);
 			setCurrentAircraftId(aircraftId);
@@ -137,6 +144,10 @@ const TimelineEventCard = observer(function TimelineEventCard({
 		}
 		const ids = event.aircraftIds;
 		if (ids && ids.length > 0) {
+			posthog.capture("agenda_card_badge_clicked", {
+				event_id: event.id,
+				aircraft_ids: ids,
+			});
 			const allSelected = ids.every((id) =>
 				cwpStore.selectedAircraftIds.has(id),
 			);
@@ -230,6 +241,11 @@ const TimelineEventCard = observer(function TimelineEventCard({
 
 		// New offset = difference between drop time and original time
 		const newOffset = dropTimeMin - originalStartMin;
+
+		posthog.capture("agenda_card_dragged", {
+			event_id: event.id,
+			time_offset_minutes: newOffset,
+		});
 
 		onTimeOffsetChange(event.id, newOffset);
 		setDragOffsetY(0);
