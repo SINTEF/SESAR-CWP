@@ -49,110 +49,85 @@ export default observer(function TaHoveredSmall(properties: {
 	};
 
 	return (
-		<table className="h-full border-collapse" style={{ width: `${width}px` }}>
-			{/* <colgroup>
-				<col style={{ width: "auto" }} />
-				<col />
-				<col style={{ width: "12px" }} />
-				<col></col>
-			</colgroup> */}
-			<tbody>
-				{/* Row 1: Icon | Parameter | Cross */}
-				<tr>
-					<td className="flex flex-row">
-						<div className="flex items-center gap-1.5">
-							<img
-								src={requestTypeIcon}
-								alt="Request type"
-								className="w-4 h-4"
-							/>
-						</div>
-					</td>
-					<td className="p-0 text-xs">
-						<span
-							className={getRequestStatusColorClass(
-								request.goals?.[0]?.results,
-							)}
-						>
-							●
-						</span>
-						<span className="text-xs text-[#40c4ff]">{requestParameter}</span>
-					</td>
-					<td></td>
-					<td></td>
-				</tr>
-				{/* Row 2: Dot | Suggestion | Checkmark */}
-				<tr>
-					<td className="p-0 flex flex-row gap-0">
-						{/* </td>
-					<td className="p-0 text-xs"> */}
-						<span className="text-green-400 text-xs">●</span>
-						<span>
-							{formatRequestSuggestion(
-								request.context?.request_type ?? 0,
-								requestParameter,
-							)}
-						</span>
-						{/* <td className="p-0 cursor-pointer"> */}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							strokeWidth="1.5"
-							stroke="currentColor"
-							className="w-3 h-3 inline-block"
-							onClick={() => handleAccept()}
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="m4.5 12.75 6 6 9-13.5"
-							/>
-						</svg>
-						{/* </td> */}
-						{/* <td className="p-0 cursor-pointer"> */}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							strokeWidth="1.5"
-							stroke="currentColor"
-							className="w-3 h-3 inline-block"
-							onClick={() => handleDismiss()}
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="M6 18 18 6M6 6l12 12"
-							/>
-						</svg>
-					</td>
-				</tr>
-				{/* Row 3: Empty | Empty | Arrow */}
-				<tr>
-					<td className="p-0"></td>
-					<td className="p-0"></td>
-					<td
-						className="p-0 cursor-pointer text-right"
-						onClick={() => showMoreArrowClicked()}
+		<div
+			className="flex flex-col gap-0.5 h-full"
+			style={{ width: `${width}px` }}
+		>
+			{/* Row 1: Icon | Status dot + Parameter */}
+			<div className="flex items-center justify-between">
+				<img src={requestTypeIcon} alt="Request type" className="w-4 h-4" />
+				<div className="flex items-center gap-0.5 text-xs">
+					<span
+						className={getRequestStatusColorClass(request.goals?.[0]?.results)}
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							strokeWidth="1.5"
-							stroke="currentColor"
-							className="w-3 h-3"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								d="m4.5 4.5 15 15m0 0V8.25m0 11.25H8.25"
-							/>
-						</svg>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+						●
+					</span>
+					<span className="text-[#40c4ff]">{requestParameter}</span>
+				</div>
+				<div className="w-3" /> {/* Spacer to align with row 2 icons */}
+			</div>
+
+			{/* Row 2: Green dot | Suggestion | Checkmark + Cross */}
+			<div className="flex items-center justify-between">
+				<span className="text-green-400 text-xs">●</span>
+				<span className="text-xs flex-1 text-center">
+					{formatRequestSuggestion(
+						request.context?.request_type ?? 0,
+						requestParameter,
+					)}
+				</span>
+				<div className="flex items-center gap-0.5">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth="1.5"
+						stroke="currentColor"
+						className="w-3 h-3 cursor-pointer"
+						onClick={() => handleAccept()}
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="m4.5 12.75 6 6 9-13.5"
+						/>
+					</svg>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth="1.5"
+						stroke="currentColor"
+						className="w-3 h-3 cursor-pointer"
+						onClick={() => handleDismiss()}
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="M6 18 18 6M6 6l12 12"
+						/>
+					</svg>
+				</div>
+			</div>
+
+			{/* Row 3: Empty | Empty | Expand arrow */}
+			<div className="flex items-center justify-end">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					strokeWidth="1.5"
+					stroke="currentColor"
+					className="w-3 h-3 cursor-pointer"
+					onClick={() => showMoreArrowClicked()}
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="m4.5 4.5 15 15m0 0V8.25m0 11.25H8.25"
+					/>
+				</svg>
+			</div>
+		</div>
 	);
 });
