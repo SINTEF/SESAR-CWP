@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
+import { useDragging } from "../../contexts/DraggingContext";
 import type AircraftModel from "../../model/AircraftModel";
-import { aircraftStore, brainStore } from "../../state";
+import { aircraftStore, brainStore, cwpStore } from "../../state";
 import TaLabel from "./TaLabel";
 
 interface RequestPanelContainerProps {
@@ -17,6 +18,9 @@ export default observer(function RequestPanelContainer({
 	aircraft,
 	height,
 }: RequestPanelContainerProps) {
+	const { isDragging, isStillDragging } = useDragging();
+	const { aircraftId } = aircraft;
+
 	// Get requests from the store (snake_case JSON format from IIS)
 	const requests = aircraftStore.getRequestsForAircraft(aircraft.callSign);
 
@@ -37,8 +41,26 @@ export default observer(function RequestPanelContainer({
 	// Get the current autonomy profile from the Brain (AP1 or AP2)
 	const autonomyProfile = brainStore.autonomyProfile;
 
+	const onMouseEnter = (): void => {
+		if (isStillDragging()) {
+			return;
+		}
+		cwpStore.setHoveredTaLabelAircraftId(aircraftId);
+	};
+
+	const onMouseLeave = (): void => {
+		if (!isDragging) {
+			cwpStore.removeHoveredTaLabelAircraftId();
+			cwpStore.removeTaArrowClickedAircraftId();
+		}
+	};
+
 	return (
-		<div className="absolute top-0 w-max flex flex-row ml-0.75 gap-0.75 items-start">
+		<div
+			className="absolute top-0 w-max flex flex-row pl-0.75 gap-0.75 items-start"
+			onPointerEnter={onMouseEnter}
+			onPointerLeave={onMouseLeave}
+		>
 			{requests.map((request) => (
 				<TaLabel
 					key={request.requestId}

@@ -63,13 +63,7 @@ export default observer(function TaLabel(properties: {
 	// AP2 (autonomyProfile === 2): Decision
 	const isAP2 = autonomyProfile === 2;
 
-	const {
-		setHoveredTaLabelAircraftId,
-		removeHoveredTaLabelAircraftId,
-		selectedAircraftIds,
-		removeTaArrowClickedAircraftId,
-		taArrowClickedAircraftId,
-	} = cwpStore;
+	const { selectedAircraftIds, taArrowClickedAircraftId } = cwpStore;
 	const isTaArrowClicked = taArrowClickedAircraftId === aircraftId;
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
 	const isHoveredLabel = cwpStore.hoveredTaLabelAircraftId === aircraftId;
@@ -160,23 +154,20 @@ export default observer(function TaLabel(properties: {
 			is_selected: isSelected,
 		});
 	};
+
 	const onMouseEnter = (): void => {
 		if (isStillDragging()) {
 			return;
 		}
-		setHoveredTaLabelAircraftId(aircraftId);
-
 		posthog?.capture("TA_aircraft_popup_hover_start", {
 			aircraft_id: aircraftId,
 			callsign: aircraft.callSign,
 			is_selected: isSelected,
 		});
 	};
+
 	const onMouseLeave = (): void => {
 		if (!isDragging) {
-			removeHoveredTaLabelAircraftId();
-			removeTaArrowClickedAircraftId();
-
 			posthog?.capture("TA_aircraft_popup_hover_end", {
 				aircraft_id: aircraftId,
 				callsign: aircraft.callSign,
