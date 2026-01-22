@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite";
-// import { usePostHog } from "posthog-js/react";
-// import React from "react";
+import { usePostHog } from "posthog-js/react";
 import AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
@@ -25,6 +24,7 @@ export default observer(function TaHoveredFull(properties: {
 	width: number;
 	autonomyProfile: number;
 }) {
+	const posthog = usePostHog();
 	const {
 		aircraft,
 		width,
@@ -60,6 +60,15 @@ export default observer(function TaHoveredFull(properties: {
 	// }
 
 	const handleAccept = async (): Promise<void> => {
+		posthog?.capture("TA_request_accepted", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+			autonomy_profile: autonomyProfile,
+			component: "TaHoveredFull",
+		});
 		// Clear the retained MQTT message
 		await publishPilotRequestClear(request.flightId, request.requestId);
 		// Remove from store
@@ -70,6 +79,15 @@ export default observer(function TaHoveredFull(properties: {
 	};
 
 	const handleDismiss = async (): Promise<void> => {
+		posthog?.capture("TA_request_dismissed", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+			autonomy_profile: autonomyProfile,
+			component: "TaHoveredFull",
+		});
 		// Clear the retained MQTT message
 		await publishPilotRequestClear(request.flightId, request.requestId);
 		// Remove from store

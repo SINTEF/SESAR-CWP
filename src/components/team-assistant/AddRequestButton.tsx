@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import type AircraftModel from "../../model/AircraftModel";
 import { adminStore, configurationStore, cwpStore } from "../../state";
 
@@ -17,6 +18,7 @@ interface AddRequestButtonProps {
 export default observer(function AddRequestButton({
 	aircraft,
 }: AddRequestButtonProps) {
+	const posthog = usePostHog();
 	const { aircraftId } = aircraft;
 
 	// Use store state instead of local state to keep popup expanded while dialog is open
@@ -40,8 +42,16 @@ export default observer(function AddRequestButton({
 
 	const handleToggle = () => {
 		if (isDialogOpen) {
+			posthog?.capture("TA_add_request_dialog_closed", {
+				aircraft_id: aircraftId,
+				callsign: aircraft.callSign,
+			});
 			handleClose();
 		} else {
+			posthog?.capture("TA_add_request_dialog_opened", {
+				aircraft_id: aircraftId,
+				callsign: aircraft.callSign,
+			});
 			cwpStore.openAddRequestDialogForAircraft(aircraftId);
 		}
 	};

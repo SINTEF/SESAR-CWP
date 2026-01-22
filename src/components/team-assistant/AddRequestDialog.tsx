@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import type AircraftModel from "../../model/AircraftModel";
 import {
 	handlePublishPromise,
@@ -46,6 +47,7 @@ export default observer(function AddRequestDialog({
 	aircraft,
 	onClose,
 }: AddRequestDialogProps) {
+	const posthog = usePostHog();
 	const { aircraftId, callSign } = aircraft;
 
 	const createRequest = (type: PilotRequestTypes, parameter: string): void => {
@@ -82,8 +84,24 @@ export default observer(function AddRequestDialog({
 	};
 
 	const handleTypeSelect = (type: PilotRequestTypes): void => {
+		const typeLabel =
+			REQUEST_TYPES.find((t) => t.type === type)?.label ?? "Unknown";
+		posthog?.capture("TA_request_type_selected", {
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			request_type: type,
+			request_type_label: typeLabel,
+		});
+
 		// Set up the callback that will receive the selected value from the popup
 		cwpStore.setTaRequestCallback((value: string) => {
+			posthog?.capture("TA_request_created", {
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				request_type: type,
+				request_type_label: typeLabel,
+				request_parameter: value,
+			});
 			createRequest(type, value);
 		}, aircraftId);
 

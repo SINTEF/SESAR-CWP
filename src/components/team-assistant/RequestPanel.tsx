@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import type { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
 import { aircraftStore } from "../../state";
@@ -65,6 +66,7 @@ export default observer(function RequestPanel({
 	flightId,
 	request,
 }: RequestPanelProps) {
+	const posthog = usePostHog();
 	const { requestId } = request;
 	const requestType = request.context?.request_type ?? 0;
 	const requestParameter = request.context?.request_parameter ?? "";
@@ -76,6 +78,13 @@ export default observer(function RequestPanel({
 	);
 
 	const handleAccept = async (): Promise<void> => {
+		posthog?.capture("TA_request_accepted", {
+			flight_id: flightId,
+			request_id: requestId,
+			request_type: requestType,
+			request_parameter: requestParameter,
+			component: "RequestPanel",
+		});
 		// Clear the retained MQTT message
 		await publishPilotRequestClear(flightId, requestId);
 		// Remove from store
@@ -83,6 +92,13 @@ export default observer(function RequestPanel({
 	};
 
 	const handleDismiss = async (): Promise<void> => {
+		posthog?.capture("TA_request_dismissed", {
+			flight_id: flightId,
+			request_id: requestId,
+			request_type: requestType,
+			request_parameter: requestParameter,
+			component: "RequestPanel",
+		});
 		// Clear the retained MQTT message
 		await publishPilotRequestClear(flightId, requestId);
 		// Remove from store
