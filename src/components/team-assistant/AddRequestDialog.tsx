@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import type AircraftModel from "../../model/AircraftModel";
 import {
 	handlePublishPromise,
@@ -46,11 +47,11 @@ export default observer(function AddRequestDialog({
 	aircraft,
 	onClose,
 }: AddRequestDialogProps) {
+	const posthog = usePostHog();
 	const { aircraftId, callSign } = aircraft;
 
 	const createRequest = (type: PilotRequestTypes, parameter: string): void => {
 		const requestId = crypto.randomUUID();
-		const requestParameter = Number.parseInt(parameter, 10) || 0;
 
 		// Convert PilotRequestTypes enum to JSON request_type number
 		// 0 = flight_level_request, 1 = direct_request, 2 = absolute_heading_request, 3 = relative_heading_request
@@ -69,6 +70,13 @@ export default observer(function AddRequestDialog({
 				requestType = 0;
 		}
 
+		// For DIRECTTO, keep the parameter as string (waypoint name)
+		// For other types, convert to number
+		const requestParameter: number | string =
+			type === PilotRequestTypes.DIRECTTO
+				? parameter.toUpperCase()
+				: Number.parseInt(parameter, 10) || 0;
+
 		// Publish to MQTT - the message will be received back via subscriber
 		handlePublishPromise(
 			publishPilotRequest(callSign, requestId, requestType, requestParameter),
@@ -76,8 +84,24 @@ export default observer(function AddRequestDialog({
 	};
 
 	const handleTypeSelect = (type: PilotRequestTypes): void => {
+		const typeLabel =
+			REQUEST_TYPES.find((t) => t.type === type)?.label ?? "Unknown";
+		posthog?.capture("TA_request_type_selected", {
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			request_type: type,
+			request_type_label: typeLabel,
+		});
+
 		// Set up the callback that will receive the selected value from the popup
 		cwpStore.setTaRequestCallback((value: string) => {
+			posthog?.capture("TA_request_created", {
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				request_type: type,
+				request_type_label: typeLabel,
+				request_parameter: value,
+			});
 			createRequest(type, value);
 		}, aircraftId);
 

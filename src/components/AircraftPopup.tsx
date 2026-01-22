@@ -85,7 +85,9 @@ export default observer(function AircraftPopup(properties: {
 		selectedAircraftIds,
 	} = cwpStore;
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
-	const isHoveredLabel = cwpStore.hoveredFlightLabelId === aircraftId;
+	const isHoveredTaLabel = cwpStore.hoveredTaLabelAircraftId === aircraftId;
+	const isHoveredLabel =
+		cwpStore.hoveredFlightLabelId === aircraftId || isHoveredTaLabel;
 	const isSelected = selectedAircraftIds.has(aircraft.aircraftId);
 	const hasOpenPopup = cwpStore.aircraftHasOpenPopup(aircraftId);
 
@@ -149,16 +151,24 @@ export default observer(function AircraftPopup(properties: {
 			return;
 		}
 		setHoveredFlightLabelId(aircraftId);
-
 		posthog?.capture("aircraft_popup_hover_start", {
 			aircraft_id: aircraftId,
 			callsign: aircraft.callSign,
 			is_selected: isSelected,
 		});
 	};
+	const onMainPanelEnter = (): void => {
+		if (isStillDragging()) {
+			return;
+		}
+		cwpStore.removeHoveredTaLabelAircraftId();
+		cwpStore.removeTaArrowClickedAircraftId();
+	};
 	const onMouseLeave = (): void => {
 		if (!isDragging) {
 			removeHoveredFlightLabelId();
+			cwpStore.removeHoveredTaLabelAircraftId();
+			cwpStore.removeTaArrowClickedAircraftId();
 
 			posthog?.capture("aircraft_popup_hover_end", {
 				aircraft_id: aircraftId,
@@ -208,53 +218,53 @@ export default observer(function AircraftPopup(properties: {
 			trackingType="aircraft_popup"
 		>
 			<div
-				className="flex flex-row gap-1 items-start"
-				// onClick={onClick}
-				// onMouseEnter={onMouseEnter} // if we want both open at the same time, then uncomment these
-				// onMouseLeave={onMouseLeave}
+				className="relative"
+				onPointerEnter={onMouseEnter}
+				onPointerLeave={onMouseLeave}
 			>
-				<div
-					onClick={onClick}
-					onMouseEnter={onMouseEnter}
-					onMouseLeave={onMouseLeave}
-					className={classNames(
-						"p-1 select-none backdrop-blur-[1.5px]",
-						isSelected
-							? "bg-neutral-800/40 rounded-xs border-[0.5px] border-cyan-400"
-							: "bg-neutral-800/50 rounded-sm border-0 border-transparent",
-						isHoveredMarker ? "text-pink-400" : "text-white",
-						showAddTaDialogOpened ? "rounded-tr-none" : "",
-					)}
-					onWheel={onWheel}
-					style={{ width: `${width}px`, height: `${height}px` }}
-				>
-					<Content
-						flightColor={flightColor}
-						aircraft={aircraft}
-						width={width}
-					/>
-					{showAddTaRequestButton && <AddRequestButton aircraft={aircraft} />}
-				</div>
-			</div>
-			{showRequestPanelContainer || showAddTaDialogOpened ? (
-				<div className="absolute left-full top-0">
-					{showRequestPanelContainer && (
-						<RequestPanelContainer
-							height={height}
-							aircraft={properties.aircraft}
-						/>
-					)}
-					{showAddTaDialogOpened && (
-						<AddRequestDialog
+				<div className="flex flex-row gap-1 items-start">
+					<div
+						onClick={onClick}
+						onPointerEnter={onMainPanelEnter}
+						className={classNames(
+							"p-1 select-none backdrop-blur-[1.5px]",
+							isSelected
+								? "bg-neutral-800/40 rounded-xs border-[0.5px] border-cyan-400"
+								: "bg-neutral-800/50 rounded-sm border-0 border-transparent",
+							isHoveredMarker ? "text-pink-400" : "text-white",
+							showAddTaDialogOpened ? "rounded-tr-none" : "",
+						)}
+						onWheel={onWheel}
+						style={{ width: `${width}px`, height: `${height}px` }}
+					>
+						<Content
+							flightColor={flightColor}
 							aircraft={aircraft}
-							onClose={() => {
-								cwpStore.closeAddRequestDialogForAircraft(aircraftId);
-								cwpStore.removeHoveredFlightLabelId();
-							}}
+							width={width}
 						/>
-					)}
+						{showAddTaRequestButton && <AddRequestButton aircraft={aircraft} />}
+					</div>
 				</div>
-			) : null}
+				{showRequestPanelContainer || showAddTaDialogOpened ? (
+					<div className="absolute left-full top-0">
+						{showRequestPanelContainer && (
+							<RequestPanelContainer
+								height={height}
+								aircraft={properties.aircraft}
+							/>
+						)}
+						{showAddTaDialogOpened && (
+							<AddRequestDialog
+								aircraft={aircraft}
+								onClose={() => {
+									cwpStore.closeAddRequestDialogForAircraft(aircraftId);
+									cwpStore.removeHoveredFlightLabelId();
+								}}
+							/>
+						)}
+					</div>
+				) : null}
+			</div>
 			<div className="pt-0 pl-0.5">
 				<AircraftLevelPopup aircraft={aircraft} />
 				<ChangeNextFixPopup aircraft={aircraft} />

@@ -47,12 +47,13 @@ const GoalSchema = z.object({
 
 /**
  * Schema for the request context.
+ * Note: request_parameter can be a number (e.g., flight level 390) or a string (e.g., waypoint name "LEKFA" for DIRECTTO requests).
  */
 const RequestContextSchema = z.object({
 	request_id: z.string(),
 	flight_id: z.string(),
 	request_type: z.number(),
-	request_parameter: z.number(),
+	request_parameter: z.union([z.number(), z.string()]),
 });
 
 /**

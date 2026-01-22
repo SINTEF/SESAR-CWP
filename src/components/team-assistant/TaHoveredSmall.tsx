@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite";
-// import { usePostHog } from "posthog-js/react";
-// import React from "react";
+import { usePostHog } from "posthog-js/react";
 
 import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
@@ -19,31 +18,55 @@ export default observer(function TaHoveredSmall(properties: {
 	request: TeamAssistantRequest;
 	width?: number;
 }) {
+	const posthog = usePostHog();
 	const { aircraft, request, requestParameter, requestTypeIcon, width } =
 		properties;
 	const { setTaArrowClickedAircraftId, setHoveredFlightLabelId } = cwpStore;
 
 	const showMoreArrowClicked = () => {
+		posthog?.capture("TA_expand_details_clicked", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+		});
 		setTaArrowClickedAircraftId(aircraft.aircraftId);
 		setHoveredFlightLabelId(aircraft.aircraftId);
 	};
 
 	const handleAccept = async (): Promise<void> => {
+		posthog?.capture("TA_request_accepted", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+			component: "TaHoveredSmall",
+		});
 		// Clear the retained MQTT message
-		await publishPilotRequestClear(aircraft.aircraftId, request.requestId);
+		await publishPilotRequestClear(request.flightId, request.requestId);
 		// Remove from store
 		aircraftStore.removeTeamAssistantRequest(
-			aircraft.aircraftId,
+			request.flightId,
 			request.requestId,
 		);
 	};
 
 	const handleDismiss = async (): Promise<void> => {
+		posthog?.capture("TA_request_dismissed", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+			component: "TaHoveredSmall",
+		});
 		// Clear the retained MQTT message
-		await publishPilotRequestClear(aircraft.aircraftId, request.requestId);
+		await publishPilotRequestClear(request.flightId, request.requestId);
 		// Remove from store
 		aircraftStore.removeTeamAssistantRequest(
-			aircraft.aircraftId,
+			request.flightId,
 			request.requestId,
 		);
 	};

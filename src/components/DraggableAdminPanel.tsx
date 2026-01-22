@@ -195,9 +195,13 @@ export default observer(function DraggableAdminPanel() {
 				{!adminStore.isMinimized && (
 					<>
 						<AdminControlButtons />
-						<div className="divider my-0 text-xs text-gray-500">Brain</div>
+						<div className="divider my-0 text-xs text-gray-500 bg-neutral-800">
+							Brain
+						</div>
 						<BrainPanel />
-						<div className="divider my-0 text-xs text-gray-500">Logs</div>
+						<div className="divider my-0 text-xs text-gray-500 bg-neutral-800">
+							Logs
+						</div>
 						<AdminLogs />
 					</>
 				)}

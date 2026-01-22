@@ -271,12 +271,14 @@ export async function publishPilotRequestClear(
 /**
  * Publish a pilot request message as JSON to the IIS topic.
  * The message will be received back via the MQTT subscriber and added to the store.
+ *
+ * @param requestParameter - For FLIGHT_LEVEL (0): a number like 390. For DIRECTTO (1): a waypoint name string like "LEKFA".
  */
 export async function publishPilotRequest(
 	flightId: string,
 	requestId: string,
 	requestType: number,
-	requestParameter: number,
+	requestParameter: number | string,
 ): Promise<void> {
 	const jsonRequest = {
 		timestamp: new Date().toISOString(),

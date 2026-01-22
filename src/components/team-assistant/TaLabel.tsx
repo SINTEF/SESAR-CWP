@@ -63,13 +63,7 @@ export default observer(function TaLabel(properties: {
 	// AP2 (autonomyProfile === 2): Decision
 	const isAP2 = autonomyProfile === 2;
 
-	const {
-		setHoveredTaLabelAircraftId,
-		removeHoveredTaLabelAircraftId,
-		selectedAircraftIds,
-		removeTaArrowClickedAircraftId,
-		taArrowClickedAircraftId,
-	} = cwpStore;
+	const { selectedAircraftIds, taArrowClickedAircraftId } = cwpStore;
 	const isTaArrowClicked = taArrowClickedAircraftId === aircraftId;
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
 	const isHoveredLabel = cwpStore.hoveredTaLabelAircraftId === aircraftId;
@@ -112,8 +106,11 @@ export default observer(function TaLabel(properties: {
 		case isHoveredLabel === true && isTaArrowClicked === false:
 			width = 85;
 			break;
+		case request.context?.request_type === 1: // DIRECT_REQUEST
+			width = 55;
+			break;
 		default:
-			width = 35;
+			width = 37;
 			break;
 	}
 
@@ -123,7 +120,7 @@ export default observer(function TaLabel(properties: {
 	 */
 	function getIconForRequestType(
 		requestType: number,
-		_requestParameter: number,
+		_requestParameter: number | string,
 	): string {
 		switch (requestType) {
 			case 0: // FLIGHT_LEVEL
@@ -160,23 +157,20 @@ export default observer(function TaLabel(properties: {
 			is_selected: isSelected,
 		});
 	};
+
 	const onMouseEnter = (): void => {
 		if (isStillDragging()) {
 			return;
 		}
-		setHoveredTaLabelAircraftId(aircraftId);
-
 		posthog?.capture("TA_aircraft_popup_hover_start", {
 			aircraft_id: aircraftId,
 			callsign: aircraft.callSign,
 			is_selected: isSelected,
 		});
 	};
+
 	const onMouseLeave = (): void => {
 		if (!isDragging) {
-			removeHoveredTaLabelAircraftId();
-			removeTaArrowClickedAircraftId();
-
 			posthog?.capture("TA_aircraft_popup_hover_end", {
 				aircraft_id: aircraftId,
 				callsign: aircraft.callSign,
@@ -209,10 +203,10 @@ export default observer(function TaLabel(properties: {
 					aircraft={aircraft}
 					width={width}
 					request={request}
-					requestParameter={String(request.context?.request_parameter)}
+					requestParameter={String(request.context?.request_parameter ?? "")}
 					requestTypeIcon={getIconForRequestType(
 						request.context?.request_type ?? 0,
-						request.context?.request_parameter ?? 0,
+						request.context?.request_parameter ?? "",
 					)}
 					autonomyProfile={autonomyProfile}
 				/>
