@@ -57,6 +57,7 @@ function buildGeoJsonSpeedVector(
 	aircraft: AircraftModel,
 	minutesInTheFuture: number,
 	hasConflict: boolean,
+	shouldBlink: boolean,
 ): GeoJSON.Feature[] {
 	const locations = buildSpeedVectorLocations(aircraft, minutesInTheFuture);
 	const vectorColor = roleConfigurationStore.getOriginalColorOfAircraft(
@@ -69,6 +70,7 @@ function buildGeoJsonSpeedVector(
 				aircraftId: aircraft.aircraftId,
 				color: vectorColor,
 				hasConflict,
+				shouldBlink,
 			},
 			geometry: {
 				type: "LineString",
@@ -81,6 +83,7 @@ function buildGeoJsonSpeedVector(
 				aircraftId: aircraft.aircraftId,
 				color: vectorColor,
 				hasConflict,
+				shouldBlink,
 			},
 			geometry: {
 				type: "MultiPoint",
@@ -245,21 +248,26 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 
 	const speedVectors = aircrafts.flatMap((aircraft) => {
 		const flightId = aircraft.assignedFlightId || aircraft.aircraftId;
-		const hasConflict =
-			aircraftStore.hasStcaConflict(flightId) ||
-			aircraftStore.hasTctConflict(flightId);
-		return buildGeoJsonSpeedVector(aircraft, speedVectorMinutes, hasConflict);
+		const hasStcaConflict = aircraftStore.hasStcaConflict(flightId);
+		const hasTctConflict = aircraftStore.hasTctConflict(flightId);
+		const hasConflict = hasStcaConflict || hasTctConflict;
+		return buildGeoJsonSpeedVector(
+			aircraft,
+			speedVectorMinutes,
+			hasConflict,
+			hasStcaConflict,
+		);
 	});
 
 	// Compute displayColor for each feature based on conflict state and blink phase
 	// Also track if any aircraft has a conflict for the source key
 	for (const feature of speedVectors) {
 		if (feature.properties) {
-			const hasConflict = feature.properties.hasConflict;
+			const shouldBlink = feature.properties.shouldBlink;
 			const normalColor = feature.properties.color ?? "#ffffff";
-			// When blinkPhaseRed is true and aircraft has conflict, show red
+			// When blinkPhaseRed is true and aircraft has STCA conflict, show red
 			feature.properties.displayColor =
-				hasConflict && blinkPhaseRed ? "#dc2626" : normalColor;
+				shouldBlink && blinkPhaseRed ? "#dc2626" : normalColor;
 		}
 	}
 
