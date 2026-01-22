@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/react";
-import { PilotRequestMessage } from "../proto/ProtobufAirTrafficSimulator";
 import clientId from "./clientId";
 import { publish } from "./mqtt";
 
@@ -270,18 +269,28 @@ export async function publishPilotRequestClear(
 }
 
 /**
- * Publish a pilot request message.
+ * Publish a pilot request message as JSON to the IIS topic.
  * The message will be received back via the MQTT subscriber and added to the store.
  */
 export async function publishPilotRequest(
 	flightId: string,
 	requestId: string,
-	request: PilotRequestMessage,
+	requestType: number,
+	requestParameter: number,
 ): Promise<void> {
-	const binary = PilotRequestMessage.toBinary(request);
-	await publish(
-		`ats/${clientId}/data/pilot-request/${flightId}/${requestId}`,
-		binary,
-		{ retain: true },
-	);
+	const jsonRequest = {
+		timestamp: new Date().toISOString(),
+		iteration_count: 0,
+		context: {
+			request_id: requestId,
+			flight_id: flightId,
+			request_type: requestType,
+			request_parameter: requestParameter,
+		},
+		goals: [],
+	};
+
+	await publish(`IIS/PilotRequest/${requestId}`, jsonRequest, {
+		retain: true,
+	});
 }

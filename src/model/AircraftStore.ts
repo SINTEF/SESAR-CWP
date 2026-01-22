@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { ObservableMap } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
-import type { Timestamp } from "../proto/google/protobuf/timestamp";
 import type {
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
@@ -10,7 +9,6 @@ import type {
 	NewAircraftMessage,
 	NewAircraftTypeMessage,
 	NewFlightMessage,
-	PilotRequestMessage,
 	PositionAtObject,
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
@@ -69,18 +67,11 @@ export default class AircraftStore {
 		});
 
 	/**
-	 * Team assistant requests stored with composite key: `${flightId}:${requestId}`
-	 * This supports multiple requests per aircraft.
+	 * Team assistant requests stored with flightId as key.
+	 * Uses snake_case JSON format from IIS.
+	 * Each aircraft can have multiple requests (stored as an array).
 	 */
-	teamAssistantRequests: ObservableMap<string, TeamAssistantRequest> =
-		observable.map(undefined, {
-			deep: false,
-		});
-
-	/**
-	 * Pilot request JSON messages (validated with Zod) stored with composite key: `${flightId}:${requestId}`
-	 */
-	pilotRequestJsonMap: ObservableMap<string, StoredPilotRequestJson> =
+	teamAssistantRequests: ObservableMap<string, TeamAssistantRequest[]> =
 		observable.map(undefined, {
 			deep: false,
 		});
@@ -544,85 +535,21 @@ export default class AircraftStore {
 	// =========================================================================
 
 	/**
-	 * Create a composite key for team assistant requests.
-	 * Format: `${flightId}:${requestId}`
-	 */
-	private createRequestKey(flightId: string, requestId: string): string {
-		return `${flightId}:${requestId}`;
-	}
-
-	/**
-	 * Extract flightId from a composite request key.
-	 */
-	private extractFlightIdFromKey(key: string): string {
-		return key.split(":")[0];
-	}
-
-	/**
-	 * Get all requests for an aircraft, sorted by time (newest first), limited to 5.
+	 * Get all requests for an aircraft.
+	 * Returns an array of requests, sorted by timestamp (newest first).
 	 */
 	getRequestsForAircraft(flightId: string): TeamAssistantRequest[] {
-		const requests: TeamAssistantRequest[] = [];
-		for (const [key, request] of this.teamAssistantRequests) {
-			if (this.extractFlightIdFromKey(key) === flightId) {
-				requests.push(request);
-			}
-		}
-		// Sort by timestamp (newest first) - handle undefined timestamp
-		requests.sort((a, b) => {
-			const timeA = a.timestamp ? this.timestampToNumber(a.timestamp) : 0;
-			const timeB = b.timestamp ? this.timestampToNumber(b.timestamp) : 0;
+		const requests = this.teamAssistantRequests.get(flightId) ?? [];
+		// Sort by timestamp (newest first)
+		return [...requests].sort((a, b) => {
+			const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+			const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
 			return timeB - timeA;
 		});
-		// Limit to 5 requests
-		return requests.slice(0, 5);
 	}
 
 	/**
-	 * Convert protobuf Timestamp to number for comparison.
-	 */
-	private timestampToNumber(timestamp: Timestamp): number {
-		return Number(timestamp.seconds) * 1000 + timestamp.nanos / 1_000_000;
-	}
-
-	/**
-	 * Add or update a team assistant request.
-	 */
-	setTeamAssistantRequest(
-		flightId: string,
-		requestId: string,
-		request: PilotRequestMessage,
-	): void {
-		const key = this.createRequestKey(flightId, requestId);
-		const teamAssistantRequest: TeamAssistantRequest = {
-			...request,
-			requestId,
-		};
-		this.teamAssistantRequests.set(key, teamAssistantRequest);
-	}
-
-	/**
-	 * Remove a team assistant request.
-	 */
-	removeTeamAssistantRequest(flightId: string, requestId: string): void {
-		const key = this.createRequestKey(flightId, requestId);
-		this.teamAssistantRequests.delete(key);
-	}
-
-	/**
-	 * Check if an aircraft has any team assistant requests.
-	 */
-	hasTeamAssistantRequests(flightId: string): boolean {
-		for (const key of this.teamAssistantRequests.keys()) {
-			if (this.extractFlightIdFromKey(key) === flightId) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Get the first (most recent) request for an aircraft, for backward compatibility.
+	 * Get the first (most recent) request for an aircraft.
 	 */
 	getFirstRequestForAircraft(
 		flightId: string,
@@ -630,80 +557,73 @@ export default class AircraftStore {
 		return this.getRequestsForAircraft(flightId)[0];
 	}
 
-	// ========== Pilot Request JSON (Zod-validated) Methods ==========
-
 	/**
-	 * Add or update a pilot request JSON.
+	 * Add a team assistant request from JSON (snake_case format).
+	 * Key is the flightId - each aircraft can have multiple requests.
+	 * If a request with the same requestId exists, it will be updated.
 	 */
-	setPilotRequestJson(
+	setTeamAssistantRequest(
 		flightId: string,
 		requestId: string,
 		request: PilotRequestJson,
 	): void {
-		const key = this.createRequestKey(flightId, requestId);
-		const storedRequest: StoredPilotRequestJson = {
+		const teamAssistantRequest: TeamAssistantRequest = {
 			...request,
 			flightId,
 			requestId,
 		};
-		this.pilotRequestJsonMap.set(key, storedRequest);
-	}
 
-	/**
-	 * Remove a pilot request JSON.
-	 */
-	removePilotRequestJson(flightId: string, requestId: string): void {
-		const key = this.createRequestKey(flightId, requestId);
-		this.pilotRequestJsonMap.delete(key);
-	}
+		const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
+		// Check if request with same ID exists and update it, otherwise add
+		const existingIndex = existingRequests.findIndex(
+			(r) => r.requestId === requestId,
+		);
 
-	/**
-	 * Get all pilot request JSONs for an aircraft.
-	 */
-	getPilotRequestJsonsForAircraft(flightId: string): StoredPilotRequestJson[] {
-		const requests: StoredPilotRequestJson[] = [];
-		for (const [key, request] of this.pilotRequestJsonMap) {
-			if (this.extractFlightIdFromKey(key) === flightId) {
-				requests.push(request);
-			}
+		if (existingIndex >= 0) {
+			existingRequests[existingIndex] = teamAssistantRequest;
+			this.teamAssistantRequests.set(flightId, [...existingRequests]);
+		} else {
+			this.teamAssistantRequests.set(flightId, [
+				...existingRequests,
+				teamAssistantRequest,
+			]);
 		}
-		return requests;
 	}
 
 	/**
-	 * Get the first pilot request JSON for an aircraft.
+	 * Remove a specific team assistant request by requestId.
+	 * If no requestId provided, removes all requests for the aircraft.
 	 */
-	getFirstPilotRequestJsonForAircraft(
-		flightId: string,
-	): StoredPilotRequestJson | undefined {
-		return this.getPilotRequestJsonsForAircraft(flightId)[0];
-	}
-
-	/**
-	 * Check if an aircraft has any pilot request JSONs.
-	 */
-	hasPilotRequestJsons(flightId: string): boolean {
-		for (const key of this.pilotRequestJsonMap.keys()) {
-			if (this.extractFlightIdFromKey(key) === flightId) {
-				return true;
-			}
+	removeTeamAssistantRequest(flightId: string, requestId?: string): void {
+		if (!requestId) {
+			this.teamAssistantRequests.delete(flightId);
+			return;
 		}
-		return false;
+
+		const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
+		const filtered = existingRequests.filter((r) => r.requestId !== requestId);
+
+		if (filtered.length === 0) {
+			this.teamAssistantRequests.delete(flightId);
+		} else {
+			this.teamAssistantRequests.set(flightId, filtered);
+		}
+	}
+
+	/**
+	 * Check if an aircraft has any team assistant requests.
+	 */
+	hasTeamAssistantRequests(flightId: string): boolean {
+		const requests = this.teamAssistantRequests.get(flightId);
+		return requests !== undefined && requests.length > 0;
 	}
 }
 
 /**
- * Extended type that wraps PilotRequestMessage with a unique request ID.
- * This allows storing multiple requests per aircraft.
+ * Team Assistant Request type using snake_case JSON format (from IIS).
+ * Extends PilotRequestJson with flightId and requestId for storage.
  */
-export interface TeamAssistantRequest extends PilotRequestMessage {
-	requestId: string;
-}
-
-/**
- * Extended type that wraps PilotRequestJson with flight ID and request ID.
- */
-export interface StoredPilotRequestJson extends PilotRequestJson {
+export interface TeamAssistantRequest extends PilotRequestJson {
 	flightId: string;
 	requestId: string;
 }

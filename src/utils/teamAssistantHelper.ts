@@ -1,14 +1,15 @@
-import { GoalResultsMessage } from "../proto/ProtobufAirTrafficSimulator";
+import type { GoalResults } from "../schemas/pilotRequestSchema";
 
 // To be fixed with actual status logic for
 export function getRequestStatusColorClass(
-	results: GoalResultsMessage | undefined,
+	results: GoalResults | undefined,
 ): string {
 	if (!results) {
 		return "text-gray-500";
 	}
 	const isOk =
-		results.exitProblemsAreManageable && results.trafficComplexityManageable;
+		results.exit_problems_are_manageable &&
+		results.traffic_complexity_manageable;
 	return isOk ? "text-green-400" : "text-red-500";
 }
 

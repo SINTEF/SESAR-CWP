@@ -51,9 +51,10 @@ export default observer(function TaHoveredSmall(properties: {
 	return (
 		<table className="h-full border-collapse" style={{ width: `${width}px` }}>
 			{/* <colgroup>
-				<col style={{ width: "12px" }} />
+				<col style={{ width: "auto" }} />
 				<col />
 				<col style={{ width: "12px" }} />
+				<col></col>
 			</colgroup> */}
 			<tbody>
 				{/* Row 1: Icon | Parameter | Cross */}
@@ -77,21 +78,22 @@ export default observer(function TaHoveredSmall(properties: {
 						</span>
 						<span className="text-xs text-[#40c4ff]">{requestParameter}</span>
 					</td>
+					<td></td>
+					<td></td>
 				</tr>
 				{/* Row 2: Dot | Suggestion | Checkmark */}
 				<tr>
-					<td className="p-0">
-						<span className="text-green-400 text-xs">●</span>
+					<td className="p-0 flex flex-row gap-0">
 						{/* </td>
 					<td className="p-0 text-xs"> */}
+						<span className="text-green-400 text-xs">●</span>
 						<span>
 							{formatRequestSuggestion(
-								request.context?.requestType ?? 0,
+								request.context?.request_type ?? 0,
 								requestParameter,
 							)}
 						</span>
-					</td>
-					<td className="p-0 cursor-pointer text-right">
+						{/* <td className="p-0 cursor-pointer"> */}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
@@ -107,8 +109,8 @@ export default observer(function TaHoveredSmall(properties: {
 								d="m4.5 12.75 6 6 9-13.5"
 							/>
 						</svg>
-					</td>
-					<td className="p-0 cursor-pointer text-right">
+						{/* </td> */}
+						{/* <td className="p-0 cursor-pointer"> */}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"

@@ -62,10 +62,6 @@ export default observer(function TaLabel(properties: {
 	// AP1 (autonomyProfile === 1): Information
 	// AP2 (autonomyProfile === 2): Decision
 	const isAP2 = autonomyProfile === 2;
-	// biome-ignore lint/suspicious/noConsole: debugging autonomy level
-	console.log(
-		`TaLabel: requestType=${request.context?.requestType}, autonomyProfile=${autonomyProfile}, isAP2=${isAP2}`,
-	);
 
 	const {
 		setHoveredTaLabelAircraftId,
@@ -213,10 +209,10 @@ export default observer(function TaLabel(properties: {
 					aircraft={aircraft}
 					width={width}
 					request={request}
-					requestParameter={String(request.context?.requestParameter)}
+					requestParameter={String(request.context?.request_parameter)}
 					requestTypeIcon={getIconForRequestType(
-						request.context?.requestType ?? 0,
-						request.context?.requestParameter ?? 0,
+						request.context?.request_type ?? 0,
+						request.context?.request_parameter ?? 0,
 					)}
 					autonomyProfile={autonomyProfile}
 				/>

@@ -90,7 +90,7 @@ const router = rlite<Buffer>(notFound, {
 	"frontend/:clientId/flight/:flightId/localAssignedFL":
 		frontendLocalAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/hidden": frontendFlightHidden,
-	"IIS/PilotRequest/:flightId/:requestId": pilotRequestJson,
+	"IIS/PilotRequest/:requestId": pilotRequestJson,
 	"TAS/:clientId/WorkloadUpdate": workloadUpdate,
 });
 

@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite";
 import type AircraftModel from "../../model/AircraftModel";
-import { TeamAssistantRequest } from "../../model/AircraftStore";
-import { brainStore } from "../../state";
+import { aircraftStore, brainStore } from "../../state";
 import TaLabel from "./TaLabel";
 
 interface RequestPanelContainerProps {
@@ -10,53 +9,27 @@ interface RequestPanelContainerProps {
 }
 
 /**
- * Container component that renders multiple RequestPanel components horizontally.
- * Gets all requests for the aircraft (max 5, newest first) and renders them side by side.
+ * Container component that renders multiple TaLabel components horizontally.
+ * Gets all requests for the aircraft and renders them side by side.
  * Positioned to the right of the aircraft popup.
- * In pseudo-pilot mode, shows an AddRequestButton for creating test requests.
  */
 export default observer(function RequestPanelContainer({
 	aircraft,
 	height,
 }: RequestPanelContainerProps) {
-	// const requests = aircraftStore.getRequestsForAircraft(
-	// 	aircraft.assignedFlightId,
-	// );
-	const requests: TeamAssistantRequest[] = [
-		{
-			requestId: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
-			timestamp: {
-				seconds: BigInt(Math.floor(Date.now() / 1000)),
-				nanos: 0,
-			},
-			iterationCount: 0,
-			context: {
-				requestId: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
-				flightId: "FPO215H",
-				requestType: 0,
-				requestParameter: 390,
-			},
-			goals: [
-				{
-					rFL: 390,
-					results: {
-						exitLevel: 390,
-						initialClimb: 350,
-						exitProblemsAreManageable: true,
-						trafficComplexityManageable: true,
-						requiredCoordinations: [],
-						higherLevelAvailable: true,
-						isConformToFlightPlan: false,
-						nextSector: "E3",
-						nextSectorCapacityOk: true,
-						altitudeRestriction: false,
-					},
-				},
-			],
-		},
-	];
+	// Get requests from the store (snake_case JSON format from IIS)
+	const requests = aircraftStore.getRequestsForAircraft(aircraft.callSign);
 
-	// Show container if there are requests OR if we need to show the add button
+	// // Debug: log when we have requests for an aircraft
+	// if (requests.length > 0) {
+	// 	// biome-ignore lint/suspicious/noConsole: debugging request display
+	// 	console.log(
+	// 		`RequestPanelContainer: Found ${requests.length} requests for ${aircraft.assignedFlightId}`,
+	// 		requests,
+	// 	);
+	// }
+
+	// Show container only if there are requests
 	if (requests.length === 0) {
 		return null;
 	}
@@ -72,7 +45,7 @@ export default observer(function RequestPanelContainer({
 					aircraft={aircraft}
 					request={request}
 					height={height}
-					autonomyProfile={autonomyProfile ?? 2} // Fallback to 1?
+					autonomyProfile={autonomyProfile ?? 2}
 				/>
 			))}
 		</div>

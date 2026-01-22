@@ -46,30 +46,32 @@ export default observer(function AddRequestDialog({
 	aircraft,
 	onClose,
 }: AddRequestDialogProps) {
-	const { aircraftId, assignedFlightId } = aircraft;
+	const { aircraftId, callSign } = aircraft;
 
 	const createRequest = (type: PilotRequestTypes, parameter: string): void => {
 		const requestId = crypto.randomUUID();
-		const now = new Date();
+		const requestParameter = Number.parseInt(parameter, 10) || 0;
 
-		const request = {
-			timestamp: {
-				seconds: BigInt(Math.floor(now.getTime() / 1000)),
-				nanos: (now.getTime() % 1000) * 1_000_000,
-			},
-			iterationCount: 0,
-			context: {
-				requestId,
-				flightId: assignedFlightId,
-				requestType: type,
-				requestParameter: Number.parseInt(parameter, 10) || 0,
-			},
-			goals: [],
-		};
+		// Convert PilotRequestTypes enum to JSON request_type number
+		// 0 = flight_level_request, 1 = direct_request, 2 = absolute_heading_request, 3 = relative_heading_request
+		let requestType = 0;
+		switch (type) {
+			case PilotRequestTypes.FLIGHT_LEVEL:
+				requestType = 0;
+				break;
+			case PilotRequestTypes.DIRECTTO:
+				requestType = 1;
+				break;
+			case PilotRequestTypes.HEADING:
+				requestType = 2; // Using absolute heading
+				break;
+			default:
+				requestType = 0;
+		}
 
 		// Publish to MQTT - the message will be received back via subscriber
 		handlePublishPromise(
-			publishPilotRequest(assignedFlightId, requestId, request),
+			publishPilotRequest(callSign, requestId, requestType, requestParameter),
 		);
 	};
 

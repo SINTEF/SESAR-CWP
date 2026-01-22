@@ -110,26 +110,26 @@ export default observer(function TaHoveredFull(properties: {
 					<>
 						<tr>
 							<td className="pr-1" colSpan={2}>
-								{getStatusColor(results.isConformToFlightPlan)} FMP{" "}
-								{request.context?.requestParameter}
+								{getStatusColor(results.is_conform_to_flight_plan)} FMP{" "}
+								{request.context?.request_parameter}
 							</td>
 						</tr>
 						<tr>
 							<td className="text-xs" colSpan={2}>
-								{getStatusColor(results.exitProblemsAreManageable)} MTCD{" "}
-								{request.context?.requestParameter}
+								{getStatusColor(results.exit_problems_are_manageable)} MTCD{" "}
+								{request.context?.request_parameter}
 							</td>
 						</tr>
 						<tr>
 							<td className="text-xs" colSpan={2}>
-								{getStatusColor(results.trafficComplexityManageable)} TCT{" "}
-								{request.context?.requestParameter}
+								{getStatusColor(results.traffic_complexity_manageable)} TCT{" "}
+								{request.context?.request_parameter}
 							</td>
 						</tr>
 						<tr>
 							<td className="text-xs" colSpan={2}>
-								{getStatusColor(results.nextSectorCapacityOk)} Next Sector{" "}
-								{results.nextSector}
+								{getStatusColor(results.next_sector_capacity_ok)} Next Sector{" "}
+								{results.next_sector}
 							</td>
 						</tr>
 					</>
@@ -148,7 +148,7 @@ export default observer(function TaHoveredFull(properties: {
 							</span>
 							<span className="text-xs text-[#40c4ff]">
 								{formatRequestSuggestion(
-									request.context?.requestType ?? 0,
+									request.context?.request_type ?? 0,
 									requestParameter,
 								)}
 							</span>

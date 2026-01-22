@@ -184,7 +184,7 @@ export default observer(function AircraftPopup(properties: {
 		cwpStore.aircraftsWithAddRequestDialog.has(aircraftId);
 
 	const showRequestPanelContainer = aircraftStore.hasTeamAssistantRequests(
-		properties.aircraft.assignedFlightId,
+		properties.aircraft.callSign,
 	);
 
 	return (
@@ -236,7 +236,7 @@ export default observer(function AircraftPopup(properties: {
 					{showAddTaRequestButton && <AddRequestButton aircraft={aircraft} />}
 				</div>
 			</div>
-			{showRequestPanelContainer || showAddTaDialogOpened ? (
+			{showRequestPanelContainer ? (
 				<div className="absolute left-full top-0">
 					{showRequestPanelContainer && (
 						<RequestPanelContainer

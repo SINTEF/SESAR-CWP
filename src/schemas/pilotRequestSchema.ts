@@ -42,7 +42,7 @@ const GoalResultsSchema = z.object({
  */
 const GoalSchema = z.object({
 	RFL: z.number(),
-	results: GoalResultsSchema,
+	results: GoalResultsSchema.optional(),
 });
 
 /**

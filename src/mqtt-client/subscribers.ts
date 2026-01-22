@@ -238,8 +238,45 @@ export function pilotRequest(
 	}
 
 	try {
-		const request = PilotRequestMessage.fromBinary(message);
-		aircraftStore.setTeamAssistantRequest(flightUniqueId, requestId, request);
+		const protoRequest = PilotRequestMessage.fromBinary(message);
+		// Convert proto format to snake_case JSON format
+		const jsonRequest = {
+			timestamp: protoRequest.timestamp
+				? new Date(
+						Number(protoRequest.timestamp.seconds) * 1000 +
+							protoRequest.timestamp.nanos / 1_000_000,
+					).toISOString()
+				: new Date().toISOString(),
+			iteration_count: protoRequest.iterationCount,
+			context: {
+				request_id: protoRequest.context?.requestId ?? requestId,
+				flight_id: protoRequest.context?.flightId ?? flightUniqueId,
+				request_type: protoRequest.context?.requestType ?? 0,
+				request_parameter: protoRequest.context?.requestParameter ?? 0,
+			},
+			goals: (protoRequest.goals ?? []).map((goal) => ({
+				RFL: goal.rFL,
+				results: goal.results
+					? {
+							exit_level: goal.results.exitLevel,
+							initial_climb: goal.results.initialClimb,
+							exit_problems_are_manageable:
+								goal.results.exitProblemsAreManageable,
+							traffic_complexity_manageable:
+								goal.results.trafficComplexityManageable,
+							required_coordinations: [],
+							higher_level_available: goal.results.higherLevelAvailable,
+							is_conform_to_flight_plan: goal.results.isConformToFlightPlan,
+							next_sector: goal.results.nextSector,
+							next_sector_capacity_ok: goal.results.nextSectorCapacityOk,
+							altitude_restriction: goal.results.altitudeRestriction,
+						}
+					: undefined,
+			})),
+		};
+		// Validate with Zod and store
+		const validated = PilotRequestJsonSchema.parse(jsonRequest);
+		aircraftStore.setTeamAssistantRequest(flightUniqueId, requestId, validated);
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode PilotRequestMessage:", error);
@@ -264,22 +301,28 @@ export function frequencies(_parameters: unknown, message: Buffer): void {
 
 /**
  * Handle JSON-based pilot request messages validated with Zod.
+ * Populates teamAssistantRequests in the store.
  */
 export function pilotRequestJson(
-	{ flightId, requestId }: { [key: string]: string }, // TODO: Change depending on Serges topic
+	{ requestId }: { [key: string]: string },
 	message: Buffer,
 ): void {
-	// Empty message means delete the request (MQTT retained message clearing)
-	if (message.length === 0) {
-		aircraftStore.removePilotRequestJson(flightId, requestId);
-		return;
-	}
-
 	try {
 		const jsonString = message.toString();
 		const parsed = JSON.parse(jsonString);
 		const validated = PilotRequestJsonSchema.parse(parsed);
-		aircraftStore.setPilotRequestJson(flightId, requestId, validated);
+		if (message.length === 0) {
+			aircraftStore.removeTeamAssistantRequest(
+				validated.context.flight_id,
+				requestId,
+			);
+			return;
+		}
+		aircraftStore.setTeamAssistantRequest(
+			validated.context.flight_id,
+			requestId,
+			validated,
+		);
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode PilotRequestJson:", error);

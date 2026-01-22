@@ -63,8 +63,8 @@ export default observer(function RequestPanel({
 	request,
 }: RequestPanelProps) {
 	const { requestId } = request;
-	const requestType = request.context?.requestType ?? 0;
-	const requestParameter = request.context?.requestParameter ?? 0;
+	const requestType = request.context?.request_type ?? 0;
+	const requestParameter = request.context?.request_parameter ?? 0;
 
 	const iconSrc = getIconForRequestType(requestType);
 	const displayParameter = formatRequestParameter(
