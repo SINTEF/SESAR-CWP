@@ -10,6 +10,39 @@ import {
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore } from "../state";
 
+/** Normalize bearing to 5-360 range (wrapping at 360) */
+function normalizeBearing(bearing: number): number {
+	// First normalize to 0-359 range, then shift to 5-360
+	const mod = ((bearing % 360) + 360) % 360;
+	return mod === 0 ? 360 : mod;
+}
+
+function QuickAdjustColumn(properties: {
+	offsets: number[];
+	onApply: (offset: number) => void;
+	side: "left" | "right";
+}) {
+	const { offsets, onApply, side } = properties;
+	const isLeft = side === "left";
+
+	return (
+		<div className="flex flex-col justify-center gap-1.5 px-2">
+			{offsets.map((offset) => (
+				<button
+					key={offset}
+					onClick={() => onApply(offset)}
+					className="
+						btn btn-xs btn-primary
+					"
+					title={`${isLeft ? "" : "+"}${offset}°`}
+				>
+					{isLeft ? offset : `+${offset}`}
+				</button>
+			))}
+		</div>
+	);
+}
+
 function ListOfBearings(properties: {
 	value: number;
 	onClick: (bearing: number) => void;
@@ -196,10 +229,18 @@ export default observer(function ChangeBearingPopup(properties: {
 
 	const isTaRequestMode = !!cwpStore.taRequestCallback;
 
+	const leftOffsets = [-5, -10, -15, -20, -30];
+	const rightOffsets = [5, 10, 15, 20, 30];
+
+	const handleQuickAdjust = (offset: number): void => {
+		const newBearing = normalizeBearing(currentBearingRounded + offset);
+		applyBearing(newBearing);
+	};
+
 	return (
 		<div
 			className={`
-			w-20 bg-[#0d1f30] p-0 shadow-lg
+			bg-[#0d1f30] p-0 shadow-lg
 			${accepted ? "border-2 border-green-400" : ""}
 			${isTaRequestMode ? "border-2 border-yellow-400" : ""}
 		`}
@@ -213,29 +254,46 @@ export default observer(function ChangeBearingPopup(properties: {
 			<div className="text-center font-bold text-xs py-1 bg-black text-white">
 				{callSign}
 			</div>
-			<div className="flex flex-col bg-[#1e3a5f]">
-				<button
-					onClick={(): void => BearingChange("up")}
-					className="btn btn-ghost btn-xs text-xs"
-				>
-					▲
-				</button>
-				<div
-					className="h-40 overflow-y-scroll scrollbar-hide bg-[#1e3a5f] flex flex-col"
-					ref={listOfBearingsReference}
-				>
-					<ListOfBearings
-						value={bearing}
-						onClick={handleBearingClick}
-						currentBearing={currentBearingRounded}
-					/>
+			<div className="flex">
+				{/* Left quick-adjust column */}
+				<QuickAdjustColumn
+					offsets={leftOffsets}
+					onApply={handleQuickAdjust}
+					side="left"
+				/>
+
+				{/* Center bearing selector */}
+				<div className="flex flex-col bg-[#1e3a5f] w-16">
+					<button
+						onClick={(): void => BearingChange("up")}
+						className="btn btn-ghost btn-xs text-xs"
+					>
+						▲
+					</button>
+					<div
+						className="h-40 overflow-y-scroll scrollbar-hide bg-[#1e3a5f] flex flex-col"
+						ref={listOfBearingsReference}
+					>
+						<ListOfBearings
+							value={bearing}
+							onClick={handleBearingClick}
+							currentBearing={currentBearingRounded}
+						/>
+					</div>
+					<button
+						onClick={(): void => BearingChange("down")}
+						className="btn btn-ghost btn-xs text-xs"
+					>
+						▼
+					</button>
 				</div>
-				<button
-					onClick={(): void => BearingChange("down")}
-					className="btn btn-ghost btn-xs text-xs"
-				>
-					▼
-				</button>
+
+				{/* Right quick-adjust column */}
+				<QuickAdjustColumn
+					offsets={rightOffsets}
+					onApply={handleQuickAdjust}
+					side="right"
+				/>
 			</div>
 			<div className="flex gap-0.5 mt-1">
 				<button
