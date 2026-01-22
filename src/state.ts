@@ -27,16 +27,17 @@ export const simulatorStore = new SimulatorStore();
 export const adminStore = new AdminStore();
 export const airspaceStore = new AirspaceStore();
 export const sectorStore = new SectorStore();
+export const brainStore = new BrainStore();
 export const aircraftStore = new AircraftStore({
 	simulatorStore,
 	sectorStore,
+	brainStore,
 });
 export const fixStore = new FixStore();
 export const airwaysStore = new AirwaysStore();
 export const frequenciesStore = new FrequenciesStore();
 export const datablockStore = new DatablockStore();
 export const distanceLineStore = new DistanceLine();
-export const brainStore = new BrainStore();
 
 // Wire up datablockStore to aircraftStore for MTCD override logic
 aircraftStore.setDatablockStore(datablockStore);

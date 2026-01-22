@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import type AircraftModel from "../../model/AircraftModel";
-import { aircraftStore, brainStore } from "../../state";
+import { aircraftStore } from "../../state";
 import TaLabel from "./TaLabel";
 
 interface RequestPanelContainerProps {
@@ -34,9 +34,6 @@ export default observer(function RequestPanelContainer({
 		return null;
 	}
 
-	// Get the current autonomy profile from the Brain (AP1 or AP2)
-	const autonomyProfile = brainStore.autonomyProfile;
-
 	return (
 		<div className="absolute top-0 w-max flex flex-row ml-0.75 gap-0.75 items-start">
 			{requests.map((request) => (
@@ -45,7 +42,6 @@ export default observer(function RequestPanelContainer({
 					aircraft={aircraft}
 					request={request}
 					height={height}
-					autonomyProfile={autonomyProfile ?? 2}
 				/>
 			))}
 		</div>

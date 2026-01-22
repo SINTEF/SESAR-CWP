@@ -43,10 +43,9 @@ export default observer(function TaLabel(properties: {
 	request: TeamAssistantRequest;
 	height: number;
 	pseudo?: boolean;
-	autonomyProfile: number;
 }) {
 	const posthog = usePostHog();
-	const { aircraft, request, height, autonomyProfile } = properties;
+	const { aircraft, request, height } = properties;
 	const {
 		aircraftId,
 		// lastKnownLongitude: longitude,
@@ -61,7 +60,7 @@ export default observer(function TaLabel(properties: {
 	// Autonomy Profile determines display behavior:
 	// AP1 (autonomyProfile === 1): Information
 	// AP2 (autonomyProfile === 2): Decision
-	const isAP2 = autonomyProfile === 2;
+	const isAP2 = request.autonomyProfile === 2;
 
 	const {
 		setHoveredTaLabelAircraftId,
@@ -214,7 +213,7 @@ export default observer(function TaLabel(properties: {
 						request.context?.request_type ?? 0,
 						request.context?.request_parameter ?? 0,
 					)}
-					autonomyProfile={autonomyProfile}
+					autonomyProfile={request.autonomyProfile}
 				/>
 			</div>
 		</div>
