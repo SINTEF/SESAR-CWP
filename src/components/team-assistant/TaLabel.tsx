@@ -186,7 +186,7 @@ export default observer(function TaLabel(properties: {
 		>
 			<div
 				className={classNames(
-					"p-1 select-none",
+					"p-1 select-none backdrop-blur-[1.5px]",
 					isSelected
 						? "bg-gray-600/40 border-[0.5px] border-cyan-400"
 						: "bg-gray-800/40 rounded-sm border-0 border-transparent",
