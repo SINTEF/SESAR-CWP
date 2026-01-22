@@ -314,13 +314,13 @@ export function pilotRequestJson(
 		if (message.length === 0) {
 			aircraftStore.removeTeamAssistantRequest(
 				validated.context.flight_id,
-				requestId,
+				validated.context.request_id,
 			);
 			return;
 		}
 		aircraftStore.setTeamAssistantRequest(
 			validated.context.flight_id,
-			requestId,
+			validated.context.request_id,
 			validated,
 		);
 	} catch (error) {
