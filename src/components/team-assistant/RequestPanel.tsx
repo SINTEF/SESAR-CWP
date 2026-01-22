@@ -11,16 +11,15 @@ interface RequestPanelProps {
 /**
  * Get the icon path based on request type.
  * HEADING type can be used for weather avoidance requests.
- * requestType: 0=FLIGHT_LEVEL, 1=HEADING, 2=DIRECTTO, 3=SPEED
- * TODO: Update to fit with Serge values (1 is direct, 2 is absolute heading, 3 is relative heading)
+ * requestType: 0=FLIGHT_LEVEL, 1=DIRECTTO, 2=HEADING, 3=SPEED
  */
 function getIconForRequestType(requestType: number): string {
 	switch (requestType) {
 		case 0: // FLIGHT_LEVEL
 			return "/flight_level_request.svg";
-		case 2: // DIRECTTO
+		case 1: // DIRECTTO
 			return "/icon_direct_request.svg";
-		case 1: // HEADING - Weather avoidance uses HEADING type
+		case 2: // HEADING - Weather avoidance uses HEADING type
 			return "/icon_thunderstorm.svg";
 		case 3: // SPEED - Use flight level icon as fallback for speed
 			return "/flight_level_request.svg";
@@ -32,24 +31,28 @@ function getIconForRequestType(requestType: number): string {
 /**
  * Format the request parameter for display.
  * Adds "FL" prefix for flight level requests if not already present.
- * requestType: 0=FLIGHT_LEVEL, 1=HEADING, 2=DIRECTTO, 3=SPEED
+ * requestType: 0=FLIGHT_LEVEL, 1=DIRECTTO, 2=HEADING, 3=SPEED
  */
 function formatRequestParameter(
 	requestType: number,
-	parameter: number,
+	parameter: number | string,
 ): string {
 	const paramStr = String(parameter);
 	if (requestType === 0) {
 		// FLIGHT_LEVEL
 		return paramStr;
 	}
+	if (requestType === 1) {
+		// DIRECTTO - parameter is waypoint name
+		return paramStr;
+	}
+	if (requestType === 2) {
+		// HEADING
+		return `HDG${paramStr}`;
+	}
 	if (requestType === 3) {
 		// SPEED
 		return `${paramStr}kt`;
-	}
-	if (requestType === 1) {
-		// HEADING
-		return `HDG${paramStr}`;
 	}
 	return paramStr;
 }
@@ -64,7 +67,7 @@ export default observer(function RequestPanel({
 }: RequestPanelProps) {
 	const { requestId } = request;
 	const requestType = request.context?.request_type ?? 0;
-	const requestParameter = request.context?.request_parameter ?? 0;
+	const requestParameter = request.context?.request_parameter ?? "";
 
 	const iconSrc = getIconForRequestType(requestType);
 	const displayParameter = formatRequestParameter(

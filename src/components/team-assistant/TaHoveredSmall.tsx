@@ -30,20 +30,20 @@ export default observer(function TaHoveredSmall(properties: {
 
 	const handleAccept = async (): Promise<void> => {
 		// Clear the retained MQTT message
-		await publishPilotRequestClear(aircraft.aircraftId, request.requestId);
+		await publishPilotRequestClear(request.flightId, request.requestId);
 		// Remove from store
 		aircraftStore.removeTeamAssistantRequest(
-			aircraft.aircraftId,
+			request.flightId,
 			request.requestId,
 		);
 	};
 
 	const handleDismiss = async (): Promise<void> => {
 		// Clear the retained MQTT message
-		await publishPilotRequestClear(aircraft.aircraftId, request.requestId);
+		await publishPilotRequestClear(request.flightId, request.requestId);
 		// Remove from store
 		aircraftStore.removeTeamAssistantRequest(
-			aircraft.aircraftId,
+			request.flightId,
 			request.requestId,
 		);
 	};

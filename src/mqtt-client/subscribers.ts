@@ -302,22 +302,37 @@ export function frequencies(_parameters: unknown, message: Buffer): void {
 /**
  * Handle JSON-based pilot request messages validated with Zod.
  * Populates teamAssistantRequests in the store.
+ *
+ * Message formats:
+ * 1. Full pilot request: { timestamp, iteration_count, context, goals }
+ * 2. Request finished/cleared: { finished: true } - used to signal request was handled
+ * 3. Empty message: "" - used to clear retained MQTT message
  */
 export function pilotRequestJson(
 	{ requestId }: { [key: string]: string },
 	message: Buffer,
 ): void {
 	try {
-		const jsonString = message.toString();
-		const parsed = JSON.parse(jsonString);
-		const validated = PilotRequestJsonSchema.parse(parsed);
-		if (message.length === 0) {
-			aircraftStore.removeTeamAssistantRequest(
-				validated.context.flight_id,
-				validated.context.request_id,
-			);
+		const jsonString = message.toString().trim();
+
+		// Handle empty message (retained message cleared)
+		if (jsonString.length === 0) {
+			// Can't remove without knowing flight_id, but empty retained messages
+			// typically follow a removeTeamAssistantRequest call, so this is expected
 			return;
 		}
+
+		const parsed = JSON.parse(jsonString);
+
+		// Handle "finished" response format (sent when request is approved/dismissed)
+		if (parsed.finished === true) {
+			// The request has already been removed from the store by the UI action
+			// This message is just acknowledgment - nothing to do
+			return;
+		}
+
+		// Validate and process full pilot request
+		const validated = PilotRequestJsonSchema.parse(parsed);
 		aircraftStore.setTeamAssistantRequest(
 			validated.context.flight_id,
 			validated.context.request_id,

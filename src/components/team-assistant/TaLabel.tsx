@@ -117,7 +117,7 @@ export default observer(function TaLabel(properties: {
 	 */
 	function getIconForRequestType(
 		requestType: number,
-		_requestParameter: number,
+		_requestParameter: number | string,
 	): string {
 		switch (requestType) {
 			case 0: // FLIGHT_LEVEL
@@ -200,10 +200,10 @@ export default observer(function TaLabel(properties: {
 					aircraft={aircraft}
 					width={width}
 					request={request}
-					requestParameter={String(request.context?.request_parameter)}
+					requestParameter={String(request.context?.request_parameter ?? "")}
 					requestTypeIcon={getIconForRequestType(
 						request.context?.request_type ?? 0,
-						request.context?.request_parameter ?? 0,
+						request.context?.request_parameter ?? "",
 					)}
 					autonomyProfile={autonomyProfile}
 				/>
