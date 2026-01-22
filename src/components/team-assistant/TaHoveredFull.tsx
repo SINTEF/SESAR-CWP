@@ -84,24 +84,25 @@ export default observer(function TaHoveredFull(properties: {
 			<tbody>
 				{/* First row */}
 				<tr>
-					<td className="flex flex-row">
-						<div className="flex items-center gap-1.5">
+					<td className="flex flex-row items-start">
+						<div className="flex items-center justify-between gap-1.5">
 							<img
 								src={requestTypeIcon}
 								alt="Request type"
 								className="w-4 h-4"
 							/>
+							<div className="flex items-center gap-0.5 text-xs">
+								<span
+									className={getRequestStatusColorClass(
+										request.goals?.[0]?.results,
+									)}
+								>
+									●
+								</span>
+								<span className="text-[#40c4ff]">{requestParameter}</span>
+							</div>
+							<div className="w-3" /> {/* Spacer to align with row 2 icons */}
 						</div>
-					</td>
-					<td className="p-0 text-xs">
-						<span
-							className={getRequestStatusColorClass(
-								request.goals?.[0]?.results,
-							)}
-						>
-							●
-						</span>
-						<span className="text-xs text-[#40c4ff]">{requestParameter}</span>
 					</td>
 				</tr>
 
@@ -152,6 +153,8 @@ export default observer(function TaHoveredFull(properties: {
 									requestParameter,
 								)}
 							</span>
+						</td>
+						<td className="p-0 cursor-pointer text-right">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
