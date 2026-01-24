@@ -17,6 +17,7 @@ import type { PilotRequestJson } from "../schemas/pilotRequestSchema";
 import AircraftInfo from "./AircraftInfo";
 import AircraftModel from "./AircraftModel";
 import AircraftType from "./AircraftType";
+import type BrainStore from "./BrainStore";
 import CoordinatePair from "./CoordinatePair";
 import convertTimestamp from "./convertTimestamp";
 import type DatablockStore from "./DatablockStore";
@@ -51,6 +52,8 @@ export default class AircraftStore {
 
 	sectorStore: SectorStore;
 
+	brainStore: BrainStore;
+
 	stcaConflictIds: ObservableMap<string, FlightConflictUpdateMessage> =
 		observable.map(undefined, {
 			deep: false,
@@ -82,20 +85,24 @@ export default class AircraftStore {
 	constructor({
 		simulatorStore,
 		sectorStore,
+		brainStore,
 	}: {
 		simulatorStore: SimulatorStore;
 		sectorStore: SectorStore;
+		brainStore: BrainStore;
 	}) {
 		makeAutoObservable(
 			this,
 			{
 				simulatorStore: false,
 				sectorStore: false,
+				brainStore: false,
 			},
 			{ autoBind: true },
 		);
 		this.simulatorStore = simulatorStore;
 		this.sectorStore = sectorStore;
+		this.brainStore = brainStore;
 	}
 
 	/**
@@ -561,16 +568,22 @@ export default class AircraftStore {
 	 * Add a team assistant request from JSON (snake_case format).
 	 * Key is the flightId - each aircraft can have multiple requests.
 	 * If a request with the same requestId exists, it will be updated.
+	 * Calculates autonomyProfile once when request arrives (immutable).
 	 */
 	setTeamAssistantRequest(
 		flightId: string,
 		requestId: string,
 		request: PilotRequestJson,
 	): void {
+		// Calculate autonomyProfile once based on request type (immutable)
+		const requestType = request.context?.request_type ?? 0;
+		const autonomyProfile = this.brainStore.getAPForRequestType(requestType);
+
 		const teamAssistantRequest: TeamAssistantRequest = {
 			...request,
 			flightId,
 			requestId,
+			autonomyProfile, // Calculated once, defaults to 1 if data missing
 		};
 
 		const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
@@ -621,9 +634,11 @@ export default class AircraftStore {
 
 /**
  * Team Assistant Request type using snake_case JSON format (from IIS).
- * Extends PilotRequestJson with flightId and requestId for storage.
+ * Extends PilotRequestJson with flightId, requestId, and autonomyProfile.
+ * autonomyProfile is calculated once when the request arrives and never changes.
  */
 export interface TeamAssistantRequest extends PilotRequestJson {
 	flightId: string;
 	requestId: string;
+	autonomyProfile: number; // Calculated once on arrival (1 or 2), defaults to 1 if data missing
 }

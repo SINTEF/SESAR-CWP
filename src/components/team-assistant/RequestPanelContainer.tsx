@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useDragging } from "../../contexts/DraggingContext";
 import type AircraftModel from "../../model/AircraftModel";
-import { aircraftStore, brainStore, cwpStore } from "../../state";
+import { aircraftStore, cwpStore } from "../../state";
 import TaLabel from "./TaLabel";
 
 interface RequestPanelContainerProps {
@@ -38,9 +38,6 @@ export default observer(function RequestPanelContainer({
 		return null;
 	}
 
-	// Get the current autonomy profile from the Brain (AP1 or AP2)
-	const autonomyProfile = brainStore.autonomyProfile;
-
 	const onMouseEnter = (): void => {
 		if (isStillDragging()) {
 			return;
@@ -67,7 +64,6 @@ export default observer(function RequestPanelContainer({
 					aircraft={aircraft}
 					request={request}
 					height={height}
-					autonomyProfile={autonomyProfile ?? 2}
 				/>
 			))}
 		</div>
