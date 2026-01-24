@@ -276,7 +276,7 @@ export default observer(function AircraftPopup(properties: {
 			{hasStcaConflict || hasTctConflict ? (
 				<div className="absolute bottom-full left-1 flex">
 					{hasStcaConflict && <Stca />}
-					{hasTctConflict && <Tct />}
+					{hasTctConflict && <Tct blink={hasStcaConflict} />}
 				</div>
 			) : null}
 		</DraggablePopup>
