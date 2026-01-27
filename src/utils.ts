@@ -1,7 +1,4 @@
-export function formatSimulatorTimeHMS(
-	timestamp: number,
-	utc = true,
-): string {
+export function formatSimulatorTimeHMS(timestamp: number, utc = true): string {
 	return new Date(timestamp * 1000).toLocaleTimeString("en-GB", {
 		timeZone: "UTC",
 		hour12: false,
@@ -11,10 +8,7 @@ export function formatSimulatorTimeHMS(
 	});
 }
 
-export function formatSimulatorTimeHM(
-	timestamp: number,
-	utc = true,
-): string {
+export function formatSimulatorTimeHM(timestamp: number, utc = true): string {
 	return new Date(timestamp * 1000).toLocaleTimeString("en-GB", {
 		timeZone: "UTC",
 		hour12: false,
