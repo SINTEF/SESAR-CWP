@@ -215,6 +215,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 
 	const close = (): void => {
 		cwpStore.clearTaRequestCallback();
+		cwpStore.clearNextFixPreview();
 		cwpStore.closeChangeNextFixForAircraft(aircraftId);
 		posthog?.capture("next_fix_popup_closed", {
 			aircraft_id: aircraftId,
@@ -235,6 +236,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 			}
 			cwpStore.taRequestCallback(upperFixName);
 			cwpStore.clearTaRequestCallback();
+			cwpStore.clearNextFixPreview();
 			cwpStore.closeChangeNextFixForAircraft(aircraftId);
 			return;
 		}

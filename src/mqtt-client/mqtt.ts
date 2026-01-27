@@ -82,6 +82,8 @@ export function createClient(credentials: MqttCredentials | null): MqttClient {
 
 	return mqtt.connect(brokerUrl, {
 		protocolVersion: 5,
+		// Short keepalive to detect offline clients faster (e.g. cable unplug)
+		keepalive: 10,
 		...(credentials && {
 			username: credentials.username,
 			password: credentials.password,
@@ -215,8 +217,14 @@ export function onDisconnect(callback: MqttOffCallback): MqttOffCallback {
 		callback();
 	}
 	client.on("close", callback);
+	client.on("offline", callback);
+	client.on("reconnect", callback);
 	const currentClient = client;
-	return () => currentClient.off("close", callback);
+	return () => {
+		currentClient.off("close", callback);
+		currentClient.off("offline", callback);
+		currentClient.off("reconnect", callback);
+	};
 }
 
 export function onPacketReceive(callback: MqttOnCallback): MqttOffCallback {

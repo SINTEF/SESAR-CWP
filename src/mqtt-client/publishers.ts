@@ -280,6 +280,10 @@ export async function publishPilotRequest(
 	requestType: number,
 	requestParameter: number | string,
 ): Promise<void> {
+	// For FLIGHT_LEVEL requests, use the parameter as RFL and exit_level
+	// For other request types, use default values
+	const rfl = typeof requestParameter === "number" ? requestParameter : 0;
+
 	const jsonRequest = {
 		timestamp: new Date().toISOString(),
 		iteration_count: 0,
@@ -289,7 +293,23 @@ export async function publishPilotRequest(
 			request_type: requestType,
 			request_parameter: requestParameter,
 		},
-		goals: [],
+		goals: [
+			{
+				RFL: rfl,
+				results: {
+					exit_level: rfl,
+					initial_climb: Math.max(rfl - 40, 0), // Reasonable default: 40 FL below RFL
+					exit_problems_are_manageable: true,
+					traffic_complexity_manageable: true,
+					required_coordinations: [],
+					higher_level_available: true,
+					is_conform_to_flight_plan: false,
+					next_sector: "E3",
+					next_sector_capacity_ok: true,
+					altitude_restriction: false,
+				},
+			},
+		],
 	};
 
 	await publish(`IIS/PilotRequest/${requestId}`, jsonRequest, {
