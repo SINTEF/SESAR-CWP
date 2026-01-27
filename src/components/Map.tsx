@@ -259,9 +259,9 @@ export default function Map() {
 				onZoomEnd={onZoom}
 				renderWorldCopies={false}
 				// If rotation and pitch should be disabled:
-				// maxPitch={0}
-				// pitchWithRotate={false}
-				// dragRotate={false}
+				maxPitch={0}
+				pitchWithRotate={false}
+				dragRotate={false}
 				canvasContextAttributes={CANVAS_CONTEXT_ATTRIBUTES}
 			>
 				{/* Map resources */}
@@ -282,7 +282,11 @@ export default function Map() {
 				<EmptyLayer id={LAYER_ORDER.INTERACTIVE_LINES} />
 
 				{/* Controls */}
-				<NavigationControl position="bottom-left" visualizePitch={true} />
+				<NavigationControl
+					position="bottom-left"
+					visualizePitch={false}
+					showCompass={false}
+				/>
 				<FullscreenControl position="bottom-left" containerId="root" />
 				<ViewportPresetsControl />
 
