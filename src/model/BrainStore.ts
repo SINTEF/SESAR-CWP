@@ -1,5 +1,5 @@
-import { makeAutoObservable } from "mobx";
-import { aircraftStore, simulatorStore } from "../state";
+import { makeAutoObservable, runInAction } from "mobx";
+import { aircraftStore } from "../state";
 
 /**
  * BrainStore - Team Assistant Brain
@@ -30,13 +30,43 @@ export default class BrainStore {
 	// Manual override for AP (null = use computed, 1 or 2 = manual override)
 	manualAP: number | null = null;
 
+	// Observable timer for delta decay (updates every second)
+	private _nowSeconds: number = Date.now() / 1000;
+	private _timerInterval: ReturnType<typeof setInterval> | null = null;
+
 	// Constants
 	readonly GAMMA = 1.0;
 
 	constructor() {
-		makeAutoObservable(this, {
+		makeAutoObservable<this, "_timerInterval">(this, {
 			GAMMA: false, // Don't make constant observable
+			_timerInterval: false, // Don't make interval observable
 		});
+		this.startTimer();
+	}
+
+	/**
+	 * Start the 1-second timer for delta decay updates
+	 */
+	startTimer(): void {
+		if (this._timerInterval) {
+			return;
+		}
+		this._timerInterval = setInterval(() => {
+			runInAction(() => {
+				this._nowSeconds = Date.now() / 1000;
+			});
+		}, 1000);
+	}
+
+	/**
+	 * Stop the timer (for cleanup)
+	 */
+	stopTimer(): void {
+		if (this._timerInterval) {
+			clearInterval(this._timerInterval);
+			this._timerInterval = null;
+		}
 	}
 
 	// ========== Computed Properties ==========
@@ -135,18 +165,18 @@ export default class BrainStore {
 	/**
 	 * Delta - ISA Time Decay (0-1)
 	 *
-	 * Linear decay: 1.0 when fresh, 0.0 after maxAgeSeconds (5 minutes)
+	 * Exponential decay: 1.0 when fresh, approaches 0 after maxAgeSeconds (5 minutes)
+	 * Formula: e^(-5 * age/maxAge) gives ~0.67% at 5 minutes
 	 */
 	get delta(): number {
-		if (!this.timestampISA || !simulatorStore.timestamp) {
+		if (!this.timestampISA) {
 			return 0;
 		}
-
-		const ageInSeconds = simulatorStore.timestamp - this.timestampISA;
+		const ageInSeconds = this._nowSeconds - this.timestampISA;
 		const maxAgeSeconds = 60 * 5;
 
-		// Linear decay: 1.0 at age 0, 0.0 at maxAgeSeconds
-		return Math.max(0, 1 - Math.max(1, ageInSeconds / maxAgeSeconds));
+		// Exponential decay: 1.0 at age 0, ~0.007 at maxAgeSeconds, never reaches 0
+		return Math.exp((-5 * ageInSeconds) / maxAgeSeconds);
 	}
 
 	/**
