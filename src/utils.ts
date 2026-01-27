@@ -1,9 +1,9 @@
 export function formatSimulatorTimeHMS(
 	timestamp: number,
-	utc?: boolean,
+	utc = true,
 ): string {
 	return new Date(timestamp * 1000).toLocaleTimeString("en-GB", {
-		timeZone: utc ? "UTC" : undefined,
+		timeZone: "UTC",
 		hour12: false,
 		hour: "2-digit",
 		minute: "2-digit",
@@ -13,10 +13,10 @@ export function formatSimulatorTimeHMS(
 
 export function formatSimulatorTimeHM(
 	timestamp: number,
-	utc?: boolean,
+	utc = true,
 ): string {
 	return new Date(timestamp * 1000).toLocaleTimeString("en-GB", {
-		timeZone: utc ? "UTC" : undefined,
+		timeZone: "UTC",
 		hour12: false,
 		hour: "2-digit",
 		minute: "2-digit",
