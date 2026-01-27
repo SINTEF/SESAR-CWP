@@ -353,10 +353,9 @@ export function pilotRequestJson(
  *   "jsonrpc": "2.0",
  *   "method": "workloadUpdate",
  *   "params": {
- *     "workload": 1,
- *     "reliability": 0.94,
- *     "source": "Agent" | "ISA",
- *     "timestamp": "2025-11-04 13:14:20.444"
+ *     "workload": 0,
+ *     "accuracy": 0.94,
+ *     "timestamp": "2020-01-05 15:02:20.444"
  *   },
  *   "id": 42
  * }
@@ -364,19 +363,37 @@ export function pilotRequestJson(
 export function workloadUpdate(_parameters: unknown, message: Buffer): void {
 	try {
 		const parsed = JSON.parse(message.toString());
-		const { workload, reliability, source, timestamp } = parsed.params;
-
-		if (source === "Agent") {
-			brainStore.updateAgentWorkload(workload, reliability, timestamp);
-		} else if (source === "ISA") {
-			brainStore.updateISAWorkload(workload, reliability, timestamp);
-		} else {
-			// biome-ignore lint/suspicious/noConsole: Warning for unknown workload source
-			console.warn(`Unknown workload source: ${source}`);
-		}
+		const { workload, accuracy, timestamp } = parsed.params;
+		brainStore.updateAgentWorkload(workload, accuracy, timestamp);
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: Error logging for debugging
 		console.error("Error parsing WorkloadUpdate message:", error);
+		Sentry.captureException(error);
+	}
+}
+
+/**
+ * Handle ISAUpdate messages from MQTT topic TAS/{clientId}/ISAUpdate
+ *
+ * Expected message format:
+ * {
+ *   "jsonrpc": "2.0",
+ *   "method": "ISAUpdate",
+ *   "params": {
+ *     "ISA": 1,
+ *     "timestamp": "2020-01-05 15:02:20.444"
+ *   },
+ *   "id": 42
+ * }
+ */
+export function isaUpdate(_parameters: unknown, message: Buffer): void {
+	try {
+		const parsed = JSON.parse(message.toString());
+		const { ISA, timestamp } = parsed.params;
+		brainStore.updateISAWorkload(ISA, timestamp);
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: Error logging for debugging
+		console.error("Error parsing ISAUpdate message:", error);
 		Sentry.captureException(error);
 	}
 }

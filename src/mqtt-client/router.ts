@@ -19,6 +19,7 @@ import {
 	frontendNextSectorFlightLevel,
 	frontendSpeed,
 	ignored,
+	isaUpdate,
 	newAircraftMessage,
 	newAircraftTypeMessage,
 	newAirspaceConfiguration,
@@ -93,6 +94,7 @@ const router = rlite<Buffer>(notFound, {
 	"IIS/PilotRequest": pilotRequestJson,
 	"IIS/PilotRequest/:requestId": pilotRequestJson,
 	"TAS/:clientId/WorkloadUpdate": workloadUpdate,
+	"TAS/:clientId/ISAUpdate": isaUpdate,
 });
 
 export default router;

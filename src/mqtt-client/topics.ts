@@ -5,7 +5,7 @@ const baseTopics = [
 	`ats/${clientId}/data/#`,
 	`ats/${clientId}/status/#`,
 	`frontend/${clientId}/#`,
-	`TAS/${clientId}/WorkloadUpdate`,
+	`TAS/${clientId}/#`,
 	"IIS/PilotRequest/#",
 ];
 

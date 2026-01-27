@@ -14,12 +14,11 @@ import { aircraftStore, simulatorStore } from "../state";
  * Output: AP1 or AP2 (thresholded normalizedAP)
  */
 export default class BrainStore {
-	// MQTT workload data (from TAS/{clientId}/WorkloadUpdate)
+	// MQTT data (from TAS/{clientId}/WorkloadUpdate and TAS/{clientId}/ISAUpdate)
 	workloadAgent: number | null = null; // 0 or 1
-	workloadISA: number | null = null; // Raw value from MQTT (will be normalized to 0-1)
-	reliabilityAgent: number | null = null; // Becomes beta (0-1)
-	reliabilityISA: number | null = null;
-	timestampAgent: number | null = null; // Unix timestamp in seconds
+	ISA: number | null = null; // ISA value 1-5
+	accuracy: number | null = null; // Accuracy from WorkloadUpdate, becomes beta (0-1)
+	timestampWorkload: number | null = null; // Unix timestamp in seconds
 	timestampISA: number | null = null; // Unix timestamp in seconds
 
 	// Configurable max values for normalization
@@ -68,10 +67,9 @@ export default class BrainStore {
 	private hasRequiredData(): boolean {
 		return (
 			this.workloadAgent !== null &&
-			this.reliabilityAgent !== null &&
-			this.timestampAgent !== null &&
-			this.workloadISA !== null &&
-			this.reliabilityISA !== null &&
+			this.accuracy !== null &&
+			this.timestampWorkload !== null &&
+			this.ISA !== null &&
 			this.timestampISA !== null
 		);
 	}
@@ -126,12 +124,12 @@ export default class BrainStore {
 	}
 
 	/**
-	 * Beta - Agent Reliability (0-1)
+	 * Beta - Accuracy (0-1)
 	 *
-	 * Comes from Agent MQTT message
+	 * Comes from WorkloadUpdate MQTT message
 	 */
 	get beta(): number {
-		return this.reliabilityAgent ?? 0;
+		return this.accuracy ?? 0;
 	}
 
 	/**
@@ -164,12 +162,11 @@ export default class BrainStore {
 	/**
 	 * Normalized ISA - ISA workload normalized to 0-1
 	 *
-	 * Assumes raw ISA values are in range 0-5
-	 * Adjust max value based on actual MQTT data
+	 * ISA values are in range 1-5 (from TAS/{clientId}/ISAUpdate)
+	 * Normalized: ISA 1 → 0.2, ISA 5 → 1.0
 	 */
 	get normalizedISA(): number {
-		const rawISA = this.workloadISA ?? 0;
-		return Math.min(rawISA / 5, 1); // Divide by max expected ISA value
+		return Math.min((this.ISA ?? 0) / 5, 1);
 	}
 
 	/**
@@ -251,10 +248,9 @@ export default class BrainStore {
 				"BrainStore: Missing required data for AP computation. Defaulting to AP1.",
 				{
 					workloadAgent: this.workloadAgent,
-					reliabilityAgent: this.reliabilityAgent,
-					timestampAgent: this.timestampAgent,
-					workloadISA: this.workloadISA,
-					reliabilityISA: this.reliabilityISA,
+					accuracy: this.accuracy,
+					timestampWorkload: this.timestampWorkload,
+					ISA: this.ISA,
 					timestampISA: this.timestampISA,
 				},
 			);
@@ -277,24 +273,21 @@ export default class BrainStore {
 		timestamp: string | number,
 	): void {
 		this.workloadAgent = workload;
-		this.reliabilityAgent = reliability;
+		this.accuracy = reliability;
 		// Convert timestamp to number (Unix seconds) if it's a string
-		this.timestampAgent =
+		this.timestampWorkload =
 			typeof timestamp === "string"
 				? new Date(timestamp).getTime() / 1000
 				: timestamp;
 	}
 
 	/**
-	 * Update ISA workload data from MQTT
+	 * Update ISA workload data from MQTT (TAS/{clientId}/ISAUpdate)
+	 * @param isa - ISA value (1-5)
+	 * @param timestamp - Timestamp string or Unix seconds
 	 */
-	updateISAWorkload(
-		workload: number,
-		reliability: number,
-		timestamp: string | number,
-	): void {
-		this.workloadISA = workload;
-		this.reliabilityISA = reliability;
+	updateISAWorkload(isa: number, timestamp: string | number): void {
+		this.ISA = isa;
 		// Convert timestamp to number (Unix seconds) if it's a string
 		this.timestampISA =
 			typeof timestamp === "string"

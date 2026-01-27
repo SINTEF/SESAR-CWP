@@ -5,14 +5,8 @@ import { brainStore } from "../../state";
  * BrainPanel - Simple admin panel for Brain
  */
 export default observer(function BrainPanel() {
-	const {
-		autonomyProfile,
-		manualAP,
-		workloadAgent,
-		workloadISA,
-		reliabilityAgent,
-		delta,
-	} = brainStore;
+	const { autonomyProfile, manualAP, workloadAgent, ISA, accuracy, delta } =
+		brainStore;
 
 	return (
 		<div className="p-3 bg-neutral-800 space-y-3">
@@ -49,9 +43,9 @@ export default observer(function BrainPanel() {
 
 			{/* MQTT Data */}
 			<div className="text-xs space-y-1 text-gray-400">
-				<div>TAS WL: {workloadAgent ?? "—"}</div>
-				<div>TAS Rel: {reliabilityAgent ?? "—"}</div>
-				<div>ISA WL: {workloadISA ?? "—"}</div>
+				<div>Workload: {workloadAgent ?? "—"}</div>
+				<div>Accuracy: {accuracy ?? "—"}</div>
+				<div>ISA: {ISA ?? "—"}</div>
 				<div>Delta: {delta.toFixed(3)}</div>
 			</div>
 		</div>
