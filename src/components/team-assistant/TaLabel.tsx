@@ -102,6 +102,9 @@ export default observer(function TaLabel(properties: {
 		case isHoveredLabel === true && !isAP2:
 			width = 140;
 			break;
+		case isHoveredLabel === true && isAP2:
+			width = 100;
+			break;
 		case isHoveredLabel === true && isTaArrowClicked === false:
 			width = 85;
 			break;

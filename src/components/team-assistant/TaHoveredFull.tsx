@@ -78,6 +78,22 @@ export default observer(function TaHoveredFull(properties: {
 		);
 	};
 
+	const handleAcceptWithDelay = (): void => {
+		posthog?.capture("TA_request_accepted_DL", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+			component: "TaHoveredSmall",
+			delay_ms: 1000,
+		});
+		// Wait 1 second before accepting
+		setTimeout(() => {
+			handleAccept();
+		}, 1000);
+	};
+
 	const handleDismiss = async (): Promise<void> => {
 		posthog?.capture("TA_request_dismissed", {
 			aircraft_id: aircraft.aircraftId,
@@ -103,7 +119,7 @@ export default observer(function TaHoveredFull(properties: {
 				{/* First row */}
 				<tr>
 					<td className="flex flex-row items-start">
-						<div className="flex items-center justify-between gap-1.5">
+						<div className="flex justify-start gap-0.5">
 							<img
 								src={requestTypeIcon}
 								alt="Request type"
@@ -154,57 +170,104 @@ export default observer(function TaHoveredFull(properties: {
 					</>
 				)}
 
-				{/* Bottom row with actions */}
+				{/* Suggestion row */}
 				{isAP2 && (
 					<tr>
-						<td className="flex flex-row justify-end gap-0 pl-2 pb-0">
+						<td className="text-center pt-1">
 							<span
 								className={getRequestStatusColorClass(
 									request.goals?.[0]?.results,
 								)}
 							>
 								●
-							</span>
-							<span className="text-xs text-[#40c4ff]">
+							</span>{" "}
+							<span className="text-xs text-[#40c4ff] inline-block">
 								{formatRequestSuggestion(
 									request.context?.request_type ?? 0,
 									requestParameter,
 								)}
+								?
 							</span>
 						</td>
-						<td className="p-0 cursor-pointer text-right">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								strokeWidth="1.5"
-								stroke="currentColor"
-								className="w-3 h-3 inline-block cursor-pointer"
-								onClick={handleAccept}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="m4.5 12.75 6 6 9-13.5"
-								/>
-							</svg>
-						</td>
-						<td className="p-0 cursor-pointer text-right">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								strokeWidth="1.5"
-								stroke="currentColor"
-								className="w-3 h-3 inline-block cursor-pointer"
-								onClick={handleDismiss}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M6 18 18 6M6 6l12 12"
-								/>
-							</svg>
+					</tr>
+				)}
+
+				{/* Action buttons row */}
+				{isAP2 && (
+					<tr>
+						<td className="text-center">
+							<div className="flex flex-row items-center justify-center gap-1">
+								{aircraft.hasCPDLC ? (
+									<>
+										<span
+											className="p-0.5 cursor-pointer border border-transparent hover:border-white"
+											onClick={() => handleAccept()}
+										>
+											R/T
+										</span>
+										<span
+											className="p-0.5 cursor-pointer border border-transparent hover:border-white"
+											onClick={() => handleAcceptWithDelay()}
+										>
+											DL
+										</span>
+										<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 24 24"
+												strokeWidth="1.5"
+												stroke="currentColor"
+												className="w-3 h-3 inline-block cursor-pointer"
+												onClick={handleDismiss}
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													d="M6 18 18 6M6 6l12 12"
+												/>
+											</svg>
+										</span>
+									</>
+								) : (
+									<>
+										<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 24 24"
+												strokeWidth="1.5"
+												stroke="currentColor"
+												className="w-3 h-3 inline-block cursor-pointer"
+												onClick={() => handleAccept()}
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													d="m4.5 12.75 6 6 9-13.5"
+												/>
+											</svg>
+										</span>
+										<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 24 24"
+												strokeWidth="1.5"
+												stroke="currentColor"
+												className="w-3 h-3 inline-block cursor-pointer"
+												onClick={handleDismiss}
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													d="M6 18 18 6M6 6l12 12"
+												/>
+											</svg>
+										</span>
+									</>
+								)}
+							</div>
 						</td>
 					</tr>
 				)}
