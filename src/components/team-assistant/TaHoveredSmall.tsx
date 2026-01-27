@@ -16,7 +16,7 @@ export default observer(function TaHoveredSmall(properties: {
 	requestParameter: string;
 	requestTypeIcon: string;
 	request: TeamAssistantRequest;
-	width?: number;
+	width: number;
 }) {
 	const posthog = usePostHog();
 	const { aircraft, request, requestParameter, requestTypeIcon, width } =
@@ -71,11 +71,24 @@ export default observer(function TaHoveredSmall(properties: {
 		);
 	};
 
+	const handleAcceptWithDelay = (): void => {
+		posthog?.capture("TA_request_accepted_DL", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+			component: "TaHoveredSmall",
+			delay_ms: 1000,
+		});
+		// Wait 1 second before accepting
+		setTimeout(() => {
+			handleAccept();
+		}, 1000);
+	};
+
 	return (
-		<div
-			className="flex flex-col gap-0.5 h-full"
-			style={{ width: `${width}px` }}
-		>
+		<div className="flex flex-col" style={{ width: `${width - 10}px` }}>
 			{/* Row 1: Icon | Status dot + Parameter */}
 			<div className="flex items-center justify-between">
 				<img src={requestTypeIcon} alt="Request type" className="w-4 h-4" />
@@ -87,54 +100,100 @@ export default observer(function TaHoveredSmall(properties: {
 					</span>
 					<span className="text-[#40c4ff]">{requestParameter}</span>
 				</div>
-				<div className="w-3" /> {/* Spacer to align with row 2 icons */}
+				<div className="w-3" /> {/* Spacer to align */}
 			</div>
 
-			{/* Row 2: Green dot | Suggestion | Checkmark + Cross */}
-			<div className="flex items-center justify-between">
-				<span className="text-green-400 text-xs">●</span>
-				<span className="text-xs flex-1 text-center">
+			{/* Row 2: Status dot | Suggestion */}
+			<div className="flex items-center justify-start gap-1">
+				<span
+					className={`text-xs ${getRequestStatusColorClass(request.goals?.[0]?.results)}`}
+				>
+					●
+				</span>
+				<span className="text-xs text-[#40c4ff]">
 					{formatRequestSuggestion(
 						request.context?.request_type ?? 0,
 						requestParameter,
 					)}
 				</span>
-				<div className="flex items-center gap-0.5">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						strokeWidth="1.5"
-						stroke="currentColor"
-						className="w-3 h-3 cursor-pointer"
-						onClick={() => handleAccept()}
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							d="m4.5 12.75 6 6 9-13.5"
-						/>
-					</svg>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						strokeWidth="1.5"
-						stroke="currentColor"
-						className="w-3 h-3 cursor-pointer"
-						onClick={() => handleDismiss()}
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							d="M6 18 18 6M6 6l12 12"
-						/>
-					</svg>
-				</div>
 			</div>
 
-			{/* Row 3: Empty | Empty | Expand arrow */}
-			<div className="flex items-center justify-end">
+			{/* Row 3: Action buttons (centered) */}
+			<div className="flex items-center justify-start gap-0.5">
+				{aircraft.hasCPDLC ? (
+					<>
+						<span
+							className="p-0.5 cursor-pointer text-xs border border-transparent hover:border-white"
+							onClick={() => handleAccept()}
+						>
+							R/T
+						</span>
+						<span
+							className="p-0.5 cursor-pointer text-xs border border-transparent hover:border-white"
+							onClick={() => handleAcceptWithDelay()}
+						>
+							DL
+						</span>
+						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth="1.5"
+								stroke="currentColor"
+								className="w-3 h-3"
+								onClick={() => handleDismiss()}
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M6 18 18 6M6 6l12 12"
+								/>
+							</svg>
+						</span>
+					</>
+				) : (
+					<>
+						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth="1.5"
+								stroke="currentColor"
+								className="w-3 h-3"
+								onClick={() => handleAccept()}
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="m4.5 12.75 6 6 9-13.5"
+								/>
+							</svg>
+						</span>
+						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth="1.5"
+								stroke="currentColor"
+								className="w-3 h-3"
+								onClick={() => handleDismiss()}
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M6 18 18 6M6 6l12 12"
+								/>
+							</svg>
+						</span>
+					</>
+				)}
+			</div>
+
+			{/* Row 4: Expand arrow (right aligned) */}
+			<div className="flex items-end justify-end mb-4">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"

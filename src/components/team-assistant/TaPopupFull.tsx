@@ -24,13 +24,13 @@ export default observer(function TaPopupFull(properties: {
 		requestTypeIcon,
 		request,
 		autonomyProfile,
+		width,
 	} = properties;
 
 	const IsTaArrowClicked =
 		cwpStore.taArrowClickedAircraftId === aircraft.aircraftId;
 
 	const TaHoverContent = IsTaArrowClicked ? TaHoveredFull : TaHoveredSmall;
-	const width = IsTaArrowClicked ? 130 : 80;
 
 	return (
 		<div style={{ width: `${width}px` }}>

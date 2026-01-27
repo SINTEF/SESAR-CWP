@@ -115,6 +115,9 @@ export default class AircraftModel {
 
 	frequency = "";
 
+	/** Whether this aircraft has CPDLC (Controller-Pilot Data Link Communications) capability. Randomly assigned on creation. */
+	hasCPDLC = Math.random() < 0.5;
+
 	/**
 	 * @deprecated Use AircraftStore.getRequestsForAircraft() instead.
 	 * This field is kept for backward compatibility and will store the most recent flight level request parameter.
@@ -189,6 +192,7 @@ export default class AircraftModel {
 			routeWaypoints: observable,
 			frequency: observable,
 			degreased: observable,
+			hasCPDLC: observable,
 
 			nextFix: computed,
 			nextNav: computed,

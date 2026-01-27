@@ -28,7 +28,7 @@ export function formatRequestSuggestion(
 	}
 	if (requestType === 1) {
 		// DIRECT_REQUEST
-		return parameter;
+		return `DIRECT TO ${parameter}`;
 	}
 	if (requestType === 2) {
 		// ABSOLUTE_HEADING
