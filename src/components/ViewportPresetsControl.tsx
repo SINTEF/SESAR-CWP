@@ -1,35 +1,59 @@
+import type { LngLatBoundsLike } from "maplibre-gl";
 import { usePostHog } from "posthog-js/react";
 import { useCallback } from "react";
 import { useMap } from "react-map-gl/maplibre";
 
 // Predefined viewport configurations
-// You can edit these values manually to adjust the viewports
-const VIEWPORT_PRESETS = [
+// Each preset defines a center point and a span (in degrees) representing the geographic area to display.
+// The zoom level is automatically calculated by MapLibre's fitBounds to adapt to any screen size.
+// - center: [longitude, latitude] - the center point of the viewport
+// - span: degrees of geographic area to show (larger = more zoomed out)
+const VIEWPORT_PRESETS: {
+	id: number;
+	label: string;
+	title: string;
+	center: [number, number];
+	span: number;
+}[] = [
 	{
 		id: 1,
 		label: "1",
 		title: "Vue 1",
-		longitude: 7,
-		latitude: 44,
-		zoom: 7.0,
+		center: [7, 44],
+		span: 3.0, // ~3° around center (overview)
 	},
 	{
 		id: 2,
 		label: "2",
 		title: "Vue 2",
-		longitude: 6.75,
-		latitude: 44.125,
-		zoom: 8.0,
+		center: [6.75, 44.18],
+		span: 1.6, // ~1.5° around center (medium)
 	},
 	{
 		id: 3,
 		label: "3",
 		title: "Vue 3",
-		longitude: 6.75,
-		latitude: 44.125,
-		zoom: 8.5,
+		center: [6.75, 44.125],
+		span: 1.0, // ~1° around center (close-up)
 	},
 ];
+
+/**
+ * Calculate bounds from a center point and span (in degrees).
+ * The bounds will show approximately `span` degrees of area around the center.
+ */
+function calculateBounds(
+	center: [number, number],
+	span: number,
+): LngLatBoundsLike {
+	const [lng, lat] = center;
+	const halfSpan = span / 2;
+	// Return as [[west, south], [east, north]]
+	return [
+		[lng - halfSpan, lat - halfSpan],
+		[lng + halfSpan, lat + halfSpan],
+	];
+}
 
 export default function ViewportPresetsControl() {
 	const { current: map } = useMap();
@@ -41,17 +65,17 @@ export default function ViewportPresetsControl() {
 				return;
 			}
 
+			const bounds = calculateBounds(preset.center, preset.span);
+
 			posthog.capture("viewport_preset_clicked", {
 				preset_id: preset.id,
 				preset_label: preset.label,
-				longitude: preset.longitude,
-				latitude: preset.latitude,
-				zoom: preset.zoom,
+				center: preset.center,
+				span: preset.span,
 			});
 
-			map.flyTo({
-				center: [preset.longitude, preset.latitude],
-				zoom: preset.zoom,
+			map.fitBounds(bounds, {
+				padding: 20,
 				duration: 1000,
 			});
 		},
