@@ -11,6 +11,7 @@ import {
 	convertMetersToFlightLevel,
 	convertNMToFeet,
 	formatFeetCompact,
+	formatSimulatorTimeHM,
 } from "../../utils";
 import TimelineEventCard from "./TimelineEventCard";
 import TimelineSeparator from "./TimelineSeparator";
@@ -59,18 +60,6 @@ function getSeparatorInterval(scaleMinutes: number): number {
 		return 15;
 	}
 	return 30;
-}
-
-/**
- * Format timestamp to HH:mm (24h)
- */
-function formatTime(timestampSeconds: number): string {
-	const date = new Date(timestampSeconds * 1000);
-	return date.toLocaleTimeString("en-GB", {
-		hour: "2-digit",
-		minute: "2-digit",
-		hour12: false,
-	});
 }
 
 /**
@@ -365,7 +354,7 @@ export default observer(function Agenda({
 		if (bottomPx >= 0 && bottomPx <= containerHeight) {
 			separators.push({
 				bottomPx,
-				time: formatTime(absoluteMinute * 60),
+				time: formatSimulatorTimeHM(absoluteMinute * 60),
 				minuteKey: absoluteMinute,
 			});
 		}
