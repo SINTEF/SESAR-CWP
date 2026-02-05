@@ -35,13 +35,7 @@ export default observer(function TaPopupSmall(properties: {
 				</tr>
 				<tr>
 					<td>
-						<span
-							className={getRequestStatusColorClass(
-								request.goals?.[0]?.results,
-							)}
-						>
-							●
-						</span>
+						<span className={getRequestStatusColorClass(request)}>●</span>
 						<span className="text-xs text-[#40c4ff]">{displayParameter}</span>
 					</td>
 				</tr>
