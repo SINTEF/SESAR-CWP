@@ -6,7 +6,7 @@ const baseTopics = [
 	`ats/${clientId}/status/#`,
 	`frontend/${clientId}/#`,
 	`TAS/${clientId}/#`,
-	"IIS/PilotRequest/#",
+	`IIS/${clientId}/PilotRequest/#`,
 ];
 
 /** Admin-only topics */

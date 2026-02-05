@@ -93,21 +93,15 @@ export default observer(function TaHoveredSmall(properties: {
 			<div className="flex items-center justify-between">
 				<img src={requestTypeIcon} alt="Request type" className="w-4 h-4" />
 				<div className="flex items-center gap-0.5 text-xs">
-					<span
-						className={getRequestStatusColorClass(request.goals?.[0]?.results)}
-					>
-						●
-					</span>
+					<span className={getRequestStatusColorClass(request)}>●</span>
 					<span className="text-[#40c4ff]">{requestParameter}</span>
 				</div>
 				<div className="w-3" /> {/* Spacer to align */}
 			</div>
 
-			{/* Row 2: Status dot | Suggestion */}
+			{/* Row 2: Status dot | Suggestion - Always green? */}
 			<div className="flex items-center justify-start gap-1">
-				<span
-					className={`text-xs ${getRequestStatusColorClass(request.goals?.[0]?.results)}`}
-				>
+				<span className={`text-xs ${getRequestStatusColorClass(request)}`}>
 					●
 				</span>
 				<span className="text-xs text-[#40c4ff]">

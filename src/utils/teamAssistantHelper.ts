@@ -1,16 +1,33 @@
-import type { GoalResults } from "../schemas/pilotRequestSchema";
+import { TeamAssistantRequest } from "../model/AircraftStore";
 
-// To be fixed with actual status logic for
+// Could this logic somewhat work?
 export function getRequestStatusColorClass(
-	results: GoalResults | undefined,
+	results: TeamAssistantRequest | undefined,
 ): string {
 	if (!results) {
 		return "text-gray-500";
 	}
-	const isOk =
-		results.exit_problems_are_manageable &&
-		results.traffic_complexity_manageable;
-	return isOk ? "text-green-400" : "text-red-500";
+	let isAccepted = false;
+	const resultGoals = results.goals;
+	for (let i = 0; i < resultGoals.length; i++) {
+		const goal = resultGoals[i];
+		if (!goal.results?.higher_level_available) {
+			continue;
+		}
+		// This will probably only work for FLIGHT_LEVEL, need to figure out for the other scenarios
+		const initDifferent =
+			results.goals[i].results?.initial_climb !==
+			results.context.request_parameter; // how to check whether accepted or another solution?
+		const exitDifferent =
+			results.goals[i].results?.exit_level !==
+			results.context.request_parameter;
+		if (!initDifferent && !exitDifferent) {
+			isAccepted = true;
+		} else if (initDifferent || exitDifferent) {
+			isAccepted = false;
+		}
+	}
+	return isAccepted ? "text-green-400" : "text-red-500";
 }
 
 /**
