@@ -1,12 +1,16 @@
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
+import React from "react";
 import AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
+import { Goal } from "../../schemas/pilotRequestSchema";
 import { aircraftStore } from "../../state";
 import {
-	formatRequestSuggestion,
+	findSuggestionForRequest,
 	getRequestStatusColorClass,
+	getStatusColorClass,
+	isRejected,
 } from "../../utils/teamAssistantHelper";
 
 // import { aircraftStore, cwpStore, roleConfigurationStore } from "../../state";
@@ -33,13 +37,15 @@ export default observer(function TaHoveredFull(properties: {
 		request,
 		autonomyProfile,
 	} = properties;
-	const isAP2 = autonomyProfile === 2;
+	const isAP2 = autonomyProfile === 1;
 
-	const results = request.goals?.[0]?.results;
+	const results = request.goals.sort(
+		(a, b) => (b.results?.initial_climb ?? 0) - (a.results?.initial_climb ?? 0),
+	);
 
 	const getStatusColor = (status: boolean | null | undefined) => {
 		if (status === undefined || status === null) {
-			return <span className="text-gray-500">●</span>;
+			return <span className="text-yellow-500">●</span>;
 		}
 		return status ? (
 			<span className="text-green-400">●</span>
@@ -48,40 +54,97 @@ export default observer(function TaHoveredFull(properties: {
 		);
 	};
 
-	const getFMPStatus = () => {
+	const getFMPStatus = (goal: Goal) => {
 		if (results === undefined || results === null) {
 			return null;
 		}
 		const isOk =
-			results.next_sector_capacity_ok && !results.altitude_restriction;
+			goal.results?.next_sector_capacity_ok &&
+			!goal.results?.altitude_restriction;
 		return (
-			<tr>
-				<td className="pr-1" colSpan={2}>
-					{getStatusColor(isOk)} FMP {request.context?.request_parameter}
-				</td>
-			</tr>
+			<>
+				<tr>
+					<td className="pr-1" colSpan={2}>
+						{getStatusColor(isOk)} FMP {goal.RFL}
+					</td>
+				</tr>
+				{!isOk && (
+					<span className="ml-5">
+						<tr>
+							<td className="text-xs" colSpan={2}>
+								{getStatusColor(goal.results?.next_sector_capacity_ok)}{" "}
+								{goal.results?.next_sector}
+							</td>
+						</tr>
+						<tr>
+							<td className="text-xs" colSpan={2}>
+								{getStatusColor(!goal.results?.altitude_restriction)} LOA
+							</td>
+						</tr>
+					</span>
+				)}
+			</>
 		);
 	};
 
-	const getCoordinationWithNextSectorStatus = () => {
-		if (results === undefined || results === null) {
-			return null;
-		}
-		const requiredCoordination = results.is_conform_to_flight_plan;
-		// If false? Then show that it is checked with next sector?
-		if (requiredCoordination) {
-			return null;
-		} else {
-			return (
-				// Faking that the TA has communicated with next sector ATCO
+	// const getCoordinationWithNextSectorStatus = (goal: GoalResults) => {
+	// 	if (goal === undefined || goal === null) {
+	// 		return null;
+	// 	}
+	// 	const requiredCoordination = goal.is_conform_to_flight_plan;
+	// 	// If false? Then show that it is checked with next sector?
+	// 	if (requiredCoordination) {
+	// 		return null;
+	// 	} else {
+	// 		return (
+	// 			// Faking that the TA has communicated with next sector ATCO
+	// 			<tr>
+	// 				<td className="text-xs" colSpan={2}>
+	// 					{getStatusColor(true)} Next Sector Coordination {goal.next_sector}
+	// 				</td>
+	// 			</tr>
+	// 		);
+	// 	}
+	// };
+
+	const getExitStatus = (goal: Goal) => {
+		// Check if any coordination item is an object (conflict) rather than a string
+		const hasConflictObject = goal.results?.required_coordinations.some(
+			(item) => typeof item === "object",
+		);
+
+		return (
+			<>
 				<tr>
 					<td className="text-xs" colSpan={2}>
-						{getStatusColor(true)} Next Sector Coordination{" "}
-						{results.next_sector}
+						{getStatusColor(
+							!goal.results?.exit_problems_are_manageable
+								? undefined
+								: goal.results?.exit_problems_are_manageable,
+						)}{" "}
+						EXIT {goal.RFL}
 					</td>
 				</tr>
-			);
-		}
+				{!goal.results?.exit_problems_are_manageable && (
+					<span className="ml-5">
+						<tr>
+							<td className="text-xs" colSpan={2}>
+								{getStatusColor(goal.results?.is_conform_to_flight_plan)} FLP{" "}
+								{goal.RFL}
+							</td>
+						</tr>
+						{hasConflictObject && (
+							<tr>
+								<td className="text-xs" colSpan={2}>
+									{getStatusColor(false)} {goal.results?.next_sector} MTCD{" "}
+									{goal.RFL}
+								</td>
+							</tr>
+						)}
+					</span>
+				)}
+			</>
+		);
 	};
 
 	// const pilotRequest = aircraftStore.getFirstRequestForAircraft(
@@ -187,42 +250,47 @@ export default observer(function TaHoveredFull(properties: {
 				</tr>
 
 				{/* Goal results rows */}
-				{results && (
-					<>
-						{getFMPStatus()}
-						<tr>
-							<td className="text-xs" colSpan={2}>
-								{getStatusColor(results.exit_problems_are_manageable)} EXIT OK{" "}
-								{request.context?.request_parameter}
-							</td>
-						</tr>
-						{results.initial_climb !== results.exit_level && (
-							<tr>
-								<td className="text-xs" colSpan={2}>
-									{getStatusColor(results.traffic_complexity_manageable)} TCT OK{" "}
-									{request.context?.request_parameter}
-								</td>
-							</tr>
-						)}
-						{getCoordinationWithNextSectorStatus()}
-					</>
-				)}
+				{results.map((goal, index) => {
+					if (goal.results) {
+						return (
+							<React.Fragment key={index}>
+								{/* {results.initial_climb !== results.exit_level && ( */}
+								<tr>
+									<td className="text-xs" colSpan={2}>
+										{getStatusColor(goal.results.traffic_complexity_manageable)}{" "}
+										TCT {goal.RFL}
+									</td>
+								</tr>
+								{/* )} */}
+								{getFMPStatus(goal)}
+								{getExitStatus(goal)}
+								{/* {getCoordinationWithNextSectorStatus(goal.results)} */}
+								<tr>
+									<td colSpan={2}>
+										<hr className="border-t border-white/30 my-1" />
+									</td>
+								</tr>
+							</React.Fragment>
+						);
+					}
+					return null;
+				})}
 
 				{/* Suggestion row with action buttons */}
 				{isAP2 && (
 					<tr>
 						<td className="text-center pt-1">
 							<div className="flex items-center justify-center gap-1">
-								<span className={getRequestStatusColorClass(request)}>●</span>
+								<span
+									className={getStatusColorClass(isRejected(request) ? 0 : 1)}
+								>
+									●
+								</span>
 								<span className="text-xs text-[#40c4ff]">
-									{formatRequestSuggestion(
-										request.context?.request_type ?? 0,
-										requestParameter,
-									)}
-									?
+									{findSuggestionForRequest(request)}?
 								</span>
 								{!aircraft.hasCPDLC && (
-									<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+									<span className="p-0.5 cursor-pointer border border-white border-opacity-70">
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											fill="none"
@@ -251,13 +319,13 @@ export default observer(function TaHoveredFull(properties: {
 						<td className="text-center">
 							<div className="flex flex-row items-center justify-center gap-1">
 								<span
-									className="p-0.5 cursor-pointer border border-transparent hover:border-white"
+									className="p-0.5 cursor-pointer border border-white border-opacity-70"
 									onClick={() => handleAccept()}
 								>
 									R/T
 								</span>
 								<span
-									className="p-0.5 cursor-pointer border border-transparent hover:border-white"
+									className="p-0.5 cursor-pointer border border-white border-opacity-70"
 									onClick={() => handleAcceptWithDelay()}
 								>
 									DL

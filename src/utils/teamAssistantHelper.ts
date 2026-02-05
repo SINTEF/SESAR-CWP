@@ -71,3 +71,51 @@ export function getStatusColorClass(status: number | null | undefined): string {
 			return "text-gray-500";
 	}
 }
+
+export function findSuggestionForRequest(
+	request: TeamAssistantRequest,
+): string | null {
+	if (!request.goals) {
+		return null;
+	}
+	for (const goal of request.goals) {
+		if (goal.results?.higher_level_available) {
+			return formatRequestSuggestion(
+				request.context?.request_type ?? 0,
+				goal.results.initial_climb.toString(),
+			);
+		}
+	}
+	return null;
+}
+
+export function isAccepted(request: TeamAssistantRequest): boolean {
+	if (!request.goals) {
+		return false;
+	}
+	for (const goal of request.goals) {
+		if (goal.results?.higher_level_available) {
+			const initDifferent =
+				goal.results?.initial_climb !== request.context.request_parameter; // how to check whether accepted or another solution?
+			const exitDifferent =
+				goal.results?.exit_level !== request.context.request_parameter;
+			if (!initDifferent && !exitDifferent) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+export function isRejected(request: TeamAssistantRequest): boolean {
+	if (!request.goals) {
+		return false;
+	}
+	let rejected = true;
+	for (const goal of request.goals) {
+		if (goal.results?.higher_level_available) {
+			rejected = false;
+		}
+	}
+	return rejected;
+}
