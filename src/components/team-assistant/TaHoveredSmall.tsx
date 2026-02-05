@@ -89,17 +89,33 @@ export default observer(function TaHoveredSmall(properties: {
 
 	return (
 		<div className="flex flex-col" style={{ width: `${width - 10}px` }}>
-			{/* Row 1: Icon | Status dot + Parameter */}
+			{/* Row 1: Icon | Status dot + Parameter | Dismiss X */}
 			<div className="flex items-center justify-between">
 				<img src={requestTypeIcon} alt="Request type" className="w-4 h-4" />
 				<div className="flex items-center gap-0.5 text-xs">
 					<span className={getRequestStatusColorClass(request)}>●</span>
 					<span className="text-[#40c4ff]">{requestParameter}</span>
 				</div>
-				<div className="w-3" /> {/* Spacer to align */}
+				<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth="1.5"
+						stroke="currentColor"
+						className="w-3 h-3"
+						onClick={() => handleDismiss()}
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="M6 18 18 6M6 6l12 12"
+						/>
+					</svg>
+				</span>
 			</div>
 
-			{/* Row 2: Status dot | Suggestion - Always green? */}
+			{/* Row 2: Status dot | Suggestion with action buttons */}
 			<div className="flex items-center justify-start gap-1">
 				<span className={`text-xs ${getRequestStatusColorClass(request)}`}>
 					●
@@ -110,81 +126,44 @@ export default observer(function TaHoveredSmall(properties: {
 						requestParameter,
 					)}
 				</span>
-			</div>
-
-			{/* Row 3: Action buttons (centered) */}
-			<div className="flex items-center justify-start gap-0.5">
-				{aircraft.hasCPDLC ? (
-					<>
-						<span
-							className="p-0.5 cursor-pointer text-xs border border-transparent hover:border-white"
+				{!aircraft.hasCPDLC && (
+					<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							strokeWidth="1.5"
+							stroke="currentColor"
+							className="w-3 h-3"
 							onClick={() => handleAccept()}
 						>
-							R/T
-						</span>
-						<span
-							className="p-0.5 cursor-pointer text-xs border border-transparent hover:border-white"
-							onClick={() => handleAcceptWithDelay()}
-						>
-							DL
-						</span>
-						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								strokeWidth="1.5"
-								stroke="currentColor"
-								className="w-3 h-3"
-								onClick={() => handleDismiss()}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M6 18 18 6M6 6l12 12"
-								/>
-							</svg>
-						</span>
-					</>
-				) : (
-					<>
-						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								strokeWidth="1.5"
-								stroke="currentColor"
-								className="w-3 h-3"
-								onClick={() => handleAccept()}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="m4.5 12.75 6 6 9-13.5"
-								/>
-							</svg>
-						</span>
-						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								strokeWidth="1.5"
-								stroke="currentColor"
-								className="w-3 h-3"
-								onClick={() => handleDismiss()}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M6 18 18 6M6 6l12 12"
-								/>
-							</svg>
-						</span>
-					</>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								d="m4.5 12.75 6 6 9-13.5"
+							/>
+						</svg>
+					</span>
 				)}
 			</div>
+
+			{/* Row 3: CPDLC action buttons (only if hasCPDLC) */}
+			{aircraft.hasCPDLC && (
+				<div className="flex items-center justify-start gap-0.5">
+					<span
+						className="p-0.5 cursor-pointer text-xs border border-transparent hover:border-white"
+						onClick={() => handleAccept()}
+					>
+						R/T
+					</span>
+					<span
+						className="p-0.5 cursor-pointer text-xs border border-transparent hover:border-white"
+						onClick={() => handleAcceptWithDelay()}
+					>
+						DL
+					</span>
+				</div>
+			)}
 
 			{/* Row 4: Expand arrow (right aligned) */}
 			<div className="flex items-end justify-end mb-4">

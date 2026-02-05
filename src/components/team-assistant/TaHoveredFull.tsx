@@ -154,7 +154,7 @@ export default observer(function TaHoveredFull(properties: {
 			<tbody>
 				{/* First row */}
 				<tr>
-					<td className="flex flex-row items-start">
+					<td className="flex flex-row items-start justify-between">
 						<div className="flex justify-start gap-0.5">
 							<img
 								src={requestTypeIcon}
@@ -165,8 +165,24 @@ export default observer(function TaHoveredFull(properties: {
 								<span className={getRequestStatusColorClass(request)}>●</span>
 								<span className="text-[#40c4ff]">{requestParameter}</span>
 							</div>
-							<div className="w-3" /> {/* Spacer to align with row 2 icons */}
 						</div>
+						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth="1.5"
+								stroke="currentColor"
+								className="w-3 h-3"
+								onClick={handleDismiss}
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M6 18 18 6M6 6l12 12"
+								/>
+							</svg>
+						</span>
 					</td>
 				</tr>
 
@@ -192,97 +208,60 @@ export default observer(function TaHoveredFull(properties: {
 					</>
 				)}
 
-				{/* Suggestion row */}
+				{/* Suggestion row with action buttons */}
 				{isAP2 && (
 					<tr>
 						<td className="text-center pt-1">
-							<span className={getRequestStatusColorClass(request)}>●</span>{" "}
-							<span className="text-xs text-[#40c4ff] inline-block">
-								{formatRequestSuggestion(
-									request.context?.request_type ?? 0,
-									requestParameter,
+							<div className="flex items-center justify-center gap-1">
+								<span className={getRequestStatusColorClass(request)}>●</span>
+								<span className="text-xs text-[#40c4ff]">
+									{formatRequestSuggestion(
+										request.context?.request_type ?? 0,
+										requestParameter,
+									)}
+									?
+								</span>
+								{!aircraft.hasCPDLC && (
+									<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											strokeWidth="1.5"
+											stroke="currentColor"
+											className="w-3 h-3 inline-block cursor-pointer"
+											onClick={() => handleAccept()}
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="m4.5 12.75 6 6 9-13.5"
+											/>
+										</svg>
+									</span>
 								)}
-								?
-							</span>
+							</div>
 						</td>
 					</tr>
 				)}
 
-				{/* Action buttons row */}
-				{isAP2 && (
+				{/* CPDLC action buttons row (only if hasCPDLC and isAP2) */}
+				{isAP2 && aircraft.hasCPDLC && (
 					<tr>
 						<td className="text-center">
 							<div className="flex flex-row items-center justify-center gap-1">
-								{aircraft.hasCPDLC ? (
-									<>
-										<span
-											className="p-0.5 cursor-pointer border border-transparent hover:border-white"
-											onClick={() => handleAccept()}
-										>
-											R/T
-										</span>
-										<span
-											className="p-0.5 cursor-pointer border border-transparent hover:border-white"
-											onClick={() => handleAcceptWithDelay()}
-										>
-											DL
-										</span>
-										<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												fill="none"
-												viewBox="0 0 24 24"
-												strokeWidth="1.5"
-												stroke="currentColor"
-												className="w-3 h-3 inline-block cursor-pointer"
-												onClick={handleDismiss}
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													d="M6 18 18 6M6 6l12 12"
-												/>
-											</svg>
-										</span>
-									</>
-								) : (
-									<>
-										<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												fill="none"
-												viewBox="0 0 24 24"
-												strokeWidth="1.5"
-												stroke="currentColor"
-												className="w-3 h-3 inline-block cursor-pointer"
-												onClick={() => handleAccept()}
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													d="m4.5 12.75 6 6 9-13.5"
-												/>
-											</svg>
-										</span>
-										<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												fill="none"
-												viewBox="0 0 24 24"
-												strokeWidth="1.5"
-												stroke="currentColor"
-												className="w-3 h-3 inline-block cursor-pointer"
-												onClick={handleDismiss}
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													d="M6 18 18 6M6 6l12 12"
-												/>
-											</svg>
-										</span>
-									</>
-								)}
+								<span
+									className="p-0.5 cursor-pointer border border-transparent hover:border-white"
+									onClick={() => handleAccept()}
+								>
+									R/T
+								</span>
+								<span
+									className="p-0.5 cursor-pointer border border-transparent hover:border-white"
+									onClick={() => handleAcceptWithDelay()}
+								>
+									DL
+								</span>
 							</div>
 						</td>
 					</tr>
