@@ -254,18 +254,21 @@ export async function publishPilotRequestClear(
 	flightId: string,
 	requestId: string,
 ): Promise<void> {
-	await publish(
-		`ats/${clientId}/data/pilot-request/${flightId}/${requestId}`,
-		"",
-		{ retain: true },
-	);
-	await publish(
-		`IIS/PilotRequest/${requestId}`,
-		{
-			finished: true,
-		},
-		{ retain: true },
-	);
+	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, "CLOSE", {
+		retain: true,
+	});
+}
+
+/**
+ * Send a REFRESH call for a pilot request.
+ * This is sent 30 seconds after the request arrives to request updated data.
+ */
+export async function publishPilotRequestRefresh(
+	requestId: string,
+): Promise<void> {
+	await publish(`IIS/${clientId}/PilotRequest`, "REFRESH", {
+		retain: false,
+	});
 }
 
 /**
@@ -312,7 +315,7 @@ export async function publishPilotRequest(
 		],
 	};
 
-	await publish(`IIS/PilotRequest/${requestId}`, jsonRequest, {
+	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, jsonRequest, {
 		retain: true,
 	});
 }

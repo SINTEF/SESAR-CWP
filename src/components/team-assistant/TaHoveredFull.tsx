@@ -48,6 +48,42 @@ export default observer(function TaHoveredFull(properties: {
 		);
 	};
 
+	const getFMPStatus = () => {
+		if (results === undefined || results === null) {
+			return null;
+		}
+		const isOk =
+			results.next_sector_capacity_ok && !results.altitude_restriction;
+		return (
+			<tr>
+				<td className="pr-1" colSpan={2}>
+					{getStatusColor(isOk)} FMP {request.context?.request_parameter}
+				</td>
+			</tr>
+		);
+	};
+
+	const getCoordinationWithNextSectorStatus = () => {
+		if (results === undefined || results === null) {
+			return null;
+		}
+		const requiredCoordination = results.is_conform_to_flight_plan;
+		// If false? Then show that it is checked with next sector?
+		if (requiredCoordination) {
+			return null;
+		} else {
+			return (
+				// Faking that the TA has communicated with next sector ATCO
+				<tr>
+					<td className="text-xs" colSpan={2}>
+						{getStatusColor(true)} Next Sector Coordination{" "}
+						{results.next_sector}
+					</td>
+				</tr>
+			);
+		}
+	};
+
 	// const pilotRequest = aircraftStore.getFirstRequestForAircraft(
 	// 	aircraft.aircraftId,
 	// );
@@ -126,13 +162,7 @@ export default observer(function TaHoveredFull(properties: {
 								className="w-4 h-4"
 							/>
 							<div className="flex items-center gap-0.5 text-xs">
-								<span
-									className={getRequestStatusColorClass(
-										request.goals?.[0]?.results,
-									)}
-								>
-									●
-								</span>
+								<span className={getRequestStatusColorClass(request)}>●</span>
 								<span className="text-[#40c4ff]">{requestParameter}</span>
 							</div>
 							<div className="w-3" /> {/* Spacer to align with row 2 icons */}
@@ -143,30 +173,22 @@ export default observer(function TaHoveredFull(properties: {
 				{/* Goal results rows */}
 				{results && (
 					<>
+						{getFMPStatus()}
 						<tr>
-							<td className="pr-1" colSpan={2}>
-								{getStatusColor(results.is_conform_to_flight_plan)} FMP{" "}
+							<td className="text-xs" colSpan={2}>
+								{getStatusColor(results.exit_problems_are_manageable)} EXIT OK{" "}
 								{request.context?.request_parameter}
 							</td>
 						</tr>
-						<tr>
-							<td className="text-xs" colSpan={2}>
-								{getStatusColor(results.exit_problems_are_manageable)} MTCD{" "}
-								{request.context?.request_parameter}
-							</td>
-						</tr>
-						<tr>
-							<td className="text-xs" colSpan={2}>
-								{getStatusColor(results.traffic_complexity_manageable)} TCT{" "}
-								{request.context?.request_parameter}
-							</td>
-						</tr>
-						<tr>
-							<td className="text-xs" colSpan={2}>
-								{getStatusColor(results.next_sector_capacity_ok)} Next Sector{" "}
-								{results.next_sector}
-							</td>
-						</tr>
+						{results.initial_climb !== results.exit_level && (
+							<tr>
+								<td className="text-xs" colSpan={2}>
+									{getStatusColor(results.traffic_complexity_manageable)} TCT OK{" "}
+									{request.context?.request_parameter}
+								</td>
+							</tr>
+						)}
+						{getCoordinationWithNextSectorStatus()}
 					</>
 				)}
 
@@ -174,13 +196,7 @@ export default observer(function TaHoveredFull(properties: {
 				{isAP2 && (
 					<tr>
 						<td className="text-center pt-1">
-							<span
-								className={getRequestStatusColorClass(
-									request.goals?.[0]?.results,
-								)}
-							>
-								●
-							</span>{" "}
+							<span className={getRequestStatusColorClass(request)}>●</span>{" "}
 							<span className="text-xs text-[#40c4ff] inline-block">
 								{formatRequestSuggestion(
 									request.context?.request_type ?? 0,
