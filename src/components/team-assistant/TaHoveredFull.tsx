@@ -37,7 +37,7 @@ export default observer(function TaHoveredFull(properties: {
 		request,
 		autonomyProfile,
 	} = properties;
-	const isAP2 = autonomyProfile === 1;
+	const isAP2 = autonomyProfile === 2;
 
 	const results = request.goals.sort(
 		(a, b) => (b.results?.initial_climb ?? 0) - (a.results?.initial_climb ?? 0),
