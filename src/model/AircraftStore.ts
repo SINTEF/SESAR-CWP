@@ -88,8 +88,10 @@ export default class AircraftStore {
 	 * Key is requestId, value is the timeout handle.
 	 * Used to send REFRESH call 30 seconds after request arrives.
 	 */
-	private pilotRequestRefreshTimers: Map<string, ReturnType<typeof setTimeout>> =
-		new Map();
+	private pilotRequestRefreshTimers: Map<
+		string,
+		ReturnType<typeof setTimeout>
+	> = new Map();
 
 	/** Optional reference to DatablockStore for MTCD override logic */
 	private datablockStore: DatablockStore | null = null;
