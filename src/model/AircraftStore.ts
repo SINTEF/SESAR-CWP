@@ -631,7 +631,7 @@ export default class AircraftStore {
 		const timer = setTimeout(() => {
 			handlePublishPromise(publishPilotRequestRefresh(requestId));
 			this.pilotRequestRefreshTimers.delete(requestId);
-		}, 30_000); // 30 seconds
+		}, 120_000); // 120 seconds (2 minutes)
 
 		this.pilotRequestRefreshTimers.set(requestId, timer);
 	}

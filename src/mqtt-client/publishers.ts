@@ -266,7 +266,7 @@ export async function publishPilotRequestClear(
 export async function publishPilotRequestRefresh(
 	requestId: string,
 ): Promise<void> {
-	await publish(`IIS/${clientId}/PilotRequest`, "REFRESH", {
+	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, "REFRESH", {
 		retain: false,
 	});
 }
