@@ -107,6 +107,18 @@ export function isAccepted(request: TeamAssistantRequest): boolean {
 	return false;
 }
 
+export function isAcceptOrSuggest(request: TeamAssistantRequest): boolean {
+	if (!request.goals) {
+		return false;
+	}
+	for (const goal of request.goals) {
+		if (goal.results?.higher_level_available) {
+			return true;
+		}
+	}
+	return false;
+}
+
 export function isRejected(request: TeamAssistantRequest): boolean {
 	if (!request.goals) {
 		return false;

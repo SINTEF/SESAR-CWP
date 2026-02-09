@@ -10,6 +10,7 @@ import {
 	findSuggestionForRequest,
 	getRequestStatusColorClass,
 	getStatusColorClass,
+	isAcceptOrSuggest,
 	isRejected,
 } from "../../utils/teamAssistantHelper";
 
@@ -187,9 +188,13 @@ export default observer(function TaHoveredFull(properties: {
 			component: "TaHoveredSmall",
 			delay_ms: 1000,
 		});
-		// Wait 1 second before accepting
-		setTimeout(() => {
-			handleAccept();
+		aircraftStore.removeTeamAssistantRequest(
+			request.flightId,
+			request.requestId,
+		);
+		// Wait 1 second before climbing?
+		setTimeout(async () => {
+			await publishPilotRequestClear(request.flightId, request.requestId);
 		}, 1000);
 	};
 
@@ -252,6 +257,9 @@ export default observer(function TaHoveredFull(properties: {
 				{/* Goal results rows */}
 				{results.map((goal, index) => {
 					if (goal.results) {
+						if (!isAP2 && !(goal.RFL === request.context.request_parameter)) {
+							return null; // Skip goals that don't match the requested RFL in AP1 mode
+						}
 						return (
 							<React.Fragment key={index}>
 								{/* {results.initial_climb !== results.exit_level && ( */}
@@ -265,19 +273,27 @@ export default observer(function TaHoveredFull(properties: {
 								{getFMPStatus(goal)}
 								{getExitStatus(goal)}
 								{/* {getCoordinationWithNextSectorStatus(goal.results)} */}
-								<tr>
-									<td colSpan={2}>
-										<hr className="border-t border-white/30 my-1" />
-									</td>
-								</tr>
+								{isAP2 && index < results.length - 1 && (
+									<tr>
+										<td colSpan={2}>
+											<hr className="border-t border-white/30 mr-2 ml-0" />
+										</td>
+									</tr>
+								)}
 							</React.Fragment>
 						);
 					}
 					return null;
 				})}
-
+				{isAP2 && isAcceptOrSuggest(request) && (
+					<tr>
+						<td colSpan={2}>
+							<hr className="border-t border-white/30 mr-2 ml-0" />
+						</td>
+					</tr>
+				)}
 				{/* Suggestion row with action buttons */}
-				{isAP2 && (
+				{isAP2 && isAcceptOrSuggest(request) && (
 					<tr>
 						<td className="text-center pt-1">
 							<div className="flex items-center justify-center gap-1">
@@ -314,7 +330,7 @@ export default observer(function TaHoveredFull(properties: {
 				)}
 
 				{/* CPDLC action buttons row (only if hasCPDLC and isAP2) */}
-				{isAP2 && aircraft.hasCPDLC && (
+				{isAP2 && aircraft.hasCPDLC && isAcceptOrSuggest(request) && (
 					<tr>
 						<td className="text-center">
 							<div className="flex flex-row items-center justify-center gap-1">
