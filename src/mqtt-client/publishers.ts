@@ -266,9 +266,12 @@ export async function publishPilotRequestClear(
 	flightId: string,
 	requestId: string,
 ): Promise<void> {
-	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, "CLOSE", {
-		retain: true,
-	});
+	const jsonRequest = { reply: "CLOSE" };
+	await publish(
+		`IIS/${clientId}/PilotRequest/${requestId}`,
+		JSON.stringify(jsonRequest),
+		{ retain: true },
+	);
 }
 
 /**
@@ -278,9 +281,12 @@ export async function publishPilotRequestClear(
 export async function publishPilotRequestRefresh(
 	requestId: string,
 ): Promise<void> {
-	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, "REFRESH", {
-		retain: true,
-	});
+	const jsonRequest = { reply: "REFRESH" };
+	await publish(
+		`IIS/${clientId}/PilotRequest/${requestId}`,
+		JSON.stringify(jsonRequest),
+		{ retain: true },
+	);
 }
 
 /**
