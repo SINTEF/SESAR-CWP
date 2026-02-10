@@ -9,7 +9,7 @@ import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import {
 	adminStore,
 	aircraftStore,
-	configurationStore,
+	// configurationStore,
 	cwpStore,
 	roleConfigurationStore,
 } from "../state";
@@ -186,9 +186,13 @@ export default observer(function AircraftPopup(properties: {
 
 	const showAddTaRequestButton =
 		showExpandedContent &&
-		(cwpStore.pseudoPilot ||
-			adminStore.adminModeEnabled ||
-			configurationStore.currentCWP === "All");
+		(cwpStore.pseudoPilot || adminStore.adminModeEnabled);
+
+	// const showAddTaRequestButton =
+	// 	showExpandedContent &&
+	// 	(cwpStore.pseudoPilot ||
+	// 		adminStore.adminModeEnabled ||
+	// 		configurationStore.currentCWP === "All");
 
 	const showAddTaDialogOpened =
 		cwpStore.aircraftsWithAddRequestDialog.has(aircraftId);
