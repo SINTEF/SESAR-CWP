@@ -279,7 +279,7 @@ export async function publishPilotRequestRefresh(
 	requestId: string,
 ): Promise<void> {
 	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, "REFRESH", {
-		retain: false,
+		retain: true,
 	});
 }
 
