@@ -1,3 +1,4 @@
+import AircraftModel from "../model/AircraftModel";
 import { TeamAssistantRequest } from "../model/AircraftStore";
 
 // Could this logic somewhat work?
@@ -89,6 +90,20 @@ export function findSuggestionForRequest(
 	return null;
 }
 
+export function getSuggestionForRequest(
+	request: TeamAssistantRequest,
+): string | null {
+	if (!request.goals) {
+		return null;
+	}
+	for (const goal of request.goals) {
+		if (goal.results?.higher_level_available) {
+			return goal.results.initial_climb.toString();
+		}
+	}
+	return null;
+}
+
 export function isAccepted(request: TeamAssistantRequest): boolean {
 	if (!request.goals) {
 		return false;
@@ -131,3 +146,16 @@ export function isRejected(request: TeamAssistantRequest): boolean {
 	}
 	return rejected;
 }
+
+export const handleChangeCFL = (
+	request: TeamAssistantRequest,
+	aircraft: AircraftModel,
+): void => {
+	if (!isAccepted(request) && getSuggestionForRequest(request)) {
+		aircraft.setNextACCFL(getSuggestionForRequest(request) ?? "COO");
+	} else {
+		aircraft.setNextACCFL(
+			request.context?.request_parameter.toString() ?? "COO",
+		);
+	}
+};

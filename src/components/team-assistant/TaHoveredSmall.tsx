@@ -9,6 +9,7 @@ import {
 	findSuggestionForRequest,
 	getRequestStatusColorClass,
 	getStatusColorClass,
+	handleChangeCFL,
 	isRejected,
 } from "../../utils/teamAssistantHelper";
 
@@ -47,6 +48,7 @@ export default observer(function TaHoveredSmall(properties: {
 			component: "TaHoveredSmall",
 		});
 		// Clear the retained MQTT message
+		handleChangeCFL(request, aircraft);
 		await publishPilotRequestClear(request.flightId, request.requestId);
 		// Remove from store
 		aircraftStore.removeTeamAssistantRequest(
@@ -89,6 +91,7 @@ export default observer(function TaHoveredSmall(properties: {
 		);
 		// Wait 1 second before climbing?
 		setTimeout(async () => {
+			handleChangeCFL(request, aircraft);
 			await publishPilotRequestClear(request.flightId, request.requestId);
 		}, 1000);
 	};
