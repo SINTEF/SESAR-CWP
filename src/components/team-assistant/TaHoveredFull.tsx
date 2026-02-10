@@ -5,7 +5,7 @@ import AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
 import { Goal } from "../../schemas/pilotRequestSchema";
-import { aircraftStore } from "../../state";
+import { aircraftStore, cwpStore } from "../../state";
 import {
 	findSuggestionForRequest,
 	getRequestStatusColorClass,
@@ -39,6 +39,8 @@ export default observer(function TaHoveredFull(properties: {
 		autonomyProfile,
 	} = properties;
 	const isAP2 = autonomyProfile === 2;
+
+	const { setTaArrowClickedAircraftId } = cwpStore;
 
 	const results = request.goals.sort(
 		(a, b) => (b.results?.initial_climb ?? 0) - (a.results?.initial_climb ?? 0),
@@ -114,36 +116,42 @@ export default observer(function TaHoveredFull(properties: {
 			(item) => typeof item === "object",
 		);
 
+		// Color logic:
+		// - yellow (undefined): exit_problems_are_manageable && hasConflictObject
+		// - green (true): exit_problems_are_manageable && !hasConflictObject
+		// - red (false): !exit_problems_are_manageable
+		const exitStatusColor =
+			goal.results?.exit_problems_are_manageable && hasConflictObject
+				? undefined // yellow
+				: (goal.results?.exit_problems_are_manageable ?? false); // green or red
+
 		return (
 			<>
 				<tr>
 					<td className="text-xs" colSpan={2}>
-						{getStatusColor(
-							!goal.results?.exit_problems_are_manageable
-								? undefined
-								: goal.results?.exit_problems_are_manageable,
-						)}{" "}
-						EXIT {goal.RFL}
+						{getStatusColor(exitStatusColor)} {goal.results?.next_sector} MTCD{" "}
+						{goal.RFL}
+						{/* ATCO sn SECTOR MTCD */}
 					</td>
 				</tr>
 				{!goal.results?.exit_problems_are_manageable && (
-					<span className="ml-5">
-						<tr>
-							<td className="text-xs" colSpan={2}>
-								{getStatusColor(goal.results?.is_conform_to_flight_plan)} FLP{" "}
-								{goal.RFL}
-							</td>
-						</tr>
-						{hasConflictObject && (
+					// <span className="ml-5">
+					<tr>
+						<td className="text-xs" colSpan={2}>
+							{getStatusColor(goal.results?.is_conform_to_flight_plan)} FLP{" "}
+							{goal.RFL}
+						</td>
+					</tr>
+				)}
+				{/* {hasConflictObject && (
 							<tr>
 								<td className="text-xs" colSpan={2}>
 									{getStatusColor(false)} {goal.results?.next_sector} MTCD{" "}
 									{goal.RFL}
 								</td>
 							</tr>
-						)}
-					</span>
-				)}
+						)} */}
+				{/* </span> */}
 			</>
 		);
 	};
@@ -171,6 +179,7 @@ export default observer(function TaHoveredFull(properties: {
 		});
 		// Clear the retained MQTT message
 		await publishPilotRequestClear(request.flightId, request.requestId);
+		// Update CFL in label --> the one it is climbing to not current
 		// Remove from store
 		aircraftStore.removeTeamAssistantRequest(
 			request.flightId,
@@ -195,7 +204,20 @@ export default observer(function TaHoveredFull(properties: {
 		// Wait 1 second before climbing?
 		setTimeout(async () => {
 			await publishPilotRequestClear(request.flightId, request.requestId);
+			// update CFL in label
 		}, 1000);
+	};
+
+	const showLessArrowClicked = () => {
+		posthog?.capture("TA_less_details_clicked", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+		});
+		setTaArrowClickedAircraftId("");
+		// setHoveredFlightLabelId(aircraft.aircraftId);
 	};
 
 	const handleDismiss = async (): Promise<void> => {
@@ -234,22 +256,43 @@ export default observer(function TaHoveredFull(properties: {
 								<span className="text-[#40c4ff]">{requestParameter}</span>
 							</div>
 						</div>
-						<span className="p-0.5 cursor-pointer border border-transparent hover:border-white">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								strokeWidth="1.5"
-								stroke="currentColor"
-								className="w-3 h-3"
-								onClick={handleDismiss}
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M6 18 18 6M6 6l12 12"
-								/>
-							</svg>
+						<span className="flex flex-row pr-2">
+							{/* {isAP2 && ( */}
+							<span className="cursor-pointer border border-transparent hover:border-white">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									className="w-3 h-3"
+									onClick={showLessArrowClicked}
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="m19.5 19.5-15-15m0 0v11.25m0-11.25h11.25"
+									/>
+								</svg>
+							</span>
+							{/* )} */}
+							<span className="cursor-pointer border border-transparent hover:border-white">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									strokeWidth="1.5"
+									stroke="currentColor"
+									className="w-3 h-3"
+									onClick={handleDismiss}
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M6 18 18 6M6 6l12 12"
+									/>
+								</svg>
+							</span>
 						</span>
 					</td>
 				</tr>
@@ -266,7 +309,8 @@ export default observer(function TaHoveredFull(properties: {
 								<tr>
 									<td className="text-xs" colSpan={2}>
 										{getStatusColor(goal.results.traffic_complexity_manageable)}{" "}
-										TCT {goal.RFL}
+										{/* if traffic complexity is manageable --> TCT < 2 --> TCT > 2 not manageable, what about TCT = zero? Grønn/gul/rød */}
+										{"< 2 "}TCT {goal.RFL}
 									</td>
 								</tr>
 								{/* )} */}
