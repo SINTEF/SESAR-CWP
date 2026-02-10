@@ -9,7 +9,8 @@ import { brainStore } from "../../state";
  * BrainPanel - Simple admin panel for Brain
  */
 export default observer(function BrainPanel() {
-	const { manualAP, workloadAgent, ISA, accuracy, delta } = brainStore;
+	const { autonomyProfile, manualAP, workloadAgent, ISA, accuracy, delta } =
+		brainStore;
 
 	/** Update manual AP locally and broadcast to all instances via MQTT */
 	function setManualAP(value: number | null) {
@@ -45,6 +46,9 @@ export default observer(function BrainPanel() {
 						AP 2
 					</button>
 				</div>
+				<span className="text-xs font-mono text-gray-500">
+					→ {autonomyProfile ? `AP ${autonomyProfile}` : "—"}
+				</span>
 			</div>
 
 			{/* MQTT Data */}
