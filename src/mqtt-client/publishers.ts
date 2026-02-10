@@ -247,6 +247,18 @@ export async function persistHiddenAircraft(
 }
 
 /**
+ * Publish manual AP override to MQTT as a retained message.
+ * All instances sharing the same clientId will receive this and sync their AP mode.
+ *
+ * @param value - null (auto), 1 (AP1), or 2 (AP2)
+ */
+export async function persistManualAP(value: number | null): Promise<void> {
+	await publish(`frontend/${clientId}/brain/manualAP`, JSON.stringify(value), {
+		retain: true,
+	});
+}
+
+/**
  * Clear a pilot request retained message.
  * Publishing an empty retained message clears the retained message on the broker.
  */
