@@ -398,6 +398,24 @@ export function isaUpdate(_parameters: unknown, message: Buffer): void {
 	}
 }
 
+/**
+ * Handle manualAP sync messages from MQTT topic frontend/{clientId}/brain/manualAP
+ * Synchronizes the manual AP override across all instances sharing the same clientId.
+ */
+export function frontendManualAP(_parameters: unknown, message: Buffer): void {
+	try {
+		const raw = message.toString().trim();
+		if (raw.length === 0) {
+			return;
+		}
+		const value: number | null = JSON.parse(raw);
+		brainStore.setManualAP(value);
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: error logging
+		console.error("Error parsing manualAP message:", error);
+	}
+}
+
 export function fromTAtoIIS(
 	{ requestId }: { [key: string]: string },
 	message: Buffer,

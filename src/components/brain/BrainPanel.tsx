@@ -1,4 +1,8 @@
 import { observer } from "mobx-react-lite";
+import {
+	handlePublishPromise,
+	persistManualAP,
+} from "../../mqtt-client/publishers";
 import { brainStore } from "../../state";
 
 /**
@@ -7,6 +11,12 @@ import { brainStore } from "../../state";
 export default observer(function BrainPanel() {
 	const { autonomyProfile, manualAP, workloadAgent, ISA, accuracy, delta } =
 		brainStore;
+
+	/** Update manual AP locally and broadcast to all instances via MQTT */
+	function setManualAP(value: number | null) {
+		brainStore.setManualAP(value);
+		handlePublishPromise(persistManualAP(value));
+	}
 
 	return (
 		<div className="p-3 bg-neutral-800 space-y-3">
@@ -17,21 +27,21 @@ export default observer(function BrainPanel() {
 					<button
 						type="button"
 						className={`btn btn-xs ${manualAP === null ? "btn-active" : ""}`}
-						onClick={() => brainStore.setManualAP(null)}
+						onClick={() => setManualAP(null)}
 					>
 						Auto
 					</button>
 					<button
 						type="button"
 						className={`btn btn-xs ${manualAP === 1 ? "btn-active" : ""}`}
-						onClick={() => brainStore.setManualAP(1)}
+						onClick={() => setManualAP(1)}
 					>
 						1
 					</button>
 					<button
 						type="button"
 						className={`btn btn-xs ${manualAP === 2 ? "btn-active" : ""}`}
-						onClick={() => brainStore.setManualAP(2)}
+						onClick={() => setManualAP(2)}
 					>
 						2
 					</button>
