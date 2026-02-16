@@ -134,15 +134,15 @@ export default observer(function TaHoveredFull(properties: {
 						{/* ATCO sn SECTOR MTCD */}
 					</td>
 				</tr>
-				{!goal.results?.exit_problems_are_manageable && (
-					// <span className="ml-5">
-					<tr>
-						<td className="text-xs" colSpan={2}>
-							{getStatusColor(goal.results?.is_conform_to_flight_plan)} FLP{" "}
-							{goal.RFL}
-						</td>
-					</tr>
-				)}
+				{/* {!goal.results?.exit_problems_are_manageable && ( */}
+				{/* // <span className="ml-5"> */}
+				<tr>
+					<td className="text-xs" colSpan={2}>
+						{getStatusColor(goal.results?.is_conform_to_flight_plan)} FLP{" "}
+						{goal.RFL}
+					</td>
+				</tr>
+				{/* )} */}
 				{/* {hasConflictObject && (
 							<tr>
 								<td className="text-xs" colSpan={2}>
