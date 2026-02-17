@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
+import React from "react";
 import { useMap } from "react-map-gl/maplibre";
 
 import { useDragging } from "../contexts/DraggingContext";
@@ -100,9 +101,11 @@ export default observer(function AircraftPopup(properties: {
 	const { current } = useMap();
 	const { isDragging, isStillDragging } = useDragging();
 
-	if (localAssignedFlightLevel === altitude.toFixed(0)) {
-		setLocalAssignedFlightLevel(" ");
-	}
+	React.useEffect(() => {
+		if (localAssignedFlightLevel === altitude.toFixed(0)) {
+			setLocalAssignedFlightLevel(" ");
+		}
+	}, [altitude, localAssignedFlightLevel, setLocalAssignedFlightLevel]);
 
 	const onWheel = (event: React.WheelEvent): void => {
 		const map = current?.getMap();

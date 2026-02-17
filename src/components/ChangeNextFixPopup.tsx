@@ -6,13 +6,7 @@ import {
 	changeNextWaypointOfAircraft,
 	handlePublishPromise,
 } from "../mqtt-client/publishers";
-import {
-	aircraftStore,
-	configurationStore,
-	cwpStore,
-	fixStore,
-	simulatorStore,
-} from "../state";
+import { configurationStore, cwpStore, fixStore } from "../state";
 
 /** Sub-component that displays the list of trajectory fixes as clickable buttons */
 function ListOfFixes(properties: {
@@ -84,18 +78,9 @@ export default observer(function ChangeNextFixPopup(properties: {
 
 	const shouldShow = cwpStore.aircraftsWithNextFixPopup.has(aircraftId);
 
-	// Get trajectory fixes for this aircraft
-	const flightRoute = aircraftStore.flightRoutes.get(assignedFlightId);
-	const currentTime = simulatorStore.timestamp;
-	const trajectoryFixes = React.useMemo(() => {
-		if (!flightRoute) {
-			return [];
-		}
-		// Filter trajectory points that have a fix name (objectId) and are in the future
-		return flightRoute.trajectory
-			.filter((t) => t.objectId && t.timestamp >= currentTime)
-			.map((t) => t.objectId as string);
-	}, [flightRoute, currentTime]);
+	// Upcoming route fixes are computed in the model using ACTUAL milestone events
+	// with timestamp fallback when no event has been received yet.
+	const trajectoryFixes = properties.aircraft.upcomingRouteFixes;
 
 	// Build exclude set for trajectory fixes (stable reference for filter function)
 	const trajectoryFixSet = React.useMemo(
@@ -109,6 +94,10 @@ export default observer(function ChangeNextFixPopup(properties: {
 	// Get 50 nearest fixes using KNN search, excluding trajectory fixes
 	// When searching, apply string filter directly in the spatial query
 	const nearbyFixes = React.useMemo(() => {
+		if (!shouldShow) {
+			return [];
+		}
+
 		const fixList = fixStore.fixList;
 		const excludeIndices = fixStore.buildExcludeIndexSet(trajectoryFixSet);
 
@@ -129,7 +118,13 @@ export default observer(function ChangeNextFixPopup(properties: {
 			50,
 			filterFn,
 		);
-	}, [lastKnownLongitude, lastKnownLatitude, trajectoryFixSet, searchTerm]);
+	}, [
+		lastKnownLongitude,
+		lastKnownLatitude,
+		trajectoryFixSet,
+		searchTerm,
+		shouldShow,
+	]);
 
 	// Update scroll button states based on scroll position
 	const updateScrollState = React.useCallback(() => {
@@ -318,24 +313,29 @@ export default observer(function ChangeNextFixPopup(properties: {
 	};
 
 	// Filter fix names for the datalist autocomplete based on manual input
-	const filteredFixNames =
-		searchTerm.length < 3
-			? []
-			: [...fixStore.fixes.keys()].filter((fixName) =>
-					fixName.includes(searchTerm),
-				);
+	const filteredFixNames = React.useMemo(() => {
+		if (!shouldShow || searchTerm.length < 3) {
+			return [];
+		}
 
-	filteredFixNames.sort((a, b) => {
-		const aStarts = a.startsWith(searchTerm);
-		const bStarts = b.startsWith(searchTerm);
-		if (aStarts && !bStarts) {
-			return -1;
-		}
-		if (!aStarts && bStarts) {
-			return 1;
-		}
-		return a.localeCompare(b);
-	});
+		const filtered = [...fixStore.fixes.keys()].filter((fixName) =>
+			fixName.includes(searchTerm),
+		);
+
+		filtered.sort((a, b) => {
+			const aStarts = a.startsWith(searchTerm);
+			const bStarts = b.startsWith(searchTerm);
+			if (aStarts && !bStarts) {
+				return -1;
+			}
+			if (!aStarts && bStarts) {
+				return 1;
+			}
+			return a.localeCompare(b);
+		});
+
+		return filtered;
+	}, [shouldShow, searchTerm]);
 
 	// Filter displayed trajectory fixes based on the text input
 	// (nearby fixes are already filtered in the spatial query)

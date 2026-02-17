@@ -44,8 +44,9 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/data/init-completed": ignored,
 	"ats/:clientId/data/target-reports/:vehicleId": targetReport,
 	"ats/:clientId/data/availability-schedule": newAvailabilitySchedule,
-	"ats/:clientId/data/flight-milestone-times/:flightUniqueId": ignored,
-	"ats/:clientId/data/flight-milestone-positions/:flightUniqueId":
+	"ats/:clientId/data/flight-milestone-times/:flightUniqueId/:planningStage/:milestone":
+		ignored,
+	"ats/:clientId/data/flight-milestone-positions/:flightUniqueId/:planningStage/:milestone":
 		newFlightMilestonePositions,
 	"ats/:clientId/data/planned-flights/:flightUniqueId": ignored,
 	"ats/:clientId/data/aircraft-types/:vehicleTypeId": newAircraftTypeMessage,
