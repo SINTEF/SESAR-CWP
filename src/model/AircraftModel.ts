@@ -124,8 +124,8 @@ export default class AircraftModel {
 
 	frequency = "";
 
-	/** Whether this aircraft has CPDLC (Controller-Pilot Data Link Communications) capability. Randomly assigned on creation. */
-	hasCPDLC = Math.random() < 0.5;
+	/** Whether this aircraft has CPDLC (Controller-Pilot Data Link Communications) capability. Assigned by AircraftStore based on alphabetical callSign ordering. */
+	hasCPDLC = false;
 
 	/**
 	 * @deprecated Use AircraftStore.getRequestsForAircraft() instead.

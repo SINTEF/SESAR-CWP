@@ -10,6 +10,7 @@ import {
 	ArrivalAirport,
 	AssignedBearing,
 	CallSign,
+	CPDLCIcon,
 	NextACCFlightLevel,
 	NextNav,
 	NextSectorFL,
@@ -53,6 +54,7 @@ export default observer(function AircraftPopupContent(properties: {
 				</span>
 				<span className="ml-0.5"></span>
 				<span>{formatVerticalSpeed(lastKnownVerticalSpeed)}</span>
+				<CPDLCIcon aircraft={aircraft} />
 			</div>
 			{/* Line 1 */}
 			<div>

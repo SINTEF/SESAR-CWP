@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { ObservableMap } from "mobx";
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, reaction } from "mobx";
 import {
 	handlePublishPromise,
 	publishPilotRequestRefresh,
@@ -132,6 +132,13 @@ export default class AircraftStore {
 		this.simulatorStore = simulatorStore;
 		this.sectorStore = sectorStore;
 		this.brainStore = brainStore;
+
+		// Reassign CPDLC capability whenever aircraft are added/removed,
+		// based on alphabetical callSign ordering (first half gets CPDLC).
+		reaction(
+			() => this.aircrafts.size,
+			() => this.reassignCPDLC(),
+		);
 	}
 
 	/**
@@ -788,6 +795,20 @@ export default class AircraftStore {
 	hasTeamAssistantRequests(flightId: string): boolean {
 		const requests = this.teamAssistantRequests.get(flightId);
 		return requests !== undefined && requests.length > 0;
+	}
+
+	/**
+	 * Deterministically assign CPDLC capability: sort all aircraft alphabetically
+	 * by callSign, first half gets hasCPDLC = true, second half gets false.
+	 */
+	private reassignCPDLC(): void {
+		const sorted = [...this.aircrafts.values()].sort((a, b) =>
+			a.callSign.localeCompare(b.callSign),
+		);
+		const halfIndex = Math.ceil(sorted.length / 2);
+		for (const [index, aircraft] of sorted.entries()) {
+			aircraft.hasCPDLC = index < halfIndex;
+		}
 	}
 }
 
