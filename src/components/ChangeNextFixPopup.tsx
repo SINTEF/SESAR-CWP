@@ -94,6 +94,10 @@ export default observer(function ChangeNextFixPopup(properties: {
 	// Get 50 nearest fixes using KNN search, excluding trajectory fixes
 	// When searching, apply string filter directly in the spatial query
 	const nearbyFixes = React.useMemo(() => {
+		if (!shouldShow) {
+			return [];
+		}
+
 		const fixList = fixStore.fixList;
 		const excludeIndices = fixStore.buildExcludeIndexSet(trajectoryFixSet);
 
@@ -114,7 +118,13 @@ export default observer(function ChangeNextFixPopup(properties: {
 			50,
 			filterFn,
 		);
-	}, [lastKnownLongitude, lastKnownLatitude, trajectoryFixSet, searchTerm]);
+	}, [
+		lastKnownLongitude,
+		lastKnownLatitude,
+		trajectoryFixSet,
+		searchTerm,
+		shouldShow,
+	]);
 
 	// Update scroll button states based on scroll position
 	const updateScrollState = React.useCallback(() => {
@@ -303,24 +313,29 @@ export default observer(function ChangeNextFixPopup(properties: {
 	};
 
 	// Filter fix names for the datalist autocomplete based on manual input
-	const filteredFixNames =
-		searchTerm.length < 3
-			? []
-			: [...fixStore.fixes.keys()].filter((fixName) =>
-					fixName.includes(searchTerm),
-				);
+	const filteredFixNames = React.useMemo(() => {
+		if (!shouldShow || searchTerm.length < 3) {
+			return [];
+		}
 
-	filteredFixNames.sort((a, b) => {
-		const aStarts = a.startsWith(searchTerm);
-		const bStarts = b.startsWith(searchTerm);
-		if (aStarts && !bStarts) {
-			return -1;
-		}
-		if (!aStarts && bStarts) {
-			return 1;
-		}
-		return a.localeCompare(b);
-	});
+		const filtered = [...fixStore.fixes.keys()].filter((fixName) =>
+			fixName.includes(searchTerm),
+		);
+
+		filtered.sort((a, b) => {
+			const aStarts = a.startsWith(searchTerm);
+			const bStarts = b.startsWith(searchTerm);
+			if (aStarts && !bStarts) {
+				return -1;
+			}
+			if (!aStarts && bStarts) {
+				return 1;
+			}
+			return a.localeCompare(b);
+		});
+
+		return filtered;
+	}, [shouldShow, searchTerm]);
 
 	// Filter displayed trajectory fixes based on the text input
 	// (nearby fixes are already filtered in the spatial query)

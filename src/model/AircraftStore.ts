@@ -63,6 +63,11 @@ export default class AircraftStore {
 			deep: false,
 		});
 
+	stcaConflictFlightCounts: ObservableMap<string, number> = observable.map(
+		undefined,
+		{ deep: false },
+	);
+
 	mtcdConflictIds: ObservableMap<string, FlightConflictUpdateMessage> =
 		observable.map(undefined, {
 			deep: false,
@@ -72,6 +77,16 @@ export default class AircraftStore {
 		observable.map(undefined, {
 			deep: false,
 		});
+
+	tctConflictFlightCounts: ObservableMap<string, number> = observable.map(
+		undefined,
+		{ deep: false },
+	);
+
+	mtcdConflictFlightCounts: ObservableMap<string, number> = observable.map(
+		undefined,
+		{ deep: false },
+	);
 
 	/**
 	 * Team assistant requests stored with flightId as key.
@@ -387,21 +402,24 @@ export default class AircraftStore {
 			case 1: // Update conflict
 				switch (flightConflictUpdate.conflictType) {
 					case 0: // STCA Conflict
-						this.stcaConflictIds.set(
-							flightConflictUpdate.id.toString(),
+						this.upsertConflictMessage(
+							this.stcaConflictIds,
+							this.stcaConflictFlightCounts,
 							flightConflictUpdate,
 						);
 						break;
 					case 1: // TCT Conflict
-						this.tctConflictIds.set(
-							flightConflictUpdate.id.toString(),
+						this.upsertConflictMessage(
+							this.tctConflictIds,
+							this.tctConflictFlightCounts,
 							flightConflictUpdate,
 						);
 						break;
 					case 3: // MTCD Conflict (Severe)
 					case 4: // MTCD Conflict (Potential)
-						this.mtcdConflictIds.set(
-							flightConflictUpdate.id.toString(),
+						this.upsertConflictMessage(
+							this.mtcdConflictIds,
+							this.mtcdConflictFlightCounts,
 							flightConflictUpdate,
 						);
 						// Remove any custom datablock for this pair (MTCD takes priority)
@@ -422,14 +440,26 @@ export default class AircraftStore {
 			case 2: // Conflict cleared
 				switch (flightConflictUpdate.conflictType) {
 					case 0: // STCA Conflict cleared
-						this.stcaConflictIds.delete(flightConflictUpdate.id.toString());
+						this.clearConflictMessage(
+							this.stcaConflictIds,
+							this.stcaConflictFlightCounts,
+							flightConflictUpdate.id.toString(),
+						);
 						break;
 					case 1: // TCT Conflict
-						this.tctConflictIds.delete(flightConflictUpdate.id.toString());
+						this.clearConflictMessage(
+							this.tctConflictIds,
+							this.tctConflictFlightCounts,
+							flightConflictUpdate.id.toString(),
+						);
 						break;
 					case 3: // MTCD Conflict (MTCDInputSevere)
 					case 4: // MTCD Conflict (MTCDInputPotential)
-						this.mtcdConflictIds.delete(flightConflictUpdate.id.toString());
+						this.clearConflictMessage(
+							this.mtcdConflictIds,
+							this.mtcdConflictFlightCounts,
+							flightConflictUpdate.id.toString(),
+						);
 						break;
 					default:
 						// Handle unexpected conflictType values
@@ -442,27 +472,88 @@ export default class AircraftStore {
 		}
 	}
 
-	// Helper extractors for conflict maps that currently store FlightConflictUpdateMessage objects
-	private conflictSetHasFlight(
-		map: ObservableMap<string, FlightConflictUpdateMessage>,
-		flightId: string,
-	): boolean {
-		for (const msg of map.values()) {
-			if (msg.flightId === flightId || msg.conflictingFlightId === flightId) {
-				return true;
-			}
+	private adjustFlightConflictCount(
+		flightCounts: ObservableMap<string, number>,
+		flightId: string | undefined,
+		delta: 1 | -1,
+	): void {
+		if (!flightId) {
+			return;
 		}
-		return false;
+
+		const previous = flightCounts.get(flightId) ?? 0;
+		const next = previous + delta;
+
+		if (next <= 0) {
+			flightCounts.delete(flightId);
+			return;
+		}
+
+		flightCounts.set(flightId, next);
+	}
+
+	private addConflictMessageToCounts(
+		flightCounts: ObservableMap<string, number>,
+		conflictMessage: FlightConflictUpdateMessage,
+	): void {
+		this.adjustFlightConflictCount(flightCounts, conflictMessage.flightId, 1);
+		this.adjustFlightConflictCount(
+			flightCounts,
+			conflictMessage.conflictingFlightId,
+			1,
+		);
+	}
+
+	private removeConflictMessageFromCounts(
+		flightCounts: ObservableMap<string, number>,
+		conflictMessage: FlightConflictUpdateMessage,
+	): void {
+		this.adjustFlightConflictCount(flightCounts, conflictMessage.flightId, -1);
+		this.adjustFlightConflictCount(
+			flightCounts,
+			conflictMessage.conflictingFlightId,
+			-1,
+		);
+	}
+
+	private upsertConflictMessage(
+		conflicts: ObservableMap<string, FlightConflictUpdateMessage>,
+		flightCounts: ObservableMap<string, number>,
+		conflictMessage: FlightConflictUpdateMessage,
+	): void {
+		const conflictId = conflictMessage.id.toString();
+		const previous = conflicts.get(conflictId);
+
+		if (previous) {
+			this.removeConflictMessageFromCounts(flightCounts, previous);
+		}
+
+		conflicts.set(conflictId, conflictMessage);
+		this.addConflictMessageToCounts(flightCounts, conflictMessage);
+	}
+
+	private clearConflictMessage(
+		conflicts: ObservableMap<string, FlightConflictUpdateMessage>,
+		flightCounts: ObservableMap<string, number>,
+		conflictId: string,
+	): void {
+		const existing = conflicts.get(conflictId);
+		if (!existing) {
+			return;
+		}
+
+		this.removeConflictMessageFromCounts(flightCounts, existing);
+		conflicts.delete(conflictId);
 	}
 
 	hasStcaConflict(flightId: string): boolean {
-		return this.conflictSetHasFlight(this.stcaConflictIds, flightId);
+		return (this.stcaConflictFlightCounts.get(flightId) ?? 0) > 0;
 	}
 	hasTctConflict(flightId: string): boolean {
-		return this.conflictSetHasFlight(this.tctConflictIds, flightId);
+		return (this.tctConflictFlightCounts.get(flightId) ?? 0) > 0;
 	}
 	hasMtcdConflict(flightId: string): boolean {
-		return this.conflictSetHasFlight(this.mtcdConflictIds, flightId);
+		return (this.mtcdConflictFlightCounts.get(flightId) ?? 0) > 0;
 	}
 
 	getMtcdConflictFlightIds(): string[] {

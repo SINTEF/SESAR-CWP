@@ -4,7 +4,7 @@ import { buffer } from "@turf/buffer";
 import { polygon } from "@turf/helpers";
 import type { Feature, Polygon } from "geojson";
 import type { ObservableMap } from "mobx";
-import { makeAutoObservable, observable, reaction } from "mobx";
+import { comparer, makeAutoObservable, observable, reaction } from "mobx";
 import posthog from "posthog-js";
 import type {
 	AirspaceAvailabilityMessage,
@@ -90,14 +90,16 @@ export default class ConfigurationStore {
 		reaction(
 			() => this.aircraftsWithinExtendedEdges.map((a) => a.aircraftId),
 			(currentIds) => {
+				const visibleAircraft = this.aircraftsWithinExtendedEdges;
+				const currentAircraftById = new Map(
+					visibleAircraft.map((aircraft) => [aircraft.aircraftId, aircraft]),
+				);
 				const currentIdSet = new Set(currentIds);
 
 				// Detect aircraft that entered the view
 				for (const id of currentIds) {
 					if (!this.trackedAircraftIds.has(id)) {
-						const aircraft = this.aircraftsWithinExtendedEdges.find(
-							(a) => a.aircraftId === id,
-						);
+						const aircraft = currentAircraftById.get(id);
 						if (aircraft) {
 							this.captureAircraftEnteredEvent(aircraft);
 						}
@@ -118,6 +120,7 @@ export default class ConfigurationStore {
 				// Update tracked set
 				this.trackedAircraftIds = currentIdSet;
 			},
+			{ equals: comparer.structural },
 		);
 	}
 
@@ -440,6 +443,7 @@ export default class ConfigurationStore {
 		const sortedList = this.sortedConfigurationPlan;
 		const simulatorTime = this.simulatorStore.timestamp;
 		const listOfIntervals: [string, number, number][] = [];
+		const seenIntervals = new Set<string>();
 		for (const element of sortedList) {
 			for (const intervals of element.timeIntervals) {
 				const startTimeInterval = intervals.startTime;
@@ -449,12 +453,14 @@ export default class ConfigurationStore {
 					startTimeInterval,
 					endTimeInterval,
 				];
+				const intervalKey = `${element.configurationId}:${startTimeInterval}:${endTimeInterval}`;
 				if (
 					(startTimeInterval >= simulatorTime ||
 						endTimeInterval >= simulatorTime) &&
-					!JSON.stringify(listOfIntervals).includes(JSON.stringify(listElement))
+					!seenIntervals.has(intervalKey)
 				) {
 					listOfIntervals.push(listElement);
+					seenIntervals.add(intervalKey);
 				}
 			}
 		}
