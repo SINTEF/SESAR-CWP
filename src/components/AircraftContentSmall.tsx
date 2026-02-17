@@ -65,7 +65,6 @@ export default observer(function AircraftContentSmall(properties: {
 					{formatSpeed(lastKnownSpeed)}
 				</span>
 				<span className="ml-1">&nbsp;&nbsp;</span>
-				<span>{aircraft.aircraftType}</span>
 			</div>
 			{/* Line 1 */}
 			<div>

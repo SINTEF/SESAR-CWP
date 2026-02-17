@@ -25,8 +25,7 @@ export default observer(function AircraftPopupContent(properties: {
 	const { isDragging } = useDragging();
 	const { aircraft, flightColor } = properties;
 	// const currentSector = roleConfigurationStore.currentControlledSector;
-	const { lastKnownSpeed, lastKnownVerticalSpeed, aircraftType, nextSector } =
-		aircraft;
+	const { lastKnownSpeed, lastKnownVerticalSpeed, nextSector } = aircraft;
 
 	const openSpeedPopup = (): void => {
 		if (isDragging) {
@@ -54,8 +53,6 @@ export default observer(function AircraftPopupContent(properties: {
 				</span>
 				<span className="ml-0.5"></span>
 				<span>{formatVerticalSpeed(lastKnownVerticalSpeed)}</span>
-				<span className="ml-0.5"></span>
-				<span>{aircraftType}</span>
 			</div>
 			{/* Line 1 */}
 			<div>
