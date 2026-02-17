@@ -719,6 +719,9 @@ export default class AircraftStore {
 				teamAssistantRequest,
 			]);
 
+			// Track arrival for "last 5 min" count (survives accept/dismiss)
+			this.brainStore.recordRequestArrival();
+
 			// Schedule REFRESH call 30 seconds after new request arrives
 			this.scheduleRefreshTimer(requestId);
 		}

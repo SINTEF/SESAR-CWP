@@ -22,9 +22,9 @@ export default class BrainStore {
 	timestampISA: number | null = null; // Unix timestamp in seconds
 
 	// Configurable max values for normalization
-	maxNumberOfFlights = 100; // Default, should be scenario-specific
-	maxNumberOfRequestsPer30s = 10; // Default, should be scenario-specific
-	maxNumberOfConflicts = 20; // Default, should be scenario-specific
+	maxNumberOfFlights = 15; // Default, should be scenario-specific
+	maxNumberOfRequests = 3; // Default, should be scenario-specific
+	maxNumberOfConflicts = 3; // Default, should be scenario-specific
 	swapValue = 0.5; // Threshold for AP1/AP2 decision
 
 	// Manual override for AP (null = use computed, 1 or 2 = manual override)
@@ -34,12 +34,14 @@ export default class BrainStore {
 	private _nowSeconds: number = Date.now() / 1000;
 	private _timerInterval: ReturnType<typeof setInterval> | null = null;
 
-	// Constants
-	readonly GAMMA = 1.0;
+	// Rolling window of request arrival times (epoch ms) for "last 5 min" count
+	requestArrivalTimes: number[] = [];
+
+	// Configurable gamma weight for urgency
+	gamma = 1.0;
 
 	constructor() {
 		makeAutoObservable<this, "_timerInterval">(this, {
-			GAMMA: false, // Don't make constant observable
 			_timerInterval: false, // Don't make interval observable
 		});
 		this.startTimer();
@@ -71,13 +73,35 @@ export default class BrainStore {
 
 	// ========== Computed Properties ==========
 
-	/**
-	 * Number of requests in the last 30 seconds
-	 *
-	 * Future: Will be provided by IIS or removed entirely
-	 */
-	get numberOfRequestsLast30s(): number {
-		return 0;
+	get numberOfAssumedFlights(): number {
+		return Array.from(aircraftStore.aircrafts.values()).filter(
+			(ac) => ac.degreased === true,
+		).length;
+	}
+
+	/** Total requests received in the last 5 minutes (including accepted/dismissed) */
+	get numberOfRequests(): number {
+		const fiveMinutesAgo = this._nowSeconds * 1000 - 5 * 60 * 1000;
+		return this.requestArrivalTimes.filter((t) => t >= fiveMinutesAgo).length;
+	}
+
+	get numberOfConflicts(): number {
+		// do not include STCA (From Yannick)
+		return (
+			aircraftStore.mtcdConflictIds.size + aircraftStore.tctConflictIds.size
+		);
+	}
+
+	get normalizedFlights(): number {
+		return Math.min(this.numberOfAssumedFlights / this.maxNumberOfFlights, 1);
+	}
+
+	get normalizedRequests(): number {
+		return Math.min(this.numberOfRequests / this.maxNumberOfRequests, 1);
+	}
+
+	get normalizedConflicts(): number {
+		return Math.min(this.numberOfConflicts / this.maxNumberOfConflicts, 1);
 	}
 
 	/**
@@ -118,7 +142,7 @@ export default class BrainStore {
 			this.alpha * TL +
 			this.beta * WL +
 			this.delta * ISA +
-			this.GAMMA * urgency;
+			this.gamma * urgency;
 
 		const normalizedAP = computedAP / (3 + urgency);
 
@@ -134,23 +158,12 @@ export default class BrainStore {
 	 * - conflicts / maxConflicts
 	 */
 	get taskLoad(): number {
-		const flightsFactor = Math.min(
-			aircraftStore.aircrafts.size / this.maxNumberOfFlights,
-			1,
+		return (
+			(this.normalizedFlights +
+				this.normalizedRequests +
+				this.normalizedConflicts) /
+			3
 		);
-		const requestsFactor = Math.min(
-			this.numberOfRequestsLast30s / this.maxNumberOfRequestsPer30s,
-			1,
-		);
-		const conflictsFactor = Math.min(
-			(aircraftStore.stcaConflictIds.size +
-				aircraftStore.mtcdConflictIds.size +
-				aircraftStore.tctConflictIds.size) /
-				this.maxNumberOfConflicts,
-			1,
-		);
-
-		return (flightsFactor + requestsFactor + conflictsFactor) / 3;
 	}
 
 	/**
@@ -214,7 +227,7 @@ export default class BrainStore {
 		const urgency = 0; // Global display assumes no urgency
 
 		return (
-			this.alpha * TL + this.beta * WL + this.delta * ISA + this.GAMMA * urgency
+			this.alpha * TL + this.beta * WL + this.delta * ISA + this.gamma * urgency
 		);
 	}
 
@@ -268,28 +281,54 @@ export default class BrainStore {
 	getAPForRequestType(requestType: number): number {
 		// Manual override always takes precedence
 		if (this.manualAP !== null) {
+			// biome-ignore lint/suspicious/noConsole: debug logging for AP calculation
+			console.log(
+				`[Brain AP] Manual override active → AP ${this.manualAP} (requestType=${requestType})`,
+			);
 			return this.manualAP;
 		}
 
 		// Check if we have minimum required data for computation
 		if (!this.hasRequiredData()) {
 			// biome-ignore lint/suspicious/noConsole: error logging for missing data
-			console.error(
-				"BrainStore: Missing required data for AP computation. Defaulting to AP1.",
-				{
-					workloadAgent: this.workloadAgent,
-					accuracy: this.accuracy,
-					timestampWorkload: this.timestampWorkload,
-					ISA: this.ISA,
-					timestampISA: this.timestampISA,
-				},
-			);
+			console.error("[Brain AP] Missing required data → defaulting to AP1", {
+				workloadAgent: this.workloadAgent,
+				accuracy: this.accuracy,
+				timestampWorkload: this.timestampWorkload,
+				ISA: this.ISA,
+				timestampISA: this.timestampISA,
+			});
 			return 1; // Default to AP1
 		}
 
 		// Get urgency for this specific request type and compute AP
 		const urgency = this.getUrgencyForRequestType(requestType);
-		return this.computeAPWithUrgency(urgency);
+		const TL = this.taskLoad;
+		const WL = this.workloadAgent ?? 0;
+		const ISA = this.normalizedISA;
+		const computedAP =
+			this.alpha * TL +
+			this.beta * WL +
+			this.delta * ISA +
+			this.gamma * urgency;
+		const normalizedAP = computedAP / (3 + urgency);
+		const resultAP = normalizedAP > this.swapValue ? 2 : 1;
+
+		// biome-ignore lint/suspicious/noConsole: debug logging for AP calculation
+		console.log(
+			`[Brain AP] requestType=${requestType} urgency=${urgency}\n` +
+				`  Flights: ${this.numberOfAssumedFlights}/${this.maxNumberOfFlights} (norm=${this.normalizedFlights.toFixed(3)})\n` +
+				`  Requests: ${this.numberOfRequests}/${this.maxNumberOfRequests} (norm=${this.normalizedRequests.toFixed(3)})\n` +
+				`  Conflicts: ${this.numberOfConflicts}/${this.maxNumberOfConflicts} (norm=${this.normalizedConflicts.toFixed(3)})\n` +
+				`  TaskLoad(TL)=${TL.toFixed(3)}\n` +
+				`  alpha=${this.alpha.toFixed(3)} beta=${this.beta.toFixed(3)} delta=${this.delta.toFixed(3)} gamma=${this.gamma.toFixed(3)}\n` +
+				`  WL=${WL} ISA=${this.ISA} normalizedISA=${ISA.toFixed(3)}\n` +
+				`  Formula: ${this.alpha.toFixed(3)}*${TL.toFixed(3)} + ${this.beta.toFixed(3)}*${WL} + ${this.delta.toFixed(3)}*${ISA.toFixed(3)} + ${this.gamma.toFixed(3)}*${urgency}\n` +
+				`  computedAP=${computedAP.toFixed(3)} / (3+${urgency}) = normalizedAP=${normalizedAP.toFixed(3)}\n` +
+				`  ${normalizedAP.toFixed(3)} ${normalizedAP > this.swapValue ? ">" : "<="} ${this.swapValue} → AP ${resultAP}`,
+		);
+
+		return resultAP;
 	}
 
 	// ========== Action Methods ==========
@@ -332,12 +371,16 @@ export default class BrainStore {
 		this.maxNumberOfFlights = value;
 	}
 
-	setMaxNumberOfRequestsPer30s(value: number): void {
-		this.maxNumberOfRequestsPer30s = value;
+	setMaxNumberOfRequests(value: number): void {
+		this.maxNumberOfRequests = value;
 	}
 
 	setMaxNumberOfConflicts(value: number): void {
 		this.maxNumberOfConflicts = value;
+	}
+
+	setGamma(value: number): void {
+		this.gamma = value;
 	}
 
 	setSwapValue(value: number): void {
@@ -346,5 +389,15 @@ export default class BrainStore {
 
 	setManualAP(value: number | null): void {
 		this.manualAP = value;
+	}
+
+	/** Record that a new request arrived (called from AircraftStore) */
+	recordRequestArrival(): void {
+		this.requestArrivalTimes.push(Date.now());
+		// Prune entries older than 5 minutes
+		const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+		this.requestArrivalTimes = this.requestArrivalTimes.filter(
+			(t) => t >= fiveMinutesAgo,
+		);
 	}
 }
