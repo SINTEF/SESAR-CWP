@@ -8,8 +8,7 @@ import { Layer, Source } from "react-map-gl/maplibre";
 import type AircraftModel from "../model/AircraftModel";
 import type Trajectory from "../model/Trajectory";
 import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
-import { aircraftStore, cwpStore, simulatorStore } from "../state";
-import { formatSimulatorTimeHMS } from "../utils";
+import { aircraftStore, cwpStore } from "../state";
 
 function buildGeoJsonFlightRoute(
 	aircraft: AircraftModel,
@@ -35,9 +34,7 @@ function buildGeoJsonFlightRoute(
 			],
 		},
 		properties: {
-			title: trajectory.objectId
-				? `${trajectory.objectId}\n${formatSimulatorTimeHMS(trajectory.timestamp)}`
-				: undefined,
+			title: trajectory.objectId,
 		},
 	}));
 
@@ -91,13 +88,8 @@ export default observer(function FlightRoutes({ beforeId }: FlightRoutesProps) {
 		selectedAircraftIds: aircraftsWithFlightRoutes,
 	});
 
-	const features = flightRoutes.flatMap(({ aircraft, route }) =>
-		buildGeoJsonFlightRoute(
-			aircraft,
-			route.trajectory.filter(
-				(trajectory) => trajectory.timestamp >= simulatorStore.timestamp,
-			),
-		),
+	const features = flightRoutes.flatMap(({ aircraft, trajectory }) =>
+		buildGeoJsonFlightRoute(aircraft, trajectory),
 	);
 
 	const geoJson: GeoJSON.FeatureCollection = {

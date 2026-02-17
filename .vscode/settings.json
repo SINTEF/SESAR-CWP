@@ -6,7 +6,9 @@
 		"source.fixAll": "explicit"
 	},
 	"editor.formatOnSave": true,
-	"editor.rulers": [100],
+	"editor.rulers": [
+		100
+	],
 	"editor.tabSize": 2,
 	"editor.insertSpaces": true,
 	"[javascript]": {
@@ -28,5 +30,8 @@
 		"titleBar.inactiveBackground": "#3a399799",
 		"titleBar.inactiveForeground": "#e7e7e799"
 	},
-	"peacock.color": "#3a3997"
+	"peacock.color": "#3a3997",
+	"chat.tools.terminal.autoApprove": {
+		"npm run -s typecheck": true
+	}
 }

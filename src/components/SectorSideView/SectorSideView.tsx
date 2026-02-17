@@ -46,10 +46,10 @@ export default observer(function SectorSideView() {
 	const flightRoutesData: FlightData[] = getAircraftsWithFlightRoutes({
 		aircraftStore,
 		selectedAircraftIds,
-	}).map(({ aircraft, route }) => ({
+	}).map(({ aircraft, trajectory }) => ({
 		aircraftId: aircraft.aircraftId,
 		callSign: aircraft.callSign,
-		trajectories: route.trajectory
+		trajectories: trajectory
 			// Get the trajectories only within the xDomain period (1h)
 			.filter(
 				(trajectory) =>

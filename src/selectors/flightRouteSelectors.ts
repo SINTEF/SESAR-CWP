@@ -1,11 +1,13 @@
 import { ObservableSet } from "mobx";
 import AircraftModel from "../model/AircraftModel";
 import AircraftStore from "../model/AircraftStore";
-import FlightRoute from "../model/FlightRoute";
+import type FlightRoute from "../model/FlightRoute";
+import { getRouteAheadTrajectory } from "../model/routeProgress";
+import type Trajectory from "../model/Trajectory";
 
 interface FlightRouteWithAircraft {
 	aircraft: AircraftModel;
-	route: FlightRoute;
+	trajectory: Trajectory[];
 }
 
 /**
@@ -34,5 +36,13 @@ export function getAircraftsWithFlightRoutes({
 				flightRoute,
 			): flightRoute is { aircraft: AircraftModel; route: FlightRoute } =>
 				flightRoute.route !== undefined,
-		);
+		)
+		.map(({ aircraft, route }) => ({
+			aircraft,
+			trajectory: getRouteAheadTrajectory({
+				aircraft,
+				route,
+				currentTime: aircraftStore.simulatorStore.timestamp,
+			}),
+		}));
 }

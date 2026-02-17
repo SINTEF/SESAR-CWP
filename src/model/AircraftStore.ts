@@ -245,15 +245,7 @@ export default class AircraftStore {
 					}
 					const timestamp = convertTimestamp(time);
 
-					let objectId: string | undefined;
-					if (previousPositionObject && previousPositionObject.time) {
-						const previousTimestamp = convertTimestamp(
-							previousPositionObject.time,
-						);
-						if (timestamp === previousTimestamp) {
-							({ objectId } = previousPositionObject);
-						}
-					}
+					const objectId = previousPositionObject?.objectId;
 
 					const trajectory = new Trajectory({
 						trajectoryCoordinate: new CoordinatePair({
@@ -308,12 +300,29 @@ export default class AircraftStore {
 			return;
 		}
 
-		if (planningStage === PlanningStage.TARGET) {
+		if (
+			planningStage === PlanningStage.TARGET ||
+			planningStage === PlanningStage.PLAN
+		) {
 			aircraft.handleTargetMilestone(milestone);
 		}
 
 		if (planningStage === PlanningStage.ACTUAL) {
 			aircraft.handleActualMilestone(milestone);
+		}
+
+		if (
+			planningStage !== PlanningStage.TARGET &&
+			planningStage !== PlanningStage.PLAN &&
+			planningStage !== PlanningStage.ACTUAL
+		) {
+			// biome-ignore lint/suspicious/noConsole: temporary debugging for unexpected planning stage values
+			console.warn("Ignoring milestone with unsupported planning stage", {
+				flightUniqueId,
+				planningStage,
+				milestone: milestone.milestone,
+				objectId: milestone.position?.objectId,
+			});
 		}
 	}
 

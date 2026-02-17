@@ -3,6 +3,7 @@ import { lineString, point } from "@turf/helpers";
 import { length as turfLength } from "@turf/length";
 import { makeAutoObservable, type ObservableSet, observable } from "mobx";
 import type AircraftStore from "./AircraftStore";
+import { getRouteAheadTrajectory } from "./routeProgress";
 import type SimulatorStore from "./SimulatorStore";
 import type Trajectory from "./Trajectory";
 
@@ -134,6 +135,16 @@ export default class TrajectoryPredictionStore {
 		if (!flightRoute) {
 			return null;
 		}
+		const now = this.simulatorStore.timestamp;
+
+		const aheadTrajectory = getRouteAheadTrajectory({
+			aircraft,
+			route: flightRoute,
+			currentTime: now,
+		});
+		if (aheadTrajectory.length === 0) {
+			return null;
+		}
 
 		// Calculate distance from dragged handle to aircraft
 		const targetDistance = this.getDistanceInMeters(
@@ -147,19 +158,9 @@ export default class TrajectoryPredictionStore {
 		let cumulativeDistance = 0;
 		let prevLat = aircraft.lastKnownLatitude;
 		let prevLon = aircraft.lastKnownLongitude;
-		const now = this.simulatorStore.timestamp;
 		let prevTime = now;
 
-		// Find the first trajectory index that is in the future
-		const firstFutureIndex = flightRoute.trajectory.findIndex(
-			(t) => t.timestamp >= now,
-		);
-		if (firstFutureIndex === -1) {
-			// All trajectories are in the past, return null
-			return null;
-		}
-		for (let i = firstFutureIndex; i < flightRoute.trajectory.length; i++) {
-			const trajectory = flightRoute.trajectory[i];
+		for (const trajectory of aheadTrajectory) {
 			const segmentDistance = this.getDistanceInMeters(
 				prevLat,
 				prevLon,
@@ -170,6 +171,9 @@ export default class TrajectoryPredictionStore {
 			if (cumulativeDistance + segmentDistance >= targetDistance) {
 				// Linear interpolation within this segment
 				const remainingDistance = targetDistance - cumulativeDistance;
+				if (segmentDistance === 0) {
+					return trajectory.timestamp;
+				}
 				const ratio = remainingDistance / segmentDistance;
 				const timeDiff = trajectory.timestamp - prevTime;
 				return prevTime + timeDiff * ratio;
@@ -182,7 +186,7 @@ export default class TrajectoryPredictionStore {
 		}
 
 		// If target distance is beyond route, return last trajectory time
-		return flightRoute.trajectory[flightRoute.trajectory.length - 1].timestamp;
+		return aheadTrajectory[aheadTrajectory.length - 1].timestamp;
 	}
 
 	private getDistanceInMeters(
@@ -236,7 +240,12 @@ export default class TrajectoryPredictionStore {
 			aircraft.assignedFlightId,
 		);
 		if (flightRoute) {
-			for (const t of flightRoute.trajectory) {
+			const aheadTrajectory = getRouteAheadTrajectory({
+				aircraft,
+				route: flightRoute,
+				currentTime,
+			});
+			for (const t of aheadTrajectory) {
 				if (t.timestamp > currentTime && t.timestamp < futureTime) {
 					coords.push([
 						t.trajectoryCoordinate.longitude,
@@ -283,7 +292,12 @@ export default class TrajectoryPredictionStore {
 			return { ...currentPos };
 		}
 
-		const trajectories = flightRoute.trajectory;
+		const trajectories = getRouteAheadTrajectory({
+			aircraft,
+			route: flightRoute,
+			currentTime: now,
+		});
+
 		if (trajectories.length === 0) {
 			return { ...currentPos };
 		}

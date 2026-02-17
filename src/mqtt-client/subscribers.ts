@@ -19,6 +19,7 @@ import {
 	NewPointMessage,
 	NewSectorMessage,
 	PilotRequestMessage,
+	PlanningStage,
 	RoleConfigurationMessage,
 	SimulatorTime,
 	TargetReportMessage,
@@ -37,7 +38,6 @@ import {
 	sectorStore,
 	simulatorStore,
 } from "../state";
-
 export function notFound(
 	_parameters: unknown,
 	message: Buffer,
@@ -122,11 +122,43 @@ export function newSimulatorTime(_parameters: unknown, message: Buffer): void {
 }
 
 export function newFlightMilestonePositions(
-	_parameters: unknown,
+	parameters: unknown,
 	message: Buffer,
 ): void {
-	const protoMessage = FlightMilestonePositionMessage.fromBinary(message);
-	aircraftStore.handleFlightNewMilestonePositions(protoMessage);
+	const routeParams = parameters as {
+		flightUniqueId?: string;
+		planningStage?: string;
+		milestone?: string;
+	};
+
+	try {
+		const protoMessage = FlightMilestonePositionMessage.fromBinary(message);
+
+		const routePlanningStage = routeParams.planningStage?.toLowerCase();
+		let effectivePlanningStage = protoMessage.planningStage;
+		if (routePlanningStage === "actual") {
+			effectivePlanningStage = PlanningStage.ACTUAL;
+		} else if (routePlanningStage === "target") {
+			effectivePlanningStage = PlanningStage.TARGET;
+		} else if (protoMessage.planningStage === PlanningStage.PLAN) {
+			effectivePlanningStage = PlanningStage.TARGET;
+		}
+
+		aircraftStore.handleFlightNewMilestonePositions({
+			...protoMessage,
+			planningStage: effectivePlanningStage,
+		});
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: temporary debugging for decode failures
+		console.error("Failed to decode FlightMilestonePositionMessage", {
+			routeFlightUniqueId: routeParams.flightUniqueId,
+			routePlanningStage: routeParams.planningStage,
+			routeMilestone: routeParams.milestone,
+			payloadBytes: message.length,
+			error,
+		});
+		Sentry.captureException(error);
+	}
 }
 export function newAvailabilitySchedule(
 	_parameters: unknown,

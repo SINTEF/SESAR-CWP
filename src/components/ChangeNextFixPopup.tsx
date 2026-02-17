@@ -204,6 +204,31 @@ export default observer(function ChangeNextFixPopup(properties: {
 		};
 	}, []);
 
+	// Filter fix names for the datalist autocomplete based on manual input
+	const filteredFixNames = React.useMemo(() => {
+		if (!shouldShow || searchTerm.length < 3) {
+			return [];
+		}
+
+		const filtered = [...fixStore.fixes.keys()].filter((fixName) =>
+			fixName.includes(searchTerm),
+		);
+
+		filtered.sort((a, b) => {
+			const aStarts = a.startsWith(searchTerm);
+			const bStarts = b.startsWith(searchTerm);
+			if (aStarts && !bStarts) {
+				return -1;
+			}
+			if (!aStarts && bStarts) {
+				return 1;
+			}
+			return a.localeCompare(b);
+		});
+
+		return filtered;
+	}, [shouldShow, searchTerm]);
+
 	if (!shouldShow) {
 		return null;
 	}
@@ -311,31 +336,6 @@ export default observer(function ChangeNextFixPopup(properties: {
 			setTimeout(updateScrollState, 50);
 		}
 	};
-
-	// Filter fix names for the datalist autocomplete based on manual input
-	const filteredFixNames = React.useMemo(() => {
-		if (!shouldShow || searchTerm.length < 3) {
-			return [];
-		}
-
-		const filtered = [...fixStore.fixes.keys()].filter((fixName) =>
-			fixName.includes(searchTerm),
-		);
-
-		filtered.sort((a, b) => {
-			const aStarts = a.startsWith(searchTerm);
-			const bStarts = b.startsWith(searchTerm);
-			if (aStarts && !bStarts) {
-				return -1;
-			}
-			if (!aStarts && bStarts) {
-				return 1;
-			}
-			return a.localeCompare(b);
-		});
-
-		return filtered;
-	}, [shouldShow, searchTerm]);
 
 	// Filter displayed trajectory fixes based on the text input
 	// (nearby fixes are already filtered in the spatial query)
