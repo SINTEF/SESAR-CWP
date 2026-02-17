@@ -51,6 +51,10 @@ export const FLIGHT_LABEL_COLORS: Record<FlightLabelColorCategory, string> = {
 	grey: "#888888", // Grey - not of interest (semi-transparent grey)
 };
 
+export const SPEED_CHANGE_DISPLAY_UNITS = ["MTN", "KT/M"] as const;
+export type SpeedChangeDisplayUnit =
+	(typeof SPEED_CHANGE_DISPLAY_UNITS)[number];
+
 const CWP_DISPLAY_SETTINGS_STORAGE_KEY = "cwp.display-settings.v1";
 const AGENDA_SCALE_PRESETS = [5, 10, 15, 30, 60, 120, 240] as const;
 
@@ -61,6 +65,7 @@ type PersistedCwpDisplaySettings = {
 	showVerticalWindow?: boolean;
 	showSpeedVectors?: boolean;
 	speedVectorMinutes?: number;
+	speedChangeDisplayUnit?: SpeedChangeDisplayUnit;
 	agendaScaleMinutes?: number;
 };
 
@@ -99,6 +104,8 @@ export default class CWPStore {
 	showControllerSelection = true;
 
 	showSpeedVectors = false;
+
+	speedChangeDisplayUnit: SpeedChangeDisplayUnit = "KT/M";
 
 	aircraftsWithSpeedVectors: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
@@ -285,6 +292,14 @@ export default class CWPStore {
 				this.speedVectorMinutes = parsed.speedVectorMinutes;
 			}
 			if (
+				typeof parsed.speedChangeDisplayUnit === "string" &&
+				SPEED_CHANGE_DISPLAY_UNITS.includes(
+					parsed.speedChangeDisplayUnit as SpeedChangeDisplayUnit,
+				)
+			) {
+				this.speedChangeDisplayUnit = parsed.speedChangeDisplayUnit;
+			}
+			if (
 				typeof parsed.agendaScaleMinutes === "number" &&
 				AGENDA_SCALE_PRESETS.includes(
 					parsed.agendaScaleMinutes as (typeof AGENDA_SCALE_PRESETS)[number],
@@ -310,6 +325,7 @@ export default class CWPStore {
 				showVerticalWindow: this.showVerticalWindow,
 				showSpeedVectors: this.showSpeedVectors,
 				speedVectorMinutes: this.speedVectorMinutes,
+				speedChangeDisplayUnit: this.speedChangeDisplayUnit,
 				agendaScaleMinutes: this.agendaScaleMinutes,
 			}),
 			(displaySettings) => {
@@ -580,6 +596,10 @@ export default class CWPStore {
 
 	setSpeedVectorMinutes(value: number): void {
 		this.speedVectorMinutes = value;
+	}
+
+	setSpeedChangeDisplayUnit(value: SpeedChangeDisplayUnit): void {
+		this.speedChangeDisplayUnit = value;
 	}
 
 	toggleDistanceMeasurement(distanceId: string): void {

@@ -2,33 +2,81 @@ import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import React from "react";
 import type AircraftModel from "../model/AircraftModel";
+import type { SpeedChangeDisplayUnit } from "../model/CwpStore";
 import {
 	changeSpeedOfAircraft,
 	handlePublishPromise,
 	persistSpeedAircraft,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore } from "../state";
-import { formatSpeed } from "../utils";
 
-// formatSpeed() displays speed as deci-knots (e.g. 45 => 450 kt)
-// because it rounds m/s * 0.194384.
+const METERS_PER_SECOND_TO_DECIKNOT = 0.194_384;
 const DECIKNOT_TO_METERS_PER_SECOND = 1 / 0.194_384;
-const MIN_DISPLAY_SPEED = 20; // 200 kt
-const MAX_DISPLAY_SPEED = 60; // 600 kt
+const KNOTS_PER_MACH = 661.47;
+const METERS_PER_SECOND_TO_MACH = 1.943_84 / KNOTS_PER_MACH;
+const MACH_TO_METERS_PER_SECOND = 1 / METERS_PER_SECOND_TO_MACH;
 
-function clampDisplaySpeed(value: number): number {
-	return Math.max(MIN_DISPLAY_SPEED, Math.min(MAX_DISPLAY_SPEED, value));
+const MIN_KTM_SPEED = 20; // 200 kt
+const MAX_KTM_SPEED = 60; // 600 kt
+const MIN_MTN_SPEED = 30; // .30 Mach
+const MAX_MTN_SPEED = 90; // .90 Mach
+
+function clampSpeedForUnit(
+	value: number,
+	unit: SpeedChangeDisplayUnit,
+): number {
+	if (unit === "MTN") {
+		return Math.max(MIN_MTN_SPEED, Math.min(MAX_MTN_SPEED, value));
+	}
+
+	return Math.max(MIN_KTM_SPEED, Math.min(MAX_KTM_SPEED, value));
 }
 
-function toDisplaySpeed(valueInMetersPerSecond: number): number {
-	return clampDisplaySpeed(
-		Number.parseInt(formatSpeed(valueInMetersPerSecond), 10),
+function toDisplaySpeed(
+	valueInMetersPerSecond: number,
+	unit: SpeedChangeDisplayUnit,
+): number {
+	if (unit === "MTN") {
+		return clampSpeedForUnit(
+			Math.round(valueInMetersPerSecond * METERS_PER_SECOND_TO_MACH * 100),
+			unit,
+		);
+	}
+
+	return clampSpeedForUnit(
+		Math.round(valueInMetersPerSecond * METERS_PER_SECOND_TO_DECIKNOT),
+		unit,
 	);
 }
 
-function getAllDisplaySpeeds(): number[] {
+function fromDisplaySpeed(value: number, unit: SpeedChangeDisplayUnit): number {
+	const clampedValue = clampSpeedForUnit(value, unit);
+
+	if (unit === "MTN") {
+		const mach = clampedValue / 100;
+		return mach * MACH_TO_METERS_PER_SECOND;
+	}
+
+	return clampedValue * DECIKNOT_TO_METERS_PER_SECOND;
+}
+
+function formatDisplaySpeed(
+	value: number,
+	unit: SpeedChangeDisplayUnit,
+): string {
+	if (unit === "MTN") {
+		return `.${value.toString().padStart(2, "0")}`;
+	}
+
+	return `${value}`;
+}
+
+function getAllDisplaySpeeds(unit: SpeedChangeDisplayUnit): number[] {
 	const speeds: number[] = [];
-	for (let speed = MAX_DISPLAY_SPEED; speed >= MIN_DISPLAY_SPEED; speed -= 1) {
+	const maxSpeed = unit === "MTN" ? MAX_MTN_SPEED : MAX_KTM_SPEED;
+	const minSpeed = unit === "MTN" ? MIN_MTN_SPEED : MIN_KTM_SPEED;
+
+	for (let speed = maxSpeed; speed >= minSpeed; speed -= 1) {
 		speeds.push(speed);
 	}
 	return speeds;
@@ -37,13 +85,14 @@ function getAllDisplaySpeeds(): number[] {
 function ListOfSpeeds(properties: {
 	selectedSpeed: number;
 	currentSpeed: number;
+	unit: SpeedChangeDisplayUnit;
 	onClick: (speed: number) => void;
 }) {
-	const { selectedSpeed, currentSpeed, onClick } = properties;
+	const { selectedSpeed, currentSpeed, unit, onClick } = properties;
 
 	return (
 		<>
-			{getAllDisplaySpeeds().map((speed) => {
+			{getAllDisplaySpeeds(unit).map((speed) => {
 				const isSelected = speed === selectedSpeed;
 				const isCurrent = speed === currentSpeed;
 
@@ -63,10 +112,12 @@ function ListOfSpeeds(properties: {
 					>
 						{isSelected ? (
 							<>
-								<span>&gt;</span>&nbsp;{speed}&nbsp;<span>&lt;</span>
+								<span>&gt;</span>&nbsp;
+								{formatDisplaySpeed(speed, unit)}
+								&nbsp;<span>&lt;</span>
 							</>
 						) : (
-							speed
+							formatDisplaySpeed(speed, unit)
 						)}
 					</button>
 				);
@@ -89,20 +140,27 @@ export default observer(function ChangeSpeedPopup(properties: {
 		assignedSpeed,
 	} = properties.aircraft;
 
-	const currentSpeedDisplay = toDisplaySpeed(lastKnownSpeed);
-	const defaultSpeedDisplay =
+	const speedDisplayUnit = cwpStore.speedChangeDisplayUnit;
+
+	const defaultSelectedSpeedMetersPerSecond =
 		typeof assignedSpeed === "number" && assignedSpeed >= 0
-			? toDisplaySpeed(assignedSpeed)
-			: currentSpeedDisplay;
-	const [selectedSpeedDisplay, setSelectedSpeedDisplay] =
-		React.useState(defaultSpeedDisplay);
+			? assignedSpeed
+			: lastKnownSpeed;
+	const [selectedSpeedMetersPerSecond, setSelectedSpeedMetersPerSecond] =
+		React.useState(defaultSelectedSpeedMetersPerSecond);
+
+	const currentSpeedDisplay = toDisplaySpeed(lastKnownSpeed, speedDisplayUnit);
+	const selectedSpeedDisplay = toDisplaySpeed(
+		selectedSpeedMetersPerSecond,
+		speedDisplayUnit,
+	);
 	const listReference = React.useRef<HTMLDivElement>(null);
 
 	const shouldShow = cwpStore.aircraftWithSpeedChangePopup.has(aircraftId);
 
 	React.useEffect(() => {
 		if (shouldShow) {
-			setSelectedSpeedDisplay(defaultSpeedDisplay);
+			setSelectedSpeedMetersPerSecond(defaultSelectedSpeedMetersPerSecond);
 			posthog?.capture("speed_popup_opened", {
 				haircraft_id: aircraftId,
 				callsign: callSign,
@@ -112,7 +170,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 		}
 	}, [
 		shouldShow,
-		defaultSpeedDisplay,
+		defaultSelectedSpeedMetersPerSecond,
 		posthog,
 		aircraftId,
 		callSign,
@@ -158,11 +216,16 @@ export default observer(function ChangeSpeedPopup(properties: {
 		});
 	};
 
-	const applySpeed = (nextDisplaySpeed: number): void => {
-		const clampedDisplaySpeed = clampDisplaySpeed(nextDisplaySpeed);
-		const speedMetersPerSecond =
-			clampedDisplaySpeed * DECIKNOT_TO_METERS_PER_SECOND;
+	const applySpeed = (nextSpeedMetersPerSecond: number): void => {
+		const speedMetersPerSecond = Math.max(
+			MIN_KTM_SPEED * DECIKNOT_TO_METERS_PER_SECOND,
+			Math.min(
+				MAX_KTM_SPEED * DECIKNOT_TO_METERS_PER_SECOND,
+				nextSpeedMetersPerSecond,
+			),
+		);
 		const speedKnots = speedMetersPerSecond * 1.943_84;
+		const displaySpeed = toDisplaySpeed(speedMetersPerSecond, speedDisplayUnit);
 
 		setAssignedSpeed(Math.round(speedMetersPerSecond));
 		const pilotId =
@@ -174,7 +237,8 @@ export default observer(function ChangeSpeedPopup(properties: {
 			previous_speed: lastKnownSpeed,
 			new_speed: speedMetersPerSecond,
 			new_speed_knots: speedKnots,
-			display_speed: clampedDisplaySpeed,
+			display_speed: displaySpeed,
+			display_unit: speedDisplayUnit,
 			speed_change: speedMetersPerSecond - lastKnownSpeed,
 			controlled_by: controlledBy,
 			pilot_id: pilotId,
@@ -192,7 +256,14 @@ export default observer(function ChangeSpeedPopup(properties: {
 
 	const changeSpeed = (direction: "up" | "down"): void => {
 		const delta = direction === "up" ? 1 : -1;
-		setSelectedSpeedDisplay((value) => clampDisplaySpeed(value + delta));
+		setSelectedSpeedMetersPerSecond((value) => {
+			const currentDisplaySpeed = toDisplaySpeed(value, speedDisplayUnit);
+			const nextDisplaySpeed = clampSpeedForUnit(
+				currentDisplaySpeed + delta,
+				speedDisplayUnit,
+			);
+			return fromDisplaySpeed(nextDisplaySpeed, speedDisplayUnit);
+		});
 	};
 
 	const handleSpeedClick = (clickedSpeed: number): void => {
@@ -201,11 +272,11 @@ export default observer(function ChangeSpeedPopup(properties: {
 			return;
 		}
 
-		applySpeed(clickedSpeed);
+		applySpeed(fromDisplaySpeed(clickedSpeed, speedDisplayUnit));
 	};
 
 	const submit = (): void => {
-		applySpeed(selectedSpeedDisplay);
+		applySpeed(selectedSpeedMetersPerSecond);
 	};
 
 	return (
@@ -232,6 +303,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 					<ListOfSpeeds
 						selectedSpeed={selectedSpeedDisplay}
 						currentSpeed={currentSpeedDisplay}
+						unit={speedDisplayUnit}
 						onClick={handleSpeedClick}
 					/>
 				</div>
@@ -241,6 +313,26 @@ export default observer(function ChangeSpeedPopup(properties: {
 					className="btn btn-ghost btn-xs text-xs"
 				>
 					▼
+				</button>
+			</div>
+			<div className="flex gap-0.5 mt-1">
+				<button
+					type="button"
+					onClick={(): void => cwpStore.setSpeedChangeDisplayUnit("MTN")}
+					className={`btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2 ${
+						speedDisplayUnit === "MTN" ? "bg-[#4b90db] text-white" : ""
+					}`}
+				>
+					MTN
+				</button>
+				<button
+					type="button"
+					onClick={(): void => cwpStore.setSpeedChangeDisplayUnit("KT/M")}
+					className={`btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2 ${
+						speedDisplayUnit === "KT/M" ? "bg-[#4b90db] text-white" : ""
+					}`}
+				>
+					KT/M
 				</button>
 			</div>
 			<div className="flex gap-0.5 mt-1">
