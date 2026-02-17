@@ -1,6 +1,8 @@
 import { observer } from "mobx-react-lite";
 
+import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
+import { cwpStore } from "../state";
 // import { roleConfigurationStore } from "../state";
 import { formatSpeed, formatVerticalSpeed } from "../utils";
 import {
@@ -20,10 +22,18 @@ export default observer(function AircraftPopupContent(properties: {
 	aircraft: AircraftModel;
 	flightColor: string;
 }) {
+	const { isDragging } = useDragging();
 	const { aircraft, flightColor } = properties;
 	// const currentSector = roleConfigurationStore.currentControlledSector;
 	const { lastKnownSpeed, lastKnownVerticalSpeed, aircraftType, nextSector } =
 		aircraft;
+
+	const openSpeedPopup = (): void => {
+		if (isDragging) {
+			return;
+		}
+		cwpStore.openChangeSpeedForAircraft(aircraft.aircraftId);
+	};
 	// const sectorTimes = currentSector
 	// 	? aircraft.flightInSectorTimes?.get(currentSector)
 	// 	: undefined;
@@ -36,7 +46,12 @@ export default observer(function AircraftPopupContent(properties: {
 		>
 			{/* Line 0 */}
 			<div>
-				<span>{formatSpeed(lastKnownSpeed)}</span>
+				<span
+					onClick={openSpeedPopup}
+					className="hover:outline-2 hover:outline-white cursor-pointer"
+				>
+					{formatSpeed(lastKnownSpeed)}
+				</span>
 				<span className="ml-0.5"></span>
 				<span>{formatVerticalSpeed(lastKnownVerticalSpeed)}</span>
 				<span className="ml-0.5"></span>
