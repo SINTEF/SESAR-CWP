@@ -71,6 +71,10 @@ export default class AircraftModel {
 
 	milestoneTargetObjectId: string | undefined;
 
+	lastPassedMilestoneTimestamp = 0;
+
+	lastPassedMilestoneObjectId: string | undefined;
+
 	assignedFlightLevel = "FL.S";
 
 	assignedBearing: number | undefined;
@@ -186,6 +190,8 @@ export default class AircraftModel {
 			controlledBy: observable,
 			nextSectorController: observable,
 			milestoneTargetObjectId: observable,
+			lastPassedMilestoneTimestamp: observable,
+			lastPassedMilestoneObjectId: observable,
 			assignedFlightLevel: observable,
 			assignedBearing: observable,
 			assignedSpeed: observable,
@@ -204,6 +210,7 @@ export default class AircraftModel {
 
 			nextFix: computed,
 			nextNav: computed,
+			upcomingRouteFixes: computed,
 			nextSectorInfo: computed,
 			nextSector: computed,
 			nextSectorExitPoint: computed,
@@ -214,6 +221,7 @@ export default class AircraftModel {
 
 			handleTargetReport: action.bound,
 			handleTargetMilestone: action.bound,
+			handleActualMilestone: action.bound,
 			setController: action.bound,
 			setAssignedFlightLevel: action.bound,
 			setNextSectorController: action.bound,
@@ -307,6 +315,21 @@ export default class AircraftModel {
 		}
 	}
 
+	handleActualMilestone(milestone: FlightMilestonePositionMessage): void {
+		const { timeStampSent, position } = milestone;
+		if (!timeStampSent || !position?.objectId) {
+			return;
+		}
+
+		const timestamp = convertTimestamp(timeStampSent);
+		if (timestamp < this.lastPassedMilestoneTimestamp) {
+			return;
+		}
+
+		this.lastPassedMilestoneTimestamp = timestamp;
+		this.lastPassedMilestoneObjectId = position.objectId;
+	}
+
 	setController(controller: string): void {
 		this.controlledBy = controller;
 	}
@@ -328,24 +351,49 @@ export default class AircraftModel {
 	 * This is the first future trajectory point that has a name (objectId).
 	 */
 	get nextNav(): string {
-		const flightRoute = this.flightRoutes.get(this.assignedFlightId);
-		if (!flightRoute || flightRoute.trajectory.length === 0) {
-			return this.arrivalAirport ?? "UNKNOWN";
-		}
-
-		const currentTime = this.simulatorStore.timestamp;
-		const trajectories = flightRoute.trajectory;
-
-		// Find the first future trajectory point with a name
-		const nextNavPoint = trajectories.find(
-			(t) => t.timestamp >= currentTime && t.objectId,
-		);
-
-		if (nextNavPoint?.objectId) {
-			return nextNavPoint.objectId;
+		const [firstUpcomingFix] = this.upcomingRouteFixes;
+		if (firstUpcomingFix) {
+			return firstUpcomingFix;
 		}
 
 		return this.arrivalAirport ?? "UNKNOWN";
+	}
+
+	get upcomingRouteFixes(): string[] {
+		const flightRoute = this.flightRoutes.get(this.assignedFlightId);
+		if (!flightRoute || flightRoute.trajectory.length === 0) {
+			return [];
+		}
+
+		const trajectories = flightRoute.trajectory;
+
+		if (this.lastPassedMilestoneObjectId) {
+			let passedIndex = -1;
+
+			for (let index = 0; index < trajectories.length; index++) {
+				const trajectory = trajectories[index];
+				if (trajectory.objectId === this.lastPassedMilestoneObjectId) {
+					if (trajectory.timestamp <= this.simulatorStore.timestamp) {
+						passedIndex = index;
+					}
+				}
+			}
+
+			if (passedIndex >= 0) {
+				return trajectories
+					.slice(passedIndex + 1)
+					.filter((trajectory) => trajectory.objectId)
+					.map((trajectory) => trajectory.objectId as string);
+			}
+		}
+
+		const currentTime = this.simulatorStore.timestamp;
+		return trajectories
+			.filter(
+				(trajectory) =>
+					trajectory.objectId && trajectory.timestamp >= currentTime,
+			)
+			.map((trajectory) => trajectory.objectId as string);
 	}
 
 	/**

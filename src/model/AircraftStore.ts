@@ -268,35 +268,37 @@ export default class AircraftStore {
 	handleFlightNewMilestonePositions(
 		milestone: FlightMilestonePositionMessage,
 	): void {
-		const { planningStage } = milestone;
+		const { planningStage, flightUniqueId } = milestone;
+
+		// find the aircraft in this.aircrafts map with
+		// an assignedFlightId matching the flightUniqueId
+		let aircraft;
+		for (const potentialAircraft of this.aircrafts.values()) {
+			if (potentialAircraft.assignedFlightId === flightUniqueId) {
+				aircraft = potentialAircraft;
+				break;
+			}
+		}
+
+		if (!aircraft) {
+			// biome-ignore lint/suspicious/noConsole: needed for now
+			console.warn(
+				"Received milestone position for unknown aircraft",
+				flightUniqueId,
+			);
+			Sentry.captureMessage(
+				`Received milestone position for unknown aircraft: ${flightUniqueId}`,
+				"warning",
+			);
+			return;
+		}
 
 		if (planningStage === PlanningStage.TARGET) {
-			const { flightUniqueId } = milestone;
-
-			// find the aircraft in the this.aircrafts map with
-			// an assignedFlightId matching the flightUniqueId
-			let aircraft;
-			for (const potentialAircraft of this.aircrafts.values()) {
-				if (potentialAircraft.assignedFlightId === flightUniqueId) {
-					aircraft = potentialAircraft;
-					break;
-				}
-			}
-
-			if (!aircraft) {
-				// biome-ignore lint/suspicious/noConsole: needed for now
-				console.warn(
-					"Received milestone position for unknown aircraft",
-					flightUniqueId,
-				);
-				Sentry.captureMessage(
-					`Received milestone position for unknown aircraft: ${flightUniqueId}`,
-					"warning",
-				);
-				return;
-			}
-
 			aircraft.handleTargetMilestone(milestone);
+		}
+
+		if (planningStage === PlanningStage.ACTUAL) {
+			aircraft.handleActualMilestone(milestone);
 		}
 	}
 

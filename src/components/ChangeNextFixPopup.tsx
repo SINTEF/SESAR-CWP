@@ -6,13 +6,7 @@ import {
 	changeNextWaypointOfAircraft,
 	handlePublishPromise,
 } from "../mqtt-client/publishers";
-import {
-	aircraftStore,
-	configurationStore,
-	cwpStore,
-	fixStore,
-	simulatorStore,
-} from "../state";
+import { configurationStore, cwpStore, fixStore } from "../state";
 
 /** Sub-component that displays the list of trajectory fixes as clickable buttons */
 function ListOfFixes(properties: {
@@ -84,18 +78,9 @@ export default observer(function ChangeNextFixPopup(properties: {
 
 	const shouldShow = cwpStore.aircraftsWithNextFixPopup.has(aircraftId);
 
-	// Get trajectory fixes for this aircraft
-	const flightRoute = aircraftStore.flightRoutes.get(assignedFlightId);
-	const currentTime = simulatorStore.timestamp;
-	const trajectoryFixes = React.useMemo(() => {
-		if (!flightRoute) {
-			return [];
-		}
-		// Filter trajectory points that have a fix name (objectId) and are in the future
-		return flightRoute.trajectory
-			.filter((t) => t.objectId && t.timestamp >= currentTime)
-			.map((t) => t.objectId as string);
-	}, [flightRoute, currentTime]);
+	// Upcoming route fixes are computed in the model using ACTUAL milestone events
+	// with timestamp fallback when no event has been received yet.
+	const trajectoryFixes = properties.aircraft.upcomingRouteFixes;
 
 	// Build exclude set for trajectory fixes (stable reference for filter function)
 	const trajectoryFixSet = React.useMemo(
