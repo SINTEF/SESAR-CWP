@@ -161,6 +161,8 @@ export default class AircraftStore {
 					aircraftId: id,
 					assignedFlightId: newFlight.flightUniqueId,
 					callSign: newFlight.callSign,
+					airlineIcaoCode: newFlight.airlineIcaoCode,
+					airlineCallSign: newFlight.airlineCallSign,
 					arrivalAirport: newFlight.arrivalAirport,
 					departureAirport: newFlight.departureAirport,
 					aircraftInfo: this.aircraftInfo,

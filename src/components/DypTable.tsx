@@ -65,10 +65,6 @@ export default observer(function DypTable(/* properties */) {
 		latestSelectedAircraftData?.aircraftInfo.get(
 			latestSelectedAircraftData.aircraftId,
 		)?.aircraftType;
-	const latestSelectedAircraftClass =
-		latestSelectedAircraftData?.aircraftTypes.get(
-			lastestSelectedAircraftType || "",
-		)?.vehicleTypeId;
 	// if (!latestSelectedAircraftData || !latestSelectedAircraft) {
 	// 	return null;
 	// }
@@ -145,7 +141,7 @@ export default observer(function DypTable(/* properties */) {
 								</strong>
 							</td>
 							<td className="bg-slate-800 px-1 py-1.5">
-								{latestSelectedAircraftClass || "AEROFLOT"}
+								{latestSelectedAircraftData?.airlineCallSign || ""}
 							</td>
 							<td className="bg-slate-800 px-1 py-1.5"></td>
 							<td className="bg-slate-800 px-1 py-1.5">
