@@ -77,10 +77,10 @@ export default observer(function DypTable(/* properties */) {
 		selectedAircraftIds: [
 			latestSelectedAircraftData?.aircraftId,
 		] as unknown as ObservableSet<string>,
-	}).map(({ aircraft, route }) => ({
+	}).map(({ aircraft, trajectory }) => ({
 		aircraftId: aircraft.aircraftId,
 		callSign: aircraft.callSign,
-		trajectories: route.trajectory
+		trajectories: trajectory
 			// Get the trajectories only within the xDomain period (1h)
 			.filter(
 				(trajectory) =>

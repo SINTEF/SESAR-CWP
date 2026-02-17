@@ -13,6 +13,7 @@ import type AircraftType from "./AircraftType";
 import convertTimestamp from "./convertTimestamp";
 import FlightInSectorModel from "./FlightInSectorModel";
 import type FlightRoute from "./FlightRoute";
+import { getUpcomingRouteFixes } from "./routeProgress";
 import type SectorStore from "./SectorStore";
 import type SimulatorStore from "./SimulatorStore";
 import type Trajectory from "./Trajectory";
@@ -335,11 +336,7 @@ export default class AircraftModel {
 	}
 
 	get nextFix(): string {
-		const simulatorTimestamp = this.simulatorStore.timestamp;
-		if (
-			this.milestoneTargetObjectId &&
-			this.milestoneTargetTimestamp >= simulatorTimestamp
-		) {
+		if (this.milestoneTargetObjectId) {
 			return this.milestoneTargetObjectId;
 		}
 
@@ -365,35 +362,11 @@ export default class AircraftModel {
 			return [];
 		}
 
-		const trajectories = flightRoute.trajectory;
-
-		if (this.lastPassedMilestoneObjectId) {
-			let passedIndex = -1;
-
-			for (let index = 0; index < trajectories.length; index++) {
-				const trajectory = trajectories[index];
-				if (trajectory.objectId === this.lastPassedMilestoneObjectId) {
-					if (trajectory.timestamp <= this.simulatorStore.timestamp) {
-						passedIndex = index;
-					}
-				}
-			}
-
-			if (passedIndex >= 0) {
-				return trajectories
-					.slice(passedIndex + 1)
-					.filter((trajectory) => trajectory.objectId)
-					.map((trajectory) => trajectory.objectId as string);
-			}
-		}
-
-		const currentTime = this.simulatorStore.timestamp;
-		return trajectories
-			.filter(
-				(trajectory) =>
-					trajectory.objectId && trajectory.timestamp >= currentTime,
-			)
-			.map((trajectory) => trajectory.objectId as string);
+		return getUpcomingRouteFixes({
+			aircraft: this,
+			route: flightRoute,
+			currentTime: this.simulatorStore.timestamp,
+		});
 	}
 
 	/**
@@ -411,29 +384,25 @@ export default class AircraftModel {
 			return undefined;
 		}
 
-		const currentTime = this.simulatorStore.timestamp;
 		const trajectories = flightRoute.trajectory;
 
-		// Find the current sector by looking at the position before or at current time
-		// We need to determine what sector the aircraft is currently in
+		// Determine what sector the aircraft is currently in from current position
 		const currentSector = this.sectorStore.findSector(
 			this.lastKnownLongitude,
 			this.lastKnownLatitude,
 		);
 		const currentSectorId = currentSector?.sectorId;
 
-		// Find the first future waypoint index (after current time)
-		const firstFutureIndex = trajectories.findIndex(
-			(t) => t.timestamp >= currentTime,
-		);
-
-		// If all waypoints are in the past, no next sector
-		if (firstFutureIndex === -1) {
-			return undefined;
+		let startIndex = 0;
+		if (this.lastPassedMilestoneObjectId) {
+			for (let i = 0; i < trajectories.length; i++) {
+				if (trajectories[i].objectId === this.lastPassedMilestoneObjectId) {
+					startIndex = i + 1;
+				}
+			}
 		}
 
-		// Iterate through future waypoints and find the first one in a different sector
-		for (let i = firstFutureIndex; i < trajectories.length; i++) {
+		for (let i = startIndex; i < trajectories.length; i++) {
 			const waypoint = trajectories[i];
 			const waypointSector = this.sectorStore.findSector(
 				waypoint.trajectoryCoordinate.longitude,
@@ -498,13 +467,18 @@ export default class AircraftModel {
 			return undefined;
 		}
 
-		const entryTimestamp = info.trajectoryPoint.timestamp;
 		const trajectories = flightRoute.trajectory;
 
-		// Find the first trajectory point after the entry point that has an objectId
-		const nextNamedPoint = trajectories.find(
-			(t) => t.timestamp > entryTimestamp && t.objectId,
+		const entryIndex = trajectories.findIndex(
+			(trajectory) => trajectory === info.trajectoryPoint,
 		);
+		if (entryIndex === -1) {
+			return undefined;
+		}
+
+		const nextNamedPoint = trajectories
+			.slice(entryIndex + 1)
+			.find((trajectory) => trajectory.objectId);
 
 		return nextNamedPoint?.objectId;
 	}
