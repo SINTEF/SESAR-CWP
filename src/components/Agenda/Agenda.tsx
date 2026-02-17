@@ -110,13 +110,13 @@ export default observer(function Agenda({
 	events?: TimelineEvent[];
 }) {
 	const posthog = usePostHog();
-	const [scaleMinutes, setScaleMinutes] = useState<ScalePreset>(30);
+	const scaleMinutes = cwpStore.agendaScaleMinutes as ScalePreset;
 	const [containerHeight, setContainerHeight] = useState(600);
 	const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
 	const timelineContainerRef = useRef<HTMLDivElement | null>(null);
 	// Track whether we should animate positions (only on scale change, not on drag)
 	const [animatePosition, setAnimatePosition] = useState(true);
-	const prevScaleRef = useRef<ScalePreset>(scaleMinutes);
+	const prevScaleRef = useRef(scaleMinutes);
 	// Track if any card is being dragged (to disable hover on other cards)
 	const [isDraggingAny, setIsDraggingAny] = useState(false);
 
@@ -140,7 +140,7 @@ export default observer(function Agenda({
 				(preset) => preset >= requestedMinutes,
 			);
 			if (requiredScale && requiredScale > scaleMinutes) {
-				setScaleMinutes(requiredScale);
+				cwpStore.setAgendaScaleMinutes(requiredScale);
 			}
 			cwpStore.clearRequestedAgendaScale();
 		}
@@ -190,29 +190,23 @@ export default observer(function Agenda({
 				const direction = accumulatedDelta > 0 ? 1 : -1;
 				// Reset accumulator after triggering
 				accumulatedDelta = 0;
+				const currentIndex = SCALE_PRESETS.indexOf(scaleMinutes);
+				let newScale = scaleMinutes;
+				if (direction > 0) {
+					newScale =
+						SCALE_PRESETS[Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)];
+				} else {
+					newScale = SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
+				}
 
-				setScaleMinutes((current) => {
-					const currentIndex = SCALE_PRESETS.indexOf(current);
-					let newScale: ScalePreset;
-					if (direction > 0) {
-						// Scroll down = zoom out (more minutes visible)
-						newScale =
-							SCALE_PRESETS[
-								Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
-							];
-					} else {
-						// Scroll up = zoom in (fewer minutes visible)
-						newScale = SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
-					}
-					if (newScale !== current) {
-						posthog.capture("agenda_scale_changed", {
-							previous_scale: current,
-							new_scale: newScale,
-							method: "wheel",
-						});
-					}
-					return newScale;
-				});
+				if (newScale !== scaleMinutes) {
+					posthog.capture("agenda_scale_changed", {
+						previous_scale: scaleMinutes,
+						new_scale: newScale,
+						method: "wheel",
+					});
+					cwpStore.setAgendaScaleMinutes(newScale);
+				}
 			}
 
 			// Reset accumulator after a pause in scrolling
@@ -228,7 +222,7 @@ export default observer(function Agenda({
 				clearTimeout(resetTimeout);
 			}
 		};
-	}, []);
+	}, [posthog, scaleMinutes]);
 
 	// Pixels per minute based on container height (minus padding) and scale
 	const effectiveHeight = containerHeight - BOTTOM_PADDING_PX;
@@ -308,7 +302,7 @@ export default observer(function Agenda({
 				method: "slider",
 			});
 		}
-		setScaleMinutes(newScale);
+		cwpStore.setAgendaScaleMinutes(newScale);
 	};
 
 	// Handle time offset changes from dragging events

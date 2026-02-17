@@ -1,5 +1,5 @@
 import type { ObservableMap, ObservableSet } from "mobx";
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, reaction } from "mobx";
 
 import AltitudeFilter from "./AltitudeFilter";
 
@@ -49,6 +49,19 @@ export const FLIGHT_LABEL_COLORS: Record<FlightLabelColorCategory, string> = {
 	lightGreen: "#CCFF00", // Light green - imminent entry (configurable time window)
 	green: "#78e251", // Green - anticipated entry
 	grey: "#888888", // Grey - not of interest (semi-transparent grey)
+};
+
+const CWP_DISPLAY_SETTINGS_STORAGE_KEY = "cwp.display-settings.v1";
+const AGENDA_SCALE_PRESETS = [5, 10, 15, 30, 60, 120, 240] as const;
+
+type PersistedCwpDisplaySettings = {
+	showFixes?: boolean;
+	showAirways?: boolean;
+	showSectorLabels?: boolean;
+	showVerticalWindow?: boolean;
+	showSpeedVectors?: boolean;
+	speedVectorMinutes?: number;
+	agendaScaleMinutes?: number;
 };
 
 export default class CWPStore {
@@ -151,6 +164,8 @@ export default class CWPStore {
 	 */
 	requestedAgendaScaleMinutes: number | null = null;
 
+	agendaScaleMinutes = 30;
+
 	activeMeasurements: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
@@ -232,6 +247,92 @@ export default class CWPStore {
 		);
 		this.altitudeFilter = new AltitudeFilter(altitudeFilter);
 		this.isCWPDisabledIn3DView = this.isCWPDisabledIn3DView.bind(this);
+		this.hydrateDisplaySettingsFromLocalStorage();
+		this.setupDisplaySettingsPersistence();
+	}
+
+	private hydrateDisplaySettingsFromLocalStorage(): void {
+		if (typeof window === "undefined") {
+			return;
+		}
+
+		try {
+			const rawValue = window.localStorage.getItem(
+				CWP_DISPLAY_SETTINGS_STORAGE_KEY,
+			);
+			if (!rawValue) {
+				return;
+			}
+
+			const parsed = JSON.parse(rawValue) as PersistedCwpDisplaySettings;
+
+			if (typeof parsed.showFixes === "boolean") {
+				this.showFixes = parsed.showFixes;
+			}
+			if (typeof parsed.showAirways === "boolean") {
+				this.showAirways = parsed.showAirways;
+			}
+			if (typeof parsed.showSectorLabels === "boolean") {
+				this.showSectorLabels = parsed.showSectorLabels;
+			}
+			if (typeof parsed.showVerticalWindow === "boolean") {
+				this.showVerticalWindow = parsed.showVerticalWindow;
+			}
+			if (typeof parsed.showSpeedVectors === "boolean") {
+				this.showSpeedVectors = parsed.showSpeedVectors;
+			}
+			if (typeof parsed.speedVectorMinutes === "number") {
+				this.speedVectorMinutes = parsed.speedVectorMinutes;
+			}
+			if (
+				typeof parsed.agendaScaleMinutes === "number" &&
+				AGENDA_SCALE_PRESETS.includes(
+					parsed.agendaScaleMinutes as (typeof AGENDA_SCALE_PRESETS)[number],
+				)
+			) {
+				this.agendaScaleMinutes = parsed.agendaScaleMinutes;
+			}
+		} catch {
+			// Ignore invalid or unavailable persisted settings and keep defaults
+		}
+	}
+
+	private setupDisplaySettingsPersistence(): void {
+		if (typeof window === "undefined") {
+			return;
+		}
+
+		reaction(
+			() => ({
+				showFixes: this.showFixes,
+				showAirways: this.showAirways,
+				showSectorLabels: this.showSectorLabels,
+				showVerticalWindow: this.showVerticalWindow,
+				showSpeedVectors: this.showSpeedVectors,
+				speedVectorMinutes: this.speedVectorMinutes,
+				agendaScaleMinutes: this.agendaScaleMinutes,
+			}),
+			(displaySettings) => {
+				try {
+					window.localStorage.setItem(
+						CWP_DISPLAY_SETTINGS_STORAGE_KEY,
+						JSON.stringify(displaySettings),
+					);
+				} catch {
+					// Ignore unavailable localStorage (private mode, quotas, etc.)
+				}
+			},
+		);
+	}
+
+	setAgendaScaleMinutes(minutes: number): void {
+		if (
+			AGENDA_SCALE_PRESETS.includes(
+				minutes as (typeof AGENDA_SCALE_PRESETS)[number],
+			)
+		) {
+			this.agendaScaleMinutes = minutes;
+		}
 	}
 
 	toggleFixes(): void {
