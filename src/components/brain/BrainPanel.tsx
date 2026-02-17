@@ -76,12 +76,12 @@ export default observer(function BrainPanel() {
 				width="3em"
 				height="3em"
 				viewBox="0 0 24 24"
-				stroke-width="1"
+				strokeWidth="1"
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 				stroke="white"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className="absolute right-1 top-1 opacity-25 pointer-events-none"
 			>
 				<path d="M7 14C5.34315 14 4 15.3431 4 17C4 18.6569 5.34315 20 7 20C7.35064 20 7.68722 19.9398 8 19.8293"></path>
