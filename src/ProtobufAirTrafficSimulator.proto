@@ -459,6 +459,8 @@ message NewFlightMessage {
   string departureAirport = 4;  // The ICAO code for the airport the flight departs from.
   string arrivalAirport   = 5;  // The ICAO code for the destination airport of the flight.
   string aircraftId       = 6;  // The unique id of the aircraft that performs the flight.
+  string airlineIcaoCode  = 7;  // The ICAO code of the airline that performs the flight.
+  string airlineCallSign  = 8;  // The callsign of the airline that performs the flight.
 }
 
 // Event used to inform the MadMan Library about a change in status code for a flight.
@@ -629,7 +631,7 @@ message NewAirspaceVolumeFlightListMessage {
 }
 message AirTrafficControllerAssignmentMessage{
   string airTrafficControllerId = 1;
-  repeated string sectorIds = 2; 
+  repeated string sectorIds = 2;
 }
 
 message FlightEnteringAirspaceMessage {
@@ -701,9 +703,9 @@ enum PilotRequestStatus {
 }
 
 enum TaskStatus {
-  TS_PENDING    = 0; 
-  TS_SUCCESS    = 1; 
-  TS_FAILED     = 2; 
+  TS_PENDING    = 0;
+  TS_SUCCESS    = 1;
+  TS_FAILED     = 2;
 }
 
 message TaskMessage {

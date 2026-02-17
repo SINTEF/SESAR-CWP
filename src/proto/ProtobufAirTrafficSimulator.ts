@@ -579,6 +579,14 @@ export interface NewFlightMessage {
      * @generated from protobuf field: string aircraftId = 6
      */
     aircraftId: string; // The unique id of the aircraft that performs the flight.
+    /**
+     * @generated from protobuf field: string airlineIcaoCode = 7
+     */
+    airlineIcaoCode: string; // The ICAO code of the airline that performs the flight.
+    /**
+     * @generated from protobuf field: string airlineCallSign = 8
+     */
+    airlineCallSign: string; // The callsign of the airline that performs the flight.
 }
 /**
  * Event used to inform the MadMan Library about a change in status code for a flight.
@@ -3826,7 +3834,9 @@ class NewFlightMessage$Type extends MessageType<NewFlightMessage> {
             { no: 3, name: "callSign", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 4, name: "departureAirport", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 5, name: "arrivalAirport", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 6, name: "aircraftId", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 6, name: "aircraftId", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 7, name: "airlineIcaoCode", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 8, name: "airlineCallSign", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<NewFlightMessage>): NewFlightMessage {
@@ -3837,6 +3847,8 @@ class NewFlightMessage$Type extends MessageType<NewFlightMessage> {
         message.departureAirport = "";
         message.arrivalAirport = "";
         message.aircraftId = "";
+        message.airlineIcaoCode = "";
+        message.airlineCallSign = "";
         if (value !== undefined)
             reflectionMergePartial<NewFlightMessage>(this, message, value);
         return message;
@@ -3863,6 +3875,12 @@ class NewFlightMessage$Type extends MessageType<NewFlightMessage> {
                     break;
                 case /* string aircraftId */ 6:
                     message.aircraftId = reader.string();
+                    break;
+                case /* string airlineIcaoCode */ 7:
+                    message.airlineIcaoCode = reader.string();
+                    break;
+                case /* string airlineCallSign */ 8:
+                    message.airlineCallSign = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -3894,6 +3912,12 @@ class NewFlightMessage$Type extends MessageType<NewFlightMessage> {
         /* string aircraftId = 6; */
         if (message.aircraftId !== "")
             writer.tag(6, WireType.LengthDelimited).string(message.aircraftId);
+        /* string airlineIcaoCode = 7; */
+        if (message.airlineIcaoCode !== "")
+            writer.tag(7, WireType.LengthDelimited).string(message.airlineIcaoCode);
+        /* string airlineCallSign = 8; */
+        if (message.airlineCallSign !== "")
+            writer.tag(8, WireType.LengthDelimited).string(message.airlineCallSign);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

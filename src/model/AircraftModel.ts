@@ -41,6 +41,10 @@ export default class AircraftModel {
 
 	callSign: string;
 
+	airlineIcaoCode: string;
+
+	airlineCallSign: string;
+
 	lastKnownLongitude = 0;
 
 	lastKnownLatitude = 0;
@@ -137,6 +141,8 @@ export default class AircraftModel {
 		aircraftId,
 		assignedFlightId,
 		callSign,
+		airlineIcaoCode,
+		airlineCallSign,
 		arrivalAirport,
 		departureAirport,
 		aircraftInfo,
@@ -148,6 +154,8 @@ export default class AircraftModel {
 		aircraftId: string;
 		assignedFlightId: string;
 		callSign: string;
+		airlineIcaoCode: string;
+		airlineCallSign: string;
 		arrivalAirport: string;
 		departureAirport: string;
 		aircraftInfo: ObservableMap<string, AircraftInfo>;
@@ -221,6 +229,8 @@ export default class AircraftModel {
 		this.aircraftId = aircraftId;
 		this.assignedFlightId = assignedFlightId;
 		this.callSign = callSign;
+		this.airlineIcaoCode = airlineIcaoCode;
+		this.airlineCallSign = airlineCallSign;
 		this.arrivalAirport = arrivalAirport;
 		this.departureAirport = departureAirport;
 		this.aircraftInfo = aircraftInfo;
@@ -484,13 +494,21 @@ export default class AircraftModel {
 	}
 
 	handleNewFlightUpdate(newFlight: NewFlightMessage): void {
-		const { flightUniqueId, callSign, arrivalAirport, departureAirport } =
-			newFlight;
+		const {
+			flightUniqueId,
+			callSign,
+			arrivalAirport,
+			departureAirport,
+			airlineIcaoCode,
+			airlineCallSign,
+		} = newFlight;
 
 		this.assignedFlightId = flightUniqueId;
 		this.callSign = callSign;
 		this.arrivalAirport = arrivalAirport;
 		this.departureAirport = departureAirport;
+		this.airlineIcaoCode = airlineIcaoCode;
+		this.airlineCallSign = airlineCallSign;
 	}
 
 	get wakeTurbulenceCategory(): WakeTurbulenceCategory {
