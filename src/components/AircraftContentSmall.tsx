@@ -1,6 +1,8 @@
 import { observer } from "mobx-react-lite";
 import { JSX } from "react";
+import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
+import { cwpStore } from "../state";
 import { formatSpeed } from "../utils";
 import {
 	Altitude,
@@ -17,8 +19,16 @@ export default observer(function AircraftContentSmall(properties: {
 	flightColor: string;
 	width: number;
 }) {
+	const { isDragging } = useDragging();
 	const { aircraft, flightColor } = properties;
 	const { lastKnownSpeed, assignedBearing, lastKnownBearing } = aircraft;
+
+	const openSpeedPopup = (): void => {
+		if (isDragging) {
+			return;
+		}
+		cwpStore.openChangeSpeedForAircraft(aircraft.aircraftId);
+	};
 
 	const displayBearing = (): JSX.Element | null => {
 		const hasBearingAssigned =
@@ -48,7 +58,12 @@ export default observer(function AircraftContentSmall(properties: {
 		>
 			{/* Line 0 */}
 			<div>
-				<span>{formatSpeed(lastKnownSpeed)}</span>
+				<span
+					onClick={openSpeedPopup}
+					className="hover:outline-2 hover:outline-white cursor-pointer"
+				>
+					{formatSpeed(lastKnownSpeed)}
+				</span>
 				<span className="ml-1">&nbsp;&nbsp;</span>
 				<span>{aircraft.aircraftType}</span>
 			</div>
