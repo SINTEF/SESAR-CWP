@@ -203,9 +203,9 @@ export function LevelChangeGoalRows({
 	if (!goal.results) {
 		return null;
 	}
-	if (!isAP2 && goal.requestedValue !== requestParameter) {
-		return null;
-	}
+	// if (!isAP2 && goal.requestedValue !== requestParameter) {
+	// 	return null;
+	// }
 
 	// FMP status
 	const fmpIsOk =
@@ -224,60 +224,63 @@ export function LevelChangeGoalRows({
 			: goal.results.exit_problems_are_manageable; // green or red
 
 	return (
-		<React.Fragment key={index}>
-			{/* TCT row */}
-			<tr>
-				<td className="text-xs" colSpan={2}>
-					{getStatusColor(goal.results.traffic_complexity_manageable)} {"< 2 "}
-					TCT {goal.requestedValue}
-				</td>
-			</tr>
-
-			{/* FMP row */}
-			<tr>
-				<td className="pr-1" colSpan={2}>
-					{getStatusColor(fmpIsOk)} FMP {goal.requestedValue}
-				</td>
-			</tr>
-			{!fmpIsOk && (
-				<>
-					<tr>
-						<td className="text-xs" colSpan={2}>
-							{getStatusColor(goal.results.next_sector_capacity_ok)}{" "}
-							{goal.nextSector}
-						</td>
-					</tr>
-					<tr>
-						<td className="text-xs" colSpan={2}>
-							{getStatusColor(!goal.results.altitude_restriction)} LOA
-						</td>
-					</tr>
-				</>
-			)}
-
-			{/* Exit status rows */}
-			<tr>
-				<td className="text-xs" colSpan={2}>
-					{getStatusColor(exitStatusColor)} {goal.nextSector} MTCD{" "}
-					{goal.requestedValue}
-				</td>
-			</tr>
-			<tr>
-				<td className="text-xs" colSpan={2}>
-					{getStatusColor(goal.results.is_conform_to_flight_plan)} FLP{" "}
-					{goal.requestedValue}
-				</td>
-			</tr>
-
-			{/* Separator between goals in AP2 mode */}
-			{isAP2 && index < totalGoals - 1 && (
+		(goal.requestedValue === requestParameter || isAP2) && (
+			<React.Fragment key={index}>
+				{/* TCT row */}
 				<tr>
-					<td colSpan={2}>
-						<hr className="border-t border-white/30 mr-2 ml-0" />
+					<td className="text-xs" colSpan={2}>
+						{getStatusColor(goal.results.traffic_complexity_manageable)}{" "}
+						{"< 2 "}
+						TCT {goal.requestedValue}
 					</td>
 				</tr>
-			)}
-		</React.Fragment>
+
+				{/* FMP row */}
+				<tr>
+					<td className="pr-1" colSpan={2}>
+						{getStatusColor(fmpIsOk)} FMP {goal.requestedValue}
+					</td>
+				</tr>
+				{!fmpIsOk && (
+					<>
+						<tr>
+							<td className="text-xs" colSpan={2}>
+								{getStatusColor(goal.results.next_sector_capacity_ok)}{" "}
+								{goal.nextSector}
+							</td>
+						</tr>
+						<tr>
+							<td className="text-xs" colSpan={2}>
+								{getStatusColor(!goal.results.altitude_restriction)} LOA
+							</td>
+						</tr>
+					</>
+				)}
+
+				{/* Exit status rows */}
+				<tr>
+					<td className="text-xs" colSpan={2}>
+						{getStatusColor(exitStatusColor)} {goal.nextSector} MTCD{" "}
+						{goal.requestedValue}
+					</td>
+				</tr>
+				<tr>
+					<td className="text-xs" colSpan={2}>
+						{getStatusColor(goal.results.is_conform_to_flight_plan)} FLP{" "}
+						{goal.requestedValue}
+					</td>
+				</tr>
+
+				{/* Separator between goals in AP2 mode */}
+				{isAP2 && index < totalGoals - 1 && (
+					<tr>
+						<td colSpan={2}>
+							<hr className="border-t border-white/30 mr-2 ml-0" />
+						</td>
+					</tr>
+				)}
+			</React.Fragment>
+		)
 	);
 }
 
@@ -295,25 +298,23 @@ export function HeadingGoalRow({
 	isAP2: boolean;
 	requestParameter: number | string;
 }) {
-	if (!isAP2 && goal.requestedValue !== requestParameter) {
-		return null;
-	}
-
 	const noConflicts = goal.inSectorConflicts?.length === 0;
 	return (
-		<React.Fragment key={index}>
-			<tr>
-				<td className="text-xs" colSpan={2}>
-					{getStatusColor(noConflicts)} TCT
-				</td>
-			</tr>
-			{isAP2 && index < totalGoals - 1 && (
+		(goal.requestedValue === requestParameter || isAP2) && (
+			<React.Fragment key={index}>
 				<tr>
-					<td colSpan={2}>
-						<hr className="border-t border-white/30 mr-2 ml-0" />
+					<td className="text-xs" colSpan={2}>
+						{getStatusColor(noConflicts)} TCT
 					</td>
 				</tr>
-			)}
-		</React.Fragment>
+				{isAP2 && index < totalGoals - 1 && (
+					<tr>
+						<td colSpan={2}>
+							<hr className="border-t border-white/30 mr-2 ml-0" />
+						</td>
+					</tr>
+				)}
+			</React.Fragment>
+		)
 	);
 }

@@ -23,10 +23,12 @@ export default observer(function TaHoveredSmall(properties: {
 	requestTypeIcon: string;
 	request: TeamAssistantRequest;
 	width: number;
+	autonomyProfile: number;
 }) {
 	const posthog = usePostHog();
 	const { aircraft, request, requestParameter, requestTypeIcon, width } =
 		properties;
+	const isAP2 = properties.autonomyProfile === 2;
 
 	const { handleAccept, handleDismiss, handleAcceptWithDelay } = useTaActions(
 		aircraft,
@@ -48,7 +50,10 @@ export default observer(function TaHoveredSmall(properties: {
 	};
 
 	return (
-		<table className="h-full border-collapse" style={{ width: `${width - 10}px` }}>
+		<table
+			className="h-full border-collapse"
+			style={{ width: `${width - 10}px` }}
+		>
 			<tbody>
 				{/* Row 1: Icon + Status dot + Parameter | Dismiss X */}
 				<tr>
@@ -61,6 +66,21 @@ export default observer(function TaHoveredSmall(properties: {
 						<DismissButton onClick={handleDismiss} />
 					</td>
 				</tr>
+
+				{/* Goal detail rows */}
+				{!isAP2 && request.normalizedGoals.map((goal, index) => {
+					const sharedProps = {
+						goal,
+						index,
+						totalGoals: request.normalizedGoals.length,
+						isAP2,
+						requestParameter: request.context.request_parameter,
+					};
+					if (goal.results) {
+						return <LevelChangeGoalRows key={index} {...sharedProps} />;
+					}
+					return <HeadingGoalRow key={index} {...sharedProps} />;
+				})}
 
 				{/* Row 2: Suggestion status + text */}
 				<tr>
