@@ -9,6 +9,8 @@ import {
 	CommunicationButtons,
 	DismissButton,
 	ExpandArrow,
+	HeadingGoalRow,
+	LevelChangeGoalRows,
 	SuggestionContent,
 	TaHeaderContent,
 } from "./TaSharedComponents";
@@ -46,37 +48,45 @@ export default observer(function TaHoveredSmall(properties: {
 	};
 
 	return (
-		<div className="flex flex-col gap-1" style={{ width: `${width - 10}px` }}>
-			{/* Row 1: Icon + Status dot + Parameter | Dismiss X */}
-			<div className="flex items-start justify-between gap-1">
-				<TaHeaderContent
-					requestTypeIcon={requestTypeIcon}
-					requestParameter={requestParameter}
-					request={request}
-				/>
-				<DismissButton onClick={handleDismiss} />
-			</div>
+		<table className="h-full border-collapse" style={{ width: `${width - 10}px` }}>
+			<tbody>
+				{/* Row 1: Icon + Status dot + Parameter | Dismiss X */}
+				<tr>
+					<td className="flex items-start justify-between gap-1">
+						<TaHeaderContent
+							requestTypeIcon={requestTypeIcon}
+							requestParameter={requestParameter}
+							request={request}
+						/>
+						<DismissButton onClick={handleDismiss} />
+					</td>
+				</tr>
 
-			{/* Row 2: Suggestion status + text */}
-			<div className="flex flex-row justify-between">
-				<SuggestionContent
-					request={request}
-					showAcceptCheckmark={false}
-					onAccept={handleAccept}
-				/>
-			</div>
+				{/* Row 2: Suggestion status + text */}
+				<tr>
+					<td>
+						<SuggestionContent
+							request={request}
+							showAcceptCheckmark={false}
+							onAccept={handleAccept}
+						/>
+					</td>
+				</tr>
 
-			{/* Row 3: Communication buttons + expand arrow on right */}
-			<div className="relative flex items-center justify-center">
-				<CommunicationButtons
-					hasCPDLC={aircraft.hasCPDLC}
-					onAccept={handleAccept}
-					onAcceptWithDelay={handleAcceptWithDelay}
-				/>
-				<span className="absolute right-0">
-					<ExpandArrow onClick={showMoreArrowClicked} />
-				</span>
-			</div>
-		</div>
+				{/* Row 3: Communication buttons + expand arrow on right */}
+				<tr>
+					<td className="relative text-center">
+						<CommunicationButtons
+							hasCPDLC={aircraft.hasCPDLC}
+							onAccept={handleAccept}
+							onAcceptWithDelay={handleAcceptWithDelay}
+						/>
+						<span className="absolute right-0 top-0">
+							<ExpandArrow onClick={showMoreArrowClicked} />
+						</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	);
 });
