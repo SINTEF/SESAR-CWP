@@ -5,8 +5,8 @@ import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { cwpStore } from "../../state";
 import { handleChangeCFL } from "../../utils/teamAssistantHelper";
+import { CommunicationButtons } from "../shared/CommunicationButtons";
 import {
-	CommunicationButtons,
 	DismissButton,
 	ExpandArrow,
 	HeadingGoalRow,

@@ -3,6 +3,7 @@ import type AircraftModel from "../../model/AircraftModel";
 import type { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
 import { aircraftStore } from "../../state";
+import { DATALINK_DELAY_MS } from "../shared/CommunicationButtons";
 
 /**
  * Shared action handlers for Team Assistant request components.
@@ -49,7 +50,7 @@ export function useTaActions(
 		posthog?.capture("TA_request_accepted_DL", {
 			...basePayload,
 			component,
-			delay_ms: 1000,
+			delay_ms: DATALINK_DELAY_MS,
 		});
 		aircraftStore.removeTeamAssistantRequest(
 			request.flightId,
@@ -58,7 +59,7 @@ export function useTaActions(
 		setTimeout(async () => {
 			onAccept?.();
 			await publishPilotRequestClear(request.flightId, request.requestId);
-		}, 1000);
+		}, DATALINK_DELAY_MS);
 	};
 
 	return { handleAccept, handleDismiss, handleAcceptWithDelay };

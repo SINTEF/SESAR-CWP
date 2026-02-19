@@ -4,9 +4,9 @@ import AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { cwpStore } from "../../state";
 import { isAcceptOrSuggest } from "../../utils/teamAssistantHelper";
+import { CommunicationButtons } from "../shared/CommunicationButtons";
 import {
 	CollapseArrow,
-	CommunicationButtons,
 	DismissButton,
 	HeadingGoalRow,
 	LevelChangeGoalRows,

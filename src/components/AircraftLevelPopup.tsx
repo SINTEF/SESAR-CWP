@@ -12,6 +12,7 @@ import {
 	persistNextSectorFlightLevel,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
+import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
 
 function ListOfLevels(properties: {
 	value: number;
@@ -298,20 +299,11 @@ export default observer(function AircraftLevelPopup(properties: {
 					▼
 				</button>
 			</div>
-			<div className="flex gap-0.5 mt-1">
-				<button
-					onClick={close}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Cancel
-				</button>
-				<button
-					onClick={setFLCP}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Apply
-				</button>
-			</div>
+			<PopupCommunicationButtons
+				hasCPDLC={properties.aircraft.hasCPDLC}
+				onSubmit={setFLCP}
+				onClose={close}
+			/>
 		</div>
 	);
 });

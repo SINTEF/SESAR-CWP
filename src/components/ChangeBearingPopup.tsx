@@ -9,6 +9,7 @@ import {
 	persistACCBearing,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore } from "../state";
+import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
 
 /** Normalize bearing to 5-360 range (wrapping at 360) */
 function normalizeBearing(bearing: number): number {
@@ -295,20 +296,11 @@ export default observer(function ChangeBearingPopup(properties: {
 					side="right"
 				/>
 			</div>
-			<div className="flex gap-0.5 mt-1">
-				<button
-					onClick={close}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Cancel
-				</button>
-				<button
-					onClick={submit}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Apply
-				</button>
-			</div>
+			<PopupCommunicationButtons
+				hasCPDLC={properties.aircraft.hasCPDLC}
+				onSubmit={submit}
+				onClose={close}
+			/>
 		</div>
 	);
 });

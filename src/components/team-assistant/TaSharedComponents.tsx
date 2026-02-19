@@ -110,36 +110,6 @@ export function SuggestionContent({
 	);
 }
 
-/** R/T button (always shown) and DL button (only if aircraft has CPDLC). */
-export function CommunicationButtons({
-	hasCPDLC,
-	onAccept,
-	onAcceptWithDelay,
-}: {
-	hasCPDLC: boolean;
-	onAccept: () => void;
-	onAcceptWithDelay: () => void;
-}) {
-	return (
-		<div className="flex flex-row items-center justify-center gap-1">
-			<span
-				className="p-0.5 cursor-pointer border border-white border-opacity-70"
-				onClick={onAccept}
-			>
-				R/T
-			</span>
-			{hasCPDLC && (
-				<span
-					className="p-0.5 cursor-pointer border border-white border-opacity-70"
-					onClick={onAcceptWithDelay}
-				>
-					DL
-				</span>
-			)}
-		</div>
-	);
-}
-
 /** Collapse arrow (up-left) to shrink from full to small view. */
 export function CollapseArrow({ onClick }: { onClick: () => void }) {
 	return (

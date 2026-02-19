@@ -7,6 +7,7 @@ import {
 	handlePublishPromise,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore, fixStore } from "../state";
+import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
 
 /** Sub-component that displays the list of trajectory fixes as clickable buttons */
 function ListOfFixes(properties: {
@@ -437,22 +438,11 @@ export default observer(function ChangeNextFixPopup(properties: {
 					Fix not found
 				</div>
 			)}
-			<div className="flex gap-0.5 mt-1">
-				<button
-					type="button"
-					onClick={close}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Cancel
-				</button>
-				<button
-					type="button"
-					onClick={handleApply}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Apply
-				</button>
-			</div>
+			<PopupCommunicationButtons
+				hasCPDLC={properties.aircraft.hasCPDLC}
+				onSubmit={handleApply}
+				onClose={close}
+			/>
 		</div>
 	);
 });

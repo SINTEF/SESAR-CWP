@@ -9,6 +9,7 @@ import {
 	persistSpeedAircraft,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore } from "../state";
+import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
 
 const METERS_PER_SECOND_TO_DECIKNOT = 0.194_384;
 const DECIKNOT_TO_METERS_PER_SECOND = 1 / 0.194_384;
@@ -335,22 +336,11 @@ export default observer(function ChangeSpeedPopup(properties: {
 					KT/M
 				</button>
 			</div>
-			<div className="flex gap-0.5 mt-1">
-				<button
-					type="button"
-					onClick={close}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Cancel
-				</button>
-				<button
-					type="button"
-					onClick={submit}
-					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
-				>
-					Apply
-				</button>
-			</div>
+			<PopupCommunicationButtons
+				hasCPDLC={properties.aircraft.hasCPDLC}
+				onSubmit={submit}
+				onClose={close}
+			/>
 		</div>
 	);
 });
