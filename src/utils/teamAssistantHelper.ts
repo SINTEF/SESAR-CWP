@@ -1,5 +1,21 @@
 import AircraftModel from "../model/AircraftModel";
 import { TeamAssistantRequest } from "../model/AircraftStore";
+import type { NormalizedGoal } from "../schemas/pilotRequestSchema";
+
+/**
+ * Check if a normalized goal has a positive recommendation.
+ * For level-change goals: higher_level_available is true.
+ * For heading goals: isHeadingFound is true.
+ */
+function isGoalPositive(goal: NormalizedGoal): boolean {
+	if (goal.results) {
+		return goal.results.higher_level_available;
+	}
+	if (goal.isHeadingFound !== undefined) {
+		return goal.isHeadingFound;
+	}
+	return false;
+}
 
 // Could this logic somewhat work?
 export function getRequestStatusColorClass(
@@ -9,23 +25,25 @@ export function getRequestStatusColorClass(
 		return "text-gray-500";
 	}
 	let isAccepted = false;
-	const resultGoals = results.goals;
-	for (let i = 0; i < resultGoals.length; i++) {
-		const goal = resultGoals[i];
-		if (!goal.results?.higher_level_available) {
+	const normalizedGoals = results.normalizedGoals;
+	for (const goal of normalizedGoals) {
+		if (!isGoalPositive(goal)) {
 			continue;
 		}
-		// This will probably only work for FLIGHT_LEVEL, need to figure out for the other scenarios
-		const initDifferent =
-			results.goals[i].results?.initial_climb !==
-			results.context.request_parameter; // how to check whether accepted or another solution?
-		const exitDifferent =
-			results.goals[i].results?.exit_level !==
-			results.context.request_parameter;
-		if (!initDifferent && !exitDifferent) {
+		// For level-change: check if initial_climb and exit_level match request_parameter
+		if (goal.results) {
+			const initDifferent =
+				goal.results.initial_climb !== results.context.request_parameter;
+			const exitDifferent =
+				goal.results.exit_level !== results.context.request_parameter;
+			if (!initDifferent && !exitDifferent) {
+				isAccepted = true;
+			} else if (initDifferent || exitDifferent) {
+				isAccepted = false;
+			}
+		} else {
+			// For heading: if heading was found, consider it accepted
 			isAccepted = true;
-		} else if (initDifferent || exitDifferent) {
-			isAccepted = false;
 		}
 	}
 	return isAccepted ? "text-green-400" : "text-red-500";
@@ -76,14 +94,18 @@ export function getStatusColorClass(status: number | null | undefined): string {
 export function findSuggestionForRequest(
 	request: TeamAssistantRequest,
 ): string | null {
-	if (!request.goals) {
+	if (!request.normalizedGoals) {
 		return null;
 	}
-	for (const goal of request.goals) {
-		if (goal.results?.higher_level_available) {
+	for (const goal of request.normalizedGoals) {
+		if (isGoalPositive(goal)) {
+			// For level-change: use initial_climb; for heading: use requestedValue
+			const suggestionValue = goal.results
+				? goal.results.initial_climb.toString()
+				: goal.requestedValue.toString();
 			return formatRequestSuggestion(
 				request.context?.request_type ?? 0,
-				goal.results.initial_climb.toString(),
+				suggestionValue,
 			);
 		}
 	}
@@ -93,28 +115,35 @@ export function findSuggestionForRequest(
 export function getSuggestionForRequest(
 	request: TeamAssistantRequest,
 ): string | null {
-	if (!request.goals) {
+	if (!request.normalizedGoals) {
 		return null;
 	}
-	for (const goal of request.goals) {
-		if (goal.results?.higher_level_available) {
-			return goal.results.initial_climb.toString();
+	for (const goal of request.normalizedGoals) {
+		if (isGoalPositive(goal)) {
+			return goal.results
+				? goal.results.initial_climb.toString()
+				: goal.requestedValue.toString();
 		}
 	}
 	return null;
 }
 
 export function isAccepted(request: TeamAssistantRequest): boolean {
-	if (!request.goals) {
+	if (!request.normalizedGoals) {
 		return false;
 	}
-	for (const goal of request.goals) {
-		if (goal.results?.higher_level_available) {
-			const initDifferent =
-				goal.results?.initial_climb !== request.context.request_parameter; // how to check whether accepted or another solution?
-			const exitDifferent =
-				goal.results?.exit_level !== request.context.request_parameter;
-			if (!initDifferent && !exitDifferent) {
+	for (const goal of request.normalizedGoals) {
+		if (isGoalPositive(goal)) {
+			if (goal.results) {
+				const initDifferent =
+					goal.results.initial_climb !== request.context.request_parameter;
+				const exitDifferent =
+					goal.results.exit_level !== request.context.request_parameter;
+				if (!initDifferent && !exitDifferent) {
+					return true;
+				}
+			} else {
+				// For heading: positive goal means accepted
 				return true;
 			}
 		}
@@ -123,11 +152,11 @@ export function isAccepted(request: TeamAssistantRequest): boolean {
 }
 
 export function isAcceptOrSuggest(request: TeamAssistantRequest): boolean {
-	if (!request.goals) {
+	if (!request.normalizedGoals) {
 		return false;
 	}
-	for (const goal of request.goals) {
-		if (goal.results?.higher_level_available) {
+	for (const goal of request.normalizedGoals) {
+		if (isGoalPositive(goal)) {
 			return true;
 		}
 	}
@@ -135,12 +164,12 @@ export function isAcceptOrSuggest(request: TeamAssistantRequest): boolean {
 }
 
 export function isRejected(request: TeamAssistantRequest): boolean {
-	if (!request.goals) {
+	if (!request.normalizedGoals) {
 		return false;
 	}
 	let rejected = true;
-	for (const goal of request.goals) {
-		if (goal.results?.higher_level_available) {
+	for (const goal of request.normalizedGoals) {
+		if (isGoalPositive(goal)) {
 			rejected = false;
 		}
 	}

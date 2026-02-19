@@ -17,7 +17,11 @@ import type {
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
 import { PlanningStage } from "../proto/ProtobufAirTrafficSimulator";
-import type { PilotRequestJson } from "../schemas/pilotRequestSchema";
+import type {
+	NormalizedGoal,
+	PilotRequestJson,
+} from "../schemas/pilotRequestSchema";
+import { getRequestType, normalizeGoal } from "../schemas/pilotRequestSchema";
 import AircraftInfo from "./AircraftInfo";
 import AircraftModel from "./AircraftModel";
 import AircraftType from "./AircraftType";
@@ -701,14 +705,19 @@ export default class AircraftStore {
 		request: PilotRequestJson,
 	): void {
 		// Calculate autonomyProfile once based on request type (immutable)
-		const requestType = request.context?.request_type ?? 0;
-		const autonomyProfile = this.brainStore.getAPForRequestType(requestType);
+		const rawRequestType = request.context?.request_type ?? 0;
+		const autonomyProfile = this.brainStore.getAPForRequestType(rawRequestType);
+		const requestType = getRequestType(rawRequestType);
+		const normalizedGoals = request.goals.map((goal) =>
+			normalizeGoal(goal, requestType),
+		);
 
 		const teamAssistantRequest: TeamAssistantRequest = {
 			...request,
 			flightId,
 			requestId,
 			autonomyProfile, // Calculated once, defaults to 1 if data missing
+			normalizedGoals,
 		};
 
 		const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
@@ -821,4 +830,5 @@ export interface TeamAssistantRequest extends PilotRequestJson {
 	flightId: string;
 	requestId: string;
 	autonomyProfile: number; // Calculated once on arrival (1 or 2), defaults to 1 if data missing
+	normalizedGoals: NormalizedGoal[];
 }

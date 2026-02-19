@@ -4,7 +4,7 @@ import React from "react";
 import AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
-import { Goal } from "../../schemas/pilotRequestSchema";
+import type { NormalizedGoal } from "../../schemas/pilotRequestSchema";
 import { aircraftStore, cwpStore } from "../../state";
 import {
 	findSuggestionForRequest,
@@ -42,7 +42,7 @@ export default observer(function TaHoveredFull(properties: {
 
 	const { setTaArrowClickedAircraftId } = cwpStore;
 
-	const results = request.goals.sort(
+	const normalizedGoals = [...request.normalizedGoals].sort(
 		(a, b) => (b.results?.initial_climb ?? 0) - (a.results?.initial_climb ?? 0),
 	);
 
@@ -57,8 +57,8 @@ export default observer(function TaHoveredFull(properties: {
 		);
 	};
 
-	const getFMPStatus = (goal: Goal) => {
-		if (results === undefined || results === null) {
+	const getFMPStatus = (goal: NormalizedGoal) => {
+		if (normalizedGoals === undefined || normalizedGoals === null) {
 			return null;
 		}
 		const isOk =
@@ -68,7 +68,7 @@ export default observer(function TaHoveredFull(properties: {
 			<>
 				<tr>
 					<td className="pr-1" colSpan={2}>
-						{getStatusColor(isOk)} FMP {goal.RFL}
+						{getStatusColor(isOk)} FMP {goal.requestedValue}
 					</td>
 				</tr>
 				{!isOk && (
@@ -76,7 +76,7 @@ export default observer(function TaHoveredFull(properties: {
 						<tr>
 							<td className="text-xs" colSpan={2}>
 								{getStatusColor(goal.results?.next_sector_capacity_ok)}{" "}
-								{goal.results?.next_sector}
+								{goal.nextSector}
 							</td>
 						</tr>
 						<tr>
@@ -110,7 +110,7 @@ export default observer(function TaHoveredFull(properties: {
 	// 	}
 	// };
 
-	const getExitStatus = (goal: Goal) => {
+	const getExitStatus = (goal: NormalizedGoal) => {
 		// Check if any coordination item is an object (conflict) rather than a string
 		const hasConflictObject = goal.results?.required_coordinations.some(
 			(item) => typeof item === "object",
@@ -129,8 +129,8 @@ export default observer(function TaHoveredFull(properties: {
 			<>
 				<tr>
 					<td className="text-xs" colSpan={2}>
-						{getStatusColor(exitStatusColor)} {goal.results?.next_sector} MTCD{" "}
-						{goal.RFL}
+						{getStatusColor(exitStatusColor)} {goal.nextSector} MTCD{" "}
+						{goal.requestedValue}
 						{/* ATCO sn SECTOR MTCD */}
 					</td>
 				</tr>
@@ -139,7 +139,7 @@ export default observer(function TaHoveredFull(properties: {
 				<tr>
 					<td className="text-xs" colSpan={2}>
 						{getStatusColor(goal.results?.is_conform_to_flight_plan)} FLP{" "}
-						{goal.RFL}
+						{goal.requestedValue}
 					</td>
 				</tr>
 				{/* )} */}
@@ -298,10 +298,10 @@ export default observer(function TaHoveredFull(properties: {
 				</tr>
 
 				{/* Goal results rows */}
-				{results.map((goal, index) => {
+				{normalizedGoals.map((goal, index) => {
 					if (goal.results) {
-						if (!isAP2 && !(goal.RFL === request.context.request_parameter)) {
-							return null; // Skip goals that don't match the requested RFL in AP1 mode
+						if (!isAP2 && !(goal.requestedValue === request.context.request_parameter)) {
+							return null; // Skip goals that don't match the requested value in AP1 mode
 						}
 						return (
 							<React.Fragment key={index}>
@@ -310,14 +310,14 @@ export default observer(function TaHoveredFull(properties: {
 									<td className="text-xs" colSpan={2}>
 										{getStatusColor(goal.results.traffic_complexity_manageable)}{" "}
 										{/* if traffic complexity is manageable --> TCT < 2 --> TCT > 2 not manageable, what about TCT = zero? Grønn/gul/rød */}
-										{"< 2 "}TCT {goal.RFL}
+										{"< 2 "}TCT {goal.requestedValue}
 									</td>
 								</tr>
 								{/* )} */}
 								{getFMPStatus(goal)}
 								{getExitStatus(goal)}
 								{/* {getCoordinationWithNextSectorStatus(goal.results)} */}
-								{isAP2 && index < results.length - 1 && (
+								{isAP2 && index < normalizedGoals.length - 1 && (
 									<tr>
 										<td colSpan={2}>
 											<hr className="border-t border-white/30 mr-2 ml-0" />
