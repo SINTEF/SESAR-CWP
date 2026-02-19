@@ -1,16 +1,15 @@
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
-import React from "react";
 import AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
-import type { NormalizedGoal } from "../../schemas/pilotRequestSchema";
 import { cwpStore } from "../../state";
 import { isAcceptOrSuggest } from "../../utils/teamAssistantHelper";
 import {
 	CollapseArrow,
 	CommunicationButtons,
 	DismissButton,
-	getStatusColor,
+	HeadingGoalRow,
+	LevelChangeGoalRows,
 	SuggestionContent,
 	TaHeaderContent,
 } from "./TaSharedComponents";
@@ -76,36 +75,17 @@ export default observer(function TaHoveredFull(properties: {
 				</tr>
 				{/* Goal detail rows */}
 				{normalizedGoals.map((goal, index) => {
+					const sharedProps = {
+						goal,
+						index,
+						totalGoals: normalizedGoals.length,
+						isAP2,
+						requestParameter: request.context.request_parameter,
+					};
 					if (goal.results) {
-						return (
-							<LevelChangeGoalRows
-								key={index}
-								goal={goal}
-								index={index}
-								totalGoals={normalizedGoals.length}
-								isAP2={isAP2}
-								requestParameter={request.context.request_parameter}
-							/>
-						);
+						return <LevelChangeGoalRows key={index} {...sharedProps} />;
 					}
-					// Heading goal rendering
-					const noConflicts = goal.inSectorConflicts?.length === 0;
-					return (
-						<React.Fragment key={index}>
-							<tr>
-								<td className="text-xs" colSpan={2}>
-									{getStatusColor(noConflicts)} TCT
-								</td>
-							</tr>
-							{isAP2 && index < normalizedGoals.length - 1 && (
-								<tr>
-									<td colSpan={2}>
-										<hr className="border-t border-white/30 mr-2 ml-0" />
-									</td>
-								</tr>
-							)}
-						</React.Fragment>
-					);
+					return <HeadingGoalRow key={index} {...sharedProps} />;
 				})}
 				{/* Suggestion row (AP2 only) */}
 				{/* Suggestion + communication buttons (AP2 only) */}
@@ -140,98 +120,3 @@ export default observer(function TaHoveredFull(properties: {
 		</table>
 	);
 });
-
-/** Level-change goal detail rows: TCT + FMP + Exit status. */
-function LevelChangeGoalRows({
-	goal,
-	index,
-	totalGoals,
-	isAP2,
-	requestParameter,
-}: {
-	goal: NormalizedGoal;
-	index: number;
-	totalGoals: number;
-	isAP2: boolean;
-	requestParameter: number | string;
-}) {
-	if (!goal.results) {
-		return null;
-	}
-	if (!isAP2 && goal.requestedValue !== requestParameter) {
-		return null;
-	}
-
-	// FMP status
-	const fmpIsOk =
-		goal.results.next_sector_capacity_ok && !goal.results.altitude_restriction;
-
-	// Exit status color logic:
-	// - yellow (undefined): exit_problems_are_manageable && hasConflictObject
-	// - green (true): exit_problems_are_manageable && !hasConflictObject
-	// - red (false): !exit_problems_are_manageable
-	const hasConflictObject = goal.results.required_coordinations.some(
-		(item) => typeof item === "object",
-	);
-	const exitStatusColor =
-		goal.results.exit_problems_are_manageable && hasConflictObject
-			? undefined // yellow
-			: goal.results.exit_problems_are_manageable; // green or red
-
-	return (
-		<React.Fragment key={index}>
-			{/* TCT row */}
-			<tr>
-				<td className="text-xs" colSpan={2}>
-					{getStatusColor(goal.results.traffic_complexity_manageable)} {"< 2 "}
-					TCT {goal.requestedValue}
-				</td>
-			</tr>
-
-			{/* FMP row */}
-			<tr>
-				<td className="pr-1" colSpan={2}>
-					{getStatusColor(fmpIsOk)} FMP {goal.requestedValue}
-				</td>
-			</tr>
-			{!fmpIsOk && (
-				<>
-					<tr>
-						<td className="text-xs" colSpan={2}>
-							{getStatusColor(goal.results.next_sector_capacity_ok)}{" "}
-							{goal.nextSector}
-						</td>
-					</tr>
-					<tr>
-						<td className="text-xs" colSpan={2}>
-							{getStatusColor(!goal.results.altitude_restriction)} LOA
-						</td>
-					</tr>
-				</>
-			)}
-
-			{/* Exit status rows */}
-			<tr>
-				<td className="text-xs" colSpan={2}>
-					{getStatusColor(exitStatusColor)} {goal.nextSector} MTCD{" "}
-					{goal.requestedValue}
-				</td>
-			</tr>
-			<tr>
-				<td className="text-xs" colSpan={2}>
-					{getStatusColor(goal.results.is_conform_to_flight_plan)} FLP{" "}
-					{goal.requestedValue}
-				</td>
-			</tr>
-
-			{/* Separator between goals in AP2 mode */}
-			{isAP2 && index < totalGoals - 1 && (
-				<tr>
-					<td colSpan={2}>
-						<hr className="border-t border-white/30 mr-2 ml-0" />
-					</td>
-				</tr>
-			)}
-		</React.Fragment>
-	);
-}
