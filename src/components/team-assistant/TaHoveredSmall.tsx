@@ -68,19 +68,20 @@ export default observer(function TaHoveredSmall(properties: {
 				</tr>
 
 				{/* Goal detail rows */}
-				{!isAP2 && request.normalizedGoals.map((goal, index) => {
-					const sharedProps = {
-						goal,
-						index,
-						totalGoals: request.normalizedGoals.length,
-						isAP2,
-						requestParameter: request.context.request_parameter,
-					};
-					if (goal.results) {
-						return <LevelChangeGoalRows key={index} {...sharedProps} />;
-					}
-					return <HeadingGoalRow key={index} {...sharedProps} />;
-				})}
+				{!isAP2 &&
+					request.normalizedGoals.map((goal, index) => {
+						const sharedProps = {
+							goal,
+							index,
+							totalGoals: request.normalizedGoals.length,
+							isAP2,
+							requestParameter: request.context.request_parameter,
+						};
+						if (goal.results) {
+							return <LevelChangeGoalRows key={index} {...sharedProps} />;
+						}
+						return <HeadingGoalRow key={index} {...sharedProps} />;
+					})}
 
 				{/* Row 2: Suggestion status + text */}
 				<tr>

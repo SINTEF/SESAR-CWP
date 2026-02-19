@@ -100,7 +100,9 @@ export function getRequestType(requestType: number): RequestType {
 			return RequestType.Heading;
 		default:
 			// biome-ignore lint/suspicious/noConsole: warn about unexpected request types from the simulator
-			console.warn(`Unknown request_type: ${requestType}, defaulting to LevelChange`);
+			console.warn(
+				`Unknown request_type: ${requestType}, defaulting to LevelChange`,
+			);
 			return RequestType.LevelChange;
 	}
 }
