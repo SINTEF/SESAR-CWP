@@ -108,11 +108,13 @@ export function SuggestionContent({
 	);
 }
 
-/** R/T and DL buttons for CPDLC communication. */
-export function CpdlcButtons({
+/** R/T button (always shown) and DL button (only if aircraft has CPDLC). */
+export function CommunicationButtons({
+	hasCPDLC,
 	onAccept,
 	onAcceptWithDelay,
 }: {
+	hasCPDLC: boolean;
 	onAccept: () => void;
 	onAcceptWithDelay: () => void;
 }) {
@@ -124,12 +126,14 @@ export function CpdlcButtons({
 			>
 				R/T
 			</span>
-			<span
-				className="p-0.5 cursor-pointer border border-white border-opacity-70"
-				onClick={onAcceptWithDelay}
-			>
-				DL
-			</span>
+			{hasCPDLC && (
+				<span
+					className="p-0.5 cursor-pointer border border-white border-opacity-70"
+					onClick={onAcceptWithDelay}
+				>
+					DL
+				</span>
+			)}
 		</div>
 	);
 }

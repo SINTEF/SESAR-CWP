@@ -8,7 +8,7 @@ import { cwpStore } from "../../state";
 import { isAcceptOrSuggest } from "../../utils/teamAssistantHelper";
 import {
 	CollapseArrow,
-	CpdlcButtons,
+	CommunicationButtons,
 	DismissButton,
 	getStatusColor,
 	SuggestionContent,
@@ -108,6 +108,7 @@ export default observer(function TaHoveredFull(properties: {
 					);
 				})}
 				{/* Suggestion row (AP2 only) */}
+				{/* Suggestion + communication buttons (AP2 only) */}
 				{isAP2 && isAcceptOrSuggest(request) && (
 					<>
 						<tr>
@@ -119,23 +120,21 @@ export default observer(function TaHoveredFull(properties: {
 							<td className="text-center pt-1">
 								<SuggestionContent
 									request={request}
-									showAcceptCheckmark={!aircraft.hasCPDLC}
+									showAcceptCheckmark={false}
 									onAccept={handleAccept}
 								/>
 							</td>
 						</tr>
+						<tr>
+							<td className="text-center">
+								<CommunicationButtons
+									hasCPDLC={aircraft.hasCPDLC}
+									onAccept={handleAccept}
+									onAcceptWithDelay={handleAcceptWithDelay}
+								/>
+							</td>
+						</tr>
 					</>
-				)}
-				{/* CPDLC buttons (AP2 + CPDLC only) */}
-				{isAP2 && aircraft.hasCPDLC && isAcceptOrSuggest(request) && (
-					<tr>
-						<td className="text-center">
-							<CpdlcButtons
-								onAccept={handleAccept}
-								onAcceptWithDelay={handleAcceptWithDelay}
-							/>
-						</td>
-					</tr>
 				)}
 			</tbody>
 		</table>

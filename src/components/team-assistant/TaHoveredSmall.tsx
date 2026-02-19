@@ -6,7 +6,7 @@ import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { cwpStore } from "../../state";
 import { handleChangeCFL } from "../../utils/teamAssistantHelper";
 import {
-	CpdlcButtons,
+	CommunicationButtons,
 	DismissButton,
 	ExpandArrow,
 	SuggestionContent,
@@ -57,26 +57,23 @@ export default observer(function TaHoveredSmall(properties: {
 				<DismissButton onClick={handleDismiss} />
 			</div>
 
-			{/* Row 2: Suggestion status + text + accept checkmark */}
+			{/* Row 2: Suggestion status + text */}
 			<div className="flex flex-row justify-between">
 				<SuggestionContent
 					request={request}
-					showAcceptCheckmark={!aircraft.hasCPDLC}
+					showAcceptCheckmark={false}
 					onAccept={handleAccept}
 				/>
 			</div>
 
-			{/* Row 3: CPDLC buttons centered + expand arrow on right */}
+			{/* Row 3: Communication buttons + expand arrow on right */}
 			<div className="relative flex items-center justify-center">
-				{aircraft.hasCPDLC && (
-					<CpdlcButtons
-						onAccept={handleAccept}
-						onAcceptWithDelay={handleAcceptWithDelay}
-					/>
-				)}
-				<span
-					className={`${aircraft.hasCPDLC ? "" : "absolute top-0"} absolute right-0`}
-				>
+				<CommunicationButtons
+					hasCPDLC={aircraft.hasCPDLC}
+					onAccept={handleAccept}
+					onAcceptWithDelay={handleAcceptWithDelay}
+				/>
+				<span className="absolute right-0">
 					<ExpandArrow onClick={showMoreArrowClicked} />
 				</span>
 			</div>
