@@ -1,10 +1,12 @@
 import * as Sentry from "@sentry/react";
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
+import { TA_TEST_REQUESTS } from "../../dev/taTestRequests";
 import type AircraftModel from "../../model/AircraftModel";
 import {
 	handlePublishPromise,
 	publishPilotRequest,
+	publishPilotRequestTestRequest,
 } from "../../mqtt-client/publishers";
 import { PilotRequestTypes } from "../../proto/ProtobufAirTrafficSimulator";
 import { cwpStore } from "../../state";
@@ -128,19 +130,39 @@ export default observer(function AddRequestDialog({
 		onClose();
 	};
 
+	const handleSendAllTestRequests = (): void => {
+		for (const testRequest of TA_TEST_REQUESTS) {
+			const requestId = crypto.randomUUID();
+			handlePublishPromise(
+				publishPilotRequestTestRequest(callSign, requestId, testRequest),
+			);
+		}
+		onClose();
+	};
+
 	return (
-		<div className="absolute top-0 w-max bg-neutral-800/40 border-l border-l-neutral-800 select-none backdrop-blur-[1.5px] rounded rounded-l-none flex gap-1 p-1">
-			{REQUEST_TYPES.map(({ type, label, icon }) => (
-				<button
-					key={type}
-					type="button"
-					onClick={() => handleTypeSelect(type)}
-					className="btn btn-neutral btn-xs flex flex-col gap-0"
-					title={label}
-				>
-					<img src={icon} alt={label} className="w-4 h-4" />
-				</button>
-			))}
+		<div className="absolute top-0 w-max bg-neutral-800/40 border-l border-l-neutral-800 select-none backdrop-blur-[1.5px] rounded rounded-l-none flex flex-col gap-1 p-1">
+			<div className="flex gap-1">
+				{REQUEST_TYPES.map(({ type, label, icon }) => (
+					<button
+						key={type}
+						type="button"
+						onClick={() => handleTypeSelect(type)}
+						className="btn btn-neutral btn-xs flex flex-col gap-0"
+						title={label}
+					>
+						<img src={icon} alt={label} className="w-4 h-4" />
+					</button>
+				))}
+			</div>
+			<button
+				type="button"
+				onClick={handleSendAllTestRequests}
+				className="btn btn-neutral btn-xs w-full"
+				title="Send all testRequest scenarios at once for visual testing"
+			>
+				Send All TestRequests
+			</button>
 		</div>
 	);
 });

@@ -10,7 +10,6 @@ import {
 	flightEnteringAirspaceMessage,
 	flightRoutes,
 	frequencies,
-	fromTAtoIIS,
 	frontendACCBearing,
 	frontendACCFlightLevel,
 	frontendAssignedFlightLevel,
@@ -101,7 +100,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/status/presence/:sessionUuid": simulatorPresenceStatus,
 	"frontend/:clientId/brain/manualAP": frontendManualAP,
 	"IIS/:clientId/PilotRequest": pilotRequestJson,
-	"IIS/:clientId/PilotRequest/:requestId": fromTAtoIIS, // should be removed because this is what we are publishing back
+	"IIS/:clientId/PilotRequest/:requestId": pilotRequestJson,
 	"TAS/:clientId/WorkloadUpdate": workloadUpdate,
 	"TAS/:clientId/ISAUpdate": isaUpdate,
 });

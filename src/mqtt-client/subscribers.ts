@@ -396,10 +396,9 @@ export function pilotRequestJson(
 
 		const parsed = JSON.parse(jsonString);
 
-		// Handle "finished" response format (sent when request is approved/dismissed)
-		if (parsed.finished === true) {
-			// The request has already been removed from the store by the UI action
-			// This message is just acknowledgment - nothing to do
+		// Handle reply messages sent back by the CWP itself (CLOSE, REFRESH)
+		// and "finished" acknowledgments — none of these contain request data
+		if (parsed.finished === true || parsed.reply !== undefined) {
 			return;
 		}
 
