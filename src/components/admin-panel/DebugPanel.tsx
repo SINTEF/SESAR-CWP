@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
@@ -7,16 +6,11 @@ import { adminStore } from "../../state";
 const createCatImageUrl = () => `https://cataas.com/cat?t=${Date.now()}`;
 
 export default observer(function DebugPanel() {
-	const [lastSentryCaptureAt, setLastSentryCaptureAt] = useState<string | null>(
-		null,
-	);
 	const [catImageUrl, setCatImageUrl] = useState<string | null>(null);
 	const latestPresence = adminStore.latestPresence;
 
 	const handleCaptureSentryError = () => {
-		const error = new Error("Debug panel Sentry test error");
-		Sentry.captureException(error);
-		setLastSentryCaptureAt(new Date().toISOString());
+		throw new Error("This is a test error sent to Sentry from the Debug Panel");
 	};
 
 	const handleShowCat = () => {
@@ -27,6 +21,9 @@ export default observer(function DebugPanel() {
 		<div className="bg-base-200 p-4 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h3 className="font-semibold text-base-content">Debug</h3>
+			</div>
+
+			<div className="rounded-md bg-base-100 p-3 text-sm space-y-3">
 				<button
 					type="button"
 					className="btn btn-sm btn-warning"
@@ -35,12 +32,6 @@ export default observer(function DebugPanel() {
 					Send Fake Sentry Error
 				</button>
 			</div>
-
-			{lastSentryCaptureAt && (
-				<div className="text-xs text-base-content/80">
-					Last Sentry test at {lastSentryCaptureAt}
-				</div>
-			)}
 
 			<div className="rounded-md bg-base-100 p-3 text-sm space-y-3">
 				<div className="flex items-center justify-between">

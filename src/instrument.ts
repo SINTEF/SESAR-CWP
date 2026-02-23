@@ -22,5 +22,7 @@ if (dsn && import.meta.env.PROD) {
 		},
 		attachStacktrace: true,
 		sampleRate: 1.0,
+		enableLogs: true,
+		enabled: true,
 	});
 }
