@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
 import { adminStore } from "../../state";
+import BuildInfoStatusBar from "../BuildInfoStatusBar";
 
 const createCatImageUrl = () => `https://cataas.com/cat?t=${Date.now()}`;
 
@@ -97,6 +98,8 @@ export default observer(function DebugPanel() {
 					</div>
 				)}
 			</div>
+
+			<BuildInfoStatusBar compact />
 		</div>
 	);
 });
