@@ -330,6 +330,13 @@ export function simulatorStartupConfiguration(
 	adminStore.setSimulatorStartupScenario(scenario || null);
 }
 
+export function simulatorPresenceStatus(
+	{ sessionUuid }: { [key: string]: string },
+	message: Buffer,
+): void {
+	adminStore.handlePresenceMessage(sessionUuid, message.toString().trim());
+}
+
 export function initCompleted(_parameters: unknown, message: Buffer): void {
 	if (message.length === 0) {
 		adminStore.handleInitialisationNotCompleted();
@@ -376,6 +383,7 @@ export function pilotRequestJson(
 	{ requestId }: { [key: string]: string },
 	message: Buffer,
 ): void {
+	let validated;
 	try {
 		const jsonString = message.toString().trim();
 
@@ -396,17 +404,23 @@ export function pilotRequestJson(
 		}
 
 		// Validate and process full pilot request
-		const validated = PilotRequestJsonSchema.parse(parsed);
-		aircraftStore.setTeamAssistantRequest(
-			validated.context.flight_id,
-			validated.context.request_id,
-			validated,
-		);
+		validated = PilotRequestJsonSchema.parse(parsed);
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode PilotRequestJson:", error);
-		Sentry.captureException(error);
+		Sentry.captureException(error, {
+			data: {
+				message: message.toString(),
+				requestId,
+			},
+		});
+		return;
 	}
+	aircraftStore.setTeamAssistantRequest(
+		validated.context.flight_id,
+		validated.context.request_id,
+		validated,
+	);
 }
 
 /**

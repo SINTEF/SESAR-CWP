@@ -20,5 +20,7 @@ if (dsn && import.meta.env.PROD) {
 				...(buildtime && { buildtime }),
 			},
 		},
+		attachStacktrace: true,
+		sampleRate: 1.0,
 	});
 }

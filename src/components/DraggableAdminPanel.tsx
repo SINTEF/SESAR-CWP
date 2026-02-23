@@ -7,15 +7,16 @@ import { redirectToNonAdmin } from "../mqtt-client/auth";
 import { adminStore } from "../state";
 import AdminControlButtons from "./admin-panel/AdminControlButtons";
 import AdminLogs from "./admin-panel/AdminLogs";
+import DebugPanel from "./admin-panel/DebugPanel";
 import ScenarioConfigurationPanel from "./admin-panel/ScenarioConfigurationPanel";
 import BrainPanel from "./brain/BrainPanel";
 
 export default observer(function DraggableAdminPanel() {
 	const nodeRef = useRef<HTMLDivElement>(null);
 	const { startDragging, stopDragging } = useDragging();
-	const [activeTab, setActiveTab] = useState<"logs" | "brains" | "scenario">(
-		"logs",
-	);
+	const [activeTab, setActiveTab] = useState<
+		"logs" | "brains" | "scenario" | "debug"
+	>("logs");
 
 	if (!adminStore.adminModeEnabled || !adminStore.showAdminPanel) {
 		return null;
@@ -88,11 +89,20 @@ export default observer(function DraggableAdminPanel() {
 							>
 								Scenario Configuration
 							</button>
+							<button
+								type="button"
+								role="tab"
+								className={`tab ${activeTab === "debug" ? "tab-active" : ""}`}
+								onClick={() => setActiveTab("debug")}
+							>
+								Debug
+							</button>
 						</div>
 
 						{activeTab === "logs" && <AdminLogs />}
 						{activeTab === "brains" && <BrainPanel />}
 						{activeTab === "scenario" && <ScenarioConfigurationPanel />}
+						{activeTab === "debug" && <DebugPanel />}
 					</>
 				)}
 			</div>
