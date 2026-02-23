@@ -5,7 +5,11 @@ import {
 	handlePublishPromise,
 	persistACCFlightLevel,
 } from "../mqtt-client/publishers";
-import type { NormalizedGoal } from "../schemas/pilotRequestSchema";
+import {
+	getPilotRequestType,
+	type NormalizedGoal,
+	PilotRequestType,
+} from "../schemas/pilotRequestSchema";
 
 /**
  * Check if a normalized goal has a positive recommendation.
@@ -56,31 +60,26 @@ export function getRequestStatusColorClass(
 
 /**
  * Format the request suggestion for display.
- * Adds correct prefix.
- * requestType: 0=flight_level_request, 1=direct_request, 2=absolute_heading_request, 3=relative_heading_request
+ * Adds correct prefix based on the request type.
  */
 export function formatRequestSuggestion(
-	requestType: number,
+	requestType: PilotRequestType,
 	parameter: string,
 ): string {
-	if (requestType === 0 && !parameter.startsWith("FL")) {
-		// FLIGHT_LEVEL
-		return `FL ${parameter} `;
+	switch (requestType) {
+		case PilotRequestType.FlightLevel:
+			return parameter.startsWith("FL") ? parameter : `FL ${parameter} `;
+		case PilotRequestType.Direct:
+			return `DIRECT TO ${parameter}`;
+		case PilotRequestType.AbsoluteHeading:
+			return `HDG ${parameter}`;
+		case PilotRequestType.RelativeHeading: {
+			const num = Number(parameter);
+			return `${num > 0 ? "+" : ""}${parameter}°`;
+		}
+		default:
+			return parameter;
 	}
-	if (requestType === 1) {
-		// DIRECT_REQUEST
-		return `DIRECT TO ${parameter}`;
-	}
-	if (requestType === 2) {
-		// ABSOLUTE_HEADING
-		return `HDG ${parameter}`;
-	}
-	if (requestType === 3) {
-		// RELATIVE_HEADING
-		const num = Number(parameter);
-		return `${num > 0 ? "+" : ""}${parameter}°`;
-	}
-	return parameter;
 }
 
 export function getStatusColorClass(status: number | null | undefined): string {
@@ -109,7 +108,7 @@ export function findSuggestionForRequest(
 				? goal.results.initial_climb.toString()
 				: goal.requestedValue.toString();
 			return formatRequestSuggestion(
-				request.context?.request_type ?? 0,
+				getPilotRequestType(request.context?.request_type ?? 0),
 				suggestionValue,
 			);
 		}

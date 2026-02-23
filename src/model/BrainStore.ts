@@ -1,4 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
+import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { aircraftStore } from "../state";
 
 /**
@@ -105,13 +106,17 @@ export default class BrainStore {
 	}
 
 	/**
-	 * Get urgency value based on request type
-	 * @param requestType - Request type (0=FL, 1=direct, 2=absolute_heading, 3=relative_heading)
+	 * Get urgency value based on request type.
+	 * Heading requests are considered urgent (weather avoidance).
+	 * @param requestType - Pilot request type
 	 * @returns Urgency value (0 or 1)
 	 */
-	private getUrgencyForRequestType(requestType: number): number {
-		// Types 2 and 3 are weather/heading requests (urgent)
-		return requestType === 2 || requestType === 3 ? 1 : 0;
+	private getUrgencyForRequestType(requestType: PilotRequestType): number {
+		// Heading requests are weather/urgent
+		return requestType === PilotRequestType.AbsoluteHeading ||
+			requestType === PilotRequestType.RelativeHeading
+			? 1
+			: 0;
 	}
 
 	/**
@@ -270,15 +275,15 @@ export default class BrainStore {
 	}
 
 	/**
-	 * Get Autonomy Profile for a specific request type
+	 * Get Autonomy Profile for a specific request type.
 	 *
 	 * This method computes AP on-the-fly based on request type to avoid race conditions.
 	 * Each request gets its own AP calculation without storing urgency as state.
 	 *
-	 * @param requestType - Request type (0=FL, 1=direct, 2=absolute_heading, 3=relative_heading)
+	 * @param requestType - Pilot request type
 	 * @returns AP (1 or 2), defaults to 1 if data missing
 	 */
-	getAPForRequestType(requestType: number): number {
+	getAPForRequestType(requestType: PilotRequestType): number {
 		// Manual override always takes precedence
 		if (this.manualAP !== null) {
 			// biome-ignore lint/suspicious/noConsole: debug logging for AP calculation

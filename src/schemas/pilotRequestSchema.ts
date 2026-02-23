@@ -1,6 +1,18 @@
 import { z } from "zod";
 
 /**
+ * Pilot request types as received from the IIS over MQTT.
+ * Note: these numeric values differ from the protobuf PilotRequestTypes enum,
+ * which is used for simulator communication only.
+ */
+export enum PilotRequestType {
+	FlightLevel = 0,
+	Direct = 1,
+	AbsoluteHeading = 2,
+	RelativeHeading = 3,
+}
+
+/**
  * Schema for conflict coordination within required_coordinations.
  */
 const ConflictCoordinationSchema = z.object({
@@ -38,7 +50,7 @@ const GoalResultsSchema = z.object({
 });
 
 /**
- * Schema for a level-change goal entry (request_type !== 2).
+ * Schema for a level-change goal entry (request_type is FlightLevel or Direct).
  */
 const LevelChangeGoalSchema = z.object({
 	RFL: z.number(),
@@ -59,7 +71,7 @@ const HeadingConflictSchema = z.object({
 });
 
 /**
- * Schema for a heading goal entry (request_type === 2).
+ * Schema for a heading goal entry (request_type is AbsoluteHeading or RelativeHeading).
  */
 const HeadingGoalSchema = z.object({
 	Req_hdg_value: z.number(),
@@ -99,26 +111,26 @@ export const PilotRequestJsonSchema = z.object({
  */
 export type PilotRequestJson = z.infer<typeof PilotRequestJsonSchema>;
 
-export enum RequestType {
-	LevelChange = 0,
-	Heading = 2,
-}
-
-/** Maps a request_type number to a RequestType enum. */
-export function getRequestType(requestType: number): RequestType {
+/** Maps a raw request_type number to a PilotRequestType enum value. */
+export function getPilotRequestType(requestType: number): PilotRequestType {
 	switch (requestType) {
-		case RequestType.LevelChange:
-			return RequestType.LevelChange;
-		case RequestType.Heading:
-			return RequestType.Heading;
+		case PilotRequestType.FlightLevel:
+			return PilotRequestType.FlightLevel;
+		case PilotRequestType.Direct:
+			return PilotRequestType.Direct;
+		case PilotRequestType.AbsoluteHeading:
+			return PilotRequestType.AbsoluteHeading;
+		case PilotRequestType.RelativeHeading:
+			return PilotRequestType.RelativeHeading;
 		default:
-			// biome-ignore lint/suspicious/noConsole: warn about unexpected request types from the simulator
+			// biome-ignore lint/suspicious/noConsole: warn about unexpected request types from the brain
 			console.warn(
-				`Unknown request_type: ${requestType}, defaulting to LevelChange`,
+				`Unknown request_type: ${requestType}, defaulting to FlightLevel`,
 			);
-			return RequestType.LevelChange;
+			return PilotRequestType.FlightLevel;
 	}
 }
+
 export type GoalResults = z.infer<typeof GoalResultsSchema>;
 export type Goal = z.infer<typeof GoalSchema>;
 export type LevelChangeGoal = z.infer<typeof LevelChangeGoalSchema>;
@@ -132,7 +144,7 @@ export type ConflictCoordination = z.infer<typeof ConflictCoordinationSchema>;
  * Fields that don't apply to a given request type are undefined.
  */
 export interface NormalizedGoal {
-	/** The requested value (RFL for level change, heading degrees for heading) */
+	/** The requested value (RFL for level change/direct, heading degrees for heading) */
 	requestedValue: number;
 	/** Detailed analysis results — only present for level-change goals */
 	results?: GoalResults;
@@ -147,10 +159,11 @@ export interface NormalizedGoal {
 /** Converts a raw Goal into a NormalizedGoal based on the request type. */
 export function normalizeGoal(
 	goal: Goal,
-	requestType: RequestType,
+	requestType: PilotRequestType,
 ): NormalizedGoal {
 	switch (requestType) {
-		case RequestType.LevelChange: {
+		case PilotRequestType.FlightLevel:
+		case PilotRequestType.Direct: {
 			const g = goal as LevelChangeGoal;
 			return {
 				requestedValue: g.RFL,
@@ -158,7 +171,8 @@ export function normalizeGoal(
 				nextSector: g.results?.next_sector,
 			};
 		}
-		case RequestType.Heading: {
+		case PilotRequestType.AbsoluteHeading:
+		case PilotRequestType.RelativeHeading: {
 			const g = goal as HeadingGoal;
 			return {
 				requestedValue: g.Req_hdg_value,
@@ -168,7 +182,7 @@ export function normalizeGoal(
 			};
 		}
 		default: {
-			// Fallback: treat unknown request types as level-change
+			// Fallback for unknown request types — treat as level change
 			const g = goal as LevelChangeGoal;
 			return {
 				requestedValue: g.RFL,

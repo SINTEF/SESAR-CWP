@@ -21,7 +21,10 @@ import type {
 	NormalizedGoal,
 	PilotRequestJson,
 } from "../schemas/pilotRequestSchema";
-import { getRequestType, normalizeGoal } from "../schemas/pilotRequestSchema";
+import {
+	getPilotRequestType,
+	normalizeGoal,
+} from "../schemas/pilotRequestSchema";
 import AircraftInfo from "./AircraftInfo";
 import AircraftModel from "./AircraftModel";
 import AircraftType from "./AircraftType";
@@ -706,8 +709,8 @@ export default class AircraftStore {
 	): void {
 		// Calculate autonomyProfile once based on request type (immutable)
 		const rawRequestType = request.context?.request_type ?? 0;
-		const autonomyProfile = this.brainStore.getAPForRequestType(rawRequestType);
-		const requestType = getRequestType(rawRequestType);
+		const requestType = getPilotRequestType(rawRequestType);
+		const autonomyProfile = this.brainStore.getAPForRequestType(requestType);
 		const normalizedGoals = request.goals.map((goal) =>
 			normalizeGoal(goal, requestType),
 		);

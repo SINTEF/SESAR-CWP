@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import type { TeamAssistantRequest } from "../../model/AircraftStore";
 import { publishPilotRequestClear } from "../../mqtt-client/publishers";
+import { PilotRequestType } from "../../schemas/pilotRequestSchema";
 import { aircraftStore } from "../../state";
 
 interface RequestPanelProps {
@@ -11,19 +12,17 @@ interface RequestPanelProps {
 
 /**
  * Get the icon path based on request type.
- * HEADING type can be used for weather avoidance requests.
- * requestType: 0=FLIGHT_LEVEL, 1=DIRECTTO, 2=HEADING, 3=SPEED
+ * Heading types (absolute and relative) are used for weather avoidance requests.
  */
 function getIconForRequestType(requestType: number): string {
 	switch (requestType) {
-		case 0: // FLIGHT_LEVEL
+		case PilotRequestType.FlightLevel:
 			return "/flight_level_request.svg";
-		case 1: // DIRECTTO
+		case PilotRequestType.Direct:
 			return "/icon_direct_request.svg";
-		case 2: // HEADING - Weather avoidance uses HEADING type
+		case PilotRequestType.AbsoluteHeading:
+		case PilotRequestType.RelativeHeading:
 			return "/icon_thunderstorm.svg";
-		case 3: // SPEED - Use flight level icon as fallback for speed
-			return "/flight_level_request.svg";
 		default:
 			return "/flight_level_request.svg";
 	}
@@ -32,30 +31,26 @@ function getIconForRequestType(requestType: number): string {
 /**
  * Format the request parameter for display.
  * Adds "FL" prefix for flight level requests if not already present.
- * requestType: 0=FLIGHT_LEVEL, 1=DIRECTTO, 2=HEADING, 3=SPEED
  */
 function formatRequestParameter(
 	requestType: number,
 	parameter: number | string,
 ): string {
 	const paramStr = String(parameter);
-	if (requestType === 0) {
-		// FLIGHT_LEVEL
-		return paramStr;
+	switch (requestType) {
+		case PilotRequestType.FlightLevel:
+			return paramStr;
+		case PilotRequestType.Direct:
+			return paramStr;
+		case PilotRequestType.AbsoluteHeading:
+			return `HDG${paramStr}`;
+		case PilotRequestType.RelativeHeading: {
+			const num = Number(paramStr);
+			return `${num > 0 ? "+" : ""}${paramStr}°`;
+		}
+		default:
+			return paramStr;
 	}
-	if (requestType === 1) {
-		// DIRECTTO - parameter is waypoint name
-		return paramStr;
-	}
-	if (requestType === 2) {
-		// HEADING
-		return `HDG${paramStr}`;
-	}
-	if (requestType === 3) {
-		// SPEED
-		return `${paramStr}kt`;
-	}
-	return paramStr;
 }
 
 /**

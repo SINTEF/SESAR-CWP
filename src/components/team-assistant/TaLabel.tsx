@@ -6,6 +6,7 @@ import { useDragging } from "../../contexts/DraggingContext";
 import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
+import { PilotRequestType } from "../../schemas/pilotRequestSchema";
 import { cwpStore, roleConfigurationStore } from "../../state";
 import TaRequestHovered from "./TaRequestHovered";
 import TaRequestIdle from "./TaRequestIdle";
@@ -121,27 +122,25 @@ export default observer(function TaLabel(properties: {
 
 	const TA_height = displayState === "full" ? 150 : height;
 	const width = {
-		idle: request.context?.request_type === 1 ? 55 : 37, // DIRECT_REQUEST is slightly wider
+		idle: request.context?.request_type === PilotRequestType.Direct ? 55 : 37, // Direct requests are slightly wider
 		compact: 100,
 		full: 140,
 	}[displayState];
 
 	/**
 	 * Get the icon path based on request type.
-	 * requestType: 0=flight_level_request, 1=direct_request, 2=absolute_heading_request, 3=relative_heading_request
 	 */
 	function getIconForRequestType(
 		requestType: number,
 		_requestParameter: number | string,
 	): string {
 		switch (requestType) {
-			case 0: // FLIGHT_LEVEL
+			case PilotRequestType.FlightLevel:
 				return "/flight_level_request.svg";
-			case 1: // DIRECT_REQUEST
+			case PilotRequestType.Direct:
 				return "/icon_direct_request.svg";
-			case 2: // ABSOLUTE_HEADING
-				return "/icon_thunderstorm.svg";
-			case 3: // RELATIVE_HEADING
+			case PilotRequestType.AbsoluteHeading:
+			case PilotRequestType.RelativeHeading:
 				return "/icon_thunderstorm.svg";
 			default:
 				return "/flight_level_request.svg";

@@ -8,7 +8,7 @@ import {
 	publishPilotRequest,
 	publishPilotRequestTestRequest,
 } from "../../mqtt-client/publishers";
-import { PilotRequestTypes } from "../../proto/ProtobufAirTrafficSimulator";
+import { PilotRequestType } from "../../schemas/pilotRequestSchema";
 import { cwpStore } from "../../state";
 
 interface AddRequestDialogProps {
@@ -17,24 +17,24 @@ interface AddRequestDialogProps {
 }
 
 type RequestTypeOption = {
-	type: PilotRequestTypes;
+	type: PilotRequestType;
 	label: string;
 	icon: string;
 };
 
 const REQUEST_TYPES: RequestTypeOption[] = [
 	{
-		type: PilotRequestTypes.FLIGHT_LEVEL,
+		type: PilotRequestType.FlightLevel,
 		label: "Flight Level",
 		icon: "/flight_level_request.svg",
 	},
 	{
-		type: PilotRequestTypes.DIRECTTO,
+		type: PilotRequestType.Direct,
 		label: "Direct To",
 		icon: "/icon_direct_request.svg",
 	},
 	{
-		type: PilotRequestTypes.HEADING,
+		type: PilotRequestType.AbsoluteHeading,
 		label: "Heading",
 		icon: "/icon_thunderstorm.svg",
 	},
@@ -52,40 +52,24 @@ export default observer(function AddRequestDialog({
 	const posthog = usePostHog();
 	const { aircraftId, callSign } = aircraft;
 
-	const createRequest = (type: PilotRequestTypes, parameter: string): void => {
+	const createRequest = (type: PilotRequestType, parameter: string): void => {
 		const requestId = crypto.randomUUID();
 
-		// Convert PilotRequestTypes enum to JSON request_type number
-		// 0 = flight_level_request, 1 = direct_request, 2 = absolute_heading_request, 3 = relative_heading_request
-		let requestType = 0;
-		switch (type) {
-			case PilotRequestTypes.FLIGHT_LEVEL:
-				requestType = 0;
-				break;
-			case PilotRequestTypes.DIRECTTO:
-				requestType = 1;
-				break;
-			case PilotRequestTypes.HEADING:
-				requestType = 2; // Using absolute heading
-				break;
-			default:
-				requestType = 0;
-		}
-
-		// For DIRECTTO, keep the parameter as string (waypoint name)
+		// For Direct, keep the parameter as string (waypoint name)
 		// For other types, convert to number
 		const requestParameter: number | string =
-			type === PilotRequestTypes.DIRECTTO
+			type === PilotRequestType.Direct
 				? parameter.toUpperCase()
 				: Number.parseInt(parameter, 10) || 0;
 
 		// Publish to MQTT - the message will be received back via subscriber
+		// PilotRequestType enum values are the wire values (0=FL, 1=Direct, 2=AbsoluteHeading, 3=RelativeHeading)
 		handlePublishPromise(
-			publishPilotRequest(callSign, requestId, requestType, requestParameter),
+			publishPilotRequest(callSign, requestId, type, requestParameter),
 		);
 	};
 
-	const handleTypeSelect = (type: PilotRequestTypes): void => {
+	const handleTypeSelect = (type: PilotRequestType): void => {
 		const typeLabel =
 			REQUEST_TYPES.find((t) => t.type === type)?.label ?? "Unknown";
 		posthog?.capture("TA_request_type_selected", {
@@ -109,17 +93,16 @@ export default observer(function AddRequestDialog({
 
 		// Open the appropriate existing popup, preserving the callback
 		switch (type) {
-			case PilotRequestTypes.FLIGHT_LEVEL:
+			case PilotRequestType.FlightLevel:
 				cwpStore.openLevelPopupForAircraft(aircraftId, true);
 				break;
-			case PilotRequestTypes.DIRECTTO:
+			case PilotRequestType.Direct:
 				cwpStore.openChangeNextFixForAircraft(aircraftId, true);
 				break;
-			case PilotRequestTypes.HEADING:
+			case PilotRequestType.AbsoluteHeading:
 				cwpStore.openChangeBearingForAircraft(aircraftId, true);
 				break;
 			default:
-				// SPEED type not supported in this dialog
 				Sentry.captureMessage(
 					`AddRequestDialog: Unsupported request type selected: ${type}`,
 				);
