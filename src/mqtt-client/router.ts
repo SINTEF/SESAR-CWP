@@ -21,6 +21,7 @@ import {
 	frontendNextSectorFlightLevel,
 	frontendSpeed,
 	ignored,
+	initCompleted,
 	isaUpdate,
 	newAircraftMessage,
 	newAircraftTypeMessage,
@@ -36,12 +37,13 @@ import {
 	pilotRequestJson,
 	roleConfiguration,
 	simulatorLogs,
+	simulatorStartupConfiguration,
 	targetReport,
 	workloadUpdate,
 } from "./subscribers";
 
 const router = rlite<Buffer>(notFound, {
-	"ats/:clientId/data/init-completed": ignored,
+	"ats/:clientId/data/init-completed": initCompleted,
 	"ats/:clientId/data/target-reports/:vehicleId": targetReport,
 	"ats/:clientId/data/availability-schedule": newAvailabilitySchedule,
 	"ats/:clientId/data/flight-milestone-times/:flightUniqueId/:planningStage/:milestone":
@@ -81,6 +83,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/data/tentative-flights/:toControllableAirspaceVolume/:flightId":
 		ignored,
 	"ats/:clientId/status/time": newSimulatorTime,
+	"ats/:clientId/status/config/startup": simulatorStartupConfiguration,
 	"ats/:clientId/status/:status": ignored,
 	"ats/:clientId/logs": simulatorLogs,
 	"ats/:clientId/data/flight-conflicts/:conflictType/:flightUniqueId1/:flightUniqueId2":

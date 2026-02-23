@@ -43,6 +43,14 @@ export async function restartSimulator(): Promise<void> {
 	await publish(`ats/${clientId}/commands/sim`, "quit", { qos: 2 });
 }
 
+export async function setStartupConfiguration(scenario: string): Promise<void> {
+	await publish(`ats/${clientId}/commands/config/startup`, scenario);
+}
+
+export async function clearStartupConfiguration(): Promise<void> {
+	await publish(`ats/${clientId}/commands/config/startup`, "");
+}
+
 export async function setSpeedFactor(speedFactor: number): Promise<void> {
 	await publish(
 		`ats/${clientId}/commands/speed-factor`,
