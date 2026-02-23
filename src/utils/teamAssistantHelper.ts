@@ -12,18 +12,24 @@ import {
 } from "../schemas/pilotRequestSchema";
 
 /**
- * Check if a normalized goal has a positive recommendation.
- * For level-change goals: higher_level_available is true.
- * For heading goals: isHeadingFound is true.
+ * Check if a normalized goal has a positive recommendation, based on request type.
+ * - FlightLevel / Direct: higher_level_available must be true.
+ * - AbsoluteHeading / RelativeHeading: isHeadingFound must be true.
  */
-function isGoalPositive(goal: NormalizedGoal): boolean {
-	if (goal.results) {
-		return goal.results.higher_level_available;
+function isGoalPositive(
+	goal: NormalizedGoal,
+	requestType: PilotRequestType,
+): boolean {
+	switch (requestType) {
+		case PilotRequestType.FlightLevel:
+		case PilotRequestType.Direct:
+			return goal.results?.higher_level_available ?? false;
+		case PilotRequestType.AbsoluteHeading:
+		case PilotRequestType.RelativeHeading:
+			return goal.isHeadingFound ?? false;
+		default:
+			return false;
 	}
-	if (goal.isHeadingFound !== undefined) {
-		return goal.isHeadingFound;
-	}
-	return false;
 }
 
 // Could this logic somewhat work?
@@ -33,26 +39,32 @@ export function getRequestStatusColorClass(
 	if (!results) {
 		return "text-gray-500";
 	}
+	const requestType = getPilotRequestType(
+		results.context?.request_type ?? 0,
+	);
 	let isAccepted = false;
-	const normalizedGoals = results.normalizedGoals;
-	for (const goal of normalizedGoals) {
-		if (!isGoalPositive(goal)) {
+	for (const goal of results.normalizedGoals) {
+		if (!isGoalPositive(goal, requestType)) {
 			continue;
 		}
-		// For level-change: check if initial_climb and exit_level match request_parameter
-		if (goal.results) {
-			const initDifferent =
-				goal.results.initial_climb !== results.context.request_parameter;
-			const exitDifferent =
-				goal.results.exit_level !== results.context.request_parameter;
-			if (!initDifferent && !exitDifferent) {
-				isAccepted = true;
-			} else if (initDifferent || exitDifferent) {
-				isAccepted = false;
+		switch (requestType) {
+			case PilotRequestType.FlightLevel:
+			case PilotRequestType.Direct: {
+				// Check if initial_climb and exit_level match request_parameter
+				const initDifferent =
+					goal.results?.initial_climb !== results.context.request_parameter;
+				const exitDifferent =
+					goal.results?.exit_level !== results.context.request_parameter;
+				isAccepted = !initDifferent && !exitDifferent;
+				break;
 			}
-		} else {
-			// For heading: if heading was found, consider it accepted
-			isAccepted = true;
+			case PilotRequestType.AbsoluteHeading:
+			case PilotRequestType.RelativeHeading:
+				// Heading found is sufficient for acceptance
+				isAccepted = true;
+				break;
+			default:
+				break;
 		}
 	}
 	return isAccepted ? "text-green-400" : "text-red-500";
@@ -101,16 +113,21 @@ export function findSuggestionForRequest(
 	if (!request.normalizedGoals) {
 		return null;
 	}
+	const requestType = getPilotRequestType(request.context?.request_type ?? 0);
 	for (const goal of request.normalizedGoals) {
-		if (isGoalPositive(goal)) {
-			// For level-change: use initial_climb; for heading: use requestedValue
-			const suggestionValue = goal.results
-				? goal.results.initial_climb.toString()
-				: goal.requestedValue.toString();
-			return formatRequestSuggestion(
-				getPilotRequestType(request.context?.request_type ?? 0),
-				suggestionValue,
-			);
+		if (isGoalPositive(goal, requestType)) {
+			let suggestionValue: string;
+			switch (requestType) {
+				case PilotRequestType.FlightLevel:
+				case PilotRequestType.Direct:
+					// Use initial_climb as the suggested value for level-change goals
+					suggestionValue = goal.results?.initial_climb.toString() ?? goal.requestedValue.toString();
+					break;
+				default:
+					suggestionValue = goal.requestedValue.toString();
+					break;
+			}
+			return formatRequestSuggestion(requestType, suggestionValue);
 		}
 	}
 	return null;
@@ -122,11 +139,16 @@ export function getSuggestionForRequest(
 	if (!request.normalizedGoals) {
 		return null;
 	}
+	const requestType = getPilotRequestType(request.context?.request_type ?? 0);
 	for (const goal of request.normalizedGoals) {
-		if (isGoalPositive(goal)) {
-			return goal.results
-				? goal.results.initial_climb.toString()
-				: goal.requestedValue.toString();
+		if (isGoalPositive(goal, requestType)) {
+			switch (requestType) {
+				case PilotRequestType.FlightLevel:
+				case PilotRequestType.Direct:
+					return goal.results?.initial_climb.toString() ?? goal.requestedValue.toString();
+				default:
+					return goal.requestedValue.toString();
+			}
 		}
 	}
 	return null;
@@ -136,19 +158,27 @@ export function isAccepted(request: TeamAssistantRequest): boolean {
 	if (!request.normalizedGoals) {
 		return false;
 	}
+	const requestType = getPilotRequestType(request.context?.request_type ?? 0);
 	for (const goal of request.normalizedGoals) {
-		if (isGoalPositive(goal)) {
-			if (goal.results) {
-				const initDifferent =
-					goal.results.initial_climb !== request.context.request_parameter;
-				const exitDifferent =
-					goal.results.exit_level !== request.context.request_parameter;
-				if (!initDifferent && !exitDifferent) {
-					return true;
+		if (isGoalPositive(goal, requestType)) {
+			switch (requestType) {
+				case PilotRequestType.FlightLevel:
+				case PilotRequestType.Direct: {
+					const initDifferent =
+						goal.results?.initial_climb !== request.context.request_parameter;
+					const exitDifferent =
+						goal.results?.exit_level !== request.context.request_parameter;
+					if (!initDifferent && !exitDifferent) {
+						return true;
+					}
+					break;
 				}
-			} else {
-				// For heading: positive goal means accepted
-				return true;
+				case PilotRequestType.AbsoluteHeading:
+				case PilotRequestType.RelativeHeading:
+					// Positive heading goal means accepted
+					return true;
+				default:
+					break;
 			}
 		}
 	}
@@ -159,8 +189,9 @@ export function isAcceptOrSuggest(request: TeamAssistantRequest): boolean {
 	if (!request.normalizedGoals) {
 		return false;
 	}
+	const requestType = getPilotRequestType(request.context?.request_type ?? 0);
 	for (const goal of request.normalizedGoals) {
-		if (isGoalPositive(goal)) {
+		if (isGoalPositive(goal, requestType)) {
 			return true;
 		}
 	}
@@ -171,13 +202,13 @@ export function isRejected(request: TeamAssistantRequest): boolean {
 	if (!request.normalizedGoals) {
 		return false;
 	}
-	let rejected = true;
+	const requestType = getPilotRequestType(request.context?.request_type ?? 0);
 	for (const goal of request.normalizedGoals) {
-		if (isGoalPositive(goal)) {
-			rejected = false;
+		if (isGoalPositive(goal, requestType)) {
+			return false;
 		}
 	}
-	return rejected;
+	return true;
 }
 
 export const handleChangeCFL = (
