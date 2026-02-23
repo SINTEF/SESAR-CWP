@@ -55,19 +55,16 @@ function getTaDisplayState(
  *
  * @param bearing - Aircraft bearing in degrees (0 = North, 90 = East, 180 = South, 270 = West)
  * @param speed - Aircraft speed in knots
- * @param width - Popup width in pixels
- * @param height - Popup height in pixels
  * @returns Offset coordinates {x, y} in pixels
  */
 
 export default observer(function TaLabel(properties: {
 	aircraft: AircraftModel;
 	request: TeamAssistantRequest;
-	height: number;
 	pseudo?: boolean;
 }) {
 	const posthog = usePostHog();
-	const { aircraft, request, height } = properties;
+	const { aircraft, request } = properties;
 	const {
 		aircraftId,
 		// lastKnownLongitude: longitude,
@@ -120,7 +117,6 @@ export default observer(function TaLabel(properties: {
 		});
 	};
 
-	const TA_height = displayState === "full" ? 150 : height;
 	const width = {
 		idle: request.context?.request_type === PilotRequestType.Direct ? 55 : 37, // Direct requests are slightly wider
 		compact: 100,
@@ -198,8 +194,8 @@ export default observer(function TaLabel(properties: {
 				)}
 				onWheel={onWheel}
 				style={{
-					width: `${width}px`,
-					height: displayState === "full" || !isAP2 ? "auto" : `${TA_height}px`,
+					width: "auto",
+					height: "auto",
 				}}
 			>
 				{displayState === "idle" ? (

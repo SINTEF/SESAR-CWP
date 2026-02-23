@@ -23,8 +23,8 @@ import { useTaActions } from "./useTaActions";
  * Hovered state for a Team Assistant request label.
  *
  * isExpanded=false (compact): AP2 hover before the expand arrow is clicked.
- *   - No goal rows (the AP2 view shows them only after expanding)
- *   - ExpandArrow in the action row to go full
+ *   - No goal rows when a solution exists (expand arrow lets the user go full)
+ *   - All goal rows when no solution exists (no comm buttons or expand arrow)
  *
  * isExpanded=true (full): AP1 hover (always), or AP2 after expand arrow clicked.
  *   - All goal rows
@@ -85,8 +85,9 @@ export default observer(function TaRequestHovered(properties: {
 		cwpStore.setHoveredFlightLabelId(aircraft.aircraftId);
 	};
 
-	// Goal rows: always in full/AP1; hidden in compact/AP2 (shown after expand)
-	const showGoalRows = !isAP2 || isExpanded;
+	// Goal rows: always in full/AP1; hidden in compact/AP2 (shown after expand);
+	// also always shown for AP2 when there is no accept/suggest solution.
+	const showGoalRows = !isAP2 || isExpanded || !isAcceptOrSuggest(request);
 
 	const normalizedGoals = showGoalRows
 		? [...request.normalizedGoals].sort(

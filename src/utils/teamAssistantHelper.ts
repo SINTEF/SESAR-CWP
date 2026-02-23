@@ -39,9 +39,7 @@ export function getRequestStatusColorClass(
 	if (!results) {
 		return "text-gray-500";
 	}
-	const requestType = getPilotRequestType(
-		results.context?.request_type ?? 0,
-	);
+	const requestType = getPilotRequestType(results.context?.request_type ?? 0);
 	let isAccepted = false;
 	for (const goal of results.normalizedGoals) {
 		if (!isGoalPositive(goal, requestType)) {
@@ -121,7 +119,9 @@ export function findSuggestionForRequest(
 				case PilotRequestType.FlightLevel:
 				case PilotRequestType.Direct:
 					// Use initial_climb as the suggested value for level-change goals
-					suggestionValue = goal.results?.initial_climb.toString() ?? goal.requestedValue.toString();
+					suggestionValue =
+						goal.results?.initial_climb.toString() ??
+						goal.requestedValue.toString();
 					break;
 				default:
 					suggestionValue = goal.requestedValue.toString();
@@ -145,7 +145,10 @@ export function getSuggestionForRequest(
 			switch (requestType) {
 				case PilotRequestType.FlightLevel:
 				case PilotRequestType.Direct:
-					return goal.results?.initial_climb.toString() ?? goal.requestedValue.toString();
+					return (
+						goal.results?.initial_climb.toString() ??
+						goal.requestedValue.toString()
+					);
 				default:
 					return goal.requestedValue.toString();
 			}
