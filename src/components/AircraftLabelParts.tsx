@@ -116,24 +116,8 @@ export const VerticalSpeed = observer(({ aircraft }: SubContentProperties) => {
 });
 
 export const Altitude = observer(({ aircraft }: SubContentProperties) => {
-	const posthog = usePostHog();
-	const { isDragging } = useDragging();
-	const onClick = (): void => {
-		if (isDragging) {
-			return;
-		}
-		cwpStore.openLevelPopupForAircraft(aircraft.aircraftId);
-
-		posthog?.capture("altitude_popup_opened", {
-			aircraft_id: aircraft.aircraftId,
-			callsign: aircraft.callSign,
-			current_altitude: aircraft.lastKnownAltitude,
-		});
-	};
 	return (
-		<span onClick={onClick} className="hover:outline-2 hover:outline-white">
-			{Number.parseFloat(aircraft.lastKnownAltitude.toFixed(0))}
-		</span>
+		<span>{Number.parseFloat(aircraft.lastKnownAltitude.toFixed(0))}</span>
 	);
 });
 
