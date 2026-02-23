@@ -369,7 +369,7 @@ export default class AircraftStore {
 	}
 
 	handleFrontendACCFlightLevel(flightId: string, flightLevel: string): void {
-		this.aircrafts.get(flightId)?.setNextACCFL(flightLevel);
+		this.aircrafts.get(flightId)?.setNextACCFL(flightLevel, true); // From MQTT = manually set
 	}
 
 	handleFrontendNextSectorFlightLevel(

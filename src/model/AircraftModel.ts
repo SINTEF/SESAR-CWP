@@ -85,7 +85,10 @@ export default class AircraftModel {
 	/** Explicitly set next sector flight level (raw value), or undefined if derived from trajectory */
 	manualNextSectorFL: number | undefined = undefined;
 
-	nextACCFL = "COO";
+	nextACCFL = "";
+
+	/** Whether the nextACCFL value was manually set through the interface */
+	isNextACCFLManuallySet = false;
 
 	/** Whether the nextACCFL value is currently flashing (recently changed) */
 	isNextACCFLFlashing = false;
@@ -199,6 +202,7 @@ export default class AircraftModel {
 			localAssignedFlightLevel: observable,
 			manualNextSectorFL: observable,
 			nextACCFL: observable,
+			isNextACCFLManuallySet: observable,
 			isNextACCFLFlashing: observable,
 			isNextSectorFLFlashing: observable,
 			positionHistory: observable,
@@ -273,6 +277,10 @@ export default class AircraftModel {
 		const altitudeInFlightMeters = convertToFlightMeters(altitude);
 		if (altitudeInFlightMeters !== this.lastKnownAltitude) {
 			this.lastKnownAltitude = altitudeInFlightMeters;
+			// Only auto-update nextACCFL if it hasn't been manually set through the interface
+			if (!this.isNextACCFLManuallySet) {
+				this.nextACCFL = altitudeInFlightMeters.toString();
+			}
 		}
 		if (latitude !== this.lastKnownLatitude) {
 			this.lastKnownLatitude = latitude;
@@ -674,9 +682,13 @@ export default class AircraftModel {
 		}
 	}
 
-	setNextACCFL(nextACCFL: string): void {
+	setNextACCFL(nextACCFL: string, isManual = false): void {
 		const hasChanged = this.nextACCFL !== nextACCFL;
 		this.nextACCFL = nextACCFL;
+		// Track if this was a manual change through the interface
+		if (isManual) {
+			this.isNextACCFLManuallySet = true;
+		}
 
 		if (hasChanged) {
 			// Clear any existing flash timeout

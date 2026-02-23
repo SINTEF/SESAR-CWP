@@ -231,17 +231,19 @@ export const NextACCFlightLevel = observer(
 			});
 		};
 
-		// Don't display if COO (only when hideIfMatchesAltitude is true, i.e., in small content)
-		if (hideIfMatchesAltitude && nextACCFL === "COO") {
+		// Don't display if COO (only when hideIfMatchesAltitude is true, i.e., in small content) -- This might have to be updated
+		if (hideIfMatchesAltitude && nextACCFL === lastKnownAltitude.toString()) {
 			return null;
 		}
 
-		let displayValue = nextACCFL;
+		let displayValue =
+			nextACCFL === lastKnownAltitude.toString()
+				? lastKnownAltitude.toFixed(0)
+				: nextACCFL.toString();
 		// if digit
 		if (/^\d+$/.test(nextACCFL)) {
-			displayValue = Math.round(Number.parseInt(nextACCFL) / 10)
-				.toString()
-				.padStart(2, "0");
+			displayValue = Math.round(Number.parseInt(nextACCFL) / 10).toString();
+			// .padStart(2, "0")
 		}
 
 		// Don't display if the rounded display value matches the rounded altitude (only in small content)

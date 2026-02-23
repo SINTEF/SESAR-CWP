@@ -1,5 +1,10 @@
 import AircraftModel from "../model/AircraftModel";
 import { TeamAssistantRequest } from "../model/AircraftStore";
+import {
+	changeFlightLevelOfAircraft,
+	handlePublishPromise,
+	persistACCFlightLevel,
+} from "../mqtt-client/publishers";
 import type { NormalizedGoal } from "../schemas/pilotRequestSchema";
 
 /**
@@ -180,11 +185,24 @@ export const handleChangeCFL = (
 	request: TeamAssistantRequest,
 	aircraft: AircraftModel,
 ): void => {
+	let cflRequestParameter = "";
 	if (!isAccepted(request) && getSuggestionForRequest(request)) {
-		aircraft.setNextACCFL(getSuggestionForRequest(request) ?? "COO");
+		cflRequestParameter = getSuggestionForRequest(request) ?? "";
+		aircraft.setNextACCFL(cflRequestParameter, true); // Mark as manually set
 	} else {
-		aircraft.setNextACCFL(
-			request.context?.request_parameter.toString() ?? "COO",
-		);
+		cflRequestParameter = request.context?.request_parameter.toString() ?? "";
+		aircraft.setNextACCFL(cflRequestParameter, true); // Mark as manually set
 	}
+	handlePublishPromise(
+		persistACCFlightLevel(aircraft.assignedFlightId, cflRequestParameter),
+	);
+	setTimeout(() => {
+		handlePublishPromise(
+			changeFlightLevelOfAircraft(
+				aircraft.controlledBy,
+				aircraft.assignedFlightId,
+				cflRequestParameter,
+			),
+		);
+	}, 1000);
 };

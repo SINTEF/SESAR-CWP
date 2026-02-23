@@ -8,7 +8,7 @@ import {
 	handlePublishPromise,
 	persistACCFlightLevel,
 	persistAssignedFlightLevel,
-	persistLocalAssignedFlightLevel,
+	// persistLocalAssignedFlightLevel,
 	persistNextSectorFlightLevel,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
@@ -70,7 +70,7 @@ export default observer(function AircraftLevelPopup(properties: {
 		controlledBy,
 		nextACCFL,
 		setAssignedFlightLevel,
-		setLocalAssignedFlightLevel,
+		// setLocalAssignedFlightLevel,
 		setNextSectorFL,
 		setNextACCFL,
 	} = properties.aircraft;
@@ -81,7 +81,7 @@ export default observer(function AircraftLevelPopup(properties: {
 	const currentAircraftLevel = Math.round(altitude / 10) * 10;
 	// Use nextACCFL as the default level if it's a number, otherwise use the aircraft altitude
 	const getDefaultLevel = (): number => {
-		if (nextACCFL !== "COO" && /^\d+$/.test(nextACCFL)) {
+		if (/^\d+$/.test(nextACCFL)) {
 			return Math.round(Number.parseInt(nextACCFL) / 10) * 10;
 		}
 		return currentAircraftLevel;
@@ -165,7 +165,7 @@ export default observer(function AircraftLevelPopup(properties: {
 	};
 
 	const applyFlightLevel = (level: number): void => {
-		const stringFlightLevel = level.toString();
+		const stringFlightLevel = (level * 10).toString();
 
 		// If TA request callback is set, call it instead of normal behavior
 		if (cwpStore.taRequestCallback) {
@@ -195,17 +195,30 @@ export default observer(function AircraftLevelPopup(properties: {
 		} else if (cwpStore.flightLevelNextAccActivated) {
 			changeType = "next_acc_fl";
 			cwpStore.showFlACC(false);
-			setNextACCFL(stringFlightLevel);
+			setNextACCFL(stringFlightLevel, true); // Mark as manually set
 			handlePublishPromise(
 				persistACCFlightLevel(assignedFlightId, stringFlightLevel),
 			);
-		} else if (!cwpStore.pseudoPilot && !isMaster) {
-			changeType = "local_assigned_fl";
-			setLocalAssignedFlightLevel(stringFlightLevel);
-			handlePublishPromise(
-				persistLocalAssignedFlightLevel(assignedFlightId, stringFlightLevel),
-			);
-		} else {
+			// Changing the level when changing the FL - COO - with delay - how much?
+			setTimeout(() => {
+				handlePublishPromise(
+					changeFlightLevelOfAircraft(
+						controlledBy,
+						assignedFlightId,
+						stringFlightLevel,
+					),
+				);
+			}, 1000);
+		}
+		// We don't have local assigned right? --> This is why FL is not set.
+		// else if (!cwpStore.pseudoPilot && !isMaster) {
+		// 	changeType = "local_assigned_fl";
+		// 	setLocalAssignedFlightLevel(stringFlightLevel);
+		// 	handlePublishPromise(
+		// 		persistLocalAssignedFlightLevel(assignedFlightId, stringFlightLevel),
+		// 	);
+		// }
+		else {
 			changeType = "assigned_fl";
 			setAssignedFlightLevel(stringFlightLevel);
 			handlePublishPromise(

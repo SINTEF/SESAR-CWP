@@ -17,7 +17,6 @@ import type AircraftModel from "./model/AircraftModel";
 import {
 	handlePublishPromise,
 	persistACCBearing,
-	persistACCFlightLevel,
 	persistAssignedFlightLevel,
 	persistNextSectorFlightLevel,
 	persistSpeedAircraft,
@@ -39,7 +38,6 @@ function runSimulationLogic(aircraft: AircraftModel): void {
 		lastKnownBearing,
 		lastKnownSpeed,
 		localAssignedFlightLevel,
-		nextACCFL,
 		nextSectorFL,
 		nextSectorController,
 		controlledBy,
@@ -48,7 +46,6 @@ function runSimulationLogic(aircraft: AircraftModel): void {
 		setAssignedFlightLevel,
 		setAssignedSpeed,
 		setLocalAssignedFlightLevel,
-		setNextACCFL,
 		setNextSectorFL,
 	} = aircraft;
 
@@ -66,10 +63,6 @@ function runSimulationLogic(aircraft: AircraftModel): void {
 		handlePublishPromise(
 			persistNextSectorFlightLevel(assignedFlightId, "NSFL"),
 		);
-	}
-	if (nextACCFL === stringAltitude) {
-		setNextACCFL("COO");
-		handlePublishPromise(persistACCFlightLevel(assignedFlightId, "COO"));
 	}
 	if (assignedBearing === Math.round(lastKnownBearing)) {
 		setAssignedBearing(-1);
@@ -95,7 +88,6 @@ autorun(() => {
 			lastKnownBearing,
 			lastKnownSpeed,
 			localAssignedFlightLevel,
-			nextACCFL,
 			nextSectorFL,
 		} = aircraft;
 
@@ -105,7 +97,6 @@ autorun(() => {
 			assignedFlightLevel === stringAltitude ||
 			localAssignedFlightLevel === stringAltitude ||
 			nextSectorFL === stringAltitude ||
-			nextACCFL === stringAltitude ||
 			assignedBearing === Math.round(lastKnownBearing) ||
 			assignedSpeed === Math.round(lastKnownSpeed)
 		) {
