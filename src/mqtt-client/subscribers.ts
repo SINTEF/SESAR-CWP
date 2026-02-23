@@ -11,6 +11,7 @@ import {
 	FlightMilestonePositionMessage,
 	FlightRouteMessage,
 	FrequenciesMessage,
+	InitialisationCompleted,
 	NewAircraftMessage,
 	NewAircraftTypeMessage,
 	NewAirspaceConfigurationMessage,
@@ -319,6 +320,37 @@ export function pilotRequest(
 export function simulatorLogs(_parameters: unknown, message: Buffer): void {
 	const logMessage = message.toString();
 	adminStore.handleLogMessage(logMessage);
+}
+
+export function simulatorStartupConfiguration(
+	_parameters: unknown,
+	message: Buffer,
+): void {
+	const scenario = message.toString().trim();
+	adminStore.setSimulatorStartupScenario(scenario || null);
+}
+
+export function initCompleted(_parameters: unknown, message: Buffer): void {
+	if (message.length === 0) {
+		adminStore.handleInitialisationNotCompleted();
+		return;
+	}
+
+	try {
+		const event = InitialisationCompleted.fromBinary(message);
+		const completionTime = event.completionTime;
+		const completedAt = completionTime
+			? new Date(
+					Number(completionTime.seconds) * 1000 +
+						completionTime.nanos / 1_000_000,
+				)
+			: new Date();
+		adminStore.handleInitialisationCompleted(completedAt);
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: error logging
+		console.error("Failed to decode InitialisationCompleted message:", error);
+		Sentry.captureException(error);
+	}
 }
 
 export function airways(_parameters: unknown, message: Buffer): void {

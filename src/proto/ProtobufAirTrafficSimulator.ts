@@ -1643,7 +1643,15 @@ export enum Milestone {
      *
      * @generated from protobuf enum value: INBLOCK = 11;
      */
-    INBLOCK = 11
+    INBLOCK = 11,
+    /**
+     * In block time is when the aircraft has entered the stand and stops moving.
+     *
+     * Specifies that the aircraft is passing a fix in flight.
+     *
+     * @generated from protobuf enum value: PASSING_FIX = 12;
+     */
+    PASSING_FIX = 12
 }
 /**
  * The different vehicle categories that exist.

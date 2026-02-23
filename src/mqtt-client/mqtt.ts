@@ -256,15 +256,19 @@ function processIncomingMessages(): void {
 	transaction(() => {
 		incomingMessagesBatchId = 0;
 		for (const { topic, message } of incomingMessagesQueue) {
+			const isInitCompletedTopic = /\/data\/init-completed$/.test(topic);
+
 			// Ignore empty messages (they are most likely deletion messages)
-			if (message.length > 0) {
-				try {
-					router(topic, message);
-				} catch (error) {
-					// biome-ignore lint/suspicious/noConsole: needed for now
-					console.error("Error while handling MQTT message", error);
-					Sentry.captureException(error);
-				}
+			if (message.length === 0 && !isInitCompletedTopic) {
+				continue;
+			}
+
+			try {
+				router(topic, message);
+			} catch (error) {
+				// biome-ignore lint/suspicious/noConsole: needed for now
+				console.error("Error while handling MQTT message", error);
+				Sentry.captureException(error);
 			}
 		}
 	});

@@ -1,5 +1,4 @@
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
 import {
 	handlePublishPromise,
 	persistManualAP,
@@ -38,7 +37,6 @@ function NumberInput({
  * BrainPanel - Admin panel for Brain with full visibility into AP calculation
  */
 export default observer(function BrainPanel() {
-	const [expanded, setExpanded] = useState(false);
 	const {
 		autonomyProfile,
 		manualAP,
@@ -72,7 +70,7 @@ export default observer(function BrainPanel() {
 	}
 
 	return (
-		<div className="p-3 bg-neutral-800 space-y-3 relative overflow-hidden">
+		<div className="p-3 bg-neutral-900 space-y-3 relative overflow-hidden">
 			{/* Manual AP Control */}
 			<div className="flex items-center gap-2">
 				<span className="text-xs text-gray-400">AP:</span>
@@ -104,160 +102,146 @@ export default observer(function BrainPanel() {
 				</span>
 			</div>
 
-			{/* Toggle details */}
-			<button
-				type="button"
-				className="btn btn-xs btn-ghost text-gray-400 w-full"
-				onClick={() => setExpanded((v) => !v)}
-			>
-				{expanded ? "Hide Brian's details" : "Show Brian's details"}
-			</button>
+			{/* Task Load breakdown */}
+			<div className="text-xs text-gray-400 space-y-1">
+				<div className="font-semibold text-gray-300">Task Load</div>
+				<table className="table table-xs text-gray-400 w-full">
+					<thead>
+						<tr>
+							<th />
+							<th>Raw</th>
+							<th>Max</th>
+							<th>Norm</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Assumed Flights</td>
+							<td>{numberOfFlights}</td>
+							<td>{maxNumberOfFlights}</td>
+							<td>{normalizedFlights.toFixed(3)}</td>
+						</tr>
+						<tr>
+							<td>Requests (last 5 min)</td>
+							<td>{numberOfRequests}</td>
+							<td>{maxNumberOfRequests}</td>
+							<td>{normalizedRequests.toFixed(3)}</td>
+						</tr>
+						<tr>
+							<td>Conflicts (MTCD + TCT)</td>
+							<td>{numberOfConflicts}</td>
+							<td>{maxNumberOfConflicts}</td>
+							<td>{normalizedConflicts.toFixed(3)}</td>
+						</tr>
+					</tbody>
+				</table>
+				<div className="font-mono">
+					TL = ({normalizedFlights.toFixed(3)} + {normalizedRequests.toFixed(3)}{" "}
+					+ {normalizedConflicts.toFixed(3)}) / 3 ={" "}
+					<span className="text-gray-200">{taskLoad.toFixed(3)}</span>
+				</div>
+			</div>
 
-			{expanded && (
-				<>
-					{/* Task Load breakdown */}
-					<div className="text-xs text-gray-400 space-y-1">
-						<div className="font-semibold text-gray-300">Task Load</div>
-						<table className="table table-xs text-gray-400 w-full">
-							<thead>
-								<tr>
-									<th />
-									<th>Raw</th>
-									<th>Max</th>
-									<th>Norm</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Assumed Flights</td>
-									<td>{numberOfFlights}</td>
-									<td>{maxNumberOfFlights}</td>
-									<td>{normalizedFlights.toFixed(3)}</td>
-								</tr>
-								<tr>
-									<td>Requests (last 5 min)</td>
-									<td>{numberOfRequests}</td>
-									<td>{maxNumberOfRequests}</td>
-									<td>{normalizedRequests.toFixed(3)}</td>
-								</tr>
-								<tr>
-									<td>Conflicts (MTCD + TCT)</td>
-									<td>{numberOfConflicts}</td>
-									<td>{maxNumberOfConflicts}</td>
-									<td>{normalizedConflicts.toFixed(3)}</td>
-								</tr>
-							</tbody>
-						</table>
-						<div className="font-mono">
-							TL = ({normalizedFlights.toFixed(3)} +{" "}
-							{normalizedRequests.toFixed(3)} + {normalizedConflicts.toFixed(3)}
-							) / 3 ={" "}
-							<span className="text-gray-200">{taskLoad.toFixed(3)}</span>
-						</div>
-					</div>
+			{/* MQTT Data & Weights */}
+			<div className="text-xs text-gray-400 space-y-1">
+				<div className="font-semibold text-gray-300">Weights & MQTT</div>
+				<table className="table table-xs text-gray-400">
+					<thead>
+						<tr>
+							<th>WL</th>
+							<th>Accuracy(&beta;)</th>
+							<th>ISA</th>
+							<th>normISA</th>
+							<th>&delta;</th>
+							<th>&alpha;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{workloadAgent ?? "\u2014"}</td>
+							<td>
+								{accuracy?.toFixed(3) ?? "\u2014"} ({beta.toFixed(3)})
+							</td>
+							<td>{ISA ?? "\u2014"}</td>
+							<td>{normalizedISA.toFixed(3)}</td>
+							<td>{delta.toFixed(3)}</td>
+							<td>{alpha.toFixed(3)}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 
-					{/* MQTT Data & Weights */}
-					<div className="text-xs text-gray-400 space-y-1">
-						<div className="font-semibold text-gray-300">Weights & MQTT</div>
-						<table className="table table-xs text-gray-400">
-							<thead>
-								<tr>
-									<th>WL</th>
-									<th>Accuracy(&beta;)</th>
-									<th>ISA</th>
-									<th>normISA</th>
-									<th>&delta;</th>
-									<th>&alpha;</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>{workloadAgent ?? "\u2014"}</td>
-									<td>
-										{accuracy?.toFixed(3) ?? "\u2014"} ({beta.toFixed(3)})
-									</td>
-									<td>{ISA ?? "\u2014"}</td>
-									<td>{normalizedISA.toFixed(3)}</td>
-									<td>{delta.toFixed(3)}</td>
-									<td>{alpha.toFixed(3)}</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+			{/* Computed AP */}
+			<div className="text-xs text-gray-400 space-y-1">
+				<div className="font-semibold text-gray-300">
+					Computed AP (urgency=0)
+				</div>
+				<div className="font-mono">
+					{alpha.toFixed(3)}*{taskLoad.toFixed(3)} + {beta.toFixed(3)}*
+					{workloadAgent ?? 0} + {delta.toFixed(3)}*{normalizedISA.toFixed(3)} +{" "}
+					{gamma.toFixed(3)}*0
+				</div>
+				<div className="font-mono">
+					= {computedAP.toFixed(3)} / 3 ={" "}
+					<span className="text-gray-200">{normalizedAP.toFixed(3)}</span>{" "}
+					{normalizedAP > swapValue ? ">" : "<="} {swapValue} &rarr;{" "}
+					<span className="font-bold text-gray-100">
+						AP {normalizedAP > swapValue ? 2 : 1}
+					</span>
+				</div>
+			</div>
 
-					{/* Computed AP */}
-					<div className="text-xs text-gray-400 space-y-1">
-						<div className="font-semibold text-gray-300">
-							Computed AP (urgency=0)
-						</div>
-						<div className="font-mono">
-							{alpha.toFixed(3)}*{taskLoad.toFixed(3)} + {beta.toFixed(3)}*
-							{workloadAgent ?? 0} + {delta.toFixed(3)}*
-							{normalizedISA.toFixed(3)} + {gamma.toFixed(3)}*0
-						</div>
-						<div className="font-mono">
-							= {computedAP.toFixed(3)} / 3 ={" "}
-							<span className="text-gray-200">{normalizedAP.toFixed(3)}</span>{" "}
-							{normalizedAP > swapValue ? ">" : "<="} {swapValue} &rarr;{" "}
-							<span className="font-bold text-gray-100">
-								AP {normalizedAP > swapValue ? 2 : 1}
-							</span>
-						</div>
-					</div>
+			{/* Max Values Config */}
+			<div className="text-xs text-gray-400 space-y-1">
+				<div className="font-semibold text-gray-300">Max Values</div>
+				<NumberInput
+					label="Max Flights"
+					value={maxNumberOfFlights}
+					onChange={(v) => brainStore.setMaxNumberOfFlights(v)}
+				/>
+				<NumberInput
+					label="Max Requests"
+					value={maxNumberOfRequests}
+					onChange={(v) => brainStore.setMaxNumberOfRequests(v)}
+				/>
+				<NumberInput
+					label="Max Conflicts"
+					value={maxNumberOfConflicts}
+					onChange={(v) => brainStore.setMaxNumberOfConflicts(v)}
+				/>
+			</div>
 
-					{/* Max Values Config */}
-					<div className="text-xs text-gray-400 space-y-1">
-						<div className="font-semibold text-gray-300">Max Values</div>
-						<NumberInput
-							label="Max Flights"
-							value={maxNumberOfFlights}
-							onChange={(v) => brainStore.setMaxNumberOfFlights(v)}
-						/>
-						<NumberInput
-							label="Max Requests"
-							value={maxNumberOfRequests}
-							onChange={(v) => brainStore.setMaxNumberOfRequests(v)}
-						/>
-						<NumberInput
-							label="Max Conflicts"
-							value={maxNumberOfConflicts}
-							onChange={(v) => brainStore.setMaxNumberOfConflicts(v)}
-						/>
-					</div>
+			{/* Gamma Slider */}
+			<div className="text-xs text-gray-400 space-y-1">
+				<div className="font-semibold text-gray-300">
+					Gamma (urgency weight): {gamma.toFixed(2)}
+				</div>
+				<input
+					type="range"
+					className="range range-xs range-primary w-full"
+					min={0}
+					max={1}
+					step={0.05}
+					value={gamma}
+					onChange={(e) => brainStore.setGamma(Number(e.target.value))}
+				/>
+			</div>
 
-					{/* Gamma Slider */}
-					<div className="text-xs text-gray-400 space-y-1">
-						<div className="font-semibold text-gray-300">
-							Gamma (urgency weight): {gamma.toFixed(2)}
-						</div>
-						<input
-							type="range"
-							className="range range-xs range-primary w-full"
-							min={0}
-							max={1}
-							step={0.05}
-							value={gamma}
-							onChange={(e) => brainStore.setGamma(Number(e.target.value))}
-						/>
-					</div>
-
-					{/* Swap Threshold */}
-					<div className="text-xs text-gray-400 space-y-1">
-						<div className="font-semibold text-gray-300">
-							Swap Threshold: {swapValue.toFixed(2)}
-						</div>
-						<input
-							type="range"
-							className="range range-xs range-primary w-full"
-							min={0}
-							max={1}
-							step={0.01}
-							value={swapValue}
-							onChange={(e) => brainStore.setSwapValue(Number(e.target.value))}
-						/>
-					</div>
-				</>
-			)}
+			{/* Swap Threshold */}
+			<div className="text-xs text-gray-400 space-y-1">
+				<div className="font-semibold text-gray-300">
+					Swap Threshold: {swapValue.toFixed(2)}
+				</div>
+				<input
+					type="range"
+					className="range range-xs range-primary w-full"
+					min={0}
+					max={1}
+					step={0.01}
+					value={swapValue}
+					onChange={(e) => brainStore.setSwapValue(Number(e.target.value))}
+				/>
+			</div>
 
 			{/** Brain SVG */}
 			<svg
