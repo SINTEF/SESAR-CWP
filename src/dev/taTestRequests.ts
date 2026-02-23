@@ -36,13 +36,13 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 		],
 	},
 
-	// 2. Flight level request — mixed status (capacity issue + conflict object)
+	// 2. Flight level request — RFL and initial are different
 	{
-		timestamp: "2026-02-23T09:00:01.000Z",
+		timestamp: "2026-01-16T14:39:21.070850Z",
 		iteration_count: 0,
 		context: {
-			request_id: "testRequest-placeholder",
-			flight_id: "testRequest-placeholder",
+			request_id: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
+			flight_id: "FPO215H",
 			request_type: 0,
 			request_parameter: 390,
 		},
@@ -53,35 +53,36 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 					exit_level: 390,
 					initial_climb: 350,
 					exit_problems_are_manageable: true,
-					traffic_complexity_manageable: false,
+					traffic_complexity_manageable: true,
 					required_coordinations: [
+						"Flight plan non-conformity",
 						{
-							conflict_id: "c1",
-							mach_number: 0.82,
-							min_separation: 4.2,
-							distance_to_exit: 120,
-							first_flight_id_at_CPA: "DLH456",
+							conflict_id: "CRL910",
+							mach_number: 0.72,
+							min_separation: 7,
+							distance_to_exit: 21,
+							first_flight_id_at_CPA: "FPO215H",
 							conflict_FL: 390,
-							compatible: false,
+							compatible: true,
 						},
 					],
-					higher_level_available: false,
+					higher_level_available: true,
 					is_conform_to_flight_plan: false,
-					next_sector: "N4",
-					next_sector_capacity_ok: false,
-					altitude_restriction: true,
+					next_sector: "E3",
+					next_sector_capacity_ok: true,
+					altitude_restriction: false,
 				},
 			},
 		],
 	},
 
-	// 3. Flight level request — multiple goals (AP2-style)
+	// 3. Flight level request — multiple goals rejection and then suggestion
 	{
-		timestamp: "2026-02-23T09:00:02.000Z",
-		iteration_count: 0,
+		timestamp: "2026-01-20T16:30:01.080650Z",
+		iteration_count: 4,
 		context: {
-			request_id: "testRequest-placeholder",
-			flight_id: "testRequest-placeholder",
+			request_id: "7e8442d8-0161-4752-b0af-e940d568793f",
+			flight_id: "TYW451",
 			request_type: 0,
 			request_parameter: 370,
 		},
@@ -90,28 +91,28 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 				RFL: 370,
 				results: {
 					exit_level: 370,
-					initial_climb: 330,
+					initial_climb: 370,
 					exit_problems_are_manageable: true,
 					traffic_complexity_manageable: true,
-					required_coordinations: [],
-					higher_level_available: true,
-					is_conform_to_flight_plan: true,
-					next_sector: "E3",
-					next_sector_capacity_ok: true,
+					required_coordinations: ["Flight plan non-conformity"],
+					higher_level_available: false,
+					is_conform_to_flight_plan: false,
+					next_sector: "M3",
+					next_sector_capacity_ok: false,
 					altitude_restriction: false,
 				},
 			},
 			{
-				RFL: 390,
+				RFL: 350,
 				results: {
-					exit_level: 390,
+					exit_level: 350,
 					initial_climb: 350,
-					exit_problems_are_manageable: false,
-					traffic_complexity_manageable: false,
-					required_coordinations: ["DLH456"],
-					higher_level_available: false,
+					exit_problems_are_manageable: true,
+					traffic_complexity_manageable: true,
+					required_coordinations: ["Flight plan non-conformity"],
+					higher_level_available: true,
 					is_conform_to_flight_plan: false,
-					next_sector: "N4",
+					next_sector: "M2",
 					next_sector_capacity_ok: true,
 					altitude_restriction: false,
 				},
@@ -159,7 +160,102 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 		],
 	},
 
-	// 6. Heading request no solution
+	// 6. Heading request with solution in the end
+	{
+		timestamp: "2026-02-23T09:00:10.203261Z",
+		iteration_count: 30,
+		context: {
+			request_id: "95a4dec6-88f8-49a0-81e2-eb4645d5b442",
+			flight_id: "HBJEC",
+			request_type: 3,
+			request_parameter: 45,
+		},
+		goals: [
+			{
+				Req_hdg_value: 20,
+				next_sector: "5L",
+				In_sector_conflicts: [
+					{
+						conflict_id: "TAR788",
+						mach_number: 0.7869811468738934,
+						min_separation: 3.6860852241516113,
+						distance_from_intersection_to_exit: 7.901293754577637,
+						first_call_sign_at_the_exit: null,
+						conflict_FL: 360,
+					},
+				],
+				Is_heading_found: false,
+			},
+			{
+				Req_hdg_value: 25,
+				next_sector: "5L",
+				In_sector_conflicts: [
+					{
+						conflict_id: "TAR788",
+						mach_number: 0.7891748264788969,
+						min_separation: 3.6379172801971436,
+						distance_from_intersection_to_exit: 7.808016300201416,
+						first_call_sign_at_the_exit: null,
+						conflict_FL: 360,
+					},
+				],
+				Is_heading_found: false,
+			},
+			{
+				Req_hdg_value: 30,
+				next_sector: "5L",
+				In_sector_conflicts: [
+					{
+						conflict_id: "TAR788",
+						mach_number: 0.7899437294926327,
+						min_separation: 4.011358737945557,
+						distance_from_intersection_to_exit: 9.2081880569458,
+						first_call_sign_at_the_exit: null,
+						conflict_FL: 360,
+					},
+				],
+				Is_heading_found: false,
+			},
+			{
+				Req_hdg_value: 35,
+				next_sector: "5L",
+				In_sector_conflicts: [
+					{
+						conflict_id: "TAR788",
+						mach_number: 0.7908653410943259,
+						min_separation: 4.374152660369873,
+						distance_from_intersection_to_exit: 10.404284477233887,
+						first_call_sign_at_the_exit: null,
+						conflict_FL: 360,
+					},
+				],
+				Is_heading_found: false,
+			},
+			{
+				Req_hdg_value: 40,
+				next_sector: "5L",
+				In_sector_conflicts: [
+					{
+						conflict_id: "TAR788",
+						mach_number: 0.7914333552229827,
+						min_separation: 4.731703758239746,
+						distance_from_intersection_to_exit: 11.448385238647461,
+						first_call_sign_at_the_exit: null,
+						conflict_FL: 360,
+					},
+				],
+				Is_heading_found: false,
+			},
+			{
+				Req_hdg_value: 45,
+				next_sector: "5L",
+				In_sector_conflicts: [],
+				Is_heading_found: true,
+			},
+		],
+	},
+
+	// 7. Heading request no solution
 	{
 		timestamp: "2026-02-23T08:59:02.419519Z",
 		iteration_count: 0,
@@ -307,4 +403,26 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 			},
 		],
 	},
+
+	// 8. Direct-to request (NOT CONFIRMED WITH IIS)
+	// {
+	// 	timestamp: "2026-01-16T14:39:21.070850Z",
+	// 	iteration_count: 0,
+	// 	context: {
+	// 		request_id: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
+	// 		flight_id: "FPO215H",
+	// 		request_type: 1,
+	// 		request_parameter: "LUSOL",
+	// 	},
+	// 	goals: [
+	// 		{
+	// 			Req_dir_value: "LUSOL",
+	// 			direct_value_available: true,
+	// 			next_sector: "E3",
+
+	// 			in_sector_conflicts: [],
+	// 			exit_conflicts: [],
+	// 		},
+	// 	],
+	// },
 ];

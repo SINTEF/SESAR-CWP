@@ -46,12 +46,25 @@ const LevelChangeGoalSchema = z.object({
 });
 
 /**
+ * Schema for a conflict object within In_sector_conflicts of a heading goal.
+ * Note: different shape from ConflictCoordinationSchema (level-change conflicts).
+ */
+const HeadingConflictSchema = z.object({
+	conflict_id: z.string(),
+	mach_number: z.number(),
+	min_separation: z.number(),
+	distance_from_intersection_to_exit: z.number(),
+	first_call_sign_at_the_exit: z.string().nullable(),
+	conflict_FL: z.number(),
+});
+
+/**
  * Schema for a heading goal entry (request_type === 2).
  */
 const HeadingGoalSchema = z.object({
 	Req_hdg_value: z.number(),
 	next_sector: z.string(),
-	In_sector_conflicts: z.array(z.string()),
+	In_sector_conflicts: z.array(z.union([z.string(), HeadingConflictSchema])),
 	Is_heading_found: z.boolean(),
 });
 
@@ -110,6 +123,7 @@ export type GoalResults = z.infer<typeof GoalResultsSchema>;
 export type Goal = z.infer<typeof GoalSchema>;
 export type LevelChangeGoal = z.infer<typeof LevelChangeGoalSchema>;
 export type HeadingGoal = z.infer<typeof HeadingGoalSchema>;
+export type HeadingConflict = z.infer<typeof HeadingConflictSchema>;
 export type RequestContext = z.infer<typeof RequestContextSchema>;
 export type ConflictCoordination = z.infer<typeof ConflictCoordinationSchema>;
 
@@ -127,7 +141,7 @@ export interface NormalizedGoal {
 	/** Whether a valid heading was found — only for heading goals */
 	isHeadingFound?: boolean;
 	/** Conflicts within the sector — only for heading goals */
-	inSectorConflicts?: string[];
+	inSectorConflicts?: (string | HeadingConflict)[];
 }
 
 /** Converts a raw Goal into a NormalizedGoal based on the request type. */
