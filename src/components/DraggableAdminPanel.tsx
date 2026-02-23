@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
 
 import { useDragging } from "../contexts/DraggingContext";
@@ -11,12 +11,36 @@ import DebugPanel from "./admin-panel/DebugPanel";
 import ScenarioConfigurationPanel from "./admin-panel/ScenarioConfigurationPanel";
 import BrainPanel from "./brain/BrainPanel";
 
+type AdminPanelTab = "logs" | "brains" | "scenario" | "debug";
+
+const ADMIN_PANEL_TAB_STORAGE_KEY = "admin-panel-active-tab";
+
+function isAdminPanelTab(value: string | null): value is AdminPanelTab {
+	return (
+		value === "logs" ||
+		value === "brains" ||
+		value === "scenario" ||
+		value === "debug"
+	);
+}
+
 export default observer(function DraggableAdminPanel() {
 	const nodeRef = useRef<HTMLDivElement>(null);
 	const { startDragging, stopDragging } = useDragging();
-	const [activeTab, setActiveTab] = useState<
-		"logs" | "brains" | "scenario" | "debug"
-	>("logs");
+	const [activeTab, setActiveTab] = useState<AdminPanelTab>(() => {
+		if (typeof window === "undefined") {
+			return "logs";
+		}
+
+		const persistedTab = window.sessionStorage.getItem(
+			ADMIN_PANEL_TAB_STORAGE_KEY,
+		);
+		return isAdminPanelTab(persistedTab) ? persistedTab : "logs";
+	});
+
+	useEffect(() => {
+		window.sessionStorage.setItem(ADMIN_PANEL_TAB_STORAGE_KEY, activeTab);
+	}, [activeTab]);
 
 	if (!adminStore.adminModeEnabled || !adminStore.showAdminPanel) {
 		return null;
