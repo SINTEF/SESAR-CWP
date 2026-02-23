@@ -165,7 +165,7 @@ export default observer(function AircraftLevelPopup(properties: {
 	};
 
 	const applyFlightLevel = (level: number): void => {
-		const stringFlightLevel = (level * 10).toString();
+		const stringFlightLevel = level.toString();
 
 		// If TA request callback is set, call it instead of normal behavior
 		if (cwpStore.taRequestCallback) {
