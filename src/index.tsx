@@ -35,7 +35,7 @@ root.render(
 			options={{
 				api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
 				defaults: "2025-05-24",
-				capture_exceptions: true, // This enables capturing exceptions using Error Tracking
+				capture_exceptions: false, // This enables capturing exceptions using Error Tracking
 				debug: false, // Disabled to reduce console noise
 				disable_session_recording: false, // Ensure session recording is enabled
 				autocapture: true, // Capture all user interactions automatically

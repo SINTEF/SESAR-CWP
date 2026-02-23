@@ -37,6 +37,7 @@ import {
 	pilotRequestJson,
 	roleConfiguration,
 	simulatorLogs,
+	simulatorPresenceStatus,
 	simulatorStartupConfiguration,
 	targetReport,
 	workloadUpdate,
@@ -97,6 +98,7 @@ const router = rlite<Buffer>(notFound, {
 	"frontend/:clientId/flight/:flightId/localAssignedFL":
 		frontendLocalAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/hidden": frontendFlightHidden,
+	"ats/:clientId/status/presence/:sessionUuid": simulatorPresenceStatus,
 	"frontend/:clientId/brain/manualAP": frontendManualAP,
 	"IIS/:clientId/PilotRequest": pilotRequestJson,
 	"IIS/:clientId/PilotRequest/:requestId": fromTAtoIIS, // should be removed because this is what we are publishing back

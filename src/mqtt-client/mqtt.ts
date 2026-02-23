@@ -257,9 +257,10 @@ function processIncomingMessages(): void {
 		incomingMessagesBatchId = 0;
 		for (const { topic, message } of incomingMessagesQueue) {
 			const isInitCompletedTopic = /\/data\/init-completed$/.test(topic);
+			const isPresenceTopic = /\/status\/presence\//.test(topic);
 
 			// Ignore empty messages (they are most likely deletion messages)
-			if (message.length === 0 && !isInitCompletedTopic) {
+			if (message.length === 0 && !isInitCompletedTopic && !isPresenceTopic) {
 				continue;
 			}
 

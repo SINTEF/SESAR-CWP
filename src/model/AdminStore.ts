@@ -7,10 +7,20 @@ interface LogEntry {
 	level?: string;
 }
 
+interface LatestPresenceEntry {
+	sessionUuid: string;
+	sequence: string;
+	utcIso8601: string;
+	receivedAt: string;
+	isDisconnected: boolean;
+}
+
 const MAX_LOG_ENTRIES = 500;
 const SIMULATION_STARTED_LOG = "Simulation started in paused state";
 const ADMIN_MINIMIZED_KEY = "adminPanelMinimized";
 const STARTUP_SCENARIO_STORAGE_KEY = "startupScenarioSelection";
+const PRESENCE_SWITCH_WARNING_WINDOW_MS = 5000;
+const PRESENCE_SWITCH_WARNING_THRESHOLD = 2;
 
 /**
  * Parse a timestamp from various formats commonly found in log messages.
@@ -79,6 +89,15 @@ export default class AdminStore {
 
 	/** Local time of the last successful initialisation-completed event */
 	lastInitialisationCompletedAt: Date | null = null;
+
+	/** Latest simulator presence message received on status/presence */
+	latestPresence: LatestPresenceEntry | null = null;
+
+	/** Session UUID currently observed from presence topic */
+	currentPresenceSessionUuid: string | null = null;
+
+	/** Epoch timestamps when session UUID switched */
+	presenceSessionSwitchTimestamps: number[] = [];
 
 	constructor() {
 		makeAutoObservable(this, {}, { autoBind: true });
@@ -217,5 +236,51 @@ export default class AdminStore {
 
 	handleInitialisationNotCompleted(): void {
 		this.lastInitialisationCompletedAt = null;
+	}
+
+	handlePresenceMessage(sessionUuid: string, payload: string): void {
+		const now = Date.now();
+
+		if (
+			this.currentPresenceSessionUuid &&
+			this.currentPresenceSessionUuid !== sessionUuid
+		) {
+			this.presenceSessionSwitchTimestamps = [
+				...this.presenceSessionSwitchTimestamps.filter(
+					(timestamp) => now - timestamp <= PRESENCE_SWITCH_WARNING_WINDOW_MS,
+				),
+				now,
+			];
+		}
+
+		this.currentPresenceSessionUuid = sessionUuid;
+
+		if (payload.length === 0) {
+			this.latestPresence = {
+				sessionUuid,
+				sequence: "",
+				utcIso8601: "",
+				receivedAt: new Date(now).toISOString(),
+				isDisconnected: true,
+			};
+			return;
+		}
+
+		const [sequence = "", utcIso8601 = ""] = payload.split("|", 2);
+		this.latestPresence = {
+			sessionUuid,
+			sequence,
+			utcIso8601,
+			receivedAt: new Date(now).toISOString(),
+			isDisconnected: false,
+		};
+	}
+
+	get hasRapidPresenceSessionSwitching(): boolean {
+		const now = Date.now();
+		const recentSwitchCount = this.presenceSessionSwitchTimestamps.filter(
+			(timestamp) => now - timestamp <= PRESENCE_SWITCH_WARNING_WINDOW_MS,
+		).length;
+		return recentSwitchCount >= PRESENCE_SWITCH_WARNING_THRESHOLD;
 	}
 }
