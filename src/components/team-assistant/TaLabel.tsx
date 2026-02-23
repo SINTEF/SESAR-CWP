@@ -7,9 +7,30 @@ import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
 import { cwpStore, roleConfigurationStore } from "../../state";
-import TaHoveredFull from "./TaHoveredFull";
-import TaPopupFull from "./TaPopupFull";
-import TaPopupSmall from "./TaPopupSmall";
+import TaRequestHovered from "./TaRequestHovered";
+import TaRequestIdle from "./TaRequestIdle";
+
+/**
+ * Three display states for a Team Assistant request label.
+ * - idle: not hovered — small icon + status dot
+ * - compact: AP2 hovered, arrow not yet clicked — summary view
+ * - full: AP1 hovered (always), or AP2 hovered + arrow clicked — all goal details
+ */
+type TaDisplayState = "idle" | "compact" | "full";
+
+function getTaDisplayState(
+	isHovered: boolean,
+	isAP2: boolean,
+	isArrowClicked: boolean,
+): TaDisplayState {
+	if (!isHovered) {
+		return "idle";
+	}
+	if (isAP2 && !isArrowClicked) {
+		return "compact";
+	}
+	return "full";
+}
 
 /**
  * REQUIREMENTS:
@@ -58,15 +79,20 @@ export default observer(function TaLabel(properties: {
 	} = aircraft;
 
 	// Autonomy Profile determines display behavior:
-	// AP1 (autonomyProfile === 1): Information
-	// AP2 (autonomyProfile === 2): Decision
+	// AP1 (autonomyProfile === 1): Information — always shows full detail on hover
+	// AP2 (autonomyProfile === 2): Decision — compact on hover, full after arrow clicked
 	const isAP2 = request.autonomyProfile === 2;
 
 	const { selectedAircraftIds, taArrowClickedAircraftId } = cwpStore;
-	const isTaArrowClicked = taArrowClickedAircraftId === aircraftId;
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
 	const isHoveredLabel = cwpStore.hoveredTaLabelAircraftId === aircraftId;
 	const isSelected = selectedAircraftIds.has(aircraft.aircraftId);
+
+	const displayState = getTaDisplayState(
+		isHoveredLabel,
+		isAP2,
+		taArrowClickedAircraftId === aircraftId,
+	);
 	const flightColor =
 		roleConfigurationStore.getOriginalColorOfAircraft(aircraftId);
 
@@ -93,28 +119,12 @@ export default observer(function TaLabel(properties: {
 		});
 	};
 
-	const TA_height = isTaArrowClicked ? 150 : height;
-	let width;
-	switch (true) {
-		case isHoveredLabel === true && isTaArrowClicked === true:
-			width = 140;
-			break;
-		case isHoveredLabel === true && !isAP2:
-			width = 140;
-			break;
-		case isHoveredLabel === true && isAP2:
-			width = 100;
-			break;
-		case isHoveredLabel === true && isTaArrowClicked === false:
-			width = 85;
-			break;
-		case request.context?.request_type === 1: // DIRECT_REQUEST
-			width = 55;
-			break;
-		default:
-			width = 37;
-			break;
-	}
+	const TA_height = displayState === "full" ? 150 : height;
+	const width = {
+		idle: request.context?.request_type === 1 ? 55 : 37, // DIRECT_REQUEST is slightly wider
+		compact: 100,
+		full: 140,
+	}[displayState];
 
 	/**
 	 * Get the icon path based on request type.
@@ -137,13 +147,6 @@ export default observer(function TaLabel(properties: {
 				return "/flight_level_request.svg";
 		}
 	}
-
-	const Content =
-		isHoveredLabel && isAP2
-			? TaPopupFull
-			: isHoveredLabel && !isAP2
-				? TaHoveredFull
-				: TaPopupSmall;
 
 	const onClick = (): void => {
 		if (isDragging) {
@@ -197,21 +200,36 @@ export default observer(function TaLabel(properties: {
 				onWheel={onWheel}
 				style={{
 					width: `${width}px`,
-					height: isTaArrowClicked || !isAP2 ? "auto" : `${TA_height}px`,
+					height: displayState === "full" || !isAP2 ? "auto" : `${TA_height}px`,
 				}}
 			>
-				<Content
-					flightColor={flightColor}
-					aircraft={aircraft}
-					width={width}
-					request={request}
-					requestParameter={String(request.context?.request_parameter ?? "")}
-					requestTypeIcon={getIconForRequestType(
-						request.context?.request_type ?? 0,
-						request.context?.request_parameter ?? "",
-					)}
-					autonomyProfile={request.autonomyProfile}
-				/>
+				{displayState === "idle" ? (
+					<TaRequestIdle
+						flightColor={flightColor}
+						aircraft={aircraft}
+						width={width}
+						request={request}
+						requestParameter={String(request.context?.request_parameter ?? "")}
+						requestTypeIcon={getIconForRequestType(
+							request.context?.request_type ?? 0,
+							request.context?.request_parameter ?? "",
+						)}
+					/>
+				) : (
+					<TaRequestHovered
+						flightColor={flightColor}
+						aircraft={aircraft}
+						width={width}
+						request={request}
+						requestParameter={String(request.context?.request_parameter ?? "")}
+						requestTypeIcon={getIconForRequestType(
+							request.context?.request_type ?? 0,
+							request.context?.request_parameter ?? "",
+						)}
+						autonomyProfile={request.autonomyProfile}
+						isExpanded={displayState === "full"}
+					/>
+				)}
 			</div>
 		</div>
 	);

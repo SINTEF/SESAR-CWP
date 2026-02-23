@@ -1,0 +1,173 @@
+import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
+import type AircraftModel from "../../model/AircraftModel";
+import { TeamAssistantRequest } from "../../model/AircraftStore";
+import { cwpStore } from "../../state";
+import {
+	handleChangeCFL,
+	isAcceptOrSuggest,
+} from "../../utils/teamAssistantHelper";
+import { CommunicationButtons } from "../shared/CommunicationButtons";
+import {
+	CollapseArrow,
+	DismissButton,
+	ExpandArrow,
+	HeadingGoalRow,
+	LevelChangeGoalRows,
+	SuggestionContent,
+	TaHeaderContent,
+} from "./TaSharedComponents";
+import { useTaActions } from "./useTaActions";
+
+/**
+ * Hovered state for a Team Assistant request label.
+ *
+ * isExpanded=false (compact): AP2 hover before the expand arrow is clicked.
+ *   - No goal rows (the AP2 view shows them only after expanding)
+ *   - ExpandArrow in the action row to go full
+ *
+ * isExpanded=true (full): AP1 hover (always), or AP2 after expand arrow clicked.
+ *   - All goal rows
+ *   - CollapseArrow in header (AP2 only, since AP1 has no compact state to return to)
+ */
+export default observer(function TaRequestHovered(properties: {
+	aircraft: AircraftModel;
+	flightColor: string;
+	requestParameter: string;
+	requestTypeIcon: string;
+	request: TeamAssistantRequest;
+	width: number;
+	autonomyProfile: number;
+	isExpanded: boolean;
+}) {
+	const posthog = usePostHog();
+	const {
+		aircraft,
+		width,
+		requestParameter,
+		requestTypeIcon,
+		request,
+		autonomyProfile,
+		isExpanded,
+	} = properties;
+
+	const isAP2 = autonomyProfile === 2;
+
+	// Compact view passes handleChangeCFL as onAccept (sets CFL on accept).
+	// Full view does not — the controller is explicitly choosing from goal rows.
+	const { handleAccept, handleDismiss, handleAcceptWithDelay } = useTaActions(
+		aircraft,
+		request,
+		"TaRequestHovered",
+		!isExpanded ? () => handleChangeCFL(request, aircraft) : undefined,
+	);
+
+	const onCollapseClicked = () => {
+		posthog?.capture("TA_less_details_clicked", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+		});
+		cwpStore.setTaArrowClickedAircraftId("");
+	};
+
+	const onExpandClicked = () => {
+		posthog?.capture("TA_expand_details_clicked", {
+			aircraft_id: aircraft.aircraftId,
+			callsign: aircraft.callSign,
+			request_id: request.requestId,
+			request_type: request.context?.request_type,
+			request_parameter: request.context?.request_parameter,
+		});
+		cwpStore.setTaArrowClickedAircraftId(aircraft.aircraftId);
+		cwpStore.setHoveredFlightLabelId(aircraft.aircraftId);
+	};
+
+	// Goal rows: always in full/AP1; hidden in compact/AP2 (shown after expand)
+	const showGoalRows = !isAP2 || isExpanded;
+
+	const normalizedGoals = showGoalRows
+		? [...request.normalizedGoals].sort(
+				(a, b) =>
+					(b.results?.initial_climb ?? 0) - (a.results?.initial_climb ?? 0),
+			)
+		: [];
+
+	return (
+		<table
+			className="h-full border-collapse"
+			style={{ width: `${isExpanded ? width : width - 10}px` }}
+		>
+			<tbody>
+				{/* Header: icon + status dot + parameter | [CollapseArrow if AP2 expanded] | Dismiss */}
+				<tr>
+					<td className="flex items-start justify-between gap-1">
+						<TaHeaderContent
+							requestTypeIcon={requestTypeIcon}
+							requestParameter={requestParameter}
+							request={request}
+						/>
+						<span className="flex flex-row pr-2">
+							{isAP2 && isExpanded && (
+								<CollapseArrow onClick={onCollapseClicked} />
+							)}
+							<DismissButton onClick={handleDismiss} />
+						</span>
+					</td>
+				</tr>
+
+				{/* Goal detail rows */}
+				{showGoalRows &&
+					normalizedGoals.map((goal, index) => {
+						const sharedProps = {
+							goal,
+							index,
+							totalGoals: normalizedGoals.length,
+							isAP2,
+							requestParameter: request.context.request_parameter,
+						};
+						if (goal.results) {
+							return <LevelChangeGoalRows key={index} {...sharedProps} />;
+						}
+						return <HeadingGoalRow key={index} {...sharedProps} />;
+					})}
+
+				{/* Suggestion + communication buttons (AP2 only) */}
+				{isAP2 && isAcceptOrSuggest(request) && (
+					<>
+						<tr>
+							<td colSpan={2}>
+								<hr className="border-t border-white/30 mr-2 ml-0" />
+							</td>
+						</tr>
+						<tr>
+							<td className="text-center pt-1">
+								<SuggestionContent
+									request={request}
+									showAcceptCheckmark={false}
+									onAccept={handleAccept}
+								/>
+							</td>
+						</tr>
+						<tr>
+							<td className="relative text-center">
+								<CommunicationButtons
+									hasCPDLC={aircraft.hasCPDLC}
+									onAccept={handleAccept}
+									onAcceptWithDelay={handleAcceptWithDelay}
+								/>
+								{!isExpanded && (
+									<span className="absolute right-0 top-0">
+										<ExpandArrow onClick={onExpandClicked} />
+									</span>
+								)}
+							</td>
+						</tr>
+					</>
+				)}
+			</tbody>
+		</table>
+	);
+});
