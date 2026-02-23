@@ -18,7 +18,6 @@ interface LatestPresenceEntry {
 const MAX_LOG_ENTRIES = 500;
 const SIMULATION_STARTED_LOG = "Simulation started in paused state";
 const ADMIN_MINIMIZED_KEY = "adminPanelMinimized";
-const STARTUP_SCENARIO_STORAGE_KEY = "startupScenarioSelection";
 const PRESENCE_SWITCH_WARNING_WINDOW_MS = 5000;
 const PRESENCE_SWITCH_WARNING_THRESHOLD = 2;
 
@@ -81,7 +80,7 @@ export default class AdminStore {
 	/** Error from previous admin login attempt (stored in sessionStorage) */
 	adminError: string | null = null;
 
-	/** Locally selected startup scenario (persisted in localStorage) */
+	/** Locally selected startup scenario (UI state only) */
 	selectedStartupScenario: string | null = null;
 
 	/** Effective startup scenario reported by simulator status topic */
@@ -107,17 +106,6 @@ export default class AdminStore {
 
 		// Restore minimized state from session storage
 		this.isMinimized = sessionStorage.getItem(ADMIN_MINIMIZED_KEY) === "true";
-
-		if (typeof window !== "undefined") {
-			try {
-				const storedValue = window.localStorage.getItem(
-					STARTUP_SCENARIO_STORAGE_KEY,
-				);
-				this.selectedStartupScenario = storedValue ? storedValue : null;
-			} catch {
-				this.selectedStartupScenario = null;
-			}
-		}
 	}
 
 	clearAdminError(): void {
@@ -210,24 +198,13 @@ export default class AdminStore {
 
 	setSelectedStartupScenario(value: string | null): void {
 		this.selectedStartupScenario = value;
-
-		if (typeof window === "undefined") {
-			return;
-		}
-
-		try {
-			if (!value) {
-				window.localStorage.removeItem(STARTUP_SCENARIO_STORAGE_KEY);
-				return;
-			}
-			window.localStorage.setItem(STARTUP_SCENARIO_STORAGE_KEY, value);
-		} catch {
-			// Ignore unavailable localStorage (private mode, quotas, etc.)
-		}
 	}
 
 	setSimulatorStartupScenario(value: string | null): void {
 		this.simulatorStartupScenario = value;
+		if (this.selectedStartupScenario === null) {
+			this.selectedStartupScenario = value;
+		}
 	}
 
 	handleInitialisationCompleted(completedAt: Date): void {
