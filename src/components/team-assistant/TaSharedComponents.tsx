@@ -274,7 +274,7 @@ export function HeadingGoalRow({
 			<React.Fragment key={index}>
 				<tr>
 					<td className="text-xs" colSpan={2}>
-						{getStatusColor(noConflicts)} TCT
+						{getStatusColor(noConflicts)} TCT {goal.requestedValue}
 					</td>
 				</tr>
 				{isAP2 && index < totalGoals - 1 && (
