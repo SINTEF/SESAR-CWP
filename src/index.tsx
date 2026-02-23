@@ -1,4 +1,5 @@
 import "./instrument"; // Sentry must be imported first
+import * as Sentry from "@sentry/react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@fontsource/ibm-plex-sans";
 import "@fontsource/ibm-plex-mono";
@@ -7,7 +8,7 @@ import "./mqtt-client";
 import "./frontendSimulationLogic";
 
 import { PostHogProvider } from "posthog-js/react";
-import ReactDOM from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import App from "./App";
 import { DraggingProvider } from "./contexts/DraggingContext";
 import { interceptPostHogEvent } from "./posthog-interceptor";
@@ -16,9 +17,18 @@ import * as state from "./state";
 
 // Removed StrictMode to be able to make SectorConfigutations Draggable
 // (will see if this causes problems) <React.StrictMode>
-const root = ReactDOM.createRoot(
-	document.querySelector("#root") ?? document.body,
-);
+const container = document.querySelector("#root") ?? document.body;
+const root = createRoot(container, {
+	// Callback called when an error is thrown and not caught by an ErrorBoundary.
+	onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {
+		// biome-ignore lint/suspicious/noConsole: well…
+		console.warn("Uncaught error", error, errorInfo.componentStack);
+	}),
+	// Callback called when React catches an error in an ErrorBoundary.
+	onCaughtError: Sentry.reactErrorHandler(),
+	// Callback called when React automatically recovers from errors.
+	onRecoverableError: Sentry.reactErrorHandler(),
+});
 
 // Main app content
 const appContent = (

@@ -1,4 +1,5 @@
 import { usePostHog } from "posthog-js/react";
+import "./instrument"; // Sentry must be imported first
 import Agenda from "./components/Agenda";
 import AltitudeFilterPanel from "./components/AltitudeFilterPanel";
 import ConnectionErrorModal from "./components/ConnectionErrorModal";
