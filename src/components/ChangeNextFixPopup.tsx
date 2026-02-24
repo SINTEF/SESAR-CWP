@@ -319,7 +319,8 @@ export default observer(function ChangeNextFixPopup(properties: {
 	// Allow navigating down even when selectedFix is not in the list (selectedIndex === -1),
 	// so the user can start navigating from the top of the list.
 	const canNavigateDown =
-		allDisplayedFixes.length > 0 && selectedIndex < allDisplayedFixes.length - 1;
+		allDisplayedFixes.length > 0 &&
+		selectedIndex < allDisplayedFixes.length - 1;
 
 	const navigateUp = (): void => {
 		if (canNavigateUp) {
