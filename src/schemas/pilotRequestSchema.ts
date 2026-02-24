@@ -48,11 +48,23 @@ const GoalResultsSchema = z.object({
 });
 
 /**
- * Schema for a level-change goal entry (request_type is FlightLevel or Direct).
+ * Schema for a level-change goal entry (request_type is FlightLevel).
  */
 const LevelChangeGoalSchema = z.object({
 	RFL: z.number(),
 	results: GoalResultsSchema.optional(),
+});
+
+/**
+ * Schema for a direct-to goal entry (request_type is Direct).
+ * Conflict shapes (in_sector_conflicts, exit_conflicts) are not yet confirmed with IIS.
+ */
+const DirectGoalSchema = z.object({
+	Req_dir_value: z.string(),
+	direct_value_available: z.boolean(),
+	next_sector: z.string(),
+	in_sector_conflicts: z.array(z.unknown()),
+	exit_conflicts: z.array(z.unknown()),
 });
 
 /**
@@ -79,9 +91,13 @@ const HeadingGoalSchema = z.object({
 });
 
 /**
- * A goal can be either a level-change goal or a heading goal.
+ * A goal can be a level-change, direct-to, or heading goal.
  */
-const GoalSchema = z.union([LevelChangeGoalSchema, HeadingGoalSchema]);
+const GoalSchema = z.union([
+	LevelChangeGoalSchema,
+	DirectGoalSchema,
+	HeadingGoalSchema,
+]);
 
 /**
  * Schema for the request context.
@@ -132,6 +148,7 @@ export function getPilotRequestType(requestType: number): PilotRequestType {
 export type GoalResults = z.infer<typeof GoalResultsSchema>;
 export type Goal = z.infer<typeof GoalSchema>;
 export type LevelChangeGoal = z.infer<typeof LevelChangeGoalSchema>;
+export type DirectGoal = z.infer<typeof DirectGoalSchema>;
 export type HeadingGoal = z.infer<typeof HeadingGoalSchema>;
 export type HeadingConflict = z.infer<typeof HeadingConflictSchema>;
 export type RequestContext = z.infer<typeof RequestContextSchema>;
@@ -142,16 +159,18 @@ export type ConflictCoordination = z.infer<typeof ConflictCoordinationSchema>;
  * Fields that don't apply to a given request type are undefined.
  */
 export interface NormalizedGoal {
-	/** The requested value (RFL for level change/direct, heading degrees for heading) */
+	/** The requested value (RFL for level change, heading degrees for heading) */
 	requestedValue: number;
 	/** Detailed analysis results — only present for level-change goals */
 	results?: GoalResults;
-	/** Next sector — available for both level-change and heading goals */
+	/** Next sector — available for level-change, direct, and heading goals */
 	nextSector?: string;
 	/** Whether a valid heading was found — only for heading goals */
 	isHeadingFound?: boolean;
 	/** Conflicts within the sector — only for heading goals */
 	inSectorConflicts?: (string | HeadingConflict)[];
+	/** Whether a valid direct routing was found — only for direct goals */
+	directValueAvailable?: boolean;
 }
 
 /** Converts a raw Goal into a NormalizedGoal based on the request type. */
@@ -160,13 +179,20 @@ export function normalizeGoal(
 	requestType: PilotRequestType,
 ): NormalizedGoal {
 	switch (requestType) {
-		case PilotRequestType.FlightLevel:
-		case PilotRequestType.Direct: {
+		case PilotRequestType.FlightLevel: {
 			const g = goal as LevelChangeGoal;
 			return {
 				requestedValue: g.RFL,
 				results: g.results,
 				nextSector: g.results?.next_sector,
+			};
+		}
+		case PilotRequestType.Direct: {
+			const g = goal as DirectGoal;
+			return {
+				requestedValue: 0,
+				nextSector: g.next_sector,
+				directValueAvailable: g.direct_value_available,
 			};
 		}
 		case PilotRequestType.AbsoluteHeading:
@@ -180,7 +206,7 @@ export function normalizeGoal(
 			};
 		}
 		default: {
-			// Fallback for unknown request types — treat as level change
+			// Fallback for unknown request types — treat as FlightLevel
 			const g = goal as LevelChangeGoal;
 			return {
 				requestedValue: g.RFL,

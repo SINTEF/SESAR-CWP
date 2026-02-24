@@ -403,24 +403,23 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 	},
 
 	// 8. Direct-to request (NOT CONFIRMED WITH IIS)
-	// {
-	// 	timestamp: "2026-01-16T14:39:21.070850Z",
-	// 	iteration_count: 0,
-	// 	context: {
-	// 		request_id: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
-	// 		flight_id: "FPO215H",
-	// 		request_type: 1,
-	// 		request_parameter: "LUSOL",
-	// 	},
-	// 	goals: [
-	// 		{
-	// 			Req_dir_value: "LUSOL",
-	// 			direct_value_available: true,
-	// 			next_sector: "E3",
-
-	// 			in_sector_conflicts: [],
-	// 			exit_conflicts: [],
-	// 		},
-	// 	],
-	// },
+	{
+		timestamp: "2026-01-16T14:39:21.070850Z",
+		iteration_count: 0,
+		context: {
+			request_id: "a23c4b7b-4881-4c14-beb2-b6e05b01a117",
+			flight_id: "FPO215H",
+			request_type: 1,
+			request_parameter: "LUSOL",
+		},
+		goals: [
+			{
+				Req_dir_value: "LUSOL",
+				direct_value_available: true,
+				next_sector: "E3",
+				in_sector_conflicts: [],
+				exit_conflicts: [],
+			},
+		],
+	},
 ];
