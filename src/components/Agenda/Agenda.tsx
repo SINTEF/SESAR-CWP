@@ -232,9 +232,10 @@ export default observer(function Agenda({
 
 	// Convert MTCD conflicts to timeline events
 	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictIds.entries())
-		.filter(([, conflict]) =>
-			radarVisibleAircraftIds.has(conflict.flightId) &&
-			radarVisibleAircraftIds.has(conflict.conflictingFlightId),
+		.filter(
+			([, conflict]) =>
+				radarVisibleAircraftIds.has(conflict.flightId) &&
+				radarVisibleAircraftIds.has(conflict.conflictingFlightId),
 		)
 		.map(([id, conflict], index) => {
 			// Use actual conflict time if available, otherwise use placeholder
