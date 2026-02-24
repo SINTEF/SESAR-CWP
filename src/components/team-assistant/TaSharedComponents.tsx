@@ -133,7 +133,7 @@ export function SuggestionContent({
 					</span>
 				</div>
 			)}
-			<div className="flex items-center justify-center gap-1">
+			<div className="flex items-center justify-center gap-1 pb-1">
 				<span className={getStatusColorClass(isRejected(request) ? 0 : 1)}>
 					●
 				</span>
@@ -172,7 +172,7 @@ export function CollapseArrow({ onClick }: { onClick: () => void }) {
 /** Expand arrow (down-right) to grow from small to full view. */
 export function ExpandArrow({ onClick }: { onClick: () => void }) {
 	return (
-		<span className="cursor-pointer border border-transparent hover:border-white text-xs">
+		<span className="cursor-pointer border border-transparent hover:border-transparent text-xs">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				fill="none"
