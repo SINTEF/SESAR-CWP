@@ -6,6 +6,7 @@ import {
 	publishPilotRequestRefresh,
 } from "../mqtt-client/publishers";
 import type {
+	ExitFlightLevelMessage,
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
 	FlightMilestonePositionMessage,
@@ -358,6 +359,33 @@ export default class AircraftStore {
 			return;
 		}
 		aircraft.handleSectorInFlightMessage(flightEnteringAirspaceMessage);
+	}
+
+	handleExitFlightLevelMessage(message: ExitFlightLevelMessage): void {
+		const { flightId, exitFlightLevel } = message;
+
+		let aircraft;
+		for (const potentialAircraft of this.aircrafts.values()) {
+			if (potentialAircraft.assignedFlightId === flightId) {
+				aircraft = potentialAircraft;
+				break;
+			}
+		}
+
+		if (!aircraft) {
+			// biome-ignore lint/suspicious/noConsole: useful when backend sends XFL before flight mapping is available
+			console.warn(
+				"Received exit flight level message for unknown flight",
+				flightId,
+			);
+			Sentry.captureMessage(
+				`Received exit flight level message for unknown flight: ${flightId}`,
+				"warning",
+			);
+			return;
+		}
+
+		aircraft.setNextSectorFL(exitFlightLevel.toString());
 	}
 
 	handleNewAircraftTypeMessage(
