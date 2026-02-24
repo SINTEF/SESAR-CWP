@@ -1,10 +1,14 @@
 import React from "react";
 import type { TeamAssistantRequest } from "../../model/AircraftStore";
-import type { NormalizedGoal } from "../../schemas/pilotRequestSchema";
+import {
+	getPilotRequestType,
+	type NormalizedGoal,
+} from "../../schemas/pilotRequestSchema";
 import {
 	findSuggestionForRequest,
 	getRequestStatusColorClass,
 	getStatusColorClass,
+	isGoalPositive,
 	isRejected,
 } from "../../utils/teamAssistantHelper";
 
@@ -97,16 +101,48 @@ export function SuggestionContent({
 	showAcceptCheckmark: boolean;
 	onAccept: () => void;
 }) {
+	const getXflInitDifferent = (): NormalizedGoal | false => {
+		for (const goal of request.normalizedGoals) {
+			if (
+				isGoalPositive(
+					goal,
+					getPilotRequestType(request.context?.request_type ?? 0),
+				)
+			) {
+				const initValue = goal.results?.initial_climb;
+				const exitValue = goal.results?.exit_level;
+				if (
+					initValue !== undefined &&
+					exitValue !== undefined &&
+					initValue !== exitValue
+				) {
+					return goal;
+				}
+			}
+		}
+		return false;
+	};
+	const xflInitDifferent = getXflInitDifferent();
 	return (
-		<div className="flex items-center justify-center gap-1">
-			<span className={getStatusColorClass(isRejected(request) ? 0 : 1)}>
-				●
-			</span>
-			<span className="text-xs text-[#40c4ff]">
-				{findSuggestionForRequest(request)}?
-			</span>
-			{showAcceptCheckmark && <AcceptCheckmark onClick={onAccept} />}
-		</div>
+		<>
+			{xflInitDifferent && (
+				<div className="flex items-center justify-center gap-1">
+					<span className={getStatusColorClass(1)}>●</span>
+					<span className="text-xs text-[#40c4ff]">
+						{`XFL ${xflInitDifferent.results?.exit_level}`} ?
+					</span>
+				</div>
+			)}
+			<div className="flex items-center justify-center gap-1">
+				<span className={getStatusColorClass(isRejected(request) ? 0 : 1)}>
+					●
+				</span>
+				<span className="text-xs text-[#40c4ff]">
+					{findSuggestionForRequest(request)}?
+				</span>
+				{showAcceptCheckmark && <AcceptCheckmark onClick={onAccept} />}
+			</div>
+		</>
 	);
 }
 

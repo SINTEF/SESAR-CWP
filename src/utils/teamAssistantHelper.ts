@@ -16,7 +16,7 @@ import {
  * - FlightLevel / Direct: higher_level_available must be true.
  * - AbsoluteHeading / RelativeHeading: isHeadingFound must be true.
  */
-function isGoalPositive(
+export function isGoalPositive(
 	goal: NormalizedGoal,
 	requestType: PilotRequestType,
 ): boolean {
