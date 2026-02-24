@@ -9,7 +9,6 @@ import {
 } from "../../utils/teamAssistantHelper";
 import { CommunicationButtons } from "../shared/CommunicationButtons";
 import {
-	CollapseArrow,
 	DismissButton,
 	ExpandArrow,
 	HeadingGoalRow,
@@ -28,7 +27,6 @@ import { useTaActions } from "./useTaActions";
  *
  * isExpanded=true (full): AP1 hover (always), or AP2 after expand arrow clicked.
  *   - All goal rows
- *   - CollapseArrow in header (AP2 only, since AP1 has no compact state to return to)
  */
 export default observer(function TaRequestHovered(properties: {
 	aircraft: AircraftModel;
@@ -60,17 +58,6 @@ export default observer(function TaRequestHovered(properties: {
 		() => handleAcceptAction(request, aircraft),
 	);
 
-	const onCollapseClicked = () => {
-		posthog?.capture("TA_less_details_clicked", {
-			aircraft_id: aircraft.aircraftId,
-			callsign: aircraft.callSign,
-			request_id: request.requestId,
-			request_type: request.context?.request_type,
-			request_parameter: request.context?.request_parameter,
-		});
-		cwpStore.setTaArrowClickedAircraftId("");
-	};
-
 	const onExpandClicked = () => {
 		posthog?.capture("TA_expand_details_clicked", {
 			aircraft_id: aircraft.aircraftId,
@@ -100,7 +87,7 @@ export default observer(function TaRequestHovered(properties: {
 			style={{ width: `${isExpanded ? width : width - 10}px` }}
 		>
 			<tbody>
-				{/* Header: icon + status dot + parameter | [CollapseArrow if AP2 expanded] | Dismiss */}
+				{/* Header: icon + status dot + parameter | Dismiss */}
 				<tr>
 					<td className="flex items-start justify-between gap-1">
 						<TaHeaderContent
@@ -109,9 +96,6 @@ export default observer(function TaRequestHovered(properties: {
 							request={request}
 						/>
 						<span className="flex flex-row pr-2">
-							{isAP2 && isExpanded && (
-								<CollapseArrow onClick={onCollapseClicked} />
-							)}
 							<DismissButton onClick={handleDismiss} />
 						</span>
 					</td>

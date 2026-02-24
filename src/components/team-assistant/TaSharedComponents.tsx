@@ -146,29 +146,6 @@ export function SuggestionContent({
 	);
 }
 
-/** Collapse arrow (up-left) to shrink from full to small view. */
-export function CollapseArrow({ onClick }: { onClick: () => void }) {
-	return (
-		<span className="cursor-pointer border border-transparent hover:border-white">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				strokeWidth="1.5"
-				stroke="currentColor"
-				className="w-3 h-3"
-				onClick={onClick}
-			>
-				<path
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					d="m19.5 19.5-15-15m0 0v11.25m0-11.25h11.25"
-				/>
-			</svg>
-		</span>
-	);
-}
-
 /** Expand arrow (down-right) to grow from small to full view. */
 export function ExpandArrow({ onClick }: { onClick: () => void }) {
 	return (
