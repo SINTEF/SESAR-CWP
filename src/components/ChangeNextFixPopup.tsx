@@ -72,8 +72,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 	const [selectedFix, setSelectedFix] = React.useState("");
 	const [manualFix, setManualFix] = React.useState("");
 	const [showWarning, setShowWarning] = React.useState(false);
-	const [canScrollUp, setCanScrollUp] = React.useState(false);
-	const [canScrollDown, setCanScrollDown] = React.useState(false);
+
 	const [hoveredFix, setHoveredFix] = React.useState<string | null>(null);
 	const listOfFixesRef = React.useRef<HTMLDivElement>(null);
 
@@ -127,18 +126,6 @@ export default observer(function ChangeNextFixPopup(properties: {
 		shouldShow,
 	]);
 
-	// Update scroll button states based on scroll position
-	const updateScrollState = React.useCallback(() => {
-		const container = listOfFixesRef.current;
-		if (!container) {
-			return;
-		}
-		setCanScrollUp(container.scrollTop > 0);
-		setCanScrollDown(
-			container.scrollTop + container.clientHeight < container.scrollHeight - 1,
-		);
-	}, []);
-
 	// Scroll to the selected fix when popup opens or selection changes
 	React.useEffect(() => {
 		const container = listOfFixesRef.current;
@@ -160,13 +147,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 				container.clientHeight / 2 +
 				fixElement.offsetHeight / 2;
 		}
-		updateScrollState();
-	}, [selectedFix, shouldShow, updateScrollState]);
-
-	// Update scroll state when fixes change
-	React.useEffect(() => {
-		updateScrollState();
-	}, [trajectoryFixes, nearbyFixes, manualFix, updateScrollState]);
+	}, [selectedFix, shouldShow]);
 
 	// Reset selection when popup opens
 	React.useEffect(() => {
@@ -322,28 +303,36 @@ export default observer(function ChangeNextFixPopup(properties: {
 		}
 	};
 
-	const scrollUp = (): void => {
-		const container = listOfFixesRef.current;
-		if (container) {
-			container.scrollBy({ top: -24, behavior: "smooth" });
-			setTimeout(updateScrollState, 50);
-		}
-	};
-
-	const scrollDown = (): void => {
-		const container = listOfFixesRef.current;
-		if (container) {
-			container.scrollBy({ top: 24, behavior: "smooth" });
-			setTimeout(updateScrollState, 50);
-		}
-	};
-
 	// Filter displayed trajectory fixes based on the text input
 	// (nearby fixes are already filtered in the spatial query)
 	const displayedTrajectoryFixes = searchTerm
 		? trajectoryFixes.filter((fix) => fix.includes(searchTerm))
 		: trajectoryFixes;
 	const displayedNearbyFixes = nearbyFixes;
+
+	const allDisplayedFixes = [
+		...displayedTrajectoryFixes,
+		...displayedNearbyFixes,
+	];
+	const selectedIndex = allDisplayedFixes.indexOf(selectedFix);
+	const canNavigateUp = selectedIndex > 0;
+	// Allow navigating down even when selectedFix is not in the list (selectedIndex === -1),
+	// so the user can start navigating from the top of the list.
+	const canNavigateDown =
+		allDisplayedFixes.length > 0 && selectedIndex < allDisplayedFixes.length - 1;
+
+	const navigateUp = (): void => {
+		if (canNavigateUp) {
+			setSelectedFix(allDisplayedFixes[selectedIndex - 1]);
+		}
+	};
+
+	const navigateDown = (): void => {
+		if (canNavigateDown) {
+			// When not found (selectedIndex === -1), jump to the first item
+			setSelectedFix(allDisplayedFixes[Math.max(0, selectedIndex + 1)]);
+		}
+	};
 	const hasNoDisplayedFixes =
 		displayedTrajectoryFixes.length === 0 && displayedNearbyFixes.length === 0;
 
@@ -366,16 +355,15 @@ export default observer(function ChangeNextFixPopup(properties: {
 			<div className="flex flex-col">
 				<button
 					type="button"
-					onClick={scrollUp}
-					disabled={!canScrollUp}
-					className={`btn btn-ghost btn-xs text-xs ${!canScrollUp ? "opacity-30" : ""}`}
+					onClick={navigateUp}
+					disabled={!canNavigateUp}
+					className={`btn btn-ghost btn-xs text-xs ${!canNavigateUp ? "opacity-30" : ""}`}
 				>
 					▲
 				</button>
 				<div
 					className="h-32 overflow-y-scroll scrollbar-hide bg-[#1e3a5f] flex flex-col"
 					ref={listOfFixesRef}
-					onScroll={updateScrollState}
 				>
 					{displayedTrajectoryFixes.length > 0 && (
 						<ListOfFixes
@@ -409,9 +397,9 @@ export default observer(function ChangeNextFixPopup(properties: {
 				</div>
 				<button
 					type="button"
-					onClick={scrollDown}
-					disabled={!canScrollDown}
-					className={`btn btn-ghost btn-xs text-xs ${!canScrollDown ? "opacity-30" : ""}`}
+					onClick={navigateDown}
+					disabled={!canNavigateDown}
+					className={`btn btn-ghost btn-xs text-xs ${!canNavigateDown ? "opacity-30" : ""}`}
 				>
 					▼
 				</button>
