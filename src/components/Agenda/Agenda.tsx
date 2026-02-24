@@ -3,6 +3,7 @@ import { usePostHog } from "posthog-js/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	aircraftStore,
+	configurationStore,
 	cwpStore,
 	datablockStore,
 	simulatorStore,
@@ -122,6 +123,7 @@ export default observer(function Agenda({
 
 	const currentTimestamp = simulatorStore.timestamp;
 	const { mtcdConflictIds } = aircraftStore;
+	const radarVisibleAircraftIds = configurationStore.radarVisibleAircraftIds;
 
 	// Enable animation only when scale changes
 	useEffect(() => {
@@ -229,8 +231,12 @@ export default observer(function Agenda({
 	const pxPerMinute = effectiveHeight / scaleMinutes;
 
 	// Convert MTCD conflicts to timeline events
-	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictIds.entries()).map(
-		([id, conflict], index) => {
+	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictIds.entries())
+		.filter(([, conflict]) =>
+			radarVisibleAircraftIds.has(conflict.flightId) &&
+			radarVisibleAircraftIds.has(conflict.conflictingFlightId),
+		)
+		.map(([id, conflict], index) => {
 			// Use actual conflict time if available, otherwise use placeholder
 			const conflictTime = conflict.conflictingFlightPosition?.time;
 			const conflictTimestamp = conflictTime
@@ -261,12 +267,16 @@ export default observer(function Agenda({
 				aircraftIds: [conflict.flightId, conflict.conflictingFlightId],
 				severity,
 			};
-		},
-	);
+		});
 
 	// Convert custom datablocks to timeline events
-	const customDatablockEvents: TimelineEvent[] =
-		datablockStore.allDatablocks.map((db) => {
+	const customDatablockEvents: TimelineEvent[] = datablockStore.allDatablocks
+		.filter((db) =>
+			db.aircraftIds.every((aircraftId) =>
+				radarVisibleAircraftIds.has(aircraftId),
+			),
+		)
+		.map((db) => {
 			// Get callsigns for the labels
 			const labels = db.aircraftIds
 				.map((id) => aircraftStore.aircrafts.get(id)?.callSign ?? id)
