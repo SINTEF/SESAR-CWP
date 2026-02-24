@@ -19,9 +19,7 @@ const ConflictCoordinationSchema = z.object({
 	conflict_id: z.string(),
 	mach_number: z.number(),
 	min_separation: z.number(),
-	distance_to_exit: z.number(),
-	first_flight_id_at_CPA: z.string(),
-	conflict_FL: z.number(),
+	first_call_sign_at_the_exit: z.string(),
 	compatible: z.boolean(),
 });
 
