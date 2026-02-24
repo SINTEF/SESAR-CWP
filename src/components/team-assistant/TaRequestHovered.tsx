@@ -4,7 +4,7 @@ import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { cwpStore } from "../../state";
 import {
-	handleChangeCFL,
+	handleAcceptAction,
 	isAcceptOrSuggest,
 } from "../../utils/teamAssistantHelper";
 import { CommunicationButtons } from "../shared/CommunicationButtons";
@@ -53,13 +53,11 @@ export default observer(function TaRequestHovered(properties: {
 
 	const isAP2 = autonomyProfile === 2;
 
-	// Compact view passes handleChangeCFL as onAccept (sets CFL on accept).
-	// Full view does not — the controller is explicitly choosing from goal rows.
 	const { handleAccept, handleDismiss, handleAcceptWithDelay } = useTaActions(
 		aircraft,
 		request,
 		"TaRequestHovered",
-		!isExpanded ? () => handleChangeCFL(request, aircraft) : undefined,
+		() => handleAcceptAction(request, aircraft),
 	);
 
 	const onCollapseClicked = () => {

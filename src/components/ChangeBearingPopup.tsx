@@ -9,14 +9,8 @@ import {
 	persistACCBearing,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore } from "../state";
+import { normalizeBearing } from "../utils/bearingUtils";
 import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
-
-/** Normalize bearing to 5-360 range (wrapping at 360) */
-function normalizeBearing(bearing: number): number {
-	// First normalize to 0-359 range, then shift to 5-360
-	const mod = ((bearing % 360) + 360) % 360;
-	return mod === 0 ? 360 : mod;
-}
 
 function QuickAdjustColumn(properties: {
 	offsets: number[];

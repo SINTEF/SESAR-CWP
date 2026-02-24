@@ -1,8 +1,11 @@
 import AircraftModel from "../model/AircraftModel";
 import { TeamAssistantRequest } from "../model/AircraftStore";
 import {
+	changeBearingOfAircraft,
 	changeFlightLevelOfAircraft,
+	changeNextWaypointOfAircraft,
 	handlePublishPromise,
+	persistACCBearing,
 	persistACCFlightLevel,
 } from "../mqtt-client/publishers";
 import {
@@ -10,6 +13,8 @@ import {
 	type NormalizedGoal,
 	PilotRequestType,
 } from "../schemas/pilotRequestSchema";
+import { fixStore } from "../state";
+import { normalizeBearing } from "./bearingUtils";
 
 /**
  * Check if a normalized goal has a positive recommendation, based on request type.
@@ -238,4 +243,91 @@ export const handleChangeCFL = (
 			),
 		);
 	}, 1000);
+};
+
+/**
+ * Dispatch the correct aircraft control action when a TA request is accepted,
+ * based on the request type.
+ */
+export const handleAcceptAction = (
+	request: TeamAssistantRequest,
+	aircraft: AircraftModel,
+): void => {
+	const requestType = getPilotRequestType(request.context?.request_type ?? 0);
+	switch (requestType) {
+		case PilotRequestType.FlightLevel:
+			handleChangeCFL(request, aircraft);
+			break;
+		case PilotRequestType.Direct: {
+			const waypointName = request.context.request_parameter
+				.toString()
+				.toUpperCase();
+			const fix = fixStore.fixes.get(waypointName);
+			if (!fix) {
+				return;
+			}
+			handlePublishPromise(
+				changeNextWaypointOfAircraft({
+					pilotId: aircraft.controlledBy,
+					waypointId: waypointName,
+					flightId: aircraft.assignedFlightId,
+					latitude: fix.latitude,
+					longitude: fix.longitude,
+					viaLat: "",
+					viaLong: "",
+					viaWaypointId: "",
+				}),
+			);
+			break;
+		}
+		case PilotRequestType.AbsoluteHeading: {
+			const suggestionStr = getSuggestionForRequest(request);
+			if (!suggestionStr) {
+				return;
+			}
+			const bearing = Number(suggestionStr);
+			if (Number.isNaN(bearing)) {
+				return;
+			}
+			aircraft.setAssignedBearing(bearing);
+			handlePublishPromise(
+				changeBearingOfAircraft(
+					aircraft.controlledBy,
+					aircraft.assignedFlightId,
+					bearing,
+				),
+			);
+			handlePublishPromise(persistACCBearing(aircraft.aircraftId, bearing));
+			break;
+		}
+		case PilotRequestType.RelativeHeading: {
+			// Req_hdg_value is a relative offset (degrees to turn), not an absolute heading.
+			// Compute the absolute bearing by adding the offset to the aircraft's current bearing.
+			const suggestionStr = getSuggestionForRequest(request);
+			if (!suggestionStr) {
+				return;
+			}
+			const relativeOffset = Number(suggestionStr);
+			if (Number.isNaN(relativeOffset)) {
+				return;
+			}
+			const absoluteBearing = normalizeBearing(
+				aircraft.lastKnownBearing + relativeOffset,
+			);
+			aircraft.setAssignedBearing(absoluteBearing);
+			handlePublishPromise(
+				changeBearingOfAircraft(
+					aircraft.controlledBy,
+					aircraft.assignedFlightId,
+					absoluteBearing,
+				),
+			);
+			handlePublishPromise(
+				persistACCBearing(aircraft.aircraftId, absoluteBearing),
+			);
+			break;
+		}
+		default:
+			break;
+	}
 };
