@@ -7,13 +7,14 @@ import {
 	handlePublishPromise,
 	persistACCBearing,
 	persistACCFlightLevel,
+	publishPilotRequestClear,
 } from "../mqtt-client/publishers";
 import {
 	getPilotRequestType,
 	type NormalizedGoal,
 	PilotRequestType,
 } from "../schemas/pilotRequestSchema";
-import { fixStore } from "../state";
+import { aircraftStore, fixStore } from "../state";
 import { normalizeBearing } from "./bearingUtils";
 
 /**
@@ -329,5 +330,29 @@ export const handleAcceptAction = (
 		}
 		default:
 			break;
+	}
+};
+
+/**
+ * Clear all TA requests for an aircraft that match the given request types.
+ * Call this after a manual parameter change in a popup so the corresponding
+ * TA request disappears without requiring a separate dismiss action.
+ */
+export const clearMatchingTaRequests = (
+	aircraft: AircraftModel,
+	requestTypes: PilotRequestType[],
+): void => {
+	const requests = aircraftStore.getRequestsForAircraft(aircraft.callSign);
+	for (const request of requests) {
+		const type = getPilotRequestType(request.context?.request_type ?? 0);
+		if (requestTypes.includes(type)) {
+			handlePublishPromise(
+				publishPilotRequestClear(request.flightId, request.requestId),
+			);
+			aircraftStore.removeTeamAssistantRequest(
+				request.flightId,
+				request.requestId,
+			);
+		}
 	}
 };

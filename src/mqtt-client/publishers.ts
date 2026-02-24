@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/react";
-import type { PilotRequestJson } from "../schemas/pilotRequestSchema";
 import clientId from "./clientId";
 import { publish } from "./mqtt";
 
@@ -349,29 +348,6 @@ export async function publishPilotRequest(
 	};
 
 	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, jsonRequest, {
-		retain: true,
-	});
-}
-
-/**
- * Publish a pre-crafted testRequest as a pilot request.
- * Overrides flight_id and request_id in the testRequest context so the request
- * is associated with the correct aircraft.
- */
-export async function publishPilotRequestTestRequest(
-	flightId: string,
-	requestId: string,
-	testRequest: PilotRequestJson,
-): Promise<void> {
-	const payload: PilotRequestJson = {
-		...testRequest,
-		context: {
-			...testRequest.context,
-			request_id: requestId,
-			flight_id: flightId,
-		},
-	};
-	await publish(`IIS/${clientId}/PilotRequest/${requestId}`, payload, {
 		retain: true,
 	});
 }

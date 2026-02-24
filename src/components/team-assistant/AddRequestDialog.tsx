@@ -6,10 +6,9 @@ import type AircraftModel from "../../model/AircraftModel";
 import {
 	handlePublishPromise,
 	publishPilotRequest,
-	publishPilotRequestTestRequest,
 } from "../../mqtt-client/publishers";
 import { PilotRequestType } from "../../schemas/pilotRequestSchema";
-import { cwpStore } from "../../state";
+import { aircraftStore, cwpStore } from "../../state";
 
 interface AddRequestDialogProps {
 	aircraft: AircraftModel;
@@ -114,11 +113,20 @@ export default observer(function AddRequestDialog({
 	};
 
 	const handleSendAllTestRequests = (): void => {
+		// Write directly to the store — MQTT brokers often don't echo messages
+		// back to the publisher, so going through the publish → subscribe round-trip
+		// would silently fail.
 		for (const testRequest of TA_TEST_REQUESTS) {
 			const requestId = crypto.randomUUID();
-			handlePublishPromise(
-				publishPilotRequestTestRequest(callSign, requestId, testRequest),
-			);
+			const processed = {
+				...testRequest,
+				context: {
+					...testRequest.context,
+					request_id: requestId,
+					flight_id: callSign,
+				},
+			};
+			aircraftStore.setTeamAssistantRequest(callSign, requestId, processed);
 		}
 		onClose();
 	};

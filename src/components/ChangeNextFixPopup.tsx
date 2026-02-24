@@ -6,7 +6,9 @@ import {
 	changeNextWaypointOfAircraft,
 	handlePublishPromise,
 } from "../mqtt-client/publishers";
+import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { configurationStore, cwpStore, fixStore } from "../state";
+import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
 import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
 
 /** Sub-component that displays the list of trajectory fixes as clickable buttons */
@@ -277,6 +279,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 			pilot_id: pilotId,
 		});
 
+		clearMatchingTaRequests(properties.aircraft, [PilotRequestType.Direct]);
 		close();
 	};
 

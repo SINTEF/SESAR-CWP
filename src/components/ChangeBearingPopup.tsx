@@ -8,8 +8,10 @@ import {
 	handlePublishPromise,
 	persistACCBearing,
 } from "../mqtt-client/publishers";
+import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { configurationStore, cwpStore } from "../state";
 import { normalizeBearing } from "../utils/bearingUtils";
+import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
 import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
 
 function QuickAdjustColumn(properties: {
@@ -200,6 +202,10 @@ export default observer(function ChangeBearingPopup(properties: {
 			changeBearingOfAircraft(pilotId, assignedFlightId, newBearing),
 		);
 		handlePublishPromise(persistACCBearing(aircraftId, newBearing));
+		clearMatchingTaRequests(properties.aircraft, [
+			PilotRequestType.AbsoluteHeading,
+			PilotRequestType.RelativeHeading,
+		]);
 		cwpStore.closeChangeBearingForAircraft(aircraftId);
 	};
 

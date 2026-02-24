@@ -501,11 +501,3 @@ export function frontendManualAP(_parameters: unknown, message: Buffer): void {
 		console.error("Error parsing manualAP message:", error);
 	}
 }
-
-export function fromTAtoIIS(
-	{ requestId }: { [key: string]: string },
-	message: Buffer,
-): void {
-	// biome-ignore lint/suspicious/noConsole: for debugging message sending from TA to IIS
-	console.log(message.toString());
-}

@@ -11,7 +11,9 @@ import {
 	// persistLocalAssignedFlightLevel,
 	persistNextSectorFlightLevel,
 } from "../mqtt-client/publishers";
+import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
+import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
 import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
 
 function ListOfLevels(properties: {
@@ -245,6 +247,9 @@ export default observer(function AircraftLevelPopup(properties: {
 			is_master: isMaster,
 		});
 
+		clearMatchingTaRequests(properties.aircraft, [
+			PilotRequestType.FlightLevel,
+		]);
 		cwpStore.closeLevelPopupForAircraft(aircraftId);
 	};
 

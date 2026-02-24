@@ -286,10 +286,6 @@ export default class BrainStore {
 	getAPForRequestType(requestType: PilotRequestType): number {
 		// Manual override always takes precedence
 		if (this.manualAP !== null) {
-			// biome-ignore lint/suspicious/noConsole: debug logging for AP calculation
-			console.log(
-				`[Brain AP] Manual override active → AP ${this.manualAP} (requestType=${requestType})`,
-			);
 			return this.manualAP;
 		}
 
