@@ -6,6 +6,7 @@ import {
 	// AvailabilityIntervalsMessage,
 	AvailabilitySchedule,
 	CurrentAirspaceConfigurationMessage,
+	ExitFlightLevelMessage,
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
 	FlightMilestonePositionMessage,
@@ -186,6 +187,14 @@ export function flightEnteringAirspaceMessage(
 ): void {
 	const protoMessage = FlightEnteringAirspaceMessage.fromBinary(message);
 	aircraftStore.handleNewSectorInFlightMessage(protoMessage);
+}
+
+export function exitFlightLevelMessage(
+	_parameters: unknown,
+	message: Buffer,
+): void {
+	const protoMessage = ExitFlightLevelMessage.fromBinary(message);
+	aircraftStore.handleExitFlightLevelMessage(protoMessage);
 }
 
 export function frontendFlightController(

@@ -42,7 +42,7 @@ const ScenarioConfigurationPanel = observer(
 						htmlFor="startup-scenario-select"
 						className="block text-gray-300"
 					>
-						Startup Scenario
+						Scenario
 					</label>
 					<select
 						id="startup-scenario-select"

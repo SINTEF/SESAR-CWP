@@ -531,4 +531,10 @@ export default class ConfigurationStore {
 				aircraft.lastKnownLongitude <= bounds.maxLon,
 		);
 	}
+
+	get radarVisibleAircraftIds(): Set<string> {
+		return new Set(
+			this.aircraftsWithinExtendedEdges.map((aircraft) => aircraft.aircraftId),
+		);
+	}
 }

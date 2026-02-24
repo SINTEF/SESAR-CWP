@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Draggable from "react-draggable";
 
 import { useDragging } from "../contexts/DraggingContext";
@@ -26,6 +26,7 @@ function isAdminPanelTab(value: string | null): value is AdminPanelTab {
 
 export default observer(function DraggableAdminPanel() {
 	const nodeRef = useRef<HTMLDivElement>(null);
+	const tabGroupName = useId();
 	const { startDragging, stopDragging } = useDragging();
 	const [activeTab, setActiveTab] = useState<AdminPanelTab>(() => {
 		if (typeof window === "undefined") {
@@ -86,47 +87,53 @@ export default observer(function DraggableAdminPanel() {
 						<AdminControlButtons />
 						<div
 							role="tablist"
-							className="tabs tabs-lift tabs-sm bg-neutral-800 "
+							className="tabs tabs-lift tabs-sm bg-neutral-800"
 						>
-							<button
-								type="button"
-								role="tab"
-								className={`ml-1 tab ${activeTab === "logs" ? "tab-active" : ""}`}
-								onClick={() => setActiveTab("logs")}
-							>
-								Logs
-							</button>
-							<button
-								type="button"
-								role="tab"
-								className={`tab ${activeTab === "brains" ? "tab-active" : ""}`}
-								onClick={() => setActiveTab("brains")}
-							>
-								{/* Note that Brian is a voluntary spell as the "brain" tool is named "Brian" */}
-								Brian
-							</button>
-							<button
-								type="button"
-								role="tab"
-								className={`tab ${activeTab === "scenario" ? "tab-active" : ""}`}
-								onClick={() => setActiveTab("scenario")}
-							>
-								Scenario Configuration
-							</button>
-							<button
-								type="button"
-								role="tab"
-								className={`tab ${activeTab === "debug" ? "tab-active" : ""}`}
-								onClick={() => setActiveTab("debug")}
-							>
-								Debug
-							</button>
+							<input
+								type="radio"
+								name={tabGroupName}
+								className="ml-2 tab"
+								aria-label="Logs"
+								checked={activeTab === "logs"}
+								onChange={() => setActiveTab("logs")}
+							/>
+							<div className="tab-content border-base-300">
+								{activeTab === "logs" && <AdminLogs />}
+							</div>
+							<input
+								type="radio"
+								name={tabGroupName}
+								className="tab"
+								aria-label="Brian"
+								checked={activeTab === "brains"}
+								onChange={() => setActiveTab("brains")}
+							/>
+							<div className="tab-content border-base-300">
+								{activeTab === "brains" && <BrainPanel />}
+							</div>
+							<input
+								type="radio"
+								name={tabGroupName}
+								className="tab"
+								aria-label="Scenario Configuration"
+								checked={activeTab === "scenario"}
+								onChange={() => setActiveTab("scenario")}
+							/>
+							<div className="tab-content border-base-300">
+								{activeTab === "scenario" && <ScenarioConfigurationPanel />}
+							</div>
+							<input
+								type="radio"
+								name={tabGroupName}
+								className="tab"
+								aria-label="Debug"
+								checked={activeTab === "debug"}
+								onChange={() => setActiveTab("debug")}
+							/>
+							<div className="tab-content border-base-300">
+								{activeTab === "debug" && <DebugPanel />}
+							</div>
 						</div>
-
-						{activeTab === "logs" && <AdminLogs />}
-						{activeTab === "brains" && <BrainPanel />}
-						{activeTab === "scenario" && <ScenarioConfigurationPanel />}
-						{activeTab === "debug" && <DebugPanel />}
 					</>
 				)}
 			</div>

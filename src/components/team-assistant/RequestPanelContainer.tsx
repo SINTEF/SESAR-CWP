@@ -6,7 +6,6 @@ import TaLabel from "./TaLabel";
 
 interface RequestPanelContainerProps {
 	aircraft: AircraftModel;
-	height: number;
 }
 
 /**
@@ -16,7 +15,6 @@ interface RequestPanelContainerProps {
  */
 export default observer(function RequestPanelContainer({
 	aircraft,
-	height,
 }: RequestPanelContainerProps) {
 	const { isDragging, isStillDragging } = useDragging();
 	const { aircraftId } = aircraft;
@@ -63,7 +61,6 @@ export default observer(function RequestPanelContainer({
 					key={request.requestId}
 					aircraft={aircraft}
 					request={request}
-					height={height}
 				/>
 			))}
 		</div>
