@@ -69,7 +69,7 @@ export default observer(function ATCMenu(properties: {
 	};
 
 	const handleTrfClick = (aircraftId: string): void => {
-		aircraftStore.aircrafts.get(aircraftId)?.setController("NS"); // Setting transfering to next sector as NS for DIALOG
+		aircraftStore.aircrafts.get(aircraftId)?.setController("FINISHED"); // Setting transfering to next sector as FINISHED for DIALOG
 		// change controlledBy to no longer currentCWP
 
 		posthog?.capture("atc_menu_action", {

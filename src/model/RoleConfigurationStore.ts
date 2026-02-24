@@ -384,6 +384,11 @@ export default class RoleConfigurationStore {
 			return "white";
 		}
 
+		// Priority 2: GREY - Flight has been transferred (FINISHED)
+		if (aircraft.controlledBy === "FINISHED") {
+			return "grey";
+		}
+
 		// Check if aircraft has sector entry information for the current sector
 		if (currentSector) {
 			const flightInSector = aircraft.flightInSectorTimes.get(currentSector);
@@ -395,31 +400,31 @@ export default class RoleConfigurationStore {
 				const timeUntilEntry = entryTimestamp - currentTimestamp;
 
 				// Check exit time if available
-				const exitTimestamp = flightInSector.exitPosition?.time
-					? convertTimestamp(flightInSector.exitPosition.time)
-					: null;
+				// const exitTimestamp = flightInSector.exitPosition?.time
+				// 	? convertTimestamp(flightInSector.exitPosition.time)
+				// 	: null;
 
 				// Aircraft is currently within the sector (past entry, before exit) but not assumed
 				// This is a critical situation - should be LIGHT_GREEN
-				if (timeUntilEntry <= 0) {
-					// Past entry time - check if still before exit
-					if (exitTimestamp === null || currentTimestamp < exitTimestamp) {
-						return "lightGreen";
-					}
-					// Past exit time - no longer of interest
-					return "grey";
-				}
+				// if (timeUntilEntry <= 0) {
+				// 	// Past entry time - check if still before exit
+				// 	if (exitTimestamp === null || currentTimestamp < exitTimestamp) {
+				// 		return "lightGreen";
+				// 	}
+				// 	// Past exit time - no longer of interest
+				// 	return "grey";
+				// }
 
 				// Aircraft has not yet entered
 				const lightGreenWindowSeconds =
 					this.cwpStore.lightGreenTimeWindowMinutes * 60;
 
-				// Priority 2: LIGHT_GREEN - About to enter within configured time window
+				// Priority 3: LIGHT_GREEN - About to enter within configured time window
 				if (timeUntilEntry <= lightGreenWindowSeconds) {
 					return "lightGreen";
 				}
 
-				// Priority 3: GREEN - Has sector entry info but not yet imminent
+				// Priority 4: GREEN - Has sector entry info but not yet imminent
 				return "green";
 			}
 		}
@@ -430,7 +435,7 @@ export default class RoleConfigurationStore {
 			return "green";
 		}
 
-		// Priority 4: GREY - Not of interest
+		// Priority 5: GREY - Not of interest
 		return "grey";
 	}
 
