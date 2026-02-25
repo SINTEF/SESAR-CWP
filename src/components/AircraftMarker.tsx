@@ -67,7 +67,7 @@ export default observer(function AircraftMarker(properties: {
 	const {
 		hoveredMarkerAircraftId,
 		setHoveredMarkerAircraftId,
-		setFlightRouteForAircraft,
+		toggleFlightRouteForAircraft,
 		toggleSelectedAircraftId,
 		selectedAircraftIds,
 	} = cwpStore;
@@ -78,7 +78,7 @@ export default observer(function AircraftMarker(properties: {
 
 	const onClickOnAircraft = (): void => {
 		const wasSelected = selectedAircraftIds.has(aircraftId);
-		setFlightRouteForAircraft(aircraftId, true);
+		toggleFlightRouteForAircraft(aircraftId);
 		toggleSelectedAircraftId(aircraftId);
 		setCurrentAircraftId(aircraftId);
 
@@ -98,7 +98,7 @@ export default observer(function AircraftMarker(properties: {
 		if (isStillDragging()) {
 			return;
 		}
-		setFlightRouteForAircraft(aircraftId, true);
+		cwpStore.setFlightRouteForAircraft(aircraftId, true);
 		setHoveredMarkerAircraftId(aircraftId);
 
 		posthog?.capture("aircraft_hover_start", {
