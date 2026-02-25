@@ -573,11 +573,6 @@ export const ArrivalAirport = observer(({ aircraft }: SubContentProperties) => {
 	};
 
 	return (
-		<span
-			onContextMenu={handleContextMenu}
-			className="hover:outline-2 hover:outline-white"
-		>
-			{aircraft.arrivalAirport}
-		</span>
+		<span onContextMenu={handleContextMenu}>{aircraft.arrivalAirport}</span>
 	);
 });
