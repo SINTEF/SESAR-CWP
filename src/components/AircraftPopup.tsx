@@ -85,7 +85,9 @@ export default observer(function AircraftPopup(properties: {
 		removeHoveredFlightLabelId,
 		selectedAircraftIds,
 	} = cwpStore;
-	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
+	const isHoveredMarker =
+		cwpStore.hoveredMarkerAircraftId === aircraftId ||
+		cwpStore.hoveredConflictAircraftIds.has(aircraftId);
 	const isHoveredTaLabel = cwpStore.hoveredTaLabelAircraftId === aircraftId;
 	const isHoveredLabel =
 		cwpStore.hoveredFlightLabelId === aircraftId || isHoveredTaLabel;
@@ -181,8 +183,54 @@ export default observer(function AircraftPopup(properties: {
 	};
 
 	const offset = computePopupOffset(bearing, speed, width, height);
-	const hasStcaConflict = aircraftStore.hasStcaConflict(aircraft.aircraftId);
-	const hasTctConflict = aircraftStore.hasTctConflict(aircraft.aircraftId);
+	const conflictFlightId = aircraft.assignedFlightId || aircraft.aircraftId;
+	const hasStcaConflict = aircraftStore.hasStcaConflict(conflictFlightId);
+	const hasTctConflict = aircraftStore.hasTctConflict(conflictFlightId);
+
+	const stcaConflictPair = hasStcaConflict
+		? aircraftStore.getConflictPairAircraftIdsForFlightId(
+				conflictFlightId,
+				"stca",
+			)
+		: null;
+	const tctConflictPair = hasTctConflict
+		? aircraftStore.getConflictPairAircraftIdsForFlightId(
+				conflictFlightId,
+				"tct",
+			)
+		: null;
+
+	const handleConflictBadgeMouseEnter = (
+		pair: [string, string] | null,
+	): void => {
+		if (!pair || isStillDragging()) {
+			return;
+		}
+
+		const ids = [...new Set(pair)];
+		cwpStore.setHoveredConflictAircraftIds(ids);
+		cwpStore.setHoveredMarkerAircraftId(ids[0]);
+		for (const id of ids) {
+			cwpStore.setFlightRouteForAircraft(id, true);
+		}
+	};
+
+	const handleConflictBadgeMouseLeave = (
+		pair: [string, string] | null,
+	): void => {
+		if (!pair || isStillDragging()) {
+			return;
+		}
+
+		const ids = [...new Set(pair)];
+		cwpStore.clearHoveredConflictAircraftIds();
+		cwpStore.removeHoveredMarkerAircraftId();
+		for (const id of ids) {
+			if (!cwpStore.selectedAircraftIds.has(id)) {
+				cwpStore.setFlightRouteForAircraft(id, false);
+			}
+		}
+	};
 
 	// Determine line color: selected takes priority, then hovered, then default iconColor
 	const lineColor = isSelected || isHoveredMarker ? "#00FFFF" : iconColor;
@@ -279,8 +327,27 @@ export default observer(function AircraftPopup(properties: {
 			<ATCMenu aircraft={properties.aircraft} />
 			{hasStcaConflict || hasTctConflict ? (
 				<div className="absolute bottom-full left-1 flex">
-					{hasStcaConflict && <Stca />}
-					{hasTctConflict && <Tct blink={hasStcaConflict} />}
+					{hasStcaConflict && (
+						<Stca
+							onPointerEnter={() =>
+								handleConflictBadgeMouseEnter(stcaConflictPair)
+							}
+							onPointerLeave={() =>
+								handleConflictBadgeMouseLeave(stcaConflictPair)
+							}
+						/>
+					)}
+					{hasTctConflict && (
+						<Tct
+							blink={hasStcaConflict}
+							onPointerEnter={() =>
+								handleConflictBadgeMouseEnter(tctConflictPair)
+							}
+							onPointerLeave={() =>
+								handleConflictBadgeMouseLeave(tctConflictPair)
+							}
+						/>
+					)}
 				</div>
 			) : null}
 		</DraggablePopup>

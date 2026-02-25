@@ -215,6 +215,10 @@ export default class CWPStore {
 	});
 
 	hoveredMarkerAircraftId: string | null = null;
+	hoveredConflictAircraftIds: ObservableSet<string> = observable.set(
+		undefined,
+		{ deep: false },
+	);
 	hoveredFlightLabelId: string | null = null;
 
 	hoveredTaLabelAircraftId: string | null = null;
@@ -757,6 +761,18 @@ export default class CWPStore {
 	setHoveredMarkerAircraftId(aircraftId: string): void {
 		this.hoveredMarkerAircraftId = aircraftId;
 	}
+
+	setHoveredConflictAircraftIds(aircraftIds: string[]): void {
+		this.hoveredConflictAircraftIds.clear();
+		for (const aircraftId of aircraftIds) {
+			this.hoveredConflictAircraftIds.add(aircraftId);
+		}
+	}
+
+	clearHoveredConflictAircraftIds(): void {
+		this.hoveredConflictAircraftIds.clear();
+	}
+
 	setHoveredFlightLabelId(aircraftId: string): void {
 		this.hoveredFlightLabelId = aircraftId;
 	}
@@ -889,6 +905,7 @@ export default class CWPStore {
 		this.highlightedAircraftId = "";
 		this.ATCMenuAircraftId = "";
 		this.hoveredMarkerAircraftId = null;
+		this.hoveredConflictAircraftIds.clear();
 		this.hoveredFlightLabelId = null;
 		this.hoveredTaLabelAircraftId = null;
 		this.taArrowClickedAircraftId = null;
