@@ -290,6 +290,13 @@ export function HeadingGoalRow({
 						{getStatusColor(noConflicts)} TCT {goal.requestedValue}
 					</td>
 				</tr>
+				<tr>
+					{goal.nextSector && (
+						<td className="text-xs" colSpan={2}>
+							{getStatusColor(undefined)} MTCD {goal.nextSector}
+						</td>
+					)}
+				</tr>
 				{isAP2 && index < totalGoals - 1 && (
 					<tr>
 						<td colSpan={2}>
