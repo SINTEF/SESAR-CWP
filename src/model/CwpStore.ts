@@ -494,6 +494,13 @@ export default class CWPStore {
 		this.clearTaRequestCallback();
 	}
 
+	closeAllLabelPopupsForAircraft(aircraftId: string): void {
+		this.closeAllSubPopupsForAircraft(aircraftId);
+		if (this.ATCMenuAircraftId === aircraftId) {
+			this.ATCMenuAircraftId = "";
+		}
+	}
+
 	/**
 	 * Set a callback for TA request mode. When set, popup components will call this
 	 * callback with the selected value instead of their normal behavior.
@@ -520,7 +527,7 @@ export default class CWPStore {
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
 			this.taRequestAircraftId = savedAircraftId;
@@ -533,7 +540,7 @@ export default class CWPStore {
 	}
 
 	openNextSectorPopupForAircraft(aircraftId: string): void {
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		this.aircraftsWithSectorPopup.add(aircraftId);
 	}
 
@@ -547,7 +554,7 @@ export default class CWPStore {
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
 			this.taRequestAircraftId = savedAircraftId;
@@ -565,7 +572,7 @@ export default class CWPStore {
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
 			this.taRequestAircraftId = savedAircraftId;
@@ -578,7 +585,7 @@ export default class CWPStore {
 	}
 
 	openChangeSpeedForAircraft(aircraftId: string): void {
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		this.aircraftWithSpeedChangePopup.add(aircraftId);
 	}
 
@@ -738,6 +745,9 @@ export default class CWPStore {
 		this.showSpeedVectors = value;
 	}
 	setATCMenuAircraftId(aircraftId: string): void {
+		if (aircraftId !== "") {
+			this.closeAllSubPopupsForAircraft(aircraftId);
+		}
 		this.ATCMenuAircraftId = aircraftId;
 	}
 	clearATCMenuAircraftId(): void {

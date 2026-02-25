@@ -2,6 +2,7 @@
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import type AircraftModel from "../model/AircraftModel";
+import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import {
 	acceptFlight,
 	handlePublishPromise,
@@ -119,6 +120,27 @@ export default observer(function ATCMenu(properties: {
 		});
 
 		cwpStore.clearATCMenuAircraftId();
+
+		if (action === "TP") {
+			const wasSelected = cwpStore.selectedAircraftIds.has(aircraftId);
+			cwpStore.toggleFlightRouteForAircraft(aircraftId);
+			cwpStore.toggleSelectedAircraftId(aircraftId);
+			setCurrentAircraftId(aircraftId);
+
+			posthog?.capture("aircraft_clicked", {
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				action: wasSelected ? "deselect" : "select",
+				altitude: properties.aircraft.lastKnownAltitude,
+				speed: properties.aircraft.lastKnownSpeed,
+				bearing: properties.aircraft.lastKnownBearing,
+				position: {
+					lat: properties.aircraft.lastKnownLatitude,
+					lon: properties.aircraft.lastKnownLongitude,
+				},
+				selected_count: cwpStore.selectedAircraftIds.size,
+			});
+		}
 	};
 
 	const handleMeasurementClick = (mode: "sep" | "qdm"): void => {
