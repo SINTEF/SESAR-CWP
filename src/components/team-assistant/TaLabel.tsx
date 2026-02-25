@@ -8,6 +8,7 @@ import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
 import { PilotRequestType } from "../../schemas/pilotRequestSchema";
 import { cwpStore, roleConfigurationStore } from "../../state";
+import { isRejected } from "../../utils/teamAssistantHelper";
 import TaRequestHovered from "./TaRequestHovered";
 import TaRequestIdle from "./TaRequestIdle";
 
@@ -18,20 +19,6 @@ import TaRequestIdle from "./TaRequestIdle";
  * - full: AP1 hovered (always), or AP2 hovered + arrow clicked — all goal details
  */
 type TaDisplayState = "idle" | "compact" | "full";
-
-function getTaDisplayState(
-	isHovered: boolean,
-	isAP2: boolean,
-	isArrowClicked: boolean,
-): TaDisplayState {
-	if (!isHovered) {
-		return "idle";
-	}
-	if (isAP2 && !isArrowClicked) {
-		return "compact";
-	}
-	return "full";
-}
 
 /**
  * REQUIREMENTS:
@@ -85,6 +72,23 @@ export default observer(function TaLabel(properties: {
 	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
 	const isHoveredLabel = cwpStore.hoveredTaLabelAircraftId === aircraftId;
 	const isSelected = selectedAircraftIds.has(aircraft.aircraftId);
+
+	function getTaDisplayState(
+		isHovered: boolean,
+		isAP2: boolean,
+		isArrowClicked: boolean,
+	): TaDisplayState {
+		if (!isHovered) {
+			return "idle";
+		}
+		if (isAP2 && isRejected(request)) {
+			return "full";
+		}
+		if (isAP2 && !isArrowClicked) {
+			return "compact";
+		}
+		return "full";
+	}
 
 	const displayState = getTaDisplayState(
 		isHoveredLabel,
