@@ -99,11 +99,13 @@ export default observer(function StartupModal() {
 				}
 			>
 				<div
-					className="modal-box max-w-2xl"
+					className="modal-box max-w-2xl bg-black/50 backdrop-blur-md"
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Modal header */}
-					<h3 className="font-bold text-lg mb-4">Choose Controller</h3>
+					<h3 className="font-semibold text-lg text-white mb-4">
+						Choose Controller
+					</h3>
 					{secondSelection && (
 						<button
 							className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -141,7 +143,8 @@ export default observer(function StartupModal() {
 									}
 								}
 							}}
-							className={`btn ${isInAdminMode ? "btn-warning" : "btn-outline border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-black"}`}
+							// className={`btn ${isInAdminMode ? "btn-warning" : "btn-outliine border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-black"}`}
+							className={`btn ${isInAdminMode ? "btn-warning" : "btn-error"}`}
 						>
 							Admin Mode
 						</button>

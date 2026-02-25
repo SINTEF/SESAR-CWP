@@ -82,7 +82,7 @@ export default observer(function ControllerSelector({
 					<button
 						key={name}
 						onClick={() => handleSelect(name)}
-						className={`btn ${selectedCWP === name ? "btn-primary" : "btn-outline"}`}
+						className={`btn btn-info ${selectedCWP === name ? "btn-active" : ""}`}
 					>
 						{name}
 					</button>
@@ -96,7 +96,7 @@ export default observer(function ControllerSelector({
 						<button
 							key={name}
 							onClick={() => handleSelect(name)}
-							className={`btn ${selectedCWP === name ? "btn-primary" : "btn-outline"}`}
+							className={`btn btn-info ${selectedCWP === name ? "btn-active" : ""}`}
 						>
 							{name}
 						</button>
@@ -108,7 +108,7 @@ export default observer(function ControllerSelector({
 			<div className="flex flex-wrap gap-2">
 				<button
 					onClick={() => handleSelect("All")}
-					className={`btn ${selectedCWP === "All" ? "btn-primary" : "btn-outline"}`}
+					className={`btn btn-info ${selectedCWP === "All" ? "btn-active" : ""}`}
 				>
 					Master
 				</button>

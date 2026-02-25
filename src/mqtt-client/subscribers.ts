@@ -417,7 +417,7 @@ export function pilotRequestJson(
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode PilotRequestJson:", error);
 		Sentry.captureException(error, {
-			data: {
+			extra: {
 				message: message.toString(),
 				requestId,
 			},
