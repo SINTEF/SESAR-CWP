@@ -23,41 +23,46 @@ function ListOfLevels(properties: {
 	bottomFlightLevel: number | undefined;
 }) {
 	const { value, onClick, topFlightLevel, bottomFlightLevel } = properties;
-	const rows = [];
+	const levels = Array.from(
+		{ length: Math.floor((560 - 210) / 10) + 1 },
+		(_, listIndex) => 560 - listIndex * 10,
+	);
 
 	const hasLevel =
 		topFlightLevel !== undefined && bottomFlightLevel !== undefined;
 
-	for (let index = 560; index > 200; index -= 10) {
-		const isWithinRange =
-			hasLevel && index >= bottomFlightLevel && index <= topFlightLevel;
-		const isSelected = index === value;
+	return (
+		<>
+			{levels.map((index) => {
+				const isWithinRange =
+					hasLevel && index >= bottomFlightLevel && index <= topFlightLevel;
+				const isSelected = index === value;
 
-		rows.push(
-			<button
-				key={index}
-				onClick={(): void => onClick(index)}
-				className={`
-                    block px-0 py-1 text-xs text-center
-                    bg-[#1e3a5f] text-white
-                    hover:bg-[#4b90db]
-                    border-none outline-none
-                    ${isWithinRange ? "font-bold" : ""}
-                `}
-				data-level={index}
-			>
-				{isSelected ? (
-					<>
-						<span>&gt;</span>&nbsp;{index}&nbsp;<span>&lt;</span>
-					</>
-				) : (
-					index
-				)}
-			</button>,
-		);
-	}
-
-	return <>{rows}</>;
+				return (
+					<button
+						key={index}
+						onClick={(): void => onClick(index)}
+						className={`
+						    block px-0 py-1 text-xs text-center
+						    bg-[#1e3a5f] text-white
+						    hover:bg-[#4b90db]
+						    border-none outline-none
+						    ${isWithinRange ? "font-bold" : ""}
+						`}
+						data-level={index}
+					>
+						{isSelected ? (
+							<>
+								<span>&gt;</span>&nbsp;{index}&nbsp;<span>&lt;</span>
+							</>
+						) : (
+							index
+						)}
+					</button>
+				);
+			})}
+		</>
+	);
 }
 
 export default observer(function AircraftLevelPopup(properties: {

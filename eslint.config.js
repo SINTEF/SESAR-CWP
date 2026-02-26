@@ -43,8 +43,8 @@ export default defineConfig([
 		},
 		rules: {
 			...reactHooks.configs.recommended.rules,
-			"react-hooks/immutability": "off",
-				"@typescript-eslint/unbound-method": "error",
+			//"react-hooks/immutability": "off",
+			"@typescript-eslint/unbound-method": "error",
       // broken
 			"no-unused-vars": "off",
       // working version

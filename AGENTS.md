@@ -11,6 +11,7 @@ This file provides guidance to AI agents when working with code in this reposito
 - `npm run check` - Run both linter and formatting checks
 - `npm run check -- --fix` - Automatically fix linting and formatting issues
 - `npm run check -- --fix --unsafe` - Automatically fix unsafe linting and formatting issues (do that on a clean git state)
+- `npm run lint:eslint` - Run optional ESlint checks (not required at anytime).
 
 ## Architecture Overview
 
@@ -72,11 +73,10 @@ The app communicates with an ATC simulator via MQTT:
 
 ## Code Style Guidelines
 
-- Linting via Biome (config in `biome.json`)
-- Use `biome-ignore` comments when necessary with explanations
 - TypeScript strict mode enabled
 - Prefer const assertions and explicit types
 - Component files use `.tsx`, utilities use `.ts`
+- Run the linters, formatters, and type checkers before finishing any code changes
 
 ## Important Notes
 

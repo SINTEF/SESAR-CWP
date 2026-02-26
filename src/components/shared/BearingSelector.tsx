@@ -17,40 +17,45 @@ function ListOfBearings(properties: {
 	currentBearing: number;
 }) {
 	const { value, onClick, currentBearing } = properties;
-	const rows = [];
+	const bearings = Array.from(
+		{ length: Math.floor((360 - 5) / 5) + 1 },
+		(_, listIndex) => 360 - listIndex * 5,
+	);
 
-	// Generate bearings from 360 down to 5 in steps of 5
-	for (let bearing = 360; bearing >= 5; bearing -= 5) {
-		const isSelected = bearing === value;
-		const isCurrent = bearing === currentBearing;
+	return (
+		<>
+			{bearings.map((bearing) => {
+				const isSelected = bearing === value;
+				const isCurrent = bearing === currentBearing;
 
-		rows.push(
-			<button
-				type="button"
-				key={bearing}
-				onClick={(): void => onClick(bearing)}
-				className={`
-					block px-0 py-1 text-xs text-center
-					bg-[#1e3a5f] text-white
-					hover:bg-[#4b90db]
-					border-none outline-none
-					${isCurrent ? "font-bold" : ""}
-				`}
-				data-bearing={bearing}
-			>
-				{isSelected ? (
-					<>
-						<span>&gt;</span>&nbsp;{bearing.toString().padStart(3, "0")}&nbsp;
-						<span>&lt;</span>
-					</>
-				) : (
-					bearing.toString().padStart(3, "0")
-				)}
-			</button>,
-		);
-	}
-
-	return <>{rows}</>;
+				return (
+					<button
+						type="button"
+						key={bearing}
+						onClick={(): void => onClick(bearing)}
+						className={`
+							block px-0 py-1 text-xs text-center
+							bg-[#1e3a5f] text-white
+							hover:bg-[#4b90db]
+							border-none outline-none
+							${isCurrent ? "font-bold" : ""}
+						`}
+						data-bearing={bearing}
+					>
+						{isSelected ? (
+							<>
+								<span>&gt;</span>&nbsp;
+								{bearing.toString().padStart(3, "0")}&nbsp;
+								<span>&lt;</span>
+							</>
+						) : (
+							bearing.toString().padStart(3, "0")
+						)}
+					</button>
+				);
+			})}
+		</>
+	);
 }
 
 function RelativeBearingColumn(properties: {
