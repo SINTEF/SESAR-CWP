@@ -289,17 +289,13 @@ export default class CWPStore {
 			}
 			if (
 				typeof parsed.speedChangeDisplayUnit === "string" &&
-				SPEED_CHANGE_DISPLAY_UNITS.includes(
-					parsed.speedChangeDisplayUnit as SpeedChangeDisplayUnit,
-				)
+				SPEED_CHANGE_DISPLAY_UNITS.includes(parsed.speedChangeDisplayUnit)
 			) {
 				this.speedChangeDisplayUnit = parsed.speedChangeDisplayUnit;
 			}
 			if (
 				typeof parsed.agendaScaleMinutes === "number" &&
-				AGENDA_SCALE_PRESETS.includes(
-					parsed.agendaScaleMinutes as (typeof AGENDA_SCALE_PRESETS)[number],
-				)
+				AGENDA_SCALE_PRESETS.includes(parsed.agendaScaleMinutes)
 			) {
 				this.agendaScaleMinutes = parsed.agendaScaleMinutes;
 			}

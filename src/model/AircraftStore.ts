@@ -210,8 +210,6 @@ export default class AircraftStore {
 		const { vehicleId } = targetReport;
 		const aircraft = this.aircrafts.get(vehicleId);
 		if (!aircraft) {
-			// eslint-disable-next-line no-console
-			// console.warn('Received target report for unknown aircraft', vehicleId);
 			return;
 		}
 		aircraft.handleTargetReport(targetReport);

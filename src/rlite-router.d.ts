@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/filename-case */
 declare module "rlite-router" {
 	type RliteCallback<State = unknown> = (
 		parameters: { [key: string]: string },
