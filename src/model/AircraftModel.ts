@@ -672,9 +672,12 @@ export default class AircraftModel {
 			// Start flashing
 			this.isNextSectorFLFlashing = true;
 			// Stop flashing after 3 seconds
-			this.nextSectorFLFlashTimeout = setTimeout(() => {
-				this.isNextSectorFLFlashing = false;
-			}, 3000);
+			this.nextSectorFLFlashTimeout = setTimeout(
+				action(() => {
+					this.isNextSectorFLFlashing = false;
+				}),
+				3000,
+			);
 		}
 	}
 
@@ -694,9 +697,12 @@ export default class AircraftModel {
 			// Start flashing
 			this.isNextACCFLFlashing = true;
 			// Stop flashing after 1 second
-			this.nextACCFLFlashTimeout = setTimeout(() => {
-				this.isNextACCFLFlashing = false;
-			}, 1000);
+			this.nextACCFLFlashTimeout = setTimeout(
+				action(() => {
+					this.isNextACCFLFlashing = false;
+				}),
+				1000,
+			);
 		}
 	}
 
