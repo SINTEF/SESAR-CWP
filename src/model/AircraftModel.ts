@@ -277,10 +277,6 @@ export default class AircraftModel {
 		const altitudeInFlightMeters = convertToFlightMeters(altitude);
 		if (altitudeInFlightMeters !== this.lastKnownAltitude) {
 			this.lastKnownAltitude = altitudeInFlightMeters;
-			// Only auto-update nextACCFL if it hasn't been manually set through the interface
-			if (!this.isNextACCFLManuallySet) {
-				this.nextACCFL = altitudeInFlightMeters.toString();
-			}
 		}
 		if (latitude !== this.lastKnownLatitude) {
 			this.lastKnownLatitude = latitude;
@@ -702,6 +698,17 @@ export default class AircraftModel {
 				this.isNextACCFLFlashing = false;
 			}, 1000);
 		}
+	}
+
+	/**
+	 * Apply a CFL value coming from simulator data.
+	 * CFL acts as the initial/authoritative value only until the user manually overrides nextACCFL.
+	 */
+	applyClearedFlightLevel(clearedFlightLevel: string): void {
+		if (this.isNextACCFLManuallySet) {
+			return;
+		}
+		this.setNextACCFL(clearedFlightLevel);
 	}
 
 	setPilotRequestFlightLevel(request: string): void {

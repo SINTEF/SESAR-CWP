@@ -651,6 +651,12 @@ message ExitFlightLevelMessage {
   int32 exit_flight_level = 2; // The flight level at which the flight will exit the airspace.
 }
 
+// A cleared flight level message
+message ClearedFlightLevelMessage {
+  string flight_id = 1; // The id of the flight.
+  int32 cleared_flight_level = 2; // The flight level that has been cleared by ATC.
+}
+
 message AddAcceptedFlightMessage {
   string fromControllableAirspaceVolume   = 1; // Id of the controllable airspace volume that released ownership of the flight to toRole.
   string toControllableAirspaceVolume     = 2; // Id of the controllable airspace volume that accepted the flight, that has become the owner.

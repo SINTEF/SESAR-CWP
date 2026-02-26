@@ -6,6 +6,7 @@ import {
 	publishPilotRequestRefresh,
 } from "../mqtt-client/publishers";
 import type {
+	ClearedFlightLevelMessage,
 	ExitFlightLevelMessage,
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
@@ -386,6 +387,33 @@ export default class AircraftStore {
 		}
 
 		aircraft.setNextSectorFL(exitFlightLevel.toString());
+	}
+
+	handleClearedFlightLevelMessage(message: ClearedFlightLevelMessage): void {
+		const { flightId, clearedFlightLevel } = message;
+
+		let aircraft;
+		for (const potentialAircraft of this.aircrafts.values()) {
+			if (potentialAircraft.assignedFlightId === flightId) {
+				aircraft = potentialAircraft;
+				break;
+			}
+		}
+
+		if (!aircraft) {
+			// biome-ignore lint/suspicious/noConsole: useful when backend sends CFL before flight mapping is available
+			console.warn(
+				"Received cleared flight level message for unknown flight",
+				flightId,
+			);
+			Sentry.captureMessage(
+				`Received cleared flight level message for unknown flight: ${flightId}`,
+				"warning",
+			);
+			return;
+		}
+
+		aircraft.applyClearedFlightLevel(clearedFlightLevel.toString());
 	}
 
 	handleNewAircraftTypeMessage(
