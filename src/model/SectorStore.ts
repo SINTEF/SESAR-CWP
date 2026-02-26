@@ -70,6 +70,40 @@ export class Sector {
 	get areaSize(): number {
 		return area(this.turfPolygon);
 	}
+
+	get bottomFlightLevel(): number {
+		return Math.min(
+			...this.includedAirspaceVolumes.map((v) => v.bottomFlightLevel),
+		);
+	}
+
+	get topFlightLevel(): number {
+		return Math.max(
+			...this.includedAirspaceVolumes.map((v) => v.topFlightLevel),
+		);
+	}
+
+	get flightLevelSpan(): number {
+		return this.topFlightLevel - this.bottomFlightLevel;
+	}
+
+	get flightLevelMidpoint(): number {
+		return (this.bottomFlightLevel + this.topFlightLevel) / 2;
+	}
+
+	isWithinSector(
+		longitude: number,
+		latitude: number,
+		altitude?: number,
+	): boolean {
+		if (
+			altitude !== undefined &&
+			(altitude < this.bottomFlightLevel || altitude > this.topFlightLevel)
+		) {
+			return false;
+		}
+		return booleanPointInPolygon([longitude, latitude], this.turfPolygon);
+	}
 }
 
 export default class SectorStore {
@@ -156,7 +190,16 @@ export default class SectorStore {
 		return index;
 	}
 
-	findSector(longitude: number, latitude: number): Sector | undefined {
+	findSectors(
+		longitude: number,
+		latitude: number,
+		altitude?: number,
+	): Sector[] | undefined {
+		if (altitude !== undefined && altitude > 1023) {
+			throw new Error(
+				"Altitude exceeds maximum flight level of 1023, are you sending meters while the ATC industry uses body parts?",
+			);
+		}
 		const sectorList = this.sectorList;
 		const sectorIndex = this.sectorIndex;
 		if (!sectorIndex) {
@@ -169,25 +212,64 @@ export default class SectorStore {
 			latitude,
 			(index) => {
 				const sector = sectorList[index];
-				return booleanPointInPolygon([longitude, latitude], sector.turfPolygon);
+				return sector.isWithinSector(longitude, latitude, altitude);
 			},
 		);
 
-		// return the polygon with the smallest area if multiple sectors contain the point
-		// this is probably not ideal, but it will do for now
-		if (sectorIds.length > 1) {
-			let smallestSectorId = sectorIds[0];
-			let smallestArea = sectorList[smallestSectorId].areaSize;
-			for (const id of sectorIds) {
-				const areaSize = sectorList[id].areaSize;
-				if (areaSize < smallestArea) {
-					smallestArea = areaSize;
-					smallestSectorId = id;
-				}
-			}
-			return sectorList[smallestSectorId];
+		return sectorIds.map((id) => sectorList[id]);
+	}
+
+	findSector(
+		longitude: number,
+		latitude: number,
+		altitude?: number,
+	): Sector | undefined {
+		const sectors = this.findSectors(longitude, latitude, altitude);
+		if (!sectors || sectors.length === 0) {
+			return undefined;
+		}
+		if (sectors.length === 1) {
+			return sectors[0];
 		}
 
-		return sectorIds.length === 1 ? sectorList[sectorIds[0]] : undefined;
+		let bestSector = sectors[0];
+		for (let i = 1; i < sectors.length; i++) {
+			const candidate = sectors[i];
+
+			if (altitude !== undefined) {
+				if (candidate.flightLevelSpan !== bestSector.flightLevelSpan) {
+					if (candidate.flightLevelSpan < bestSector.flightLevelSpan) {
+						bestSector = candidate;
+					}
+					continue;
+				}
+
+				const candidateAltitudeDelta = Math.abs(
+					altitude - candidate.flightLevelMidpoint,
+				);
+				const bestAltitudeDelta = Math.abs(
+					altitude - bestSector.flightLevelMidpoint,
+				);
+				if (candidateAltitudeDelta !== bestAltitudeDelta) {
+					if (candidateAltitudeDelta < bestAltitudeDelta) {
+						bestSector = candidate;
+					}
+					continue;
+				}
+			}
+
+			if (candidate.areaSize !== bestSector.areaSize) {
+				if (candidate.areaSize < bestSector.areaSize) {
+					bestSector = candidate;
+				}
+				continue;
+			}
+
+			if (candidate.sectorId.localeCompare(bestSector.sectorId) < 0) {
+				bestSector = candidate;
+			}
+		}
+
+		return bestSector;
 	}
 }

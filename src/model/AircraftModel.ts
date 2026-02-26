@@ -8,6 +8,7 @@ import type {
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
 import { WakeTurbulenceCategory } from "../proto/ProtobufAirTrafficSimulator";
+import { convertMetersToFlightLevel } from "../utils";
 import type AircraftInfo from "./AircraftInfo";
 import type AircraftType from "./AircraftType";
 import convertTimestamp from "./convertTimestamp";
@@ -394,6 +395,7 @@ export default class AircraftModel {
 		const currentSector = this.sectorStore.findSector(
 			this.lastKnownLongitude,
 			this.lastKnownLatitude,
+			this.lastKnownAltitude,
 		);
 		const currentSectorId = currentSector?.sectorId;
 
@@ -408,9 +410,11 @@ export default class AircraftModel {
 
 		for (let i = startIndex; i < trajectories.length; i++) {
 			const waypoint = trajectories[i];
+			const { longitude, latitude, altitude } = waypoint.trajectoryCoordinate;
 			const waypointSector = this.sectorStore.findSector(
-				waypoint.trajectoryCoordinate.longitude,
-				waypoint.trajectoryCoordinate.latitude,
+				longitude,
+				latitude,
+				altitude ? convertMetersToFlightLevel(altitude) : undefined,
 			);
 
 			if (waypointSector && waypointSector.sectorId !== currentSectorId) {
@@ -444,6 +448,7 @@ export default class AircraftModel {
 		const currentSector = this.sectorStore.findSector(
 			this.lastKnownLongitude,
 			this.lastKnownLatitude,
+			this.lastKnownAltitude,
 		);
 		if (currentSector) {
 			const flightInSector = this.flightInSectorTimes.get(
