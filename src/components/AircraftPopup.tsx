@@ -122,12 +122,52 @@ export default observer(function AircraftPopup(properties: {
 
 	// Show expanded content when hovering OR when any popup is open
 	const showExpandedContent = isHoveredLabel || hasOpenPopup;
-	const height =
+	const defaultHeight =
 		Math.round(aircraft.lastKnownAltitude) / 10 !==
 			Number.parseInt(aircraft.nextSectorFL) || showExpandedContent
 			? 70
 			: 56;
-	const width = showExpandedContent ? 135 : 83;
+	const defaultWidth = showExpandedContent ? 135 : 83;
+	const [measuredSize, setMeasuredSize] = React.useState({
+		width: defaultWidth,
+		height: defaultHeight,
+	});
+	const popupContentRef = React.useRef<HTMLDivElement | null>(null);
+
+	React.useEffect(() => {
+		setMeasuredSize({ width: defaultWidth, height: defaultHeight });
+	}, [defaultWidth, defaultHeight]);
+
+	React.useLayoutEffect(() => {
+		const element = popupContentRef.current;
+		if (!element) {
+			return;
+		}
+
+		const updateSize = (): void => {
+			const rect = element.getBoundingClientRect();
+			const nextWidth = Math.ceil(rect.width);
+			const nextHeight = Math.ceil(rect.height);
+
+			setMeasuredSize((current) =>
+				current.width === nextWidth && current.height === nextHeight
+					? current
+					: { width: nextWidth, height: nextHeight },
+			);
+		};
+
+		updateSize();
+
+		const resizeObserver = new ResizeObserver(() => {
+			updateSize();
+		});
+		resizeObserver.observe(element);
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}, [showExpandedContent, aircraft.aircraftId]);
+
 	const Content = showExpandedContent
 		? AircraftPopupContent
 		: AircraftContentSmall;
@@ -177,7 +217,12 @@ export default observer(function AircraftPopup(properties: {
 		}
 	};
 
-	const offset = computePopupOffset(bearing, speed, width, height);
+	const offset = computePopupOffset(
+		bearing,
+		speed,
+		measuredSize.width,
+		measuredSize.height,
+	);
 	const conflictFlightId = aircraft.assignedFlightId || aircraft.aircraftId;
 	const hasStcaConflict = aircraftStore.hasStcaConflict(conflictFlightId);
 	const hasTctConflict = aircraftStore.hasTctConflict(conflictFlightId);
@@ -253,7 +298,7 @@ export default observer(function AircraftPopup(properties: {
 			style={{ color: flightColor }}
 			color={lineColor}
 			offset={offset as DraggablePopupProperties["offset"]}
-			size={{ width, height }}
+			size={measuredSize}
 			borderRadius={1.5}
 			anchor="top"
 			longitude={longitude}
@@ -268,7 +313,8 @@ export default observer(function AircraftPopup(properties: {
 			trackingType="aircraft_popup"
 		>
 			<div
-				className="relative"
+				ref={popupContentRef}
+				className="relative whitespace-nowrap"
 				onPointerEnter={onMouseEnter}
 				onPointerLeave={onMouseLeave}
 			>
@@ -285,12 +331,11 @@ export default observer(function AircraftPopup(properties: {
 							showAddTaDialogOpened ? "rounded-tr-none" : "",
 						)}
 						onWheel={onWheel}
-						style={{ width: `${width}px`, height: `${height}px` }}
 					>
 						<Content
 							flightColor={flightColor}
 							aircraft={aircraft}
-							width={width}
+							width={measuredSize.width}
 						/>
 						{showAddTaRequestButton && <AddRequestButton aircraft={aircraft} />}
 					</div>
