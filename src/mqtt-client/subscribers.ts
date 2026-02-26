@@ -5,6 +5,7 @@ import {
 	AirwaysMessage,
 	// AvailabilityIntervalsMessage,
 	AvailabilitySchedule,
+	ClearedFlightLevelMessage,
 	CurrentAirspaceConfigurationMessage,
 	ExitFlightLevelMessage,
 	FlightConflictUpdateMessage,
@@ -195,6 +196,14 @@ export function exitFlightLevelMessage(
 ): void {
 	const protoMessage = ExitFlightLevelMessage.fromBinary(message);
 	aircraftStore.handleExitFlightLevelMessage(protoMessage);
+}
+
+export function clearedFlightLevelMessage(
+	_parameters: unknown,
+	message: Buffer,
+): void {
+	const protoMessage = ClearedFlightLevelMessage.fromBinary(message);
+	aircraftStore.handleClearedFlightLevelMessage(protoMessage);
 }
 
 export function frontendFlightController(

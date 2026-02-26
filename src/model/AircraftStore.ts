@@ -6,6 +6,7 @@ import {
 	publishPilotRequestRefresh,
 } from "../mqtt-client/publishers";
 import type {
+	ClearedFlightLevelMessage,
 	ExitFlightLevelMessage,
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
@@ -388,6 +389,33 @@ export default class AircraftStore {
 		aircraft.setNextSectorFL(exitFlightLevel.toString());
 	}
 
+	handleClearedFlightLevelMessage(message: ClearedFlightLevelMessage): void {
+		const { flightId, clearedFlightLevel } = message;
+
+		let aircraft;
+		for (const potentialAircraft of this.aircrafts.values()) {
+			if (potentialAircraft.assignedFlightId === flightId) {
+				aircraft = potentialAircraft;
+				break;
+			}
+		}
+
+		if (!aircraft) {
+			// biome-ignore lint/suspicious/noConsole: useful when backend sends CFL before flight mapping is available
+			console.warn(
+				"Received cleared flight level message for unknown flight",
+				flightId,
+			);
+			Sentry.captureMessage(
+				`Received cleared flight level message for unknown flight: ${flightId}`,
+				"warning",
+			);
+			return;
+		}
+
+		aircraft.applyClearedFlightLevel(clearedFlightLevel.toString());
+	}
+
 	handleNewAircraftTypeMessage(
 		newAircraftTypeMessage: NewAircraftTypeMessage,
 	): void {
@@ -602,6 +630,52 @@ export default class AircraftStore {
 	}
 	hasTctConflict(flightId: string): boolean {
 		return (this.tctConflictFlightCounts.get(flightId) ?? 0) > 0;
+	}
+
+	getConflictPairAircraftIdsForFlightId(
+		flightId: string,
+		conflictKind: "stca" | "tct",
+	): [string, string] | null {
+		const conflicts =
+			conflictKind === "stca" ? this.stcaConflictIds : this.tctConflictIds;
+
+		for (const conflictMessage of conflicts.values()) {
+			if (
+				conflictMessage.flightId !== flightId &&
+				conflictMessage.conflictingFlightId !== flightId
+			) {
+				continue;
+			}
+
+			const aircraftId1 = this.resolveAircraftIdForConflictFlightId(
+				conflictMessage.flightId,
+			);
+			const aircraftId2 = this.resolveAircraftIdForConflictFlightId(
+				conflictMessage.conflictingFlightId,
+			);
+
+			if (aircraftId1 && aircraftId2) {
+				return [aircraftId1, aircraftId2];
+			}
+		}
+
+		return null;
+	}
+
+	private resolveAircraftIdForConflictFlightId(
+		flightId: string,
+	): string | null {
+		if (this.aircrafts.has(flightId)) {
+			return flightId;
+		}
+
+		for (const aircraft of this.aircrafts.values()) {
+			if (aircraft.assignedFlightId === flightId) {
+				return aircraft.aircraftId;
+			}
+		}
+
+		return null;
 	}
 	hasMtcdConflict(flightId: string): boolean {
 		return (this.mtcdConflictFlightCounts.get(flightId) ?? 0) > 0;

@@ -69,7 +69,9 @@ export default observer(function TaLabel(properties: {
 	const isAP2 = request.autonomyProfile === 2;
 
 	const { selectedAircraftIds, taArrowClickedAircraftId } = cwpStore;
-	const isHoveredMarker = cwpStore.hoveredMarkerAircraftId === aircraftId;
+	const isHoveredMarker =
+		cwpStore.hoveredMarkerAircraftId === aircraftId ||
+		cwpStore.hoveredConflictAircraftIds.has(aircraftId);
 	const isHoveredLabel = cwpStore.hoveredTaLabelAircraftId === aircraftId;
 	const isSelected = selectedAircraftIds.has(aircraft.aircraftId);
 

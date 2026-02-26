@@ -66,13 +66,16 @@ export default observer(function AircraftMarker(properties: {
 	} = properties.aircraft;
 	const {
 		hoveredMarkerAircraftId,
+		hoveredConflictAircraftIds,
 		setHoveredMarkerAircraftId,
 		toggleFlightRouteForAircraft,
 		toggleSelectedAircraftId,
 		selectedAircraftIds,
 	} = cwpStore;
 	const { isStillDragging } = useDragging();
-	const isHovered = hoveredMarkerAircraftId === aircraftId;
+	const isHovered =
+		hoveredMarkerAircraftId === aircraftId ||
+		hoveredConflictAircraftIds.has(aircraftId);
 	const history = positionHistory.slice(0, 8);
 	const isSelected = selectedAircraftIds.has(aircraftId);
 
