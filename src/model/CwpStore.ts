@@ -253,10 +253,6 @@ export default class CWPStore {
 	}
 
 	private hydrateDisplaySettingsFromLocalStorage(): void {
-		if (window.window === undefined) {
-			return;
-		}
-
 		try {
 			const rawValue = window.localStorage.getItem(
 				CWP_DISPLAY_SETTINGS_STORAGE_KEY,
