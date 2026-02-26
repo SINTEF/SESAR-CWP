@@ -6,9 +6,15 @@ import { useDragging } from "../../contexts/DraggingContext";
 import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
 import { setCurrentAircraftId } from "../../model/CurrentAircraft";
-import { PilotRequestType } from "../../schemas/pilotRequestSchema";
+import {
+	getPilotRequestType,
+	PilotRequestType,
+} from "../../schemas/pilotRequestSchema";
 import { cwpStore, roleConfigurationStore } from "../../state";
-import { isRejected } from "../../utils/teamAssistantHelper";
+import {
+	formatRequestSuggestion,
+	isRejected,
+} from "../../utils/teamAssistantHelper";
 import TaRequestHovered from "./TaRequestHovered";
 import TaRequestIdle from "./TaRequestIdle";
 
@@ -183,6 +189,16 @@ export default observer(function TaLabel(properties: {
 		}
 	};
 
+	const rawRequestParameter = String(request.context?.request_parameter ?? "");
+	const requestParameterDisplay =
+		getPilotRequestType(request.context?.request_type ?? 0) ===
+		PilotRequestType.RelativeHeading
+			? formatRequestSuggestion(
+					PilotRequestType.RelativeHeading,
+					rawRequestParameter,
+				)
+			: rawRequestParameter;
+
 	return (
 		<div
 			onClick={onClick}
@@ -209,7 +225,7 @@ export default observer(function TaLabel(properties: {
 						aircraft={aircraft}
 						width={width}
 						request={request}
-						requestParameter={String(request.context?.request_parameter ?? "")}
+						requestParameter={requestParameterDisplay}
 						requestTypeIcon={getIconForRequestType(
 							request.context?.request_type ?? 0,
 							request.context?.request_parameter ?? "",
@@ -221,7 +237,7 @@ export default observer(function TaLabel(properties: {
 						aircraft={aircraft}
 						width={width}
 						request={request}
-						requestParameter={String(request.context?.request_parameter ?? "")}
+						requestParameter={requestParameterDisplay}
 						requestTypeIcon={getIconForRequestType(
 							request.context?.request_type ?? 0,
 							request.context?.request_parameter ?? "",
