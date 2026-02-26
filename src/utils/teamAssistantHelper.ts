@@ -48,12 +48,12 @@ export function getRequestStatusColorClass(
 	const requestType = getPilotRequestType(results.context?.request_type ?? 0);
 	let isAccepted = false;
 	for (const goal of results.normalizedGoals) {
-		if (!isGoalPositive(goal, requestType)) {
-			continue;
-		}
 		switch (requestType) {
 			case PilotRequestType.FlightLevel:
 			case PilotRequestType.Direct: {
+				if (!isGoalPositive(goal, requestType)) {
+					break;
+				}
 				// Check if initial_climb and exit_level match request_parameter
 				const initDifferent =
 					goal.results?.initial_climb !== results.context.request_parameter;
@@ -64,8 +64,11 @@ export function getRequestStatusColorClass(
 			}
 			case PilotRequestType.AbsoluteHeading:
 			case PilotRequestType.RelativeHeading:
-				// Heading found is sufficient for acceptance
-				isAccepted = true;
+				// Find the goal matching request_parameter (Req_hdg_value) and
+				// read Is_heading_found directly from it — green if true, red if false.
+				if (goal.requestedValue === Number(results.context.request_parameter)) {
+					isAccepted = goal.isHeadingFound ?? false;
+				}
 				break;
 			default:
 				break;

@@ -166,7 +166,7 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 			request_id: "95a4dec6-88f8-49a0-81e2-eb4645d5b442",
 			flight_id: "HBJEC",
 			request_type: 3,
-			request_parameter: 45,
+			request_parameter: 20,
 		},
 		goals: [
 			{
