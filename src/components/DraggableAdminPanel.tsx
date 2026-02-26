@@ -29,10 +29,6 @@ export default observer(function DraggableAdminPanel() {
 	const tabGroupName = useId();
 	const { startDragging, stopDragging } = useDragging();
 	const [activeTab, setActiveTab] = useState<AdminPanelTab>(() => {
-		if (window.window === undefined) {
-			return "logs";
-		}
-
 		const persistedTab = window.sessionStorage.getItem(
 			ADMIN_PANEL_TAB_STORAGE_KEY,
 		);
