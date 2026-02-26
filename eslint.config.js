@@ -74,11 +74,12 @@ export default defineConfig([
       "unicorn/prefer-global-this": "off",
       "unicorn/no-zero-fractions": "off",
       "unicorn/consistent-function-scoping": "off",
+      "unicorn/no-useless-undefined": "off",
       // I do like this one but it's too late
       "unicorn/no-null": "off",
       // incompatible with biome
       "unicorn/number-literal-case": "off",
-      "unicorn/no-nested-ternary": "off"
+      "unicorn/no-nested-ternary": "off",
 		}
 	},
 	{

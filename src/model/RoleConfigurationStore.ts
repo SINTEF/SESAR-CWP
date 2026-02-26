@@ -521,7 +521,7 @@ export default class RoleConfigurationStore {
 					if (aircraft.flightInSectorTimes?.get(currentSector) !== undefined) {
 						return aircraft;
 					}
-					return;
+					return undefined;
 				})
 			: [];
 		const filteredUndefined: AircraftModel[] = [];
