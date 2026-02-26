@@ -14,6 +14,8 @@ const PADDING_Y = 2; // Vertical padding inside bg rect
 
 const CustomDotWithLabel: React.FC<Props> = ({ cx, cy, payload }) => {
 	if (
+		cx === null ||
+		cy === null ||
 		cx === undefined ||
 		cy === undefined ||
 		!payload?.label ||
