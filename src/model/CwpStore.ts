@@ -301,10 +301,6 @@ export default class CWPStore {
 	}
 
 	private setupDisplaySettingsPersistence(): void {
-		if (window.window === undefined) {
-			return;
-		}
-
 		reaction(
 			() => ({
 				showFixes: this.showFixes,
