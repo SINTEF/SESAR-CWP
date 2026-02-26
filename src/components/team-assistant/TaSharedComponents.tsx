@@ -293,7 +293,7 @@ export function HeadingGoalRow({
 				<tr>
 					{goal.nextSector && (
 						<td className="text-xs" colSpan={2}>
-							{getStatusColor()} MTCD {goal.nextSector}
+							{getStatusColor()} COOR {goal.nextSector}
 						</td>
 					)}
 				</tr>
