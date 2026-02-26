@@ -253,10 +253,6 @@ export default class CWPStore {
 	}
 
 	private hydrateDisplaySettingsFromLocalStorage(): void {
-		if (typeof window === "undefined") {
-			return;
-		}
-
 		try {
 			const rawValue = window.localStorage.getItem(
 				CWP_DISPLAY_SETTINGS_STORAGE_KEY,
@@ -305,10 +301,6 @@ export default class CWPStore {
 	}
 
 	private setupDisplaySettingsPersistence(): void {
-		if (typeof window === "undefined") {
-			return;
-		}
-
 		reaction(
 			() => ({
 				showFixes: this.showFixes,

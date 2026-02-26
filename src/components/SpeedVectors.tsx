@@ -1,6 +1,4 @@
-// @ts-expect-error - ESM/CJS interop issue with @mapbox/sphericalmercator
-import { SphericalMercator } from "@mapbox/sphericalmercator";
-import type { MapLayerMouseEvent } from "maplibre-gl";
+import { type MapLayerMouseEvent, MercatorCoordinate } from "maplibre-gl";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useState } from "react";
 import { Layer, Source, useMap } from "react-map-gl/maplibre";
@@ -13,7 +11,18 @@ import {
 } from "../state";
 
 const degreesToRad = Math.PI / 180;
-const sphericalMercator = new SphericalMercator();
+interface SpeedVectorProperties {
+	aircraftId: string;
+	color: string;
+	hasConflict: boolean;
+	shouldBlink: boolean;
+	displayColor?: string;
+}
+
+type SpeedVectorFeature = GeoJSON.Feature<
+	GeoJSON.LineString | GeoJSON.MultiPoint,
+	SpeedVectorProperties
+>;
 
 function buildSpeedVectorLocations(
 	aircraft: AircraftModel,
@@ -41,15 +50,17 @@ function buildSpeedVectorLocations(
 		const addY =
 			Math.cos(currentBearing * degreesToRad) * currentSpeedMS * nbSeconds;
 
-		// Convert lat/lon to meters
-		let [x, y] = sphericalMercator.forward([lon, lat]);
+		const mercatorCoordinate = MercatorCoordinate.fromLngLat({
+			lng: lon,
+			lat,
+		});
+		const meterInMercatorUnits =
+			mercatorCoordinate.meterInMercatorCoordinateUnits();
+		const x = mercatorCoordinate.x + addX * meterInMercatorUnits;
+		const y = mercatorCoordinate.y - addY * meterInMercatorUnits;
+		const projectedLngLat = new MercatorCoordinate(x, y).toLngLat();
 
-		// Add the new position
-		x += addX;
-		y += addY;
-
-		// Convert back to lat/lon
-		return sphericalMercator.inverse([x, y]);
+		return [projectedLngLat.lng, projectedLngLat.lat];
 	});
 }
 
@@ -58,7 +69,7 @@ function buildGeoJsonSpeedVector(
 	minutesInTheFuture: number,
 	hasConflict: boolean,
 	shouldBlink: boolean,
-): GeoJSON.Feature[] {
+): SpeedVectorFeature[] {
 	const locations = buildSpeedVectorLocations(aircraft, minutesInTheFuture);
 	const vectorColor = roleConfigurationStore.getOriginalColorOfAircraft(
 		aircraft.aircraftId,
@@ -154,8 +165,8 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 	const handleContextMenu = useCallback((event: MapLayerMouseEvent) => {
 		const features = event.features;
 		if (features && features.length > 0) {
-			const aircraftId = features[0].properties?.aircraftId;
-			if (aircraftId) {
+			const aircraftId = features[0].properties?.aircraftId as unknown;
+			if (typeof aircraftId === "string") {
 				event.originalEvent.preventDefault();
 				cwpStore.resetWarningLevel(aircraftId);
 			}
@@ -201,8 +212,8 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 			});
 
 			if (features && features.length > 0) {
-				const aircraftId = features[0].properties?.aircraftId;
-				if (aircraftId) {
+				const aircraftId = features[0].properties?.aircraftId as unknown;
+				if (typeof aircraftId === "string") {
 					event.preventDefault();
 					cwpStore.cycleWarningLevel(aircraftId);
 				}
@@ -246,7 +257,7 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 	// 		aircraft.lastKnownAltitude < highestBound,
 	// );
 
-	const speedVectors = aircrafts.flatMap((aircraft) => {
+	const speedVectors: SpeedVectorFeature[] = aircrafts.flatMap((aircraft) => {
 		const flightId = aircraft.assignedFlightId || aircraft.aircraftId;
 		const hasStcaConflict = aircraftStore.hasStcaConflict(flightId);
 		const hasTctConflict = aircraftStore.hasTctConflict(flightId);

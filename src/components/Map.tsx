@@ -34,6 +34,7 @@ import ViewportPresetsControl from "./ViewportPresetsControl";
 
 // Do not load the RTL plugin because it is unnecessary
 // @ts-expect-error invalid type
+// eslint-disable-next-line unicorn/prefer-top-level-await
 maplibregl.setRTLTextPlugin("", () => {}, true).catch(() => {});
 
 const mapStyle: StyleSpecification = {
@@ -82,18 +83,22 @@ const CANVAS_CONTEXT_ATTRIBUTES: WebGLContextAttributes = {
 const createMapClickHandler =
 	(posthog: ReturnType<typeof usePostHog>) =>
 	(event: MapMouseEvent): void => {
-		const { currentDistanceColor, setCurrentDistanceColor } = cwpStore;
+		const { currentDistanceColor } = cwpStore;
 		const coordinates = event.lngLat;
 
-		if (currentDistanceColor !== "") {
-			const { newMarker, getNumberOfMarkersForColour } = distanceLineStore;
-			newMarker({
+		if (currentDistanceColor === "") {
+			posthog?.capture("map_clicked", {
+				position: { lat: coordinates.lat, lng: coordinates.lng },
+				context: "general_map_click",
+			});
+		} else {
+			distanceLineStore.newMarker({
 				lat: coordinates.lat,
 				lng: coordinates.lng,
 				colour: currentDistanceColor,
 			});
 			const numberOfMarkersForColor =
-				getNumberOfMarkersForColour(currentDistanceColor);
+				distanceLineStore.getNumberOfMarkersForColour(currentDistanceColor);
 
 			posthog?.capture("distance_marker_placed", {
 				marker_color: currentDistanceColor,
@@ -103,13 +108,8 @@ const createMapClickHandler =
 			});
 
 			if (numberOfMarkersForColor >= 2) {
-				setCurrentDistanceColor("");
+				cwpStore.setCurrentDistanceColor("");
 			}
-		} else {
-			posthog?.capture("map_clicked", {
-				position: { lat: coordinates.lat, lng: coordinates.lng },
-				context: "general_map_click",
-			});
 		}
 	};
 
@@ -130,7 +130,7 @@ const createMapRightClickHandler =
 const initialViewState: Partial<ViewState> = {
 	longitude: 7,
 	latitude: 44,
-	zoom: 7.0,
+	zoom: 7,
 };
 
 // Rough bounds of the area

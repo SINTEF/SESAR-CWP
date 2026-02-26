@@ -1,3 +1,4 @@
+import { reaction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
@@ -26,10 +27,19 @@ const AdminControlButtons = observer(function AdminControlButtons() {
 	};
 
 	useEffect(() => {
-		if (adminStore.simulationRestarted) {
-			window.location.reload();
-		}
-	}, [adminStore.simulationRestarted]);
+		const disposer = reaction(
+			() => adminStore.simulationRestarted,
+			(simulationRestarted) => {
+				if (simulationRestarted) {
+					window.location.reload();
+				}
+			},
+		);
+
+		return () => {
+			disposer();
+		};
+	}, []);
 
 	const handleRestart = () => {
 		adminStore.expectRestart();

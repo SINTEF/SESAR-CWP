@@ -248,7 +248,7 @@ export default class AircraftStore {
 						position4d = area.position.position4D;
 					} else if (area.position.oneofKind === "positionAtObject") {
 						previousPositionObject = area.position.positionAtObject;
-						return undefined;
+						return;
 					} else {
 						throw new Error("No position4d or positionatobject");
 					}
@@ -754,7 +754,7 @@ export default class AircraftStore {
 			// Calculate pixel distance using Euclidean distance
 			const dx = screenPos.x - mouseScreenX;
 			const dy = screenPos.y - mouseScreenY;
-			const distance = Math.sqrt(dx * dx + dy * dy);
+			const distance = Math.hypot(dx, dy);
 
 			// Track closest aircraft within threshold
 			if (distance < minDistance) {
@@ -780,7 +780,7 @@ export default class AircraftStore {
 	getRequestsForAircraft(flightId: string): TeamAssistantRequest[] {
 		const requests = this.teamAssistantRequests.get(flightId) ?? [];
 		// Sort by timestamp (newest first)
-		return [...requests].sort((a, b) => {
+		return requests.toSorted((a, b) => {
 			const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
 			const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
 			return timeB - timeA;
@@ -829,10 +829,7 @@ export default class AircraftStore {
 			(r) => r.requestId === requestId,
 		);
 
-		if (existingIndex >= 0) {
-			existingRequests[existingIndex] = teamAssistantRequest;
-			this.teamAssistantRequests.set(flightId, [...existingRequests]);
-		} else {
+		if (existingIndex === -1) {
 			this.teamAssistantRequests.set(flightId, [
 				...existingRequests,
 				teamAssistantRequest,
@@ -843,6 +840,9 @@ export default class AircraftStore {
 
 			// Schedule REFRESH call 30 seconds after new request arrives
 			this.scheduleRefreshTimer(requestId);
+		} else {
+			existingRequests[existingIndex] = teamAssistantRequest;
+			this.teamAssistantRequests.set(flightId, [...existingRequests]);
 		}
 	}
 
@@ -929,7 +929,7 @@ export default class AircraftStore {
 	 * by callSign, first half gets hasCPDLC = true, second half gets false.
 	 */
 	private reassignCPDLC(): void {
-		const sorted = [...this.aircrafts.values()].sort((a, b) =>
+		const sorted = [...this.aircrafts.values()].toSorted((a, b) =>
 			a.callSign.localeCompare(b.callSign),
 		);
 		const halfIndex = Math.ceil(sorted.length / 2);

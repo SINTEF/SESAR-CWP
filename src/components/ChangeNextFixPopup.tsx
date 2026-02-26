@@ -361,7 +361,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 					type="button"
 					onClick={navigateUp}
 					disabled={!canNavigateUp}
-					className={`btn btn-ghost btn-xs text-xs ${!canNavigateUp ? "opacity-30" : ""}`}
+					className={`btn btn-ghost btn-xs text-xs ${canNavigateUp ? "" : "opacity-30"}`}
 				>
 					▲
 				</button>
@@ -403,7 +403,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 					type="button"
 					onClick={navigateDown}
 					disabled={!canNavigateDown}
-					className={`btn btn-ghost btn-xs text-xs ${!canNavigateDown ? "opacity-30" : ""}`}
+					className={`btn btn-ghost btn-xs text-xs ${canNavigateDown ? "" : "opacity-30"}`}
 				>
 					▼
 				</button>

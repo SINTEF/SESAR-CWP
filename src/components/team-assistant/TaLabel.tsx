@@ -60,7 +60,6 @@ export default observer(function TaLabel(properties: {
 		localAssignedFlightLevel,
 		// lastKnownBearing: bearing,
 		lastKnownSpeed: speed,
-		setLocalAssignedFlightLevel,
 	} = aircraft;
 
 	// Autonomy Profile determines display behavior:
@@ -104,7 +103,7 @@ export default observer(function TaLabel(properties: {
 	const { isDragging, isStillDragging } = useDragging();
 
 	if (localAssignedFlightLevel === altitude.toFixed(0)) {
-		setLocalAssignedFlightLevel(" ");
+		aircraft.setLocalAssignedFlightLevel(" ");
 	}
 
 	const onWheel = (event: React.WheelEvent): void => {

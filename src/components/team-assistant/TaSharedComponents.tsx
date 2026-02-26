@@ -13,7 +13,7 @@ import {
 } from "../../utils/teamAssistantHelper";
 
 /** Traffic light status dot: green/yellow/red based on boolean/null/undefined. */
-export function getStatusColor(status: boolean | null | undefined) {
+export function getStatusColor(status?: boolean | null) {
 	if (status === undefined || status === null) {
 		return <span className="text-yellow-500">●</span>;
 	}
@@ -293,7 +293,7 @@ export function HeadingGoalRow({
 				<tr>
 					{goal.nextSector && (
 						<td className="text-xs" colSpan={2}>
-							{getStatusColor(undefined)} MTCD {goal.nextSector}
+							{getStatusColor()} MTCD {goal.nextSector}
 						</td>
 					)}
 				</tr>

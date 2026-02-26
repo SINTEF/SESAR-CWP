@@ -11,7 +11,7 @@ export default class Trajectory {
 	constructor({
 		trajectoryCoordinate,
 		timestamp,
-		objectId = undefined,
+		objectId,
 	}: {
 		trajectoryCoordinate: CoordinatePair;
 		timestamp: number;

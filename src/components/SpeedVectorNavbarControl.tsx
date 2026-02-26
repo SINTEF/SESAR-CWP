@@ -5,15 +5,10 @@ import { cwpStore } from "../state";
 
 export default observer(function SpeedVectorNavbarControl() {
 	const posthog = usePostHog();
-	const {
-		speedVectorMinutes,
-		setSpeedVectorMinutes,
-		showSpeedVectors,
-		toggleShowSpeedVectors,
-	} = cwpStore;
+	const { speedVectorMinutes, showSpeedVectors } = cwpStore;
 
 	const handleToggleSpeedVectors = (): void => {
-		toggleShowSpeedVectors();
+		cwpStore.toggleShowSpeedVectors();
 		posthog?.capture("speed_vectors_toggled", {
 			enabled: !showSpeedVectors,
 			current_minutes: speedVectorMinutes,
@@ -21,7 +16,7 @@ export default observer(function SpeedVectorNavbarControl() {
 	};
 
 	const handleSetMinutes = (minutes: number): void => {
-		setSpeedVectorMinutes(minutes);
+		cwpStore.setSpeedVectorMinutes(minutes);
 		posthog?.capture("speed_vector_duration_changed", {
 			previous_minutes: speedVectorMinutes,
 			new_minutes: minutes,

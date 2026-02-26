@@ -1,3 +1,4 @@
+import { reaction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -74,7 +75,7 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 	}
 
 	// Sort by bottomPx ascending (events closer to bottom/now first)
-	const sorted = [...events].sort((a, b) => a.bottomPx - b.bottomPx);
+	const sorted = events.toSorted((a, b) => a.bottomPx - b.bottomPx);
 	const result: PositionedEvent[] = [];
 
 	for (const event of sorted) {
@@ -191,18 +192,26 @@ export default observer(function Agenda({
 
 	// React to external scale requests (e.g., when a new datablock is created)
 	useEffect(() => {
-		const requestedMinutes = cwpStore.requestedAgendaScaleMinutes;
-		if (requestedMinutes !== null) {
-			// Find the smallest scale preset that includes this time
-			const requiredScale = SCALE_PRESETS.find(
-				(preset) => preset >= requestedMinutes,
-			);
-			if (requiredScale && requiredScale > scaleMinutes) {
-				cwpStore.setAgendaScaleMinutes(requiredScale);
-			}
-			cwpStore.clearRequestedAgendaScale();
-		}
-	}, [cwpStore.requestedAgendaScaleMinutes, scaleMinutes]);
+		const disposer = reaction(
+			() => cwpStore.requestedAgendaScaleMinutes,
+			(requestedMinutes) => {
+				if (requestedMinutes !== null) {
+					// Find the smallest scale preset that includes this time
+					const requiredScale = SCALE_PRESETS.find(
+						(preset) => preset >= requestedMinutes,
+					);
+					if (requiredScale && requiredScale > scaleMinutes) {
+						cwpStore.setAgendaScaleMinutes(requiredScale);
+					}
+					cwpStore.clearRequestedAgendaScale();
+				}
+			},
+		);
+
+		return () => {
+			disposer();
+		};
+	}, [scaleMinutes]);
 
 	// Measure container height
 	useEffect(() => {
@@ -249,13 +258,12 @@ export default observer(function Agenda({
 				// Reset accumulator after triggering
 				accumulatedDelta = 0;
 				const currentIndex = SCALE_PRESETS.indexOf(scaleMinutes);
-				let newScale = scaleMinutes;
-				if (direction > 0) {
-					newScale =
-						SCALE_PRESETS[Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)];
-				} else {
-					newScale = SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
-				}
+				const newScale =
+					direction > 0
+						? SCALE_PRESETS[
+								Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+							]
+						: SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
 
 				if (newScale !== scaleMinutes) {
 					posthog.capture("agenda_scale_changed", {
@@ -316,7 +324,7 @@ export default observer(function Agenda({
 		}
 	}
 
-	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictsByPair.entries())
+	const mtcdEvents: TimelineEvent[] = [...mtcdConflictsByPair.entries()]
 		.filter(([, conflict]) => conflict.flightId && conflict.conflictingFlightId)
 		.map(([pairKey, conflict], index) => {
 			// Use actual conflict time if available, otherwise use placeholder
@@ -338,13 +346,13 @@ export default observer(function Agenda({
 				id: `mtcd-${pairKey}`,
 				startMin: minutesFromNow,
 				code:
-					conflict.conflictingFlightPosition?.altitude !== undefined
-						? String(
+					conflict.conflictingFlightPosition?.altitude === undefined
+						? undefined
+						: String(
 								convertMetersToFlightLevel(
 									conflict.conflictingFlightPosition.altitude,
 								),
-							)
-						: undefined,
+							),
 				labels: [conflict.callSign, conflict.conflictingFlightCallSign],
 				aircraftIds: [conflict.flightId, conflict.conflictingFlightId],
 				severity,
@@ -366,9 +374,9 @@ export default observer(function Agenda({
 
 			// Format separation distance for badge (convert NM to feet, format compactly)
 			const code =
-				db.closestSeparationNM !== null
-					? formatFeetCompact(convertNMToFeet(db.closestSeparationNM))
-					: undefined;
+				db.closestSeparationNM === null
+					? undefined
+					: formatFeetCompact(convertNMToFeet(db.closestSeparationNM));
 
 			return {
 				id: db.id,

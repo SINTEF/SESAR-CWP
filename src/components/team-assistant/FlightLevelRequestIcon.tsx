@@ -8,7 +8,7 @@ interface FlightLevelRequestIconProps {
 const FlightLevelRequestIcon: React.FC<FlightLevelRequestIconProps> = ({
 	primaryColor = "#d9d9d9",
 	className = "size-4",
-	flightId,
+	flightId: _flightId,
 }) => {
 	// const messageStatus = flightId // Change this to the point, and just yes/no
 	// 	? aircraftStore.getFirstRequestForAircraft(flightId)?.status

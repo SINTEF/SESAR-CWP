@@ -61,20 +61,13 @@ export default class MqttIndicators extends Component<
 		this.sendEndTimeoutId = 0;
 
 		this.connectDisconnectTimeoutId = 0;
-
-		this.onConnect = this.onConnect.bind(this);
-		this.onDisconnect = this.onDisconnect.bind(this);
-		this.onPacketReceive = this.onPacketReceive.bind(this);
-		this.onPacketSend = this.onPacketSend.bind(this);
 	}
 
 	componentDidMount(): void {
-		/* eslint-disable @typescript-eslint/unbound-method */
-		this.removeOnConnect = onConnect(this.onConnect);
-		this.removeOnDisconnect = onDisconnect(this.onDisconnect);
-		this.removeOnPacketReceive = onPacketReceive(this.onPacketReceive);
-		this.removeOnPacketSend = onPacketSend(this.onPacketSend);
-		/* eslint-enable @typescript-eslint/unbound-method */
+		this.removeOnConnect = onConnect(() => this.onConnect());
+		this.removeOnDisconnect = onDisconnect(() => this.onDisconnect());
+		this.removeOnPacketReceive = onPacketReceive(() => this.onPacketReceive());
+		this.removeOnPacketSend = onPacketSend(() => this.onPacketSend());
 	}
 
 	componentWillUnmount(): void {

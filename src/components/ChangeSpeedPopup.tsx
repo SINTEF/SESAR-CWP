@@ -135,7 +135,6 @@ export default observer(function ChangeSpeedPopup(properties: {
 		aircraftId,
 		assignedFlightId,
 		controlledBy,
-		setAssignedSpeed,
 		callSign,
 		lastKnownSpeed,
 		assignedSpeed,
@@ -228,7 +227,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 		const speedKnots = speedMetersPerSecond * 1.943_84;
 		const displaySpeed = toDisplaySpeed(speedMetersPerSecond, speedDisplayUnit);
 
-		setAssignedSpeed(Math.round(speedMetersPerSecond));
+		properties.aircraft.setAssignedSpeed(Math.round(speedMetersPerSecond));
 		const pilotId =
 			configurationStore.currentCWP === "All" ? "All" : controlledBy;
 

@@ -56,7 +56,7 @@ export default class RoleConfigurationModel {
 	}
 
 	setAssignedColor(): void {
-		const id = this.cwpRoleName.replace(/\D/g, "");
+		const id = this.cwpRoleName.replaceAll(/\D/g, "");
 		if (id !== "") {
 			this.assignedColor = flightColors[Number(id)];
 		}

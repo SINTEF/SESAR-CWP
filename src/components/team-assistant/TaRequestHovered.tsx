@@ -75,7 +75,7 @@ export default observer(function TaRequestHovered(properties: {
 	const showGoalRows = !isAP2 || isExpanded || !isAcceptOrSuggest(request);
 
 	const normalizedGoals = showGoalRows
-		? [...request.normalizedGoals].sort(
+		? request.normalizedGoals.toSorted(
 				(a, b) =>
 					(b.results?.initial_climb ?? 0) - (a.results?.initial_climb ?? 0),
 			)

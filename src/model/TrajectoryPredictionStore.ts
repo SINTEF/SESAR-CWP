@@ -186,7 +186,7 @@ export default class TrajectoryPredictionStore {
 		}
 
 		// If target distance is beyond route, return last trajectory time
-		return aheadTrajectory[aheadTrajectory.length - 1].timestamp;
+		return aheadTrajectory.at(-1)?.timestamp ?? null;
 	}
 
 	private getDistanceInMeters(
@@ -256,7 +256,10 @@ export default class TrajectoryPredictionStore {
 		}
 
 		// Append future point if it's not (approximately) identical to the last one
-		const last = coords[coords.length - 1];
+		const last = coords.at(-1);
+		if (!last) {
+			return null;
+		}
 		const EPS = 1e-7; // ~1cm at equator in degrees; good enough for equality check
 		if (
 			Math.abs(last[0] - futureLonLat[0]) > EPS ||
@@ -304,8 +307,8 @@ export default class TrajectoryPredictionStore {
 
 		// Find first future trajectory after 'now'
 		let firstFutureIndex = -1;
-		for (let i = 0; i < trajectories.length; i++) {
-			if (trajectories[i].timestamp > now) {
+		for (const [i, trajectory] of trajectories.entries()) {
+			if (trajectory.timestamp > now) {
 				firstFutureIndex = i;
 				break;
 			}
@@ -313,7 +316,10 @@ export default class TrajectoryPredictionStore {
 
 		if (firstFutureIndex === -1) {
 			// All route points are in the past; use the last known route position
-			const last = trajectories[trajectories.length - 1];
+			const last = trajectories.at(-1);
+			if (!last) {
+				return { ...currentPos };
+			}
 			return {
 				lat: last.trajectoryCoordinate.latitude,
 				lon: last.trajectoryCoordinate.longitude,
@@ -422,12 +428,11 @@ export default class TrajectoryPredictionStore {
 		const trajectory1 = flightRoute1.trajectory;
 		const trajectory2 = flightRoute2.trajectory;
 
-		if (trajectory1.length === 0 || trajectory2.length === 0) {
+		const endTime1 = trajectory1.at(-1)?.timestamp;
+		const endTime2 = trajectory2.at(-1)?.timestamp;
+		if (endTime1 === undefined || endTime2 === undefined) {
 			return null;
 		}
-
-		const endTime1 = trajectory1[trajectory1.length - 1].timestamp;
-		const endTime2 = trajectory2[trajectory2.length - 1].timestamp;
 
 		// Use the shortest trajectory end time
 		const endTime = Math.min(endTime1, endTime2);

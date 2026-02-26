@@ -55,7 +55,7 @@ export function formatFeetCompact(feet: number): string {
  * Converts from m/s to knots / 10.
  */
 export function formatSpeed(speed: number): string {
-	const lowImperialishSpeed = speed * 0.194384;
+	const lowImperialishSpeed = speed * 0.194_384;
 	return Math.round(lowImperialishSpeed).toString();
 }
 
@@ -64,7 +64,7 @@ export function formatSpeed(speed: number): string {
  * Converts from m/s to ft/min and divides by 100.
  */
 export function formatVerticalSpeed(verticalSpeed: number): string {
-	const verticalSpeedFpm = Math.round(verticalSpeed * 1.96850394);
+	const verticalSpeedFpm = Math.round(verticalSpeed * 1.968_503_94);
 	if (verticalSpeedFpm === 0) {
 		return "00";
 	}

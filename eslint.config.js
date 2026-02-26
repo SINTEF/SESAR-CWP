@@ -43,6 +43,7 @@ export default defineConfig([
 		},
 		rules: {
 			...reactHooks.configs.recommended.rules,
+			"@typescript-eslint/unbound-method": "error",
       // broken
 			"no-unused-vars": "off",
       // working version
@@ -57,16 +58,6 @@ export default defineConfig([
 			],
       // broken
 			"@typescript-eslint/no-unsafe-enum-comparison": "off",
-			/*"react-refresh/only-export-components": "warn",
-			"react-hooks/immutability": "off",
-			"unicorn/better-regex": "error",
-			"unicorn/no-array-callback-reference": "error",
-			"unicorn/no-invalid-fetch-options": "error",
-			"unicorn/no-new-buffer": "error",
-			"@typescript-eslint/no-explicit-any": "error",
-			"@typescript-eslint/no-empty-object-type": "error",
-			"@typescript-eslint/unbound-method": "error",
-			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/no-misused-promises": [
 				"error",
 				{
@@ -74,8 +65,21 @@ export default defineConfig([
 						attributes: false
 					}
 				}
-			],*/
-			"no-console": "off"
+			],
+			"no-console": "off",
+      // unicorn is very opiniated and we disable a lot
+      "unicorn/prevent-abbreviations": "off",
+      "unicorn/filename-case": "off",
+      "unicorn/switch-case-braces": "off",
+      "unicorn/prefer-global-this": "off",
+      "unicorn/no-zero-fractions": "off",
+      "unicorn/consistent-function-scoping": "off",
+      "unicorn/no-useless-undefined": "off",
+      // I do like this one but it's too late
+      "unicorn/no-null": "off",
+      // incompatible with biome
+      "unicorn/number-literal-case": "off",
+      "unicorn/no-nested-ternary": "off",
 		}
 	},
 	{
