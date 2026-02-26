@@ -414,9 +414,19 @@ export function pilotRequestJson(
 
 		const parsed = JSON.parse(jsonString);
 
-		// Handle reply messages sent back by the CWP itself (CLOSE, REFRESH)
-		// and "finished" acknowledgments — none of these contain request data
-		if (parsed.finished === true || parsed.reply !== undefined) {
+		// Handle reply messages sent back by the CWP itself and
+		// "finished" acknowledgments.
+		if (parsed.finished === true) {
+			if (requestId) {
+				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+			}
+			return;
+		}
+
+		if (parsed.reply !== undefined) {
+			if (parsed.reply === "CLOSE" && requestId) {
+				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+			}
 			return;
 		}
 

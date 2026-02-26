@@ -904,6 +904,21 @@ export default class AircraftStore {
 	}
 
 	/**
+	 * Remove a specific team assistant request by requestId, regardless of flight.
+	 * Returns true if a matching request was found and removed.
+	 */
+	removeTeamAssistantRequestByRequestId(requestId: string): boolean {
+		for (const [flightId, requests] of this.teamAssistantRequests.entries()) {
+			if (requests.some((request) => request.requestId === requestId)) {
+				this.removeTeamAssistantRequest(flightId, requestId);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Check if an aircraft has any team assistant requests.
 	 */
 	hasTeamAssistantRequests(flightId: string): boolean {
