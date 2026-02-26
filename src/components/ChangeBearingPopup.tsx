@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import React from "react";
@@ -89,7 +88,6 @@ export default observer(function ChangeBearingPopup(properties: {
 		aircraftId,
 		assignedFlightId,
 		controlledBy,
-		setAssignedBearing,
 		callSign,
 		lastKnownBearing,
 		assignedBearing,
@@ -137,7 +135,7 @@ export default observer(function ChangeBearingPopup(properties: {
 				container.clientHeight / 2 +
 				listElement.offsetHeight / 2;
 		}
-	}, [bearing, shouldShow]);
+	}, [bearing, shouldShow, listOfBearingsReference]);
 
 	const { currentCWP } = configurationStore;
 	const accepted = controlledBy === currentCWP;
@@ -185,7 +183,7 @@ export default observer(function ChangeBearingPopup(properties: {
 			return;
 		}
 
-		setAssignedBearing(newBearing);
+		properties.aircraft.setAssignedBearing(newBearing);
 		const pilotId = currentCWP === "All" ? "All" : controlledBy;
 
 		posthog?.capture("bearing_changed", {

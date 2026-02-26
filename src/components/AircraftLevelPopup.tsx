@@ -71,10 +71,7 @@ export default observer(function AircraftLevelPopup(properties: {
 		callSign,
 		controlledBy,
 		nextACCFL,
-		setAssignedFlightLevel,
 		// setLocalAssignedFlightLevel,
-		setNextSectorFL,
-		setNextACCFL,
 	} = properties.aircraft;
 
 	const { areaOfIncludedAirspaces, currentCWP } = configurationStore;
@@ -131,7 +128,7 @@ export default observer(function AircraftLevelPopup(properties: {
 				container.clientHeight / 2 +
 				listElement.offsetHeight / 2;
 		}
-	}, [flightLevel, shouldShow]);
+	}, [flightLevel, shouldShow, listOfLevelsReference]);
 
 	const accepted = controlledBy === currentCWP;
 	const isMaster = currentCWP === "All";
@@ -178,12 +175,12 @@ export default observer(function AircraftLevelPopup(properties: {
 		}
 
 		const previousAltitude = currentAircraftLevel;
-		let changeType = "";
+		let changeType: "next_sector_fl" | "next_acc_fl" | "assigned_fl";
 
 		if (cwpStore.nextSectorFlActivated) {
 			changeType = "next_sector_fl";
 			cwpStore.showNSFL(false);
-			setNextSectorFL(stringFlightLevel);
+			properties.aircraft.setNextSectorFL(stringFlightLevel);
 			handlePublishPromise(
 				persistNextSectorFlightLevel(assignedFlightId, stringFlightLevel),
 			);
@@ -197,7 +194,7 @@ export default observer(function AircraftLevelPopup(properties: {
 		} else if (cwpStore.flightLevelNextAccActivated) {
 			changeType = "next_acc_fl";
 			cwpStore.showFlACC(false);
-			setNextACCFL(stringFlightLevel, true); // Mark as manually set
+			properties.aircraft.setNextACCFL(stringFlightLevel, true); // Mark as manually set
 			handlePublishPromise(
 				persistACCFlightLevel(assignedFlightId, stringFlightLevel),
 			);
@@ -222,7 +219,7 @@ export default observer(function AircraftLevelPopup(properties: {
 		// }
 		else {
 			changeType = "assigned_fl";
-			setAssignedFlightLevel(stringFlightLevel);
+			properties.aircraft.setAssignedFlightLevel(stringFlightLevel);
 			handlePublishPromise(
 				changeFlightLevelOfAircraft(
 					controlledBy,

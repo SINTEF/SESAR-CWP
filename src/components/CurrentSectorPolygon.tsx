@@ -1,6 +1,5 @@
 import { centroid } from "@turf/centroid";
 import { polygon } from "@turf/helpers";
-import type { Position } from "geojson";
 import type {
 	FillLayerSpecification,
 	LineLayerSpecification,
@@ -27,8 +26,7 @@ interface CurrentSectorPolygonProps {
 export default observer(function SectorPolygons({
 	beforeId,
 }: CurrentSectorPolygonProps) {
-	const { areaOfCurrentControlledSector, currentControlledSectorByCWP } =
-		roleConfigurationStore;
+	const { areaOfCurrentControlledSector } = roleConfigurationStore;
 	const { currentCWP, areaOfIncludedAirspaces } = configurationStore;
 
 	if (!areaOfCurrentControlledSector || configurationStore.currentCWP === "") {
@@ -51,7 +49,8 @@ export default observer(function SectorPolygons({
 		type: "FeatureCollection",
 		features: [sectors],
 	};
-	const currentSectorId = currentControlledSectorByCWP(currentCWP);
+	const currentSectorId =
+		roleConfigurationStore.currentControlledSectorByCWP(currentCWP);
 	const sectorConfiguration = areaOfIncludedAirspaces.find(
 		({ sectorId }) => sectorId === currentSectorId,
 	);
@@ -64,7 +63,7 @@ export default observer(function SectorPolygons({
 		const centroidPoint = [];
 		const geometry = sector.features[0].geometry;
 		if (geometry.type === "Polygon") {
-			const polygonFeature = polygon(geometry.coordinates as Position[][]);
+			const polygonFeature = polygon(geometry.coordinates);
 			const centroidPt = centroid(polygonFeature);
 			if (centroidPt && centroidPt.properties) {
 				centroidPt.properties.title = setSectorName(

@@ -102,13 +102,13 @@ export default observer(function SectorSideView() {
 						domain={xDomain}
 						type="number"
 						ticks={xTicks}
-						tickFormatter={(value) => formatSimulatorTimeHM(value)}
+						tickFormatter={(value) => formatSimulatorTimeHM(Number(value))}
 						// Draw custom ticks to get lighter line colours
 						tick={({ x, y, payload }) => (
 							<g transform={`translate(${x},${y})`}>
 								<line y1={0} y2={-400} stroke="#cccccc" strokeWidth={1} />
 								<text y={15} textAnchor="middle" fill="#ccc" fontSize={12}>
-									{formatSimulatorTimeHM(payload.value)}
+									{formatSimulatorTimeHM(Number(payload.value))}
 								</text>
 							</g>
 						)}
@@ -119,9 +119,10 @@ export default observer(function SectorSideView() {
 						tickFormatter={yTickFormatter}
 						// Draw custom ticks to get lighter line colours
 						tick={({ x, y, payload }) => {
+							const payloadValue = Number(payload.value);
 							return (
 								<g transform={`translate(${x},${y})`}>
-									{shouldShowLabel(payload.value) && (
+									{shouldShowLabel(payloadValue) && (
 										<line
 											x1={0}
 											x2={450} // Adjust based on your chart width
@@ -129,7 +130,7 @@ export default observer(function SectorSideView() {
 											strokeWidth={1}
 										/>
 									)}
-									{shouldShowLabel(payload.value) && (
+									{shouldShowLabel(payloadValue) && (
 										<text
 											x={-5}
 											textAnchor="end"
@@ -137,7 +138,7 @@ export default observer(function SectorSideView() {
 											fontSize={12}
 											dy={5}
 										>
-											{`F${payload.value}`}
+											{`F${payloadValue}`}
 										</text>
 									)}
 								</g>

@@ -12,7 +12,6 @@ export default observer(function ControllerSelector({
 	onSelect,
 }: ControllerSelectorProps) {
 	const posthog = usePostHog();
-	const { setPseudoPilot } = cwpStore;
 	const [selectedCWP, setSelectedCWP] = React.useState<string>("");
 	const listOfControllers = roleConfigurationStore.listOfAllControllers;
 	const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
@@ -34,9 +33,9 @@ export default observer(function ControllerSelector({
 		const isPseudoPilot = pseudo === "PseudoPilot";
 
 		if (isPseudoPilot) {
-			setPseudoPilot(true);
+			cwpStore.setPseudoPilot(true);
 		} else {
-			setPseudoPilot(false);
+			cwpStore.setPseudoPilot(false);
 		}
 
 		const previousController = controller;

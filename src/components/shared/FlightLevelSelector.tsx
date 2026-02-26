@@ -63,7 +63,7 @@ export default function FlightLevelSelector({
 	onChange,
 	topFlightLevel,
 	bottomFlightLevel,
-	defaultLevel,
+	defaultLevel: _defaultLevel,
 }: FlightLevelSelectorProps): React.ReactNode {
 	const listRef = React.useRef<HTMLDivElement>(null);
 

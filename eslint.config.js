@@ -26,7 +26,7 @@ export default defineConfig([
 		]
 	},
 	js.configs.recommended,
-  unicorn.configs.recommended,
+  //unicorn.configs.recommended,
 	...tseslint.configs.recommendedTypeCheckedOnly,
 	{
 		files: ["**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}"],
@@ -43,6 +43,8 @@ export default defineConfig([
 		},
 		rules: {
 			...reactHooks.configs.recommended.rules,
+			"react-hooks/immutability": "off",
+				"@typescript-eslint/unbound-method": "error",
       // broken
 			"no-unused-vars": "off",
       // working version
@@ -57,6 +59,14 @@ export default defineConfig([
 			],
       // broken
 			"@typescript-eslint/no-unsafe-enum-comparison": "off",
+			"@typescript-eslint/no-misused-promises": [
+				"error",
+				{
+					checksVoidReturn: {
+						attributes: false
+					}
+				}
+			],
 			/*"react-refresh/only-export-components": "warn",
 			"react-hooks/immutability": "off",
 			"unicorn/better-regex": "error",

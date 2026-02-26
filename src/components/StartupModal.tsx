@@ -47,7 +47,7 @@ function getAdminErrorMessage(code: string | null): string | null {
  * Allows users to select their controller role and access admin mode.
  */
 export default observer(function StartupModal() {
-	const { showControllerSelection, toggleControllerSelection } = cwpStore;
+	const { showControllerSelection } = cwpStore;
 	const [showPasswordModal, setShowPasswordModal] = React.useState(false);
 	const listOfControllers = roleConfigurationStore.listOfAllControllers;
 	const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
@@ -72,15 +72,10 @@ export default observer(function StartupModal() {
 			if (showControllerSelection && controller !== "All") {
 				configurationStore.setCurrentCWP("All");
 				cwpStore.setPseudoPilot(false);
-				toggleControllerSelection();
+				cwpStore.toggleControllerSelection();
 			}
 		}
-	}, [
-		isInAdminMode,
-		showControllerSelection,
-		controller,
-		toggleControllerSelection,
-	]);
+	}, [isInAdminMode, showControllerSelection, controller]);
 
 	// True if the controller has already been selected
 	const secondSelection = listOfAll.includes(controller);
@@ -95,7 +90,9 @@ export default observer(function StartupModal() {
 			<div
 				className="modal modal-open"
 				onClick={
-					secondSelection ? () => toggleControllerSelection() : undefined
+					secondSelection
+						? () => cwpStore.toggleControllerSelection()
+						: undefined
 				}
 			>
 				<div
@@ -109,14 +106,16 @@ export default observer(function StartupModal() {
 					{secondSelection && (
 						<button
 							className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-							onClick={() => toggleControllerSelection()}
+							onClick={() => cwpStore.toggleControllerSelection()}
 						>
 							✕
 						</button>
 					)}
 
 					{/* Controller selection */}
-					<ControllerSelector onSelect={toggleControllerSelection} />
+					<ControllerSelector
+						onSelect={(): void => cwpStore.toggleControllerSelection()}
+					/>
 
 					{/* Admin mode section */}
 					<div className="flex flex-wrap gap-2 mt-4 items-center">
@@ -127,7 +126,7 @@ export default observer(function StartupModal() {
 									adminStore.setAdminPanel(true);
 									configurationStore.setCurrentCWP("All");
 									cwpStore.setPseudoPilot(false);
-									toggleControllerSelection();
+									cwpStore.toggleControllerSelection();
 								} else {
 									// Check if password is already stored
 									const brokerUrl = getBrokerUrl();

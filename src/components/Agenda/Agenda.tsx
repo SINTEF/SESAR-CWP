@@ -1,3 +1,4 @@
+import { reaction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -191,18 +192,26 @@ export default observer(function Agenda({
 
 	// React to external scale requests (e.g., when a new datablock is created)
 	useEffect(() => {
-		const requestedMinutes = cwpStore.requestedAgendaScaleMinutes;
-		if (requestedMinutes !== null) {
-			// Find the smallest scale preset that includes this time
-			const requiredScale = SCALE_PRESETS.find(
-				(preset) => preset >= requestedMinutes,
-			);
-			if (requiredScale && requiredScale > scaleMinutes) {
-				cwpStore.setAgendaScaleMinutes(requiredScale);
-			}
-			cwpStore.clearRequestedAgendaScale();
-		}
-	}, [cwpStore.requestedAgendaScaleMinutes, scaleMinutes]);
+		const disposer = reaction(
+			() => cwpStore.requestedAgendaScaleMinutes,
+			(requestedMinutes) => {
+				if (requestedMinutes !== null) {
+					// Find the smallest scale preset that includes this time
+					const requiredScale = SCALE_PRESETS.find(
+						(preset) => preset >= requestedMinutes,
+					);
+					if (requiredScale && requiredScale > scaleMinutes) {
+						cwpStore.setAgendaScaleMinutes(requiredScale);
+					}
+					cwpStore.clearRequestedAgendaScale();
+				}
+			},
+		);
+
+		return () => {
+			disposer();
+		};
+	}, [scaleMinutes]);
 
 	// Measure container height
 	useEffect(() => {
@@ -249,13 +258,12 @@ export default observer(function Agenda({
 				// Reset accumulator after triggering
 				accumulatedDelta = 0;
 				const currentIndex = SCALE_PRESETS.indexOf(scaleMinutes);
-				let newScale = scaleMinutes;
-				if (direction > 0) {
-					newScale =
-						SCALE_PRESETS[Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)];
-				} else {
-					newScale = SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
-				}
+				const newScale =
+					direction > 0
+						? SCALE_PRESETS[
+								Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+							]
+						: SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
 
 				if (newScale !== scaleMinutes) {
 					posthog.capture("agenda_scale_changed", {

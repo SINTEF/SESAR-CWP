@@ -405,13 +405,13 @@ export const WarningIcon = observer(
 export const AssignedBearing = observer(
 	({ aircraft }: SubContentProperties) => {
 		const { assignedBearing } = aircraft;
-		const changeBearing = (current_bearing: number): void => {
+		const changeBearing = (): void => {
 			cwpStore.openChangeBearingForAircraft(aircraft.aircraftId);
 		};
 		if (assignedBearing === -1 || assignedBearing === undefined) {
 			return (
 				<span
-					onClick={() => changeBearing(aircraft.lastKnownBearing)}
+					onClick={changeBearing}
 					className="hover:outline-2 hover:outline-white cursor-pointer"
 				>
 					h...
@@ -426,7 +426,7 @@ export const AssignedBearing = observer(
 
 		return (
 			<span
-				onClick={() => changeBearing(assignedBearing)}
+				onClick={changeBearing}
 				className="hover:outline-2 hover:outline-white cursor-pointer"
 			>
 				<BearingChangeIcon aircraft={aircraft} />

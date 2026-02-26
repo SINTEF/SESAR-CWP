@@ -56,10 +56,10 @@ import RequestPanelContainer from "./team-assistant/RequestPanelContainer";
  * @returns Offset coordinates {x, y} in pixels
  */
 function computePopupOffset(
-	bearing: number,
-	speed: number,
-	width: number,
-	height: number,
+	_bearing: number,
+	_speed: number,
+	_width: number,
+	_height: number,
 ): { x: number; y: number } {
 	return { x: 16, y: 16 }; // Placeholder implementation
 }
@@ -78,13 +78,8 @@ export default observer(function AircraftPopup(properties: {
 		localAssignedFlightLevel,
 		lastKnownBearing: bearing,
 		lastKnownSpeed: speed,
-		setLocalAssignedFlightLevel,
 	} = aircraft;
-	const {
-		setHoveredFlightLabelId,
-		removeHoveredFlightLabelId,
-		selectedAircraftIds,
-	} = cwpStore;
+	const { selectedAircraftIds } = cwpStore;
 	const isHoveredMarker =
 		cwpStore.hoveredMarkerAircraftId === aircraftId ||
 		cwpStore.hoveredConflictAircraftIds.has(aircraftId);
@@ -105,9 +100,9 @@ export default observer(function AircraftPopup(properties: {
 
 	React.useEffect(() => {
 		if (localAssignedFlightLevel === altitude.toFixed(0)) {
-			setLocalAssignedFlightLevel(" ");
+			aircraft.setLocalAssignedFlightLevel(" ");
 		}
-	}, [altitude, localAssignedFlightLevel, setLocalAssignedFlightLevel]);
+	}, [altitude, localAssignedFlightLevel, aircraft]);
 
 	const onWheel = (event: React.WheelEvent): void => {
 		const map = current?.getMap();
@@ -155,7 +150,7 @@ export default observer(function AircraftPopup(properties: {
 		if (isStillDragging()) {
 			return;
 		}
-		setHoveredFlightLabelId(aircraftId);
+		cwpStore.setHoveredFlightLabelId(aircraftId);
 		posthog?.capture("aircraft_popup_hover_start", {
 			aircraft_id: aircraftId,
 			callsign: aircraft.callSign,
@@ -171,7 +166,7 @@ export default observer(function AircraftPopup(properties: {
 	};
 	const onMouseLeave = (): void => {
 		if (!isDragging) {
-			removeHoveredFlightLabelId();
+			cwpStore.removeHoveredFlightLabelId();
 			cwpStore.removeHoveredTaLabelAircraftId();
 			cwpStore.removeTaArrowClickedAircraftId();
 

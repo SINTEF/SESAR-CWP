@@ -82,18 +82,17 @@ const CANVAS_CONTEXT_ATTRIBUTES: WebGLContextAttributes = {
 const createMapClickHandler =
 	(posthog: ReturnType<typeof usePostHog>) =>
 	(event: MapMouseEvent): void => {
-		const { currentDistanceColor, setCurrentDistanceColor } = cwpStore;
+		const { currentDistanceColor } = cwpStore;
 		const coordinates = event.lngLat;
 
 		if (currentDistanceColor !== "") {
-			const { newMarker, getNumberOfMarkersForColour } = distanceLineStore;
-			newMarker({
+			distanceLineStore.newMarker({
 				lat: coordinates.lat,
 				lng: coordinates.lng,
 				colour: currentDistanceColor,
 			});
 			const numberOfMarkersForColor =
-				getNumberOfMarkersForColour(currentDistanceColor);
+				distanceLineStore.getNumberOfMarkersForColour(currentDistanceColor);
 
 			posthog?.capture("distance_marker_placed", {
 				marker_color: currentDistanceColor,
@@ -103,7 +102,7 @@ const createMapClickHandler =
 			});
 
 			if (numberOfMarkersForColor >= 2) {
-				setCurrentDistanceColor("");
+				cwpStore.setCurrentDistanceColor("");
 			}
 		} else {
 			posthog?.capture("map_clicked", {

@@ -7,12 +7,11 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
 	const posthog = usePostHog();
 	const { showFILT, altitudeFilter } = cwpStore;
 
-	const { lowestBound, highestBound, setLowBound, setHighBound } =
-		altitudeFilter;
+	const { lowestBound, highestBound } = altitudeFilter;
 
 	const handleHighBoundChange = (value: number): void => {
 		const previousValue = highestBound;
-		setHighBound(value);
+		altitudeFilter.setHighBound(value);
 		posthog?.capture("altitude_filter_changed", {
 			filter_type: "highest_bound",
 			previous_value: previousValue,
@@ -24,7 +23,7 @@ export default observer(function AltitudeFilterPanel(/* properties */) {
 
 	const handleLowBoundChange = (value: number): void => {
 		const previousValue = lowestBound;
-		setLowBound(value);
+		altitudeFilter.setLowBound(value);
 		posthog?.capture("altitude_filter_changed", {
 			filter_type: "lowest_bound",
 			previous_value: previousValue,

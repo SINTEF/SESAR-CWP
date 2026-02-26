@@ -241,7 +241,17 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 		return () => {
 			popupLinesStore.unregisterLine(lineId);
 		};
-	}, [lineId, longitude, latitude]);
+	}, [
+		lineId,
+		longitude,
+		latitude,
+		lineStartX,
+		lineStartY,
+		adjustedLineLength,
+		lineAngle,
+		color,
+		displayLine,
+	]);
 
 	// Update line when geometry changes
 	useEffect(() => {
