@@ -50,7 +50,7 @@ export function findNearestAircraftInScreenSpace(
 		// Calculate pixel distance using Euclidean distance
 		const dx = screenPos.x - mouseScreenX;
 		const dy = screenPos.y - mouseScreenY;
-		const distance = Math.sqrt(dx * dx + dy * dy);
+		const distance = Math.hypot(dx, dy);
 
 		// Track closest aircraft within threshold
 		if (distance < minDistance) {

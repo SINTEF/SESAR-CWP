@@ -12,12 +12,7 @@ export default observer(function NextSectorPopup(properties: {
 	aircraft: AircraftModel;
 }) {
 	const posthog = usePostHog();
-	const {
-		aircraftId,
-		assignedFlightId,
-		controlledBy,
-		setNextSectorController,
-	} = properties.aircraft;
+	const { aircraftId, assignedFlightId, controlledBy } = properties.aircraft;
 
 	const { listOfAllControllers } = roleConfigurationStore;
 
@@ -61,7 +56,7 @@ export default observer(function NextSectorPopup(properties: {
 		});
 
 		if (controllerPlaceholder === "OTHER") {
-			setNextSectorController("All");
+			properties.aircraft.setNextSectorController("All");
 			if (controlledBy === "OTHER") {
 				handlePublishPromise(tentativeFlight("All", "All", assignedFlightId));
 			} else {
@@ -70,7 +65,7 @@ export default observer(function NextSectorPopup(properties: {
 				);
 			}
 		} else {
-			setNextSectorController(controllerPlaceholder);
+			properties.aircraft.setNextSectorController(controllerPlaceholder);
 			if (configurationStore.currentCWP === "All") {
 				handlePublishPromise(
 					tentativeFlight("All", controllerPlaceholder, assignedFlightId),

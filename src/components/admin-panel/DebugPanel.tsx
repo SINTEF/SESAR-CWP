@@ -6,13 +6,13 @@ import BuildInfoStatusBar from "../BuildInfoStatusBar";
 
 const createCatImageUrl = () => `https://cataas.com/cat?t=${Date.now()}`;
 
+const handleCaptureSentryError = () => {
+	throw new Error("This is a test error sent to Sentry from the Debug Panel");
+};
+
 export default observer(function DebugPanel() {
 	const [catImageUrl, setCatImageUrl] = useState<string | null>(null);
 	const latestPresence = adminStore.latestPresence;
-
-	const handleCaptureSentryError = () => {
-		throw new Error("This is a test error sent to Sentry from the Debug Panel");
-	};
 
 	const handleShowCat = () => {
 		setCatImageUrl(createCatImageUrl());

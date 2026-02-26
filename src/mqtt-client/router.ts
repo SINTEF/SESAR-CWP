@@ -5,6 +5,7 @@ import {
 	airspaces,
 	airTrafficControllerMessage,
 	airways,
+	clearedFlightLevelMessage,
 	currentAirspaceConfiguration,
 	exitFlightLevelMessage,
 	flightConflictMessage,
@@ -77,6 +78,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/data/flight-entering-airspace/:flightUniqueId/:time":
 		flightEnteringAirspaceMessage,
 	"ats/:clientId/data/xfl/:flightUniqueId": exitFlightLevelMessage,
+	"ats/:clientId/data/cfl/:flightUniqueId": clearedFlightLevelMessage,
 	"ats/:clientId/data/pilot-request/:flightUniqueId/:requestId": pilotRequest,
 	"ats/:clientId/data/tessellated-volumes/:airspaceVolumeId": ignored,
 	"ats/:clientId/data/volume-flight-lists/:airspaceVolumeId": ignored,

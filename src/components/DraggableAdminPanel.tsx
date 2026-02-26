@@ -29,10 +29,6 @@ export default observer(function DraggableAdminPanel() {
 	const tabGroupName = useId();
 	const { startDragging, stopDragging } = useDragging();
 	const [activeTab, setActiveTab] = useState<AdminPanelTab>(() => {
-		if (typeof window === "undefined") {
-			return "logs";
-		}
-
 		const persistedTab = window.sessionStorage.getItem(
 			ADMIN_PANEL_TAB_STORAGE_KEY,
 		);
@@ -97,7 +93,7 @@ export default observer(function DraggableAdminPanel() {
 								checked={activeTab === "logs"}
 								onChange={() => setActiveTab("logs")}
 							/>
-							<div className="tab-content border-base-300">
+							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "logs" && <AdminLogs />}
 							</div>
 							<input
@@ -108,7 +104,7 @@ export default observer(function DraggableAdminPanel() {
 								checked={activeTab === "brains"}
 								onChange={() => setActiveTab("brains")}
 							/>
-							<div className="tab-content border-base-300">
+							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "brains" && <BrainPanel />}
 							</div>
 							<input
@@ -119,7 +115,7 @@ export default observer(function DraggableAdminPanel() {
 								checked={activeTab === "scenario"}
 								onChange={() => setActiveTab("scenario")}
 							/>
-							<div className="tab-content border-base-300">
+							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "scenario" && <ScenarioConfigurationPanel />}
 							</div>
 							<input
@@ -130,7 +126,7 @@ export default observer(function DraggableAdminPanel() {
 								checked={activeTab === "debug"}
 								onChange={() => setActiveTab("debug")}
 							/>
-							<div className="tab-content border-base-300">
+							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "debug" && <DebugPanel />}
 							</div>
 						</div>

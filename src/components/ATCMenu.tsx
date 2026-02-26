@@ -2,6 +2,7 @@
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import type AircraftModel from "../model/AircraftModel";
+import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import {
 	acceptFlight,
 	handlePublishPromise,
@@ -119,11 +120,32 @@ export default observer(function ATCMenu(properties: {
 		});
 
 		cwpStore.clearATCMenuAircraftId();
+
+		if (action === "TP") {
+			const wasSelected = cwpStore.selectedAircraftIds.has(aircraftId);
+			cwpStore.toggleFlightRouteForAircraft(aircraftId);
+			cwpStore.toggleSelectedAircraftId(aircraftId);
+			setCurrentAircraftId(aircraftId);
+
+			posthog?.capture("aircraft_clicked", {
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				action: wasSelected ? "deselect" : "select",
+				altitude: properties.aircraft.lastKnownAltitude,
+				speed: properties.aircraft.lastKnownSpeed,
+				bearing: properties.aircraft.lastKnownBearing,
+				position: {
+					lat: properties.aircraft.lastKnownLatitude,
+					lon: properties.aircraft.lastKnownLongitude,
+				},
+				selected_count: cwpStore.selectedAircraftIds.size,
+			});
+		}
 	};
 
 	const handleMeasurementClick = (mode: "sep" | "qdm"): void => {
 		// Get selected aircraft IDs, excluding the menu aircraft itself
-		const selectedIds = Array.from(cwpStore.selectedAircraftIds).filter(
+		const selectedIds = [...cwpStore.selectedAircraftIds].filter(
 			(id) => id !== aircraftId,
 		);
 
@@ -171,7 +193,7 @@ export default observer(function ATCMenu(properties: {
 	};
 
 	// +DB button logic: need exactly 1 other aircraft selected to form a pair
-	const otherSelectedId = Array.from(cwpStore.selectedAircraftIds).find(
+	const otherSelectedId = [...cwpStore.selectedAircraftIds].find(
 		(id) => id !== aircraftId,
 	);
 	const hasExactlyOneOther =
@@ -246,19 +268,19 @@ export default observer(function ATCMenu(properties: {
 						? "DE ASSUME"
 						: "ASSUME"}
 				</button>
-				{!properties.aircraft.degreased ? (
-					<button
-						onClick={() => handleIntegreClick(aircraftId)}
-						className="btn btn-xs btn-primary w-full rounded-xs"
-					>
-						INTEGRE
-					</button>
-				) : (
+				{properties.aircraft.degreased ? (
 					<button
 						onClick={() => handleDeIntegreClick(aircraftId)}
 						className="btn btn-xs btn-primary w-full rounded-xs"
 					>
 						DE INTEGRE
+					</button>
+				) : (
+					<button
+						onClick={() => handleIntegreClick(aircraftId)}
+						className="btn btn-xs btn-primary w-full rounded-xs"
+					>
+						INTEGRE
 					</button>
 				)}
 				<hr className="border-t-2 border-neutral-700 w-full" />
@@ -283,7 +305,7 @@ export default observer(function ATCMenu(properties: {
 				<hr className="border-t-2 border-neutral-700 w-full" />
 				<button
 					onClick={handleDatablockClick}
-					className={`btn btn-xs btn-primary w-full rounded-xs ${!canCreateDatablock ? "opacity-50 cursor-not-allowed" : ""}`}
+					className={`btn btn-xs btn-primary w-full rounded-xs ${canCreateDatablock ? "" : "opacity-50 cursor-not-allowed"}`}
 					disabled={!canCreateDatablock}
 					title="Create datablock with selected aircraft pair"
 				>

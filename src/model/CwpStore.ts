@@ -1,5 +1,6 @@
 import type { ObservableMap, ObservableSet } from "mobx";
 import { makeAutoObservable, observable, reaction } from "mobx";
+import { PersistedCwpDisplaySettingsSchema } from "../schemas/storeJsonSchemas";
 
 import AltitudeFilter from "./AltitudeFilter";
 
@@ -57,17 +58,6 @@ export type SpeedChangeDisplayUnit =
 
 const CWP_DISPLAY_SETTINGS_STORAGE_KEY = "cwp.display-settings.v1";
 const AGENDA_SCALE_PRESETS = [5, 10, 15, 30, 60, 120, 240] as const;
-
-type PersistedCwpDisplaySettings = {
-	showFixes?: boolean;
-	showAirways?: boolean;
-	showSectorLabels?: boolean;
-	showVerticalWindow?: boolean;
-	showSpeedVectors?: boolean;
-	speedVectorMinutes?: number;
-	speedChangeDisplayUnit?: SpeedChangeDisplayUnit;
-	agendaScaleMinutes?: number;
-};
 
 export default class CWPStore {
 	altitudeFilter: AltitudeFilter;
@@ -215,6 +205,10 @@ export default class CWPStore {
 	});
 
 	hoveredMarkerAircraftId: string | null = null;
+	hoveredConflictAircraftIds: ObservableSet<string> = observable.set(
+		undefined,
+		{ deep: false },
+	);
 	hoveredFlightLabelId: string | null = null;
 
 	hoveredTaLabelAircraftId: string | null = null;
@@ -259,10 +253,6 @@ export default class CWPStore {
 	}
 
 	private hydrateDisplaySettingsFromLocalStorage(): void {
-		if (typeof window === "undefined") {
-			return;
-		}
-
 		try {
 			const rawValue = window.localStorage.getItem(
 				CWP_DISPLAY_SETTINGS_STORAGE_KEY,
@@ -271,7 +261,9 @@ export default class CWPStore {
 				return;
 			}
 
-			const parsed = JSON.parse(rawValue) as PersistedCwpDisplaySettings;
+			const parsed = PersistedCwpDisplaySettingsSchema.parse(
+				JSON.parse(rawValue),
+			);
 
 			if (typeof parsed.showFixes === "boolean") {
 				this.showFixes = parsed.showFixes;
@@ -293,17 +285,13 @@ export default class CWPStore {
 			}
 			if (
 				typeof parsed.speedChangeDisplayUnit === "string" &&
-				SPEED_CHANGE_DISPLAY_UNITS.includes(
-					parsed.speedChangeDisplayUnit as SpeedChangeDisplayUnit,
-				)
+				SPEED_CHANGE_DISPLAY_UNITS.includes(parsed.speedChangeDisplayUnit)
 			) {
 				this.speedChangeDisplayUnit = parsed.speedChangeDisplayUnit;
 			}
 			if (
 				typeof parsed.agendaScaleMinutes === "number" &&
-				AGENDA_SCALE_PRESETS.includes(
-					parsed.agendaScaleMinutes as (typeof AGENDA_SCALE_PRESETS)[number],
-				)
+				AGENDA_SCALE_PRESETS.includes(parsed.agendaScaleMinutes)
 			) {
 				this.agendaScaleMinutes = parsed.agendaScaleMinutes;
 			}
@@ -313,10 +301,6 @@ export default class CWPStore {
 	}
 
 	private setupDisplaySettingsPersistence(): void {
-		if (typeof window === "undefined") {
-			return;
-		}
-
 		reaction(
 			() => ({
 				showFixes: this.showFixes,
@@ -494,6 +478,13 @@ export default class CWPStore {
 		this.clearTaRequestCallback();
 	}
 
+	closeAllLabelPopupsForAircraft(aircraftId: string): void {
+		this.closeAllSubPopupsForAircraft(aircraftId);
+		if (this.ATCMenuAircraftId === aircraftId) {
+			this.ATCMenuAircraftId = "";
+		}
+	}
+
 	/**
 	 * Set a callback for TA request mode. When set, popup components will call this
 	 * callback with the selected value instead of their normal behavior.
@@ -520,7 +511,7 @@ export default class CWPStore {
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
 			this.taRequestAircraftId = savedAircraftId;
@@ -533,7 +524,7 @@ export default class CWPStore {
 	}
 
 	openNextSectorPopupForAircraft(aircraftId: string): void {
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		this.aircraftsWithSectorPopup.add(aircraftId);
 	}
 
@@ -547,7 +538,7 @@ export default class CWPStore {
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
 			this.taRequestAircraftId = savedAircraftId;
@@ -565,7 +556,7 @@ export default class CWPStore {
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
 			this.taRequestAircraftId = savedAircraftId;
@@ -578,7 +569,7 @@ export default class CWPStore {
 	}
 
 	openChangeSpeedForAircraft(aircraftId: string): void {
-		this.closeAllSubPopupsForAircraft(aircraftId);
+		this.closeAllLabelPopupsForAircraft(aircraftId);
 		this.aircraftWithSpeedChangePopup.add(aircraftId);
 	}
 
@@ -738,6 +729,9 @@ export default class CWPStore {
 		this.showSpeedVectors = value;
 	}
 	setATCMenuAircraftId(aircraftId: string): void {
+		if (aircraftId !== "") {
+			this.closeAllSubPopupsForAircraft(aircraftId);
+		}
 		this.ATCMenuAircraftId = aircraftId;
 	}
 	clearATCMenuAircraftId(): void {
@@ -747,6 +741,18 @@ export default class CWPStore {
 	setHoveredMarkerAircraftId(aircraftId: string): void {
 		this.hoveredMarkerAircraftId = aircraftId;
 	}
+
+	setHoveredConflictAircraftIds(aircraftIds: string[]): void {
+		this.hoveredConflictAircraftIds.clear();
+		for (const aircraftId of aircraftIds) {
+			this.hoveredConflictAircraftIds.add(aircraftId);
+		}
+	}
+
+	clearHoveredConflictAircraftIds(): void {
+		this.hoveredConflictAircraftIds.clear();
+	}
+
 	setHoveredFlightLabelId(aircraftId: string): void {
 		this.hoveredFlightLabelId = aircraftId;
 	}
@@ -879,6 +885,7 @@ export default class CWPStore {
 		this.highlightedAircraftId = "";
 		this.ATCMenuAircraftId = "";
 		this.hoveredMarkerAircraftId = null;
+		this.hoveredConflictAircraftIds.clear();
 		this.hoveredFlightLabelId = null;
 		this.hoveredTaLabelAircraftId = null;
 		this.taArrowClickedAircraftId = null;

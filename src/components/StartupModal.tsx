@@ -47,7 +47,7 @@ function getAdminErrorMessage(code: string | null): string | null {
  * Allows users to select their controller role and access admin mode.
  */
 export default observer(function StartupModal() {
-	const { showControllerSelection, toggleControllerSelection } = cwpStore;
+	const { showControllerSelection } = cwpStore;
 	const [showPasswordModal, setShowPasswordModal] = React.useState(false);
 	const listOfControllers = roleConfigurationStore.listOfAllControllers;
 	const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
@@ -72,15 +72,10 @@ export default observer(function StartupModal() {
 			if (showControllerSelection && controller !== "All") {
 				configurationStore.setCurrentCWP("All");
 				cwpStore.setPseudoPilot(false);
-				toggleControllerSelection();
+				cwpStore.toggleControllerSelection();
 			}
 		}
-	}, [
-		isInAdminMode,
-		showControllerSelection,
-		controller,
-		toggleControllerSelection,
-	]);
+	}, [isInAdminMode, showControllerSelection, controller]);
 
 	// True if the controller has already been selected
 	const secondSelection = listOfAll.includes(controller);
@@ -95,26 +90,32 @@ export default observer(function StartupModal() {
 			<div
 				className="modal modal-open"
 				onClick={
-					secondSelection ? () => toggleControllerSelection() : undefined
+					secondSelection
+						? () => cwpStore.toggleControllerSelection()
+						: undefined
 				}
 			>
 				<div
-					className="modal-box max-w-2xl"
+					className="modal-box max-w-2xl bg-black/50 backdrop-blur-md"
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Modal header */}
-					<h3 className="font-bold text-lg mb-4">Choose Controller</h3>
+					<h3 className="font-semibold text-lg text-white mb-4">
+						Choose Controller
+					</h3>
 					{secondSelection && (
 						<button
 							className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-							onClick={() => toggleControllerSelection()}
+							onClick={() => cwpStore.toggleControllerSelection()}
 						>
 							✕
 						</button>
 					)}
 
 					{/* Controller selection */}
-					<ControllerSelector onSelect={toggleControllerSelection} />
+					<ControllerSelector
+						onSelect={(): void => cwpStore.toggleControllerSelection()}
+					/>
 
 					{/* Admin mode section */}
 					<div className="flex flex-wrap gap-2 mt-4 items-center">
@@ -125,7 +126,7 @@ export default observer(function StartupModal() {
 									adminStore.setAdminPanel(true);
 									configurationStore.setCurrentCWP("All");
 									cwpStore.setPseudoPilot(false);
-									toggleControllerSelection();
+									cwpStore.toggleControllerSelection();
 								} else {
 									// Check if password is already stored
 									const brokerUrl = getBrokerUrl();
@@ -141,7 +142,8 @@ export default observer(function StartupModal() {
 									}
 								}
 							}}
-							className={`btn ${isInAdminMode ? "btn-warning" : "btn-outline border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-black"}`}
+							// className={`btn ${isInAdminMode ? "btn-warning" : "btn-outliine border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-black"}`}
+							className={`btn ${isInAdminMode ? "btn-warning" : "btn-error"}`}
 						>
 							Admin Mode
 						</button>

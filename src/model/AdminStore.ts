@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { getAndClearAdminError } from "../mqtt-client/auth";
+import { AdminLogJsonSchema } from "../schemas/storeJsonSchemas";
 
 interface LogEntry {
 	timestamp: number;
@@ -49,7 +50,7 @@ function parseTimestamp(value: unknown): number | undefined {
  */
 function insertLogSorted(logs: LogEntry[], entry: LogEntry): void {
 	// Fast path: if empty or new entry is >= last entry, just append
-	if (logs.length === 0 || entry.timestamp >= logs[logs.length - 1].timestamp) {
+	if (logs.length === 0 || entry.timestamp >= (logs.at(-1)?.timestamp ?? 0)) {
 		logs.push(entry);
 		return;
 	}
@@ -172,17 +173,25 @@ export default class AdminStore {
 
 	handleLogMessage(jsonString: string): void {
 		try {
-			const parsed = JSON.parse(jsonString);
+			const parsed: unknown = JSON.parse(jsonString);
+			const parsedLog = AdminLogJsonSchema.safeParse(parsed);
 			// Handle different log formats - could be an object with message/level or just a string
-			if (typeof parsed === "object" && parsed !== null) {
+			if (parsedLog.success) {
 				const logMessage =
-					parsed.message ?? parsed.msg ?? JSON.stringify(parsed);
-				const level = parsed.level ?? parsed.severity ?? undefined;
+					parsedLog.data.message ??
+					parsedLog.data.msg ??
+					JSON.stringify(parsedLog.data);
+				const level = parsedLog.data.level ?? parsedLog.data.severity;
 				// Try to extract timestamp from common log fields
 				const timestamp = parseTimestamp(
-					parsed.timestamp ?? parsed.time ?? parsed.ts ?? parsed.date,
+					parsedLog.data.timestamp ??
+						parsedLog.data.time ??
+						parsedLog.data.ts ??
+						parsedLog.data.date,
 				);
 				this.addLog(logMessage, level, timestamp);
+			} else if (typeof parsed === "object" && parsed !== null) {
+				this.addLog(JSON.stringify(parsed));
 			} else {
 				this.addLog(String(parsed));
 			}

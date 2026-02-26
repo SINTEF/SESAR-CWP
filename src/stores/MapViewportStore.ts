@@ -132,7 +132,7 @@ export default class MapViewportStore {
 		try {
 			const point = this.mapRef.project([lng, lat]);
 			return { x: point.x, y: point.y };
-		} catch (_error) {
+		} catch {
 			return null;
 		}
 	}
@@ -149,7 +149,7 @@ export default class MapViewportStore {
 		try {
 			const lngLat = this.mapRef.unproject([x, y]);
 			return { lng: lngLat.lng, lat: lngLat.lat };
-		} catch (_error) {
+		} catch {
 			return null;
 		}
 	}

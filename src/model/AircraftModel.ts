@@ -277,10 +277,6 @@ export default class AircraftModel {
 		const altitudeInFlightMeters = convertToFlightMeters(altitude);
 		if (altitudeInFlightMeters !== this.lastKnownAltitude) {
 			this.lastKnownAltitude = altitudeInFlightMeters;
-			// Only auto-update nextACCFL if it hasn't been manually set through the interface
-			if (!this.isNextACCFLManuallySet) {
-				this.nextACCFL = altitudeInFlightMeters.toString();
-			}
 		}
 		if (latitude !== this.lastKnownLatitude) {
 			this.lastKnownLatitude = latitude;
@@ -403,8 +399,8 @@ export default class AircraftModel {
 
 		let startIndex = 0;
 		if (this.lastPassedMilestoneObjectId) {
-			for (let i = 0; i < trajectories.length; i++) {
-				if (trajectories[i].objectId === this.lastPassedMilestoneObjectId) {
+			for (const [i, trajectory] of trajectories.entries()) {
+				if (trajectory.objectId === this.lastPassedMilestoneObjectId) {
 					startIndex = i + 1;
 				}
 			}
@@ -477,9 +473,7 @@ export default class AircraftModel {
 
 		const trajectories = flightRoute.trajectory;
 
-		const entryIndex = trajectories.findIndex(
-			(trajectory) => trajectory === info.trajectoryPoint,
-		);
+		const entryIndex = trajectories.indexOf(info.trajectoryPoint);
 		if (entryIndex === -1) {
 			return undefined;
 		}
@@ -510,7 +504,7 @@ export default class AircraftModel {
 			if (altitude !== undefined && altitude > 0) {
 				// Convert meters to flight level (altitude in meters -> feet / 100)
 				// Then divide by 10 for display per app specifications
-				const flightLevel = (altitude * 3.28084) / 100;
+				const flightLevel = (altitude * 3.280_84) / 100;
 				return Math.round(flightLevel / 10).toString();
 			}
 		}
@@ -676,9 +670,12 @@ export default class AircraftModel {
 			// Start flashing
 			this.isNextSectorFLFlashing = true;
 			// Stop flashing after 3 seconds
-			this.nextSectorFLFlashTimeout = setTimeout(() => {
-				this.isNextSectorFLFlashing = false;
-			}, 3000);
+			this.nextSectorFLFlashTimeout = setTimeout(
+				action(() => {
+					this.isNextSectorFLFlashing = false;
+				}),
+				3000,
+			);
 		}
 	}
 
@@ -698,10 +695,24 @@ export default class AircraftModel {
 			// Start flashing
 			this.isNextACCFLFlashing = true;
 			// Stop flashing after 1 second
-			this.nextACCFLFlashTimeout = setTimeout(() => {
-				this.isNextACCFLFlashing = false;
-			}, 1000);
+			this.nextACCFLFlashTimeout = setTimeout(
+				action(() => {
+					this.isNextACCFLFlashing = false;
+				}),
+				1000,
+			);
 		}
+	}
+
+	/**
+	 * Apply a CFL value coming from simulator data.
+	 * CFL acts as the initial/authoritative value only until the user manually overrides nextACCFL.
+	 */
+	applyClearedFlightLevel(clearedFlightLevel: string): void {
+		if (this.isNextACCFLManuallySet) {
+			return;
+		}
+		this.setNextACCFL(clearedFlightLevel);
 	}
 
 	setPilotRequestFlightLevel(request: string): void {

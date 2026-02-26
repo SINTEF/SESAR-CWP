@@ -107,7 +107,7 @@ export const VerticalSpeedIcon = observer(
 export const VerticalSpeed = observer(({ aircraft }: SubContentProperties) => {
 	const { lastKnownVerticalSpeed } = aircraft;
 	// convert m/s to ft/min and divide by 100
-	const verticalSpeedFpm = Math.round(lastKnownVerticalSpeed * 1.96850394);
+	const verticalSpeedFpm = Math.round(lastKnownVerticalSpeed * 1.968_503_94);
 	if (verticalSpeedFpm === 0) {
 		return <span>-</span>;
 	}
@@ -405,13 +405,13 @@ export const WarningIcon = observer(
 export const AssignedBearing = observer(
 	({ aircraft }: SubContentProperties) => {
 		const { assignedBearing } = aircraft;
-		const changeBearing = (current_bearing: number): void => {
+		const changeBearing = (): void => {
 			cwpStore.openChangeBearingForAircraft(aircraft.aircraftId);
 		};
 		if (assignedBearing === -1 || assignedBearing === undefined) {
 			return (
 				<span
-					onClick={() => changeBearing(aircraft.lastKnownBearing)}
+					onClick={changeBearing}
 					className="hover:outline-2 hover:outline-white cursor-pointer"
 				>
 					h...
@@ -426,7 +426,7 @@ export const AssignedBearing = observer(
 
 		return (
 			<span
-				onClick={() => changeBearing(assignedBearing)}
+				onClick={changeBearing}
 				className="hover:outline-2 hover:outline-white cursor-pointer"
 			>
 				<BearingChangeIcon aircraft={aircraft} />
@@ -573,11 +573,6 @@ export const ArrivalAirport = observer(({ aircraft }: SubContentProperties) => {
 	};
 
 	return (
-		<span
-			onContextMenu={handleContextMenu}
-			className="hover:outline-2 hover:outline-white"
-		>
-			{aircraft.arrivalAirport}
-		</span>
+		<span onContextMenu={handleContextMenu}>{aircraft.arrivalAirport}</span>
 	);
 });

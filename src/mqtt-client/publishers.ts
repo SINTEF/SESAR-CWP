@@ -44,17 +44,15 @@ export async function restartSimulator(): Promise<void> {
 }
 
 export async function setStartupConfiguration(scenario: string): Promise<void> {
-	await Promise.all([
-		publish(`ats/${clientId}/commands/config/startup`, scenario, {
-			retain: true,
-		}),
-	]);
+	await publish(`ats/${clientId}/commands/config/startup`, scenario, {
+		retain: true,
+	});
 }
 
 export async function clearStartupConfiguration(): Promise<void> {
-	await Promise.all([
-		publish(`ats/${clientId}/commands/config/startup`, "", { retain: true }),
-	]);
+	await publish(`ats/${clientId}/commands/config/startup`, "", {
+		retain: true,
+	});
 }
 
 export async function setSpeedFactor(speedFactor: number): Promise<void> {

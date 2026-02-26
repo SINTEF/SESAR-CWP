@@ -54,7 +54,7 @@ export default class FixStore {
 
 	/** Array of all fixes for indexed access */
 	get fixList(): FixModel[] {
-		return Array.from(this.fixes.values());
+		return [...this.fixes.values()];
 	}
 
 	/** Spatial index for KNN queries - points added as degenerate rectangles */
@@ -125,8 +125,8 @@ export default class FixStore {
 	buildExcludeIndexSet(excludeIds: Set<string>): Set<number> {
 		const excludeIndices = new Set<number>();
 		const fixList = this.fixList;
-		for (let i = 0; i < fixList.length; i++) {
-			if (excludeIds.has(fixList[i].pointId)) {
+		for (const [i, element] of fixList.entries()) {
+			if (excludeIds.has(element.pointId)) {
 				excludeIndices.add(i);
 			}
 		}

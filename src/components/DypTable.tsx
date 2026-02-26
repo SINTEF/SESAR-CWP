@@ -55,7 +55,7 @@ export default observer(function DypTable(/* properties */) {
 	const targetAircraftId =
 		hoveredMarkerAircraftId ??
 		(isTableHovered ? hoveredAircraftId : null) ??
-		Array.from(selectedAircraftIds).slice(-1)[0];
+		[...selectedAircraftIds].at(-1);
 	const latestSelectedAircraftData = aircraftStore.aircraftsWithPosition.find(
 		(aircraft) =>
 			aircraft.assignedFlightId === targetAircraftId ||

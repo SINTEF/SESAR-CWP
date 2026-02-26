@@ -6,6 +6,7 @@ import {
 	publishPilotRequestRefresh,
 } from "../mqtt-client/publishers";
 import type {
+	ClearedFlightLevelMessage,
 	ExitFlightLevelMessage,
 	FlightConflictUpdateMessage,
 	FlightEnteringAirspaceMessage,
@@ -209,8 +210,6 @@ export default class AircraftStore {
 		const { vehicleId } = targetReport;
 		const aircraft = this.aircrafts.get(vehicleId);
 		if (!aircraft) {
-			// eslint-disable-next-line no-console
-			// console.warn('Received target report for unknown aircraft', vehicleId);
 			return;
 		}
 		aircraft.handleTargetReport(targetReport);
@@ -249,7 +248,7 @@ export default class AircraftStore {
 						position4d = area.position.position4D;
 					} else if (area.position.oneofKind === "positionAtObject") {
 						previousPositionObject = area.position.positionAtObject;
-						return undefined;
+						return;
 					} else {
 						throw new Error("No position4d or positionatobject");
 					}
@@ -386,6 +385,33 @@ export default class AircraftStore {
 		}
 
 		aircraft.setNextSectorFL(exitFlightLevel.toString());
+	}
+
+	handleClearedFlightLevelMessage(message: ClearedFlightLevelMessage): void {
+		const { flightId, clearedFlightLevel } = message;
+
+		let aircraft;
+		for (const potentialAircraft of this.aircrafts.values()) {
+			if (potentialAircraft.assignedFlightId === flightId) {
+				aircraft = potentialAircraft;
+				break;
+			}
+		}
+
+		if (!aircraft) {
+			// biome-ignore lint/suspicious/noConsole: useful when backend sends CFL before flight mapping is available
+			console.warn(
+				"Received cleared flight level message for unknown flight",
+				flightId,
+			);
+			Sentry.captureMessage(
+				`Received cleared flight level message for unknown flight: ${flightId}`,
+				"warning",
+			);
+			return;
+		}
+
+		aircraft.applyClearedFlightLevel(clearedFlightLevel.toString());
 	}
 
 	handleNewAircraftTypeMessage(
@@ -603,6 +629,52 @@ export default class AircraftStore {
 	hasTctConflict(flightId: string): boolean {
 		return (this.tctConflictFlightCounts.get(flightId) ?? 0) > 0;
 	}
+
+	getConflictPairAircraftIdsForFlightId(
+		flightId: string,
+		conflictKind: "stca" | "tct",
+	): [string, string] | null {
+		const conflicts =
+			conflictKind === "stca" ? this.stcaConflictIds : this.tctConflictIds;
+
+		for (const conflictMessage of conflicts.values()) {
+			if (
+				conflictMessage.flightId !== flightId &&
+				conflictMessage.conflictingFlightId !== flightId
+			) {
+				continue;
+			}
+
+			const aircraftId1 = this.resolveAircraftIdForConflictFlightId(
+				conflictMessage.flightId,
+			);
+			const aircraftId2 = this.resolveAircraftIdForConflictFlightId(
+				conflictMessage.conflictingFlightId,
+			);
+
+			if (aircraftId1 && aircraftId2) {
+				return [aircraftId1, aircraftId2];
+			}
+		}
+
+		return null;
+	}
+
+	private resolveAircraftIdForConflictFlightId(
+		flightId: string,
+	): string | null {
+		if (this.aircrafts.has(flightId)) {
+			return flightId;
+		}
+
+		for (const aircraft of this.aircrafts.values()) {
+			if (aircraft.assignedFlightId === flightId) {
+				return aircraft.aircraftId;
+			}
+		}
+
+		return null;
+	}
 	hasMtcdConflict(flightId: string): boolean {
 		return (this.mtcdConflictFlightCounts.get(flightId) ?? 0) > 0;
 	}
@@ -682,7 +754,7 @@ export default class AircraftStore {
 			// Calculate pixel distance using Euclidean distance
 			const dx = screenPos.x - mouseScreenX;
 			const dy = screenPos.y - mouseScreenY;
-			const distance = Math.sqrt(dx * dx + dy * dy);
+			const distance = Math.hypot(dx, dy);
 
 			// Track closest aircraft within threshold
 			if (distance < minDistance) {
@@ -708,7 +780,7 @@ export default class AircraftStore {
 	getRequestsForAircraft(flightId: string): TeamAssistantRequest[] {
 		const requests = this.teamAssistantRequests.get(flightId) ?? [];
 		// Sort by timestamp (newest first)
-		return [...requests].sort((a, b) => {
+		return requests.toSorted((a, b) => {
 			const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
 			const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
 			return timeB - timeA;
@@ -757,10 +829,7 @@ export default class AircraftStore {
 			(r) => r.requestId === requestId,
 		);
 
-		if (existingIndex >= 0) {
-			existingRequests[existingIndex] = teamAssistantRequest;
-			this.teamAssistantRequests.set(flightId, [...existingRequests]);
-		} else {
+		if (existingIndex === -1) {
 			this.teamAssistantRequests.set(flightId, [
 				...existingRequests,
 				teamAssistantRequest,
@@ -771,6 +840,9 @@ export default class AircraftStore {
 
 			// Schedule REFRESH call 30 seconds after new request arrives
 			this.scheduleRefreshTimer(requestId);
+		} else {
+			existingRequests[existingIndex] = teamAssistantRequest;
+			this.teamAssistantRequests.set(flightId, [...existingRequests]);
 		}
 	}
 
@@ -830,6 +902,21 @@ export default class AircraftStore {
 	}
 
 	/**
+	 * Remove a specific team assistant request by requestId, regardless of flight.
+	 * Returns true if a matching request was found and removed.
+	 */
+	removeTeamAssistantRequestByRequestId(requestId: string): boolean {
+		for (const [flightId, requests] of this.teamAssistantRequests.entries()) {
+			if (requests.some((request) => request.requestId === requestId)) {
+				this.removeTeamAssistantRequest(flightId, requestId);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Check if an aircraft has any team assistant requests.
 	 */
 	hasTeamAssistantRequests(flightId: string): boolean {
@@ -842,7 +929,7 @@ export default class AircraftStore {
 	 * by callSign, first half gets hasCPDLC = true, second half gets false.
 	 */
 	private reassignCPDLC(): void {
-		const sorted = [...this.aircrafts.values()].sort((a, b) =>
+		const sorted = [...this.aircrafts.values()].toSorted((a, b) =>
 			a.callSign.localeCompare(b.callSign),
 		);
 		const halfIndex = Math.ceil(sorted.length / 2);

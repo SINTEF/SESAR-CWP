@@ -56,9 +56,11 @@ export function useTaActions(
 			request.flightId,
 			request.requestId,
 		);
-		setTimeout(async () => {
+		setTimeout(() => {
 			onAccept?.();
-			await publishPilotRequestClear(request.flightId, request.requestId);
+			publishPilotRequestClear(request.flightId, request.requestId).catch(
+				() => {},
+			);
 		}, DATALINK_DELAY_MS);
 	};
 

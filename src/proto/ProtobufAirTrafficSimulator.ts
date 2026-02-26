@@ -1135,6 +1135,21 @@ export interface ExitFlightLevelMessage {
     exitFlightLevel: number; // The flight level at which the flight will exit the airspace.
 }
 /**
+ * A cleared flight level message
+ *
+ * @generated from protobuf message ProtobufAirTrafficSimulator.ClearedFlightLevelMessage
+ */
+export interface ClearedFlightLevelMessage {
+    /**
+     * @generated from protobuf field: string flight_id = 1
+     */
+    flightId: string; // The id of the flight.
+    /**
+     * @generated from protobuf field: int32 cleared_flight_level = 2
+     */
+    clearedFlightLevel: number; // The flight level that has been cleared by ATC.
+}
+/**
  * @generated from protobuf message ProtobufAirTrafficSimulator.AddAcceptedFlightMessage
  */
 export interface AddAcceptedFlightMessage {
@@ -5565,6 +5580,61 @@ class ExitFlightLevelMessage$Type extends MessageType<ExitFlightLevelMessage> {
  * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.ExitFlightLevelMessage
  */
 export const ExitFlightLevelMessage = new ExitFlightLevelMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ClearedFlightLevelMessage$Type extends MessageType<ClearedFlightLevelMessage> {
+    constructor() {
+        super("ProtobufAirTrafficSimulator.ClearedFlightLevelMessage", [
+            { no: 1, name: "flight_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "cleared_flight_level", kind: "scalar", T: 5 /*ScalarType.INT32*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ClearedFlightLevelMessage>): ClearedFlightLevelMessage {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.flightId = "";
+        message.clearedFlightLevel = 0;
+        if (value !== undefined)
+            reflectionMergePartial<ClearedFlightLevelMessage>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ClearedFlightLevelMessage): ClearedFlightLevelMessage {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string flight_id */ 1:
+                    message.flightId = reader.string();
+                    break;
+                case /* int32 cleared_flight_level */ 2:
+                    message.clearedFlightLevel = reader.int32();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ClearedFlightLevelMessage, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string flight_id = 1; */
+        if (message.flightId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.flightId);
+        /* int32 cleared_flight_level = 2; */
+        if (message.clearedFlightLevel !== 0)
+            writer.tag(2, WireType.Varint).int32(message.clearedFlightLevel);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ProtobufAirTrafficSimulator.ClearedFlightLevelMessage
+ */
+export const ClearedFlightLevelMessage = new ClearedFlightLevelMessage$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class AddAcceptedFlightMessage$Type extends MessageType<AddAcceptedFlightMessage> {
     constructor() {

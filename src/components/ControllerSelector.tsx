@@ -12,7 +12,6 @@ export default observer(function ControllerSelector({
 	onSelect,
 }: ControllerSelectorProps) {
 	const posthog = usePostHog();
-	const { setPseudoPilot } = cwpStore;
 	const [selectedCWP, setSelectedCWP] = React.useState<string>("");
 	const listOfControllers = roleConfigurationStore.listOfAllControllers;
 	const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
@@ -34,9 +33,9 @@ export default observer(function ControllerSelector({
 		const isPseudoPilot = pseudo === "PseudoPilot";
 
 		if (isPseudoPilot) {
-			setPseudoPilot(true);
+			cwpStore.setPseudoPilot(true);
 		} else {
-			setPseudoPilot(false);
+			cwpStore.setPseudoPilot(false);
 		}
 
 		const previousController = controller;
@@ -82,7 +81,7 @@ export default observer(function ControllerSelector({
 					<button
 						key={name}
 						onClick={() => handleSelect(name)}
-						className={`btn ${selectedCWP === name ? "btn-primary" : "btn-outline"}`}
+						className={`btn btn-info ${selectedCWP === name ? "btn-active" : ""}`}
 					>
 						{name}
 					</button>
@@ -96,7 +95,7 @@ export default observer(function ControllerSelector({
 						<button
 							key={name}
 							onClick={() => handleSelect(name)}
-							className={`btn ${selectedCWP === name ? "btn-primary" : "btn-outline"}`}
+							className={`btn btn-info ${selectedCWP === name ? "btn-active" : ""}`}
 						>
 							{name}
 						</button>
@@ -108,7 +107,7 @@ export default observer(function ControllerSelector({
 			<div className="flex flex-wrap gap-2">
 				<button
 					onClick={() => handleSelect("All")}
-					className={`btn ${selectedCWP === "All" ? "btn-primary" : "btn-outline"}`}
+					className={`btn btn-info ${selectedCWP === "All" ? "btn-active" : ""}`}
 				>
 					Master
 				</button>

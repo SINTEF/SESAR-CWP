@@ -5,24 +5,21 @@ import { cwpStore, distanceLineStore } from "../state";
 
 export default observer(function DistanceMeasurementDropdown() {
 	const posthog = usePostHog();
-	/* eslint-disable @typescript-eslint/unbound-method */
-	const { currentDistanceColor, setCurrentDistanceColor } = cwpStore;
-	const { removeColor } = distanceLineStore;
-	/* eslint-enable @typescript-eslint/unbound-method */
+	const { currentDistanceColor } = cwpStore;
 
 	const removeDistance = (): void => {
 		if (currentDistanceColor !== "") {
-			removeColor(currentDistanceColor);
+			distanceLineStore.removeColor(currentDistanceColor);
 			posthog?.capture("distance_measurement_removed", {
 				color: currentDistanceColor,
 				action: "cancel",
 			});
 		}
-		setCurrentDistanceColor("");
+		cwpStore.setCurrentDistanceColor("");
 	};
 
 	const selectDistanceColor = (color: string, name: string): void => {
-		setCurrentDistanceColor(color);
+		cwpStore.setCurrentDistanceColor(color);
 		posthog?.capture("distance_measurement_selected", {
 			color: color,
 			name: name,

@@ -65,7 +65,10 @@ function buildPredictedTrajectories(
 		});
 
 		// Add point at future position (last point of trajectory)
-		const futurePosition = trajectory[trajectory.length - 1];
+		const futurePosition = trajectory.at(-1);
+		if (!futurePosition) {
+			continue;
+		}
 		features.push({
 			type: "Feature",
 			geometry: {

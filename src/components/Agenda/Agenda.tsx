@@ -1,3 +1,4 @@
+import { reaction } from "mobx";
 import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -74,7 +75,7 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 	}
 
 	// Sort by bottomPx ascending (events closer to bottom/now first)
-	const sorted = [...events].sort((a, b) => a.bottomPx - b.bottomPx);
+	const sorted = events.toSorted((a, b) => a.bottomPx - b.bottomPx);
 	const result: PositionedEvent[] = [];
 
 	for (const event of sorted) {
@@ -99,6 +100,62 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 	}
 
 	return result;
+}
+
+/**
+ * Create a normalized key for an aircraft pair so (A,B) and (B,A) map to the same pair.
+ */
+function createAgendaPairKey(id1: string, id2: string): string {
+	return id1 < id2 ? `${id1}:${id2}` : `${id2}:${id1}`;
+}
+
+/**
+ * Rank MTCD conflict severity where higher number means more severe.
+ */
+function getMtcdSeverityRank(conflictType: number): number {
+	// 3 = severe, 4 = potential
+	if (conflictType === 3) {
+		return 2;
+	}
+	if (conflictType === 4) {
+		return 1;
+	}
+	return 0;
+}
+
+/**
+ * Returns true when candidate should replace current for display.
+ * Priority: severity desc, then earliest conflict time, then lowest conflict id.
+ */
+function shouldReplaceMtcdDisplayConflict(
+	current: {
+		conflictType: number;
+		conflictingFlightPosition?: { time?: { seconds: bigint | number } };
+		id: bigint | number;
+	},
+	candidate: {
+		conflictType: number;
+		conflictingFlightPosition?: { time?: { seconds: bigint | number } };
+		id: bigint | number;
+	},
+): boolean {
+	const currentSeverity = getMtcdSeverityRank(current.conflictType);
+	const candidateSeverity = getMtcdSeverityRank(candidate.conflictType);
+	if (candidateSeverity !== currentSeverity) {
+		return candidateSeverity > currentSeverity;
+	}
+
+	const currentTime = Number(
+		current.conflictingFlightPosition?.time?.seconds ?? 0,
+	);
+	const candidateTime = Number(
+		candidate.conflictingFlightPosition?.time?.seconds ?? 0,
+	);
+	if (candidateTime !== currentTime) {
+		return candidateTime < currentTime;
+	}
+
+	return Number(candidate.id) < Number(current.id);
 }
 
 // ============================================================================
@@ -135,18 +192,26 @@ export default observer(function Agenda({
 
 	// React to external scale requests (e.g., when a new datablock is created)
 	useEffect(() => {
-		const requestedMinutes = cwpStore.requestedAgendaScaleMinutes;
-		if (requestedMinutes !== null) {
-			// Find the smallest scale preset that includes this time
-			const requiredScale = SCALE_PRESETS.find(
-				(preset) => preset >= requestedMinutes,
-			);
-			if (requiredScale && requiredScale > scaleMinutes) {
-				cwpStore.setAgendaScaleMinutes(requiredScale);
-			}
-			cwpStore.clearRequestedAgendaScale();
-		}
-	}, [cwpStore.requestedAgendaScaleMinutes, scaleMinutes]);
+		const disposer = reaction(
+			() => cwpStore.requestedAgendaScaleMinutes,
+			(requestedMinutes) => {
+				if (requestedMinutes !== null) {
+					// Find the smallest scale preset that includes this time
+					const requiredScale = SCALE_PRESETS.find(
+						(preset) => preset >= requestedMinutes,
+					);
+					if (requiredScale && requiredScale > scaleMinutes) {
+						cwpStore.setAgendaScaleMinutes(requiredScale);
+					}
+					cwpStore.clearRequestedAgendaScale();
+				}
+			},
+		);
+
+		return () => {
+			disposer();
+		};
+	}, [scaleMinutes]);
 
 	// Measure container height
 	useEffect(() => {
@@ -193,13 +258,12 @@ export default observer(function Agenda({
 				// Reset accumulator after triggering
 				accumulatedDelta = 0;
 				const currentIndex = SCALE_PRESETS.indexOf(scaleMinutes);
-				let newScale = scaleMinutes;
-				if (direction > 0) {
-					newScale =
-						SCALE_PRESETS[Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)];
-				} else {
-					newScale = SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
-				}
+				const newScale =
+					direction > 0
+						? SCALE_PRESETS[
+								Math.min(currentIndex + 1, SCALE_PRESETS.length - 1)
+							]
+						: SCALE_PRESETS[Math.max(currentIndex - 1, 0)];
 
 				if (newScale !== scaleMinutes) {
 					posthog.capture("agenda_scale_changed", {
@@ -231,13 +295,38 @@ export default observer(function Agenda({
 	const pxPerMinute = effectiveHeight / scaleMinutes;
 
 	// Convert MTCD conflicts to timeline events
-	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictIds.entries())
-		.filter(
-			([, conflict]) =>
-				radarVisibleAircraftIds.has(conflict.flightId) &&
-				radarVisibleAircraftIds.has(conflict.conflictingFlightId),
-		)
-		.map(([id, conflict], index) => {
+	// Display-only de-duplication by aircraft pair: keep only highest severity
+	const mtcdConflictsByPair = new Map<
+		string,
+		typeof mtcdConflictIds extends Map<unknown, infer T> ? T : never
+	>();
+
+	for (const conflict of mtcdConflictIds.values()) {
+		if (!conflict.flightId || !conflict.conflictingFlightId) {
+			continue;
+		}
+
+		if (
+			!radarVisibleAircraftIds.has(conflict.flightId) ||
+			!radarVisibleAircraftIds.has(conflict.conflictingFlightId)
+		) {
+			continue;
+		}
+
+		const pairKey = createAgendaPairKey(
+			conflict.flightId,
+			conflict.conflictingFlightId,
+		);
+		const existing = mtcdConflictsByPair.get(pairKey);
+
+		if (!existing || shouldReplaceMtcdDisplayConflict(existing, conflict)) {
+			mtcdConflictsByPair.set(pairKey, conflict);
+		}
+	}
+
+	const mtcdEvents: TimelineEvent[] = [...mtcdConflictsByPair.entries()]
+		.filter(([, conflict]) => conflict.flightId && conflict.conflictingFlightId)
+		.map(([pairKey, conflict], index) => {
 			// Use actual conflict time if available, otherwise use placeholder
 			const conflictTime = conflict.conflictingFlightPosition?.time;
 			const conflictTimestamp = conflictTime
@@ -254,16 +343,16 @@ export default observer(function Agenda({
 					: ("severe" as const);
 
 			return {
-				id: id,
+				id: `mtcd-${pairKey}`,
 				startMin: minutesFromNow,
 				code:
-					conflict.conflictingFlightPosition?.altitude !== undefined
-						? String(
+					conflict.conflictingFlightPosition?.altitude === undefined
+						? undefined
+						: String(
 								convertMetersToFlightLevel(
 									conflict.conflictingFlightPosition.altitude,
 								),
-							)
-						: undefined,
+							),
 				labels: [conflict.callSign, conflict.conflictingFlightCallSign],
 				aircraftIds: [conflict.flightId, conflict.conflictingFlightId],
 				severity,
@@ -285,9 +374,9 @@ export default observer(function Agenda({
 
 			// Format separation distance for badge (convert NM to feet, format compactly)
 			const code =
-				db.closestSeparationNM !== null
-					? formatFeetCompact(convertNMToFeet(db.closestSeparationNM))
-					: undefined;
+				db.closestSeparationNM === null
+					? undefined
+					: formatFeetCompact(convertNMToFeet(db.closestSeparationNM));
 
 			return {
 				id: db.id,

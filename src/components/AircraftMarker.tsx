@@ -66,20 +66,20 @@ export default observer(function AircraftMarker(properties: {
 	} = properties.aircraft;
 	const {
 		hoveredMarkerAircraftId,
-		setHoveredMarkerAircraftId,
-		setFlightRouteForAircraft,
-		toggleSelectedAircraftId,
+		hoveredConflictAircraftIds,
 		selectedAircraftIds,
 	} = cwpStore;
 	const { isStillDragging } = useDragging();
-	const isHovered = hoveredMarkerAircraftId === aircraftId;
+	const isHovered =
+		hoveredMarkerAircraftId === aircraftId ||
+		hoveredConflictAircraftIds.has(aircraftId);
 	const history = positionHistory.slice(0, 8);
 	const isSelected = selectedAircraftIds.has(aircraftId);
 
 	const onClickOnAircraft = (): void => {
 		const wasSelected = selectedAircraftIds.has(aircraftId);
-		setFlightRouteForAircraft(aircraftId, true);
-		toggleSelectedAircraftId(aircraftId);
+		cwpStore.toggleFlightRouteForAircraft(aircraftId);
+		cwpStore.toggleSelectedAircraftId(aircraftId);
 		setCurrentAircraftId(aircraftId);
 
 		posthog?.capture("aircraft_clicked", {
@@ -98,8 +98,8 @@ export default observer(function AircraftMarker(properties: {
 		if (isStillDragging()) {
 			return;
 		}
-		setFlightRouteForAircraft(aircraftId, true);
-		setHoveredMarkerAircraftId(aircraftId);
+		cwpStore.setFlightRouteForAircraft(aircraftId, true);
+		cwpStore.setHoveredMarkerAircraftId(aircraftId);
 
 		posthog?.capture("aircraft_hover_start", {
 			aircraft_id: aircraftId,
@@ -208,9 +208,9 @@ export default observer(function AircraftMarker(properties: {
 				lat: properties.aircraft.lastKnownLatitude,
 				lon: properties.aircraft.lastKnownLongitude,
 			},
-			drag_distance: Math.sqrt(
-				(lng - properties.aircraft.lastKnownLongitude) ** 2 +
-					(lat - properties.aircraft.lastKnownLatitude) ** 2,
+			drag_distance: Math.hypot(
+				lng - properties.aircraft.lastKnownLongitude,
+				lat - properties.aircraft.lastKnownLatitude,
 			),
 		});
 	};
