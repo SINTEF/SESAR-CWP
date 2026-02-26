@@ -41,39 +41,33 @@ function runSimulationLogic(aircraft: AircraftModel): void {
 		nextSectorFL,
 		nextSectorController,
 		controlledBy,
-		setNextSectorController,
-		setAssignedBearing,
-		setAssignedFlightLevel,
-		setAssignedSpeed,
-		setLocalAssignedFlightLevel,
-		setNextSectorFL,
 	} = aircraft;
 
 	const stringAltitude = lastKnownAltitude.toFixed(0);
 	if (assignedFlightLevel === stringAltitude) {
-		setAssignedFlightLevel("FL.S");
+		aircraft.setAssignedFlightLevel("FL.S");
 		handlePublishPromise(persistAssignedFlightLevel(assignedFlightId, "FL.S"));
 	}
 	if (localAssignedFlightLevel === stringAltitude) {
-		setLocalAssignedFlightLevel("FL.S");
+		aircraft.setLocalAssignedFlightLevel("FL.S");
 		handlePublishPromise(persistAssignedFlightLevel(assignedFlightId, "FL.S"));
 	}
 	if (nextSectorFL === stringAltitude) {
-		setNextSectorFL("NSFL");
+		aircraft.setNextSectorFL("NSFL");
 		handlePublishPromise(
 			persistNextSectorFlightLevel(assignedFlightId, "NSFL"),
 		);
 	}
 	if (assignedBearing === Math.round(lastKnownBearing)) {
-		setAssignedBearing(-1);
+		aircraft.setAssignedBearing(-1);
 		handlePublishPromise(persistACCBearing(assignedFlightId, -1));
 	}
 	if (assignedSpeed === Math.round(lastKnownSpeed)) {
-		setAssignedSpeed(-1);
+		aircraft.setAssignedSpeed(-1);
 		handlePublishPromise(persistSpeedAircraft(assignedFlightId, -1));
 	}
 	if (nextSectorController === controlledBy) {
-		setNextSectorController("NS");
+		aircraft.setNextSectorController("NS");
 	}
 }
 

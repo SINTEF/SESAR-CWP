@@ -138,7 +138,7 @@ export default class RoleConfigurationStore {
 		cwpRole?.addTentativeAircraft(tentativeFlights);
 	}
 
-	findCurrentSectorByCWP(cwp: string, config: string): string | undefined {
+	findCurrentSectorByCWP(cwp: string, _config: string): string | undefined {
 		const listOfSectorIds = this.roleConfigurations.get(cwp)?.sectorToControl;
 		return listOfSectorIds && listOfSectorIds[0]; // This is changed and might need to be rearranged
 	}

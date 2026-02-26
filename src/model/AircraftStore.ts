@@ -210,8 +210,6 @@ export default class AircraftStore {
 		const { vehicleId } = targetReport;
 		const aircraft = this.aircrafts.get(vehicleId);
 		if (!aircraft) {
-			// eslint-disable-next-line no-console
-			// console.warn('Received target report for unknown aircraft', vehicleId);
 			return;
 		}
 		aircraft.handleTargetReport(targetReport);
@@ -901,6 +899,21 @@ export default class AircraftStore {
 		} else {
 			this.teamAssistantRequests.set(flightId, filtered);
 		}
+	}
+
+	/**
+	 * Remove a specific team assistant request by requestId, regardless of flight.
+	 * Returns true if a matching request was found and removed.
+	 */
+	removeTeamAssistantRequestByRequestId(requestId: string): boolean {
+		for (const [flightId, requests] of this.teamAssistantRequests.entries()) {
+			if (requests.some((request) => request.requestId === requestId)) {
+				this.removeTeamAssistantRequest(flightId, requestId);
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

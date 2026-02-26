@@ -27,6 +27,13 @@ import {
 	SimulatorTime,
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
+import {
+	FrontendManualAPMessageSchema,
+	ISAUpdateMessageSchema,
+	PilotRequestFinishedMessageSchema,
+	PilotRequestReplyMessageSchema,
+	WorkloadUpdateMessageSchema,
+} from "../schemas/mqttSubscriberSchemas";
 import { PilotRequestJsonSchema } from "../schemas/pilotRequestSchema";
 import {
 	adminStore,
@@ -414,9 +421,20 @@ export function pilotRequestJson(
 
 		const parsed = JSON.parse(jsonString);
 
-		// Handle reply messages sent back by the CWP itself (CLOSE, REFRESH)
-		// and "finished" acknowledgments — none of these contain request data
-		if (parsed.finished === true || parsed.reply !== undefined) {
+		// Handle reply messages sent back by the CWP itself and
+		// "finished" acknowledgments.
+		if (PilotRequestFinishedMessageSchema.safeParse(parsed).success) {
+			if (requestId) {
+				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+			}
+			return;
+		}
+
+		const parsedReply = PilotRequestReplyMessageSchema.safeParse(parsed);
+		if (parsedReply.success) {
+			if (parsedReply.data.reply === "CLOSE" && requestId) {
+				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+			}
 			return;
 		}
 
@@ -457,7 +475,9 @@ export function pilotRequestJson(
  */
 export function workloadUpdate(_parameters: unknown, message: Buffer): void {
 	try {
-		const parsed = JSON.parse(message.toString());
+		const parsed = WorkloadUpdateMessageSchema.parse(
+			JSON.parse(message.toString()),
+		);
 		const { workload, accuracy, timestamp } = parsed.params;
 		brainStore.updateAgentWorkload(workload, accuracy, timestamp);
 	} catch (error) {
@@ -483,7 +503,7 @@ export function workloadUpdate(_parameters: unknown, message: Buffer): void {
  */
 export function isaUpdate(_parameters: unknown, message: Buffer): void {
 	try {
-		const parsed = JSON.parse(message.toString());
+		const parsed = ISAUpdateMessageSchema.parse(JSON.parse(message.toString()));
 		const { ISA, timestamp } = parsed.params;
 		brainStore.updateISAWorkload(ISA, timestamp);
 	} catch (error) {
@@ -503,7 +523,7 @@ export function frontendManualAP(_parameters: unknown, message: Buffer): void {
 		if (raw.length === 0) {
 			return;
 		}
-		const value: number | null = JSON.parse(raw);
+		const value = FrontendManualAPMessageSchema.parse(JSON.parse(raw));
 		brainStore.setManualAP(value);
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
