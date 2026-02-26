@@ -419,7 +419,7 @@ export function pilotRequestJson(
 			return;
 		}
 
-		const parsed = JSON.parse(jsonString);
+		const parsed: unknown = JSON.parse(jsonString);
 
 		// Handle reply messages sent back by the CWP itself and
 		// "finished" acknowledgments.

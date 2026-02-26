@@ -137,7 +137,7 @@ export default class SectorStore {
 	}
 
 	get sectorList(): Sector[] {
-		return Array.from(this.sectors.values());
+		return [...this.sectors.values()];
 	}
 
 	get sectorIndex(): Flatbush | undefined {

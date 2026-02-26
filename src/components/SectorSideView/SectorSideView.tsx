@@ -66,15 +66,12 @@ export default observer(function SectorSideView() {
 	}));
 
 	const selectedAircraft =
-		flightRoutesData.length === 0
-			? undefined
-			: flightRoutesData[flightRoutesData.length - 1]; // For now just get the last one clicked, but in the future show several
+		flightRoutesData.length === 0 ? undefined : flightRoutesData.at(-1); // For now just get the last one clicked, but in the future show several
 
 	let labelIndex = 0;
 
 	const data = selectedAircraft?.trajectories
-		.slice() // copy to avoid mutating original
-		.sort((a, b) => a.timestamp - b.timestamp) // sort for alternating label to be correct
+		.toSorted((a, b) => a.timestamp - b.timestamp) // sort for alternating label to be correct
 		.map((t) => {
 			const label = t.wayPoint ?? "";
 			const item = {

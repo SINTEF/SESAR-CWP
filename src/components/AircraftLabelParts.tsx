@@ -107,7 +107,7 @@ export const VerticalSpeedIcon = observer(
 export const VerticalSpeed = observer(({ aircraft }: SubContentProperties) => {
 	const { lastKnownVerticalSpeed } = aircraft;
 	// convert m/s to ft/min and divide by 100
-	const verticalSpeedFpm = Math.round(lastKnownVerticalSpeed * 1.96850394);
+	const verticalSpeedFpm = Math.round(lastKnownVerticalSpeed * 1.968_503_94);
 	if (verticalSpeedFpm === 0) {
 		return <span>-</span>;
 	}

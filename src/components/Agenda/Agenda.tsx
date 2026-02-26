@@ -75,7 +75,7 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 	}
 
 	// Sort by bottomPx ascending (events closer to bottom/now first)
-	const sorted = [...events].sort((a, b) => a.bottomPx - b.bottomPx);
+	const sorted = events.toSorted((a, b) => a.bottomPx - b.bottomPx);
 	const result: PositionedEvent[] = [];
 
 	for (const event of sorted) {
@@ -324,7 +324,7 @@ export default observer(function Agenda({
 		}
 	}
 
-	const mtcdEvents: TimelineEvent[] = Array.from(mtcdConflictsByPair.entries())
+	const mtcdEvents: TimelineEvent[] = [...mtcdConflictsByPair.entries()]
 		.filter(([, conflict]) => conflict.flightId && conflict.conflictingFlightId)
 		.map(([pairKey, conflict], index) => {
 			// Use actual conflict time if available, otherwise use placeholder
@@ -346,13 +346,13 @@ export default observer(function Agenda({
 				id: `mtcd-${pairKey}`,
 				startMin: minutesFromNow,
 				code:
-					conflict.conflictingFlightPosition?.altitude !== undefined
-						? String(
+					conflict.conflictingFlightPosition?.altitude === undefined
+						? undefined
+						: String(
 								convertMetersToFlightLevel(
 									conflict.conflictingFlightPosition.altitude,
 								),
-							)
-						: undefined,
+							),
 				labels: [conflict.callSign, conflict.conflictingFlightCallSign],
 				aircraftIds: [conflict.flightId, conflict.conflictingFlightId],
 				severity,
@@ -374,9 +374,9 @@ export default observer(function Agenda({
 
 			// Format separation distance for badge (convert NM to feet, format compactly)
 			const code =
-				db.closestSeparationNM !== null
-					? formatFeetCompact(convertNMToFeet(db.closestSeparationNM))
-					: undefined;
+				db.closestSeparationNM === null
+					? undefined
+					: formatFeetCompact(convertNMToFeet(db.closestSeparationNM));
 
 			return {
 				id: db.id,

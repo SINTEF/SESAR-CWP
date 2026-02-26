@@ -50,7 +50,7 @@ function parseTimestamp(value: unknown): number | undefined {
  */
 function insertLogSorted(logs: LogEntry[], entry: LogEntry): void {
 	// Fast path: if empty or new entry is >= last entry, just append
-	if (logs.length === 0 || entry.timestamp >= logs[logs.length - 1].timestamp) {
+	if (logs.length === 0 || entry.timestamp >= (logs.at(-1)?.timestamp ?? 0)) {
 		logs.push(entry);
 		return;
 	}
@@ -173,7 +173,7 @@ export default class AdminStore {
 
 	handleLogMessage(jsonString: string): void {
 		try {
-			const parsed = JSON.parse(jsonString);
+			const parsed: unknown = JSON.parse(jsonString);
 			const parsedLog = AdminLogJsonSchema.safeParse(parsed);
 			// Handle different log formats - could be an object with message/level or just a string
 			if (parsedLog.success) {

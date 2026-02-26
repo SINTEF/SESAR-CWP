@@ -59,7 +59,7 @@ export function useTaActions(
 		setTimeout(() => {
 			onAccept?.();
 			publishPilotRequestClear(request.flightId, request.requestId).catch(
-				() => undefined,
+				() => {},
 			);
 		}, DATALINK_DELAY_MS);
 	};

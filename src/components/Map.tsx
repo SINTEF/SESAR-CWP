@@ -34,6 +34,7 @@ import ViewportPresetsControl from "./ViewportPresetsControl";
 
 // Do not load the RTL plugin because it is unnecessary
 // @ts-expect-error invalid type
+// eslint-disable-next-line unicorn/prefer-top-level-await
 maplibregl.setRTLTextPlugin("", () => {}, true).catch(() => {});
 
 const mapStyle: StyleSpecification = {
@@ -85,7 +86,12 @@ const createMapClickHandler =
 		const { currentDistanceColor } = cwpStore;
 		const coordinates = event.lngLat;
 
-		if (currentDistanceColor !== "") {
+		if (currentDistanceColor === "") {
+			posthog?.capture("map_clicked", {
+				position: { lat: coordinates.lat, lng: coordinates.lng },
+				context: "general_map_click",
+			});
+		} else {
 			distanceLineStore.newMarker({
 				lat: coordinates.lat,
 				lng: coordinates.lng,
@@ -104,11 +110,6 @@ const createMapClickHandler =
 			if (numberOfMarkersForColor >= 2) {
 				cwpStore.setCurrentDistanceColor("");
 			}
-		} else {
-			posthog?.capture("map_clicked", {
-				position: { lat: coordinates.lat, lng: coordinates.lng },
-				context: "general_map_click",
-			});
 		}
 	};
 
@@ -129,7 +130,7 @@ const createMapRightClickHandler =
 const initialViewState: Partial<ViewState> = {
 	longitude: 7,
 	latitude: 44,
-	zoom: 7.0,
+	zoom: 7,
 };
 
 // Rough bounds of the area

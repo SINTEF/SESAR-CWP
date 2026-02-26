@@ -31,8 +31,8 @@ export function getRouteAheadTrajectory({
 	const passedObjectId = aircraft.lastPassedMilestoneObjectId;
 
 	if (passedObjectId) {
-		for (let index = 0; index < trajectories.length; index++) {
-			if (trajectories[index].objectId === passedObjectId) {
+		for (const [index, trajectory] of trajectories.entries()) {
+			if (trajectory.objectId === passedObjectId) {
 				startIndex = index + 1;
 			}
 		}
@@ -47,7 +47,7 @@ export function getRouteAheadTrajectory({
 		(trajectory) => trajectory.timestamp >= currentTime,
 	);
 
-	if (firstFutureIndex >= 0) {
+	if (firstFutureIndex !== -1) {
 		return candidateTrajectory.slice(firstFutureIndex);
 	}
 

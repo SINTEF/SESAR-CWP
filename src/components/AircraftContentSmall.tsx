@@ -42,11 +42,7 @@ export default observer(function AircraftContentSmall(properties: {
 		const normalizedDiff = Math.min(bearingDifference, 360 - bearingDifference);
 		const isBearingChanging = normalizedDiff > 2;
 
-		if (!isBearingChanging) {
-			return null;
-		} else {
-			return <AssignedBearing aircraft={aircraft} />;
-		}
+		return isBearingChanging ? <AssignedBearing aircraft={aircraft} /> : null;
 	};
 
 	return (

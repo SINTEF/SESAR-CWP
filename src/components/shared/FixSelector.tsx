@@ -186,7 +186,7 @@ export default function FixSelector({
 				type="button"
 				onClick={scrollUp}
 				disabled={!canScrollUp}
-				className={`btn btn-ghost btn-xs text-xs ${!canScrollUp ? "opacity-30" : ""}`}
+				className={`btn btn-ghost btn-xs text-xs ${canScrollUp ? "" : "opacity-30"}`}
 			>
 				▲
 			</button>
@@ -229,7 +229,7 @@ export default function FixSelector({
 				type="button"
 				onClick={scrollDown}
 				disabled={!canScrollDown}
-				className={`btn btn-ghost btn-xs text-xs ${!canScrollDown ? "opacity-30" : ""}`}
+				className={`btn btn-ghost btn-xs text-xs ${canScrollDown ? "" : "opacity-30"}`}
 			>
 				▼
 			</button>

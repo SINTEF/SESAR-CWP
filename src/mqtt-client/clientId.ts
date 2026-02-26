@@ -1,5 +1,5 @@
 function sanitizeClientId(clientId: string): string {
-	return clientId.replace(/[^\dA-Za-z]/g, "");
+	return clientId.replaceAll(/[^\dA-Za-z]/g, "");
 }
 
 function retrieveClientId(): string {

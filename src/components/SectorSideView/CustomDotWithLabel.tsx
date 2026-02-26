@@ -13,7 +13,12 @@ const PADDING_X = 4; // Horizontal padding inside bg rect
 const PADDING_Y = 2; // Vertical padding inside bg rect
 
 const CustomDotWithLabel: React.FC<Props> = ({ cx, cy, payload }) => {
-	if (cx == null || cy == null || !payload?.label || !payload?.labelIndex) {
+	if (
+		cx === undefined ||
+		cy === undefined ||
+		!payload?.label ||
+		!payload?.labelIndex
+	) {
 		return null;
 	}
 

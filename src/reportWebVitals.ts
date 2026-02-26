@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/react";
 import type { Metric } from "web-vitals";
 
 const reportWebVitals = (onPerfEntry?: (metric: Metric) => void): void => {
-	if (onPerfEntry && onPerfEntry instanceof Function) {
+	if (onPerfEntry && typeof onPerfEntry === "function") {
 		import("web-vitals")
 			.then(({ onCLS, onINP, onFCP, onLCP, onTTFB }) => {
 				onCLS(onPerfEntry);

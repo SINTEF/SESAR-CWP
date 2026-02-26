@@ -253,7 +253,7 @@ export default class CWPStore {
 	}
 
 	private hydrateDisplaySettingsFromLocalStorage(): void {
-		if (typeof window === "undefined") {
+		if (window.window === undefined) {
 			return;
 		}
 
@@ -305,7 +305,7 @@ export default class CWPStore {
 	}
 
 	private setupDisplaySettingsPersistence(): void {
-		if (typeof window === "undefined") {
+		if (window.window === undefined) {
 			return;
 		}
 

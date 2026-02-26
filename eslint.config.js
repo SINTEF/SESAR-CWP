@@ -26,7 +26,7 @@ export default defineConfig([
 		]
 	},
 	js.configs.recommended,
-  //unicorn.configs.recommended,
+  unicorn.configs.recommended,
 	...tseslint.configs.recommendedTypeCheckedOnly,
 	{
 		files: ["**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}"],
@@ -43,7 +43,6 @@ export default defineConfig([
 		},
 		rules: {
 			...reactHooks.configs.recommended.rules,
-			//"react-hooks/immutability": "off",
 			"@typescript-eslint/unbound-method": "error",
       // broken
 			"no-unused-vars": "off",
@@ -67,25 +66,19 @@ export default defineConfig([
 					}
 				}
 			],
-			/*"react-refresh/only-export-components": "warn",
-			"react-hooks/immutability": "off",
-			"unicorn/better-regex": "error",
-			"unicorn/no-array-callback-reference": "error",
-			"unicorn/no-invalid-fetch-options": "error",
-			"unicorn/no-new-buffer": "error",
-			"@typescript-eslint/no-explicit-any": "error",
-			"@typescript-eslint/no-empty-object-type": "error",
-			"@typescript-eslint/unbound-method": "error",
-			"@typescript-eslint/no-floating-promises": "error",
-			"@typescript-eslint/no-misused-promises": [
-				"error",
-				{
-					checksVoidReturn: {
-						attributes: false
-					}
-				}
-			],*/
-			"no-console": "off"
+			"no-console": "off",
+      // unicorn is very opiniated and we disable a lot
+      "unicorn/prevent-abbreviations": "off",
+      "unicorn/filename-case": "off",
+      "unicorn/switch-case-braces": "off",
+      "unicorn/prefer-global-this": "off",
+      "unicorn/no-zero-fractions": "off",
+      "unicorn/consistent-function-scoping": "off",
+      // I do like this one but it's too late
+      "unicorn/no-null": "off",
+      // incompatible with biome
+      "unicorn/number-literal-case": "off",
+      "unicorn/no-nested-ternary": "off"
 		}
 	},
 	{

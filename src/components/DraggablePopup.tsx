@@ -123,9 +123,9 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 				name: trackingName,
 				start_position: dragStartPosition,
 				end_position: { x: offsetX, y: offsetY },
-				distance_moved: Math.sqrt(
-					(offsetX - dragStartPosition.x) ** 2 +
-						(offsetY - dragStartPosition.y) ** 2,
+				distance_moved: Math.hypot(
+					offsetX - dragStartPosition.x,
+					offsetY - dragStartPosition.y,
 				),
 			});
 		}
@@ -191,9 +191,7 @@ export default function DraggablePopup(props: DraggablePopupProperties) {
 		adjustedLineX += coreWidth;
 	}
 
-	const lineLength = Math.sqrt(
-		adjustedLineX * adjustedLineX + adjustedLineY * adjustedLineY,
-	);
+	const lineLength = Math.hypot(adjustedLineX, adjustedLineY);
 	const lineAngle = Math.atan2(adjustedLineY, adjustedLineX);
 
 	// Compute start offset along the line direction

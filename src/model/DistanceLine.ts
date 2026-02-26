@@ -90,10 +90,10 @@ export default class DistanceLine {
 		for (const marker of markers) {
 			const { colour } = marker;
 			const markersForColor = markersByColors.get(colour);
-			if (!markersForColor) {
-				markersByColors.set(colour, [marker]);
-			} else {
+			if (markersForColor) {
 				markersForColor.push(marker);
+			} else {
+				markersByColors.set(colour, [marker]);
 			}
 		}
 
@@ -132,22 +132,36 @@ export default class DistanceLine {
 		const lines = this.measureLines;
 		return {
 			type: "FeatureCollection",
-			features: lines.features.map((line) => {
-				const { color, length } = line.properties;
-				const lastCoordinates =
-					line.geometry.coordinates[line.geometry.coordinates.length - 1];
-				return {
-					type: "Feature",
-					properties: {
-						color,
-						length,
-					},
-					geometry: {
-						type: "Point",
-						coordinates: lastCoordinates,
-					},
-				};
-			}),
+			features: lines.features
+				.map((line) => {
+					const { color, length } = line.properties;
+					const lastCoordinates = line.geometry.coordinates.at(-1);
+					if (!lastCoordinates) {
+						return null;
+					}
+					return {
+						type: "Feature",
+						properties: {
+							color,
+							length,
+						},
+						geometry: {
+							type: "Point",
+							coordinates: lastCoordinates,
+						},
+					};
+				})
+				.filter(
+					(
+						feature,
+					): feature is GeoJSON.Feature<
+						GeoJSON.Point,
+						{
+							color: string;
+							length: string;
+						}
+					> => feature !== null,
+				),
 		};
 	}
 }

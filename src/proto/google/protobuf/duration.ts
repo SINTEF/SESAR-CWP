@@ -182,7 +182,7 @@ class Duration$Type extends MessageType<Duration> {
         return target;
     }
     create(value?: PartialMessage<Duration>): Duration {
-        const message = globalThis.Object.create((this.messagePrototype!));
+        const message = window.Object.create((this.messagePrototype!));
         message.seconds = 0n;
         message.nanos = 0;
         if (value !== undefined)
@@ -203,7 +203,7 @@ class Duration$Type extends MessageType<Duration> {
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                        throw new window.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
                     let d = reader.skip(wireType);
                     if (u !== false)
                         (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);

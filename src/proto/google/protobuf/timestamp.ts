@@ -230,7 +230,7 @@ class Timestamp$Type extends MessageType<Timestamp> {
         if (Number.isNaN(ms))
             throw new Error("Unable to parse Timestamp from JSON. Invalid value.");
         if (ms < Date.parse("0001-01-01T00:00:00Z") || ms > Date.parse("9999-12-31T23:59:59Z"))
-            throw new globalThis.Error("Unable to parse Timestamp from JSON. Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.");
+            throw new window.Error("Unable to parse Timestamp from JSON. Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.");
         if (!target)
             target = this.create();
         target.seconds = PbLong.from(ms / 1000).toBigInt();
@@ -240,7 +240,7 @@ class Timestamp$Type extends MessageType<Timestamp> {
         return target;
     }
     create(value?: PartialMessage<Timestamp>): Timestamp {
-        const message = globalThis.Object.create((this.messagePrototype!));
+        const message = window.Object.create((this.messagePrototype!));
         message.seconds = 0n;
         message.nanos = 0;
         if (value !== undefined)
@@ -261,7 +261,7 @@ class Timestamp$Type extends MessageType<Timestamp> {
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                        throw new window.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
                     let d = reader.skip(wireType);
                     if (u !== false)
                         (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);

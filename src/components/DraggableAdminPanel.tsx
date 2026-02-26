@@ -29,7 +29,7 @@ export default observer(function DraggableAdminPanel() {
 	const tabGroupName = useId();
 	const { startDragging, stopDragging } = useDragging();
 	const [activeTab, setActiveTab] = useState<AdminPanelTab>(() => {
-		if (typeof window === "undefined") {
+		if (window.window === undefined) {
 			return "logs";
 		}
 

@@ -39,7 +39,7 @@ export default class BrainStore {
 	requestArrivalTimes: number[] = [];
 
 	// Configurable gamma weight for urgency
-	gamma = 1.0;
+	gamma = 1;
 
 	constructor() {
 		makeAutoObservable<this, "_timerInterval">(this, {
@@ -75,7 +75,7 @@ export default class BrainStore {
 	// ========== Computed Properties ==========
 
 	get numberOfAssumedFlights(): number {
-		return Array.from(aircraftStore.aircrafts.values()).filter(
+		return [...aircraftStore.aircrafts.values()].filter(
 			(ac) => ac.degreased === true,
 		).length;
 	}

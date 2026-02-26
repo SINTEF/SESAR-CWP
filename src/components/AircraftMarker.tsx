@@ -208,9 +208,9 @@ export default observer(function AircraftMarker(properties: {
 				lat: properties.aircraft.lastKnownLatitude,
 				lon: properties.aircraft.lastKnownLongitude,
 			},
-			drag_distance: Math.sqrt(
-				(lng - properties.aircraft.lastKnownLongitude) ** 2 +
-					(lat - properties.aircraft.lastKnownLatitude) ** 2,
+			drag_distance: Math.hypot(
+				lng - properties.aircraft.lastKnownLongitude,
+				lat - properties.aircraft.lastKnownLatitude,
 			),
 		});
 	};

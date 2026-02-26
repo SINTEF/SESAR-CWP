@@ -399,8 +399,8 @@ export default class AircraftModel {
 
 		let startIndex = 0;
 		if (this.lastPassedMilestoneObjectId) {
-			for (let i = 0; i < trajectories.length; i++) {
-				if (trajectories[i].objectId === this.lastPassedMilestoneObjectId) {
+			for (const [i, trajectory] of trajectories.entries()) {
+				if (trajectory.objectId === this.lastPassedMilestoneObjectId) {
 					startIndex = i + 1;
 				}
 			}
@@ -473,9 +473,7 @@ export default class AircraftModel {
 
 		const trajectories = flightRoute.trajectory;
 
-		const entryIndex = trajectories.findIndex(
-			(trajectory) => trajectory === info.trajectoryPoint,
-		);
+		const entryIndex = trajectories.indexOf(info.trajectoryPoint);
 		if (entryIndex === -1) {
 			return undefined;
 		}
@@ -506,7 +504,7 @@ export default class AircraftModel {
 			if (altitude !== undefined && altitude > 0) {
 				// Convert meters to flight level (altitude in meters -> feet / 100)
 				// Then divide by 10 for display per app specifications
-				const flightLevel = (altitude * 3.28084) / 100;
+				const flightLevel = (altitude * 3.280_84) / 100;
 				return Math.round(flightLevel / 10).toString();
 			}
 		}

@@ -20,7 +20,7 @@ const VIEWPORT_PRESETS: {
 		label: "1",
 		title: "Vue 1",
 		center: [7, 44],
-		span: 3.0, // ~3° around center (overview)
+		span: 3, // ~3° around center (overview)
 	},
 	{
 		id: 2,
@@ -34,7 +34,7 @@ const VIEWPORT_PRESETS: {
 		label: "3",
 		title: "Vue 3",
 		center: [6.75, 44.125],
-		span: 1.0, // ~1° around center (close-up)
+		span: 1, // ~1° around center (close-up)
 	},
 ];
 
