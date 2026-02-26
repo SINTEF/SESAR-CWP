@@ -166,14 +166,14 @@ export default observer(function DypTable(/* properties */) {
 								colSpan={2}
 								className="text-center px-1 py-1.5 border border-slate-700"
 							>
-								{latestSelectedAircraftData?.lastKnownAltitude ?? "350"} - ---
+								{latestSelectedAircraftData?.lastKnownAltitude ?? "---"} - ---
 							</td>
 							<td
 								rowSpan={3}
 								className="font-bold text-white align-middle px-1 py-1.5 border border-slate-700 border-xl"
 							>
-								{latestSelectedAircraftData?.departureAirport || "UUEE"} →{" "}
-								{latestSelectedAircraftData?.arrivalAirport || "LEBL"}
+								{latestSelectedAircraftData?.departureAirport || "----"} →{" "}
+								{latestSelectedAircraftData?.arrivalAirport || "----"}
 							</td>
 							{latestSelectedTrajectory[0]?.trajectories
 								.slice(0, 7)

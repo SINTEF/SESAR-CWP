@@ -3,25 +3,19 @@ import type { FrequenciesMessage } from "../proto/ProtobufAirTrafficSimulator";
 import type AircraftModel from "./AircraftModel";
 import type SectorStore from "./SectorStore";
 
-/** Represents a sector frequency mapping */
-export interface SectorFrequency {
-	sectorId: string;
-	frequency: number; // Radio frequency in MHz
-}
-
 /**
  * Store for sector frequencies received from the simulator.
  * Maps sector identifiers to their radio frequencies.
  */
 export default class FrequenciesStore {
 	/** All sector frequencies */
-	frequencies: SectorFrequency[] = [];
+	frequencies: Map<string, number> = new Map();
 
 	constructor() {
 		makeAutoObservable(
 			this,
 			{
-				frequencies: observable.shallow,
+				frequencies: observable.ref,
 			},
 			{ autoBind: true },
 		);
@@ -29,15 +23,23 @@ export default class FrequenciesStore {
 
 	/** Handle incoming frequencies message from MQTT */
 	handleFrequenciesMessage(message: FrequenciesMessage): void {
-		this.frequencies = message.frequencies.map((entry) => ({
-			sectorId: entry.sectorId,
-			frequency: entry.frequency,
-		}));
+		const frequencies = new Map<string, number>();
+
+		for (const entry of message.frequencies) {
+			frequencies.set(entry.sectorId, entry.frequency);
+
+			if (/^[A-Z][0-9]$/.test(entry.sectorId)) {
+				const mirroredSectorId = `${entry.sectorId[1]}${entry.sectorId[0]}`;
+				frequencies.set(mirroredSectorId, entry.frequency);
+			}
+		}
+
+		this.frequencies = frequencies;
 	}
 
 	/** Get frequency for a specific sector */
 	getFrequencyForSector(sectorId: string): number | undefined {
-		return this.frequencies.find((f) => f.sectorId === sectorId)?.frequency;
+		return this.frequencies.get(sectorId);
 	}
 
 	/**
@@ -53,11 +55,33 @@ export default class FrequenciesStore {
 		const currentSector = sectorStore.findSector(
 			aircraft.lastKnownLongitude,
 			aircraft.lastKnownLatitude,
+			aircraft.lastKnownAltitude,
 		);
 		if (!currentSector) {
 			return undefined;
 		}
-		return this.getFrequencyForSector(currentSector.sectorId);
+		const bestSectorFrequency = this.getFrequencyForSector(
+			currentSector.sectorId,
+		);
+		if (bestSectorFrequency !== undefined) {
+			return bestSectorFrequency;
+		}
+		// fallback, just try all sectors until we find one with a frequency
+		const allSectors = sectorStore.findSectors(
+			aircraft.lastKnownLongitude,
+			aircraft.lastKnownLatitude,
+			aircraft.lastKnownAltitude,
+		);
+		if (!allSectors) {
+			return undefined;
+		}
+		for (const sector of allSectors) {
+			const frequency = this.getFrequencyForSector(sector.sectorId);
+			if (frequency !== undefined) {
+				return frequency;
+			}
+		}
+		return undefined;
 	}
 
 	/**
@@ -71,6 +95,6 @@ export default class FrequenciesStore {
 
 	/** Check if there are any frequencies available */
 	get hasFrequencies(): boolean {
-		return this.frequencies.length > 0;
+		return this.frequencies.size > 0;
 	}
 }
