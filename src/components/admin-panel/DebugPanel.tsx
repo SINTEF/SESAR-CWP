@@ -1,6 +1,10 @@
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
+import {
+	handlePublishPromise,
+	publishFrontendForceRefresh,
+} from "../../mqtt-client/publishers";
 import { adminStore } from "../../state";
 import BuildInfoStatusBar from "../BuildInfoStatusBar";
 
@@ -18,19 +22,30 @@ export default observer(function DebugPanel() {
 		setCatImageUrl(createCatImageUrl());
 	};
 
+	const handleForceRefreshAllPages = () => {
+		handlePublishPromise(publishFrontendForceRefresh());
+	};
+
 	return (
 		<div className="bg-base-200 p-4 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h3 className="font-semibold text-base-content">Debug</h3>
 			</div>
 
-			<div className="rounded-md bg-base-100 p-3 text-sm space-y-3">
+			<div className="rounded-md bg-base-100 p-3 text-sm flex flex-row items-left justify-left gap-2">
 				<button
 					type="button"
 					className="btn btn-sm btn-warning"
 					onClick={handleCaptureSentryError}
 				>
-					Send Fake Sentry Error
+					Trigger Fake Error
+				</button>
+				<button
+					type="button"
+					className="btn btn-sm btn-error"
+					onClick={handleForceRefreshAllPages}
+				>
+					Refresh All!
 				</button>
 			</div>
 
