@@ -6,6 +6,7 @@ import type AircraftModel from "../model/AircraftModel";
 import { setCurrentAircraftId } from "../model/CurrentAircraft";
 import {
 	cwpStore,
+	mapViewportStore,
 	roleConfigurationStore,
 	trajectoryPredictionStore,
 } from "../state";
@@ -95,7 +96,7 @@ export default observer(function AircraftMarker(properties: {
 	};
 
 	const onHoverOnAircraft = (): void => {
-		if (isStillDragging()) {
+		if (isStillDragging() || mapViewportStore.isMoving) {
 			return;
 		}
 		cwpStore.setFlightRouteForAircraft(aircraftId, true);
