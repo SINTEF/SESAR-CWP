@@ -1,10 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { ObservableMap } from "mobx";
 import { makeAutoObservable, observable, reaction } from "mobx";
-import {
-	handlePublishPromise,
-	publishPilotRequestRefresh,
-} from "../mqtt-client/publishers";
 import type {
 	ClearedFlightLevelMessage,
 	ExitFlightLevelMessage,
@@ -106,16 +102,6 @@ export default class AircraftStore {
 		observable.map(undefined, {
 			deep: false,
 		});
-
-	/**
-	 * Track refresh timers for pilot requests.
-	 * Key is requestId, value is the timeout handle.
-	 * Used to send REFRESH call 30 seconds after request arrives.
-	 */
-	private pilotRequestRefreshTimers: Map<
-		string,
-		ReturnType<typeof setTimeout>
-	> = new Map();
 
 	/**
 	 * Tombstones for request IDs explicitly closed by the user/workflow.
@@ -854,39 +840,9 @@ export default class AircraftStore {
 
 			// Track arrival for "last 5 min" count (survives accept/dismiss)
 			this.brainStore.recordRequestArrival();
-
-			// Schedule REFRESH call 30 seconds after new request arrives
-			this.scheduleRefreshTimer(requestId);
 		} else {
 			existingRequests[existingIndex] = teamAssistantRequest;
 			this.teamAssistantRequests.set(flightId, [...existingRequests]);
-		}
-	}
-
-	/**
-	 * Schedule a REFRESH call to be sent 30 seconds after a pilot request arrives.
-	 * Clears any existing timer for the same requestId.
-	 */
-	private scheduleRefreshTimer(requestId: string): void {
-		// Clear existing timer if any
-		this.clearRefreshTimer(requestId);
-
-		const timer = setTimeout(() => {
-			handlePublishPromise(publishPilotRequestRefresh(requestId));
-			this.pilotRequestRefreshTimers.delete(requestId);
-		}, 120_000); // 120 seconds (2 minutes)
-
-		this.pilotRequestRefreshTimers.set(requestId, timer);
-	}
-
-	/**
-	 * Clear a refresh timer for a specific requestId.
-	 */
-	private clearRefreshTimer(requestId: string): void {
-		const existingTimer = this.pilotRequestRefreshTimers.get(requestId);
-		if (existingTimer) {
-			clearTimeout(existingTimer);
-			this.pilotRequestRefreshTimers.delete(requestId);
 		}
 	}
 
@@ -896,18 +852,14 @@ export default class AircraftStore {
 	 */
 	removeTeamAssistantRequest(flightId: string, requestId?: string): void {
 		if (!requestId) {
-			// Clear all timers for this flight's requests
 			const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
 			for (const req of existingRequests) {
-				this.clearRefreshTimer(req.requestId);
 				this.closedTeamAssistantRequestIds.add(req.requestId);
 			}
 			this.teamAssistantRequests.delete(flightId);
 			return;
 		}
 
-		// Clear timer for the specific request being removed
-		this.clearRefreshTimer(requestId);
 		this.closedTeamAssistantRequestIds.add(requestId);
 
 		const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
