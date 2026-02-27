@@ -1,6 +1,5 @@
-import { reaction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
 	fastForwardSimulator,
@@ -9,7 +8,6 @@ import {
 	restartSimulator,
 	startSimulator,
 } from "../../mqtt-client/publishers";
-import { adminStore } from "../../state";
 
 const AdminControlButtons = observer(function AdminControlButtons() {
 	const [ffwMinutes, setFfwMinutes] = useState(5);
@@ -26,23 +24,7 @@ const AdminControlButtons = observer(function AdminControlButtons() {
 		handlePublishPromise(fastForwardSimulator(ffwMinutes));
 	};
 
-	useEffect(() => {
-		const disposer = reaction(
-			() => adminStore.simulationRestarted,
-			(simulationRestarted) => {
-				if (simulationRestarted) {
-					window.location.reload();
-				}
-			},
-		);
-
-		return () => {
-			disposer();
-		};
-	}, []);
-
 	const handleRestart = () => {
-		adminStore.expectRestart();
 		handlePublishPromise(restartSimulator());
 	};
 

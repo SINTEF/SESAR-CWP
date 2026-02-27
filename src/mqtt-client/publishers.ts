@@ -297,21 +297,6 @@ export async function publishPilotRequestClear(
 }
 
 /**
- * Send a REFRESH call for a pilot request.
- * This is sent 30 seconds after the request arrives to request updated data.
- */
-export async function publishPilotRequestRefresh(
-	requestId: string,
-): Promise<void> {
-	const jsonRequest = { reply: "REFRESH" };
-	await publish(
-		`IIS/${clientId}/PilotRequest/${requestId}`,
-		JSON.stringify(jsonRequest),
-		{ retain: true },
-	);
-}
-
-/**
  * Publish a pilot request message as JSON to the IIS topic.
  * The message will be received back via the MQTT subscriber and added to the store.
  *
