@@ -18,6 +18,7 @@ import {
 	frontendAssignedFlightLevel,
 	frontendFlightController,
 	frontendFlightHidden,
+	frontendForceRefresh,
 	frontendLocalAssignedFlightLevel,
 	frontendManualAP,
 	frontendNextSectorFlightLevel,
@@ -102,6 +103,7 @@ const router = rlite<Buffer>(notFound, {
 	"frontend/:clientId/flight/:flightId/localAssignedFL":
 		frontendLocalAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/hidden": frontendFlightHidden,
+	"frontend/:clientId/commands/force-refresh": frontendForceRefresh,
 	"ats/:clientId/status/presence/:sessionUuid": simulatorPresenceStatus,
 	"frontend/:clientId/brain/manualAP": frontendManualAP,
 	"IIS/:clientId/PilotRequest": pilotRequestJson,

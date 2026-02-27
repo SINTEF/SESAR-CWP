@@ -271,6 +271,16 @@ export async function persistManualAP(value: number | null): Promise<void> {
 }
 
 /**
+ * Request all open frontends sharing this clientId to perform a cache-busting reload.
+ */
+export async function publishFrontendForceRefresh(): Promise<void> {
+	await publish(
+		`frontend/${clientId}/commands/force-refresh`,
+		Date.now().toString(),
+	);
+}
+
+/**
  * Clear a pilot request retained message.
  * Publishing an empty retained message clears the retained message on the broker.
  */

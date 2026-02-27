@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { PilotRequestType } from "../schemas/pilotRequestSchema";
-import { aircraftStore } from "../state";
+import { aircraftStore, configurationStore } from "../state";
 
 /**
  * BrainStore - Team Assistant Brain
@@ -75,8 +75,13 @@ export default class BrainStore {
 	// ========== Computed Properties ==========
 
 	get numberOfAssumedFlights(): number {
+		const currentCWP = configurationStore.currentCWP;
+		if (!currentCWP) {
+			return 0;
+		}
+
 		return [...aircraftStore.aircrafts.values()].filter(
-			(ac) => ac.degreased === true,
+			(ac) => ac.controlledBy === currentCWP,
 		).length;
 	}
 

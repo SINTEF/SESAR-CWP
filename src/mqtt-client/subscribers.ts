@@ -536,3 +536,41 @@ export function frontendManualAP(_parameters: unknown, message: Buffer): void {
 		console.error("Error parsing manualAP message:", error);
 	}
 }
+
+async function forceRefreshWithoutCache(): Promise<void> {
+	try {
+		if ("serviceWorker" in navigator) {
+			const registrations = await navigator.serviceWorker.getRegistrations();
+			await Promise.all(
+				registrations.map((registration) => registration.unregister()),
+			);
+		}
+
+		if ("caches" in window) {
+			const cacheKeys = await caches.keys();
+			await Promise.all(cacheKeys.map((cacheKey) => caches.delete(cacheKey)));
+		}
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: best-effort cleanup before refresh
+		console.error(
+			"Failed to clear browser caches before force refresh:",
+			error,
+		);
+	}
+
+	const refreshedUrl = new URL(window.location.href);
+	refreshedUrl.searchParams.set("_fr", Date.now().toString());
+	window.location.replace(refreshedUrl.toString());
+}
+
+/**
+ * Handle force-refresh command from MQTT topic frontend/{clientId}/commands/force-refresh.
+ * Performs a cache-busting reload on all open pages for the same clientId.
+ */
+export function frontendForceRefresh(): void {
+	forceRefreshWithoutCache().catch((error) => {
+		// biome-ignore lint/suspicious/noConsole: error logging
+		console.error("Failed to execute force refresh:", error);
+		Sentry.captureException(error);
+	});
+}

@@ -76,6 +76,8 @@ export default observer(function AircraftLevelPopup(properties: {
 		callSign,
 		controlledBy,
 		nextACCFL,
+		nextSectorFL,
+		assignedFlightLevel,
 		// setLocalAssignedFlightLevel,
 	} = properties.aircraft;
 
@@ -83,11 +85,45 @@ export default observer(function AircraftLevelPopup(properties: {
 	const { currentControlledSector } = roleConfigurationStore;
 
 	const currentAircraftLevel = Math.round(altitude / 10) * 10;
-	// Use nextACCFL as the default level if it's a number, otherwise use the aircraft altitude
-	const getDefaultLevel = (): number => {
-		if (/^\d+$/.test(nextACCFL)) {
-			return Math.round(Number.parseInt(nextACCFL) / 10) * 10;
+
+	const parseLevel = (value: string, multiplier: 1 | 10 = 1): number | null => {
+		if (!/^\d+$/.test(value)) {
+			return null;
 		}
+
+		return Math.round((Number.parseInt(value, 10) * multiplier) / 10) * 10;
+	};
+
+	const activeMode: "next_sector_fl" | "next_acc_fl" | "assigned_fl" =
+		cwpStore.nextSectorFlActivated
+			? "next_sector_fl"
+			: cwpStore.flightLevelNextAccActivated
+				? "next_acc_fl"
+				: "assigned_fl";
+
+	// Set selected level from the value being edited in the current popup mode.
+	const getDefaultLevel = (): number => {
+		if (activeMode === "next_sector_fl") {
+			const parsedNextSectorFL = parseLevel(nextSectorFL, 10);
+			if (parsedNextSectorFL !== null) {
+				return parsedNextSectorFL;
+			}
+		}
+
+		if (activeMode === "next_acc_fl") {
+			const parsedNextACCFL = parseLevel(nextACCFL);
+			if (parsedNextACCFL !== null) {
+				return parsedNextACCFL;
+			}
+		}
+
+		if (activeMode === "assigned_fl") {
+			const parsedAssignedFL = parseLevel(assignedFlightLevel);
+			if (parsedAssignedFL !== null) {
+				return parsedAssignedFL;
+			}
+		}
+
 		return currentAircraftLevel;
 	};
 	const defaultLevel = getDefaultLevel();
