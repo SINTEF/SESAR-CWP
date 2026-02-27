@@ -1,6 +1,7 @@
 import rlite from "rlite-router";
 
 import {
+	airblocks,
 	airspaceAvailability,
 	airspaces,
 	airTrafficControllerMessage,
@@ -61,7 +62,7 @@ const router = rlite<Buffer>(notFound, {
 	"ats/:clientId/data/flight-routes/:flightUniqueId": flightRoutes,
 	"ats/:clientId/data/airspaces/:airspaceId": airspaces,
 	"ats/:clientId/data/sectors/:sectorId": newSector,
-	"ats/:clientId/data/airblocks/:airblockId": ignored, // no longer needed
+	"ats/:clientId/data/airblocks/:airblockId": airblocks,
 	"ats/:clientId/data/airspace-configs/:configurationId":
 		newAirspaceConfiguration,
 	"ats/:clientId/data/airspace-availability/:airspaceId/:time":

@@ -14,6 +14,7 @@ import {
 	FlightRouteMessage,
 	FrequenciesMessage,
 	InitialisationCompleted,
+	NewAirBlockMessage,
 	NewAircraftMessage,
 	NewAircraftTypeMessage,
 	NewAirspaceConfigurationMessage,
@@ -37,6 +38,7 @@ import {
 import { PilotRequestJsonSchema } from "../schemas/pilotRequestSchema";
 import {
 	adminStore,
+	airblockStore,
 	aircraftStore,
 	airspaceStore,
 	airwaysStore,
@@ -88,6 +90,10 @@ export function airspaces(_parameters: unknown, message: Buffer): void {
 export function newSector(_parameters: unknown, message: Buffer): void {
 	const protoMessage = NewSectorMessage.fromBinary(message);
 	sectorStore.handleNewSector(protoMessage);
+}
+export function airblocks(_parameters: unknown, message: Buffer): void {
+	const protoMessage = NewAirBlockMessage.fromBinary(message);
+	airblockStore.handleNewAirBlock(protoMessage);
 }
 export function newPointMessage(_parameters: unknown, message: Buffer): void {
 	const protoMessage = NewPointMessage.fromBinary(message);

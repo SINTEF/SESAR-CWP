@@ -1,6 +1,6 @@
 import { type MapLayerMouseEvent, MercatorCoordinate } from "maplibre-gl";
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Layer, Source, useMap } from "react-map-gl/maplibre";
 import type AircraftModel from "../model/AircraftModel";
 import {
@@ -9,6 +9,7 @@ import {
 	cwpStore,
 	roleConfigurationStore,
 } from "../state";
+import { useSynchronizedBlinkPhaseRed } from "../utils/useSynchronizedBlink";
 
 const degreesToRad = Math.PI / 180;
 interface SpeedVectorProperties {
@@ -133,33 +134,7 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 	// const { lowestBound, highestBound } = cwpStore.altitudeFilter;
 	const { speedVectorMinutes, showSpeedVectors } = cwpStore;
 	const { current: map } = useMap();
-
-	// Blink state synchronized with the CSS animation (1s period, 0.5s per phase)
-	// Phase true = show red (first half), phase false = show normal color (second half)
-	const [blinkPhaseRed, setBlinkPhaseRed] = useState(() => {
-		return Date.now() % 1000 < 500;
-	});
-
-	// Timer to toggle blink phase, aligned to half-second boundaries (CSS epoch sync)
-	useEffect(() => {
-		let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-		const scheduleNextTick = (): void => {
-			const now = Date.now();
-			const msToNextHalfSecond = 500 - (now % 500);
-			timeoutId = setTimeout(() => {
-				setBlinkPhaseRed(Date.now() % 1000 < 500);
-				scheduleNextTick();
-			}, msToNextHalfSecond);
-		};
-
-		scheduleNextTick();
-		return () => {
-			if (timeoutId) {
-				clearTimeout(timeoutId);
-			}
-		};
-	}, []);
+	const blinkPhaseRed = useSynchronizedBlinkPhaseRed();
 
 	// Handle right-click (contextmenu) to reset warning level
 	const handleContextMenu = useCallback((event: MapLayerMouseEvent) => {

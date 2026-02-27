@@ -1,4 +1,5 @@
 import AdminStore from "./model/AdminStore";
+import AirblockStore from "./model/AirblockStore";
 import AircraftStore from "./model/AircraftStore";
 import AirspaceStore from "./model/AirspaceStore";
 import AirwaysStore from "./model/AirwaysStore";
@@ -26,7 +27,8 @@ declare global {
 export const simulatorStore = new SimulatorStore();
 export const adminStore = new AdminStore();
 export const airspaceStore = new AirspaceStore();
-export const sectorStore = new SectorStore();
+export const airblockStore = new AirblockStore();
+export const sectorStore = new SectorStore({ airblockStore });
 export const brainStore = new BrainStore();
 export const aircraftStore = new AircraftStore({
 	simulatorStore,
@@ -78,6 +80,7 @@ window.mobxDebugStores = {
 	adminStore,
 	aircraftStore,
 	airspaceStore,
+	airblockStore,
 	sectorStore,
 	fixStore,
 	airwaysStore,
