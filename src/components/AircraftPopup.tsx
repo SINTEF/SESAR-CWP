@@ -291,6 +291,8 @@ export default observer(function AircraftPopup(properties: {
 	const showRequestPanelContainer = aircraftStore.hasTeamAssistantRequests(
 		properties.aircraft.callSign,
 	);
+	const shouldEnforceCompactConflictMinWidth =
+		!showExpandedContent && hasStcaConflict && hasTctConflict;
 
 	return (
 		<DraggablePopup
@@ -328,6 +330,7 @@ export default observer(function AircraftPopup(properties: {
 								? "bg-neutral-800/40 rounded-xs border-[0.5px] border-cyan-400"
 								: "bg-neutral-800/50 rounded-sm border-0 border-transparent",
 							isHoveredMarker ? "text-pink-400" : "text-white",
+							shouldEnforceCompactConflictMinWidth ? "min-w-19" : "",
 							showAddTaDialogOpened ? "rounded-tr-none" : "",
 						)}
 						onWheel={onWheel}
