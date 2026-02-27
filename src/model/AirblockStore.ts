@@ -2,10 +2,37 @@ import type { ObservableMap } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
 import type { NewAirBlockMessage } from "../proto/ProtobufAirTrafficSimulator";
 import CoordinatePair from "./CoordinatePair";
-import SectorModel from "./SectorModel";
+
+class AirblockModel {
+	readonly airblockId: string;
+
+	readonly bottomFlightLevel: number;
+
+	readonly topFlightLevel: number;
+
+	readonly area: readonly CoordinatePair[];
+
+	constructor({
+		airblockId,
+		bottomFlightLevel,
+		topFlightLevel,
+		area,
+	}: {
+		airblockId: string;
+		bottomFlightLevel: number;
+		topFlightLevel: number;
+		area: CoordinatePair[];
+	}) {
+		this.airblockId = airblockId;
+		this.bottomFlightLevel = bottomFlightLevel;
+		this.topFlightLevel = topFlightLevel;
+		this.area = Object.freeze([...area]);
+		Object.freeze(this);
+	}
+}
 
 export default class AirblockStore {
-	airblocks: ObservableMap<string, SectorModel> = observable.map(undefined, {
+	airblocks: ObservableMap<string, AirblockModel> = observable.map(undefined, {
 		deep: false,
 	});
 
@@ -43,16 +70,16 @@ export default class AirblockStore {
 
 		this.airblocks.set(
 			id,
-			new SectorModel({
-				sectorId: id,
-				sectorArea: airblockArea,
+			new AirblockModel({
+				airblockId: id,
+				area: airblockArea,
 				bottomFlightLevel: newAirBlock.bottomFlightLevel,
 				topFlightLevel: newAirBlock.topFlightLevel,
 			}),
 		);
 	}
 
-	getAirblockFromId(airblockId: string): SectorModel | undefined {
+	getAirblockFromId(airblockId: string): AirblockModel | undefined {
 		return this.airblocks.get(airblockId);
 	}
 
