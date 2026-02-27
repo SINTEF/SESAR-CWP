@@ -810,24 +810,30 @@ export default class AircraftStore {
 		// Calculate autonomyProfile once based on request type (immutable)
 		const rawRequestType = request.context?.request_type ?? 0;
 		const requestType = getPilotRequestType(rawRequestType);
-		const autonomyProfile = this.brainStore.getAPForRequestType(requestType);
+		const currentAutonomyProfile =
+			this.brainStore.getAPForRequestType(requestType);
 		const normalizedGoals = request.goals.map((goal) =>
 			normalizeGoal(goal, requestType),
 		);
-
-		const teamAssistantRequest: TeamAssistantRequest = {
-			...request,
-			flightId,
-			requestId,
-			autonomyProfile, // Calculated once, defaults to 1 if data missing
-			normalizedGoals,
-		};
 
 		const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
 		// Check if request with same ID exists and update it, otherwise add
 		const existingIndex = existingRequests.findIndex(
 			(r) => r.requestId === requestId,
 		);
+
+		const existingRequest =
+			existingIndex === -1 ? undefined : existingRequests[existingIndex];
+		const autonomyProfile =
+			existingRequest?.autonomyProfile ?? currentAutonomyProfile;
+
+		const teamAssistantRequest: TeamAssistantRequest = {
+			...request,
+			flightId,
+			requestId,
+			autonomyProfile,
+			normalizedGoals,
+		};
 
 		if (existingIndex === -1) {
 			this.teamAssistantRequests.set(flightId, [
