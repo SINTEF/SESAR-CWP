@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import posthog from "posthog-js";
 import {
 	AirspaceAvailabilityMessage,
 	AirTrafficControllerAssignmentMessage,
@@ -50,6 +51,10 @@ import {
 	sectorStore,
 	simulatorStore,
 } from "../state";
+
+let lastStartupScenario: string | null = null;
+const latestPresenceBySession = new Map<string, string>();
+
 export function notFound(
 	_parameters: unknown,
 	message: Buffer,
@@ -298,6 +303,12 @@ export function pilotRequest(
 	// Empty message means delete the request (MQTT retained message clearing)
 	if (message.length === 0) {
 		aircraftStore.removeTeamAssistantRequest(flightUniqueId, requestId);
+		posthog.capture("ta_pilot_request_removed", {
+			request_id: requestId,
+			flight_id: flightUniqueId,
+			reason: "retained_message_cleared",
+			source_format: "protobuf",
+		});
 		return;
 	}
 
@@ -341,6 +352,14 @@ export function pilotRequest(
 		// Validate with Zod and store
 		const validated = PilotRequestJsonSchema.parse(jsonRequest);
 		aircraftStore.setTeamAssistantRequest(flightUniqueId, requestId, validated);
+		posthog.capture("ta_pilot_request_received", {
+			request_id: validated.context.request_id,
+			flight_id: validated.context.flight_id,
+			request_type: validated.context.request_type,
+			goals_count: validated.goals.length,
+			iteration_count: validated.iteration_count,
+			source_format: "protobuf",
+		});
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode PilotRequestMessage:", error);
@@ -358,19 +377,41 @@ export function simulatorStartupConfiguration(
 	message: Buffer,
 ): void {
 	const scenario = message.toString().trim();
-	adminStore.setSimulatorStartupScenario(scenario || null);
+	const normalizedScenario = scenario || null;
+	adminStore.setSimulatorStartupScenario(normalizedScenario);
+
+	if (normalizedScenario !== lastStartupScenario) {
+		lastStartupScenario = normalizedScenario;
+		posthog.capture("mqtt_startup_configuration_received", {
+			scenario: normalizedScenario,
+		});
+	}
 }
 
 export function simulatorPresenceStatus(
 	{ sessionUuid }: { [key: string]: string },
 	message: Buffer,
 ): void {
-	adminStore.handlePresenceMessage(sessionUuid, message.toString().trim());
+	const status = message.toString().trim();
+	adminStore.handlePresenceMessage(sessionUuid, status);
+
+	const previousStatus = latestPresenceBySession.get(sessionUuid);
+	if (previousStatus !== status) {
+		latestPresenceBySession.set(sessionUuid, status);
+		posthog.capture("mqtt_presence_status_changed", {
+			session_uuid: sessionUuid,
+			status,
+			previous_status: previousStatus ?? null,
+		});
+	}
 }
 
 export function initCompleted(_parameters: unknown, message: Buffer): void {
 	if (message.length === 0) {
 		adminStore.handleInitialisationNotCompleted();
+		posthog.capture("mqtt_initialization_status_changed", {
+			status: "not_completed",
+		});
 		return;
 	}
 
@@ -384,6 +425,10 @@ export function initCompleted(_parameters: unknown, message: Buffer): void {
 				)
 			: new Date();
 		adminStore.handleInitialisationCompleted(completedAt);
+		posthog.capture("mqtt_initialization_status_changed", {
+			status: "completed",
+			completed_at: completedAt.toISOString(),
+		});
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode InitialisationCompleted message:", error);
@@ -414,6 +459,7 @@ export function pilotRequestJson(
 	{ requestId }: { [key: string]: string },
 	message: Buffer,
 ): void {
+	let parsedPayload: unknown;
 	let validated;
 	try {
 		const jsonString = message.toString().trim();
@@ -422,31 +468,48 @@ export function pilotRequestJson(
 		if (jsonString.length === 0) {
 			if (requestId) {
 				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+				posthog.capture("ta_pilot_request_removed", {
+					request_id: requestId,
+					reason: "retained_message_cleared",
+					source_format: "json",
+				});
 			}
 			return;
 		}
 
-		const parsed: unknown = JSON.parse(jsonString);
+		parsedPayload = JSON.parse(jsonString);
 
 		// Handle reply messages sent back by the CWP itself and
 		// "finished" acknowledgments.
-		if (PilotRequestFinishedMessageSchema.safeParse(parsed).success) {
+		if (PilotRequestFinishedMessageSchema.safeParse(parsedPayload).success) {
 			if (requestId) {
 				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+				posthog.capture("ta_pilot_request_removed", {
+					request_id: requestId,
+					reason: "finished",
+					source_format: "json",
+					received_payload: parsedPayload,
+				});
 			}
 			return;
 		}
 
-		const parsedReply = PilotRequestReplyMessageSchema.safeParse(parsed);
+		const parsedReply = PilotRequestReplyMessageSchema.safeParse(parsedPayload);
 		if (parsedReply.success) {
 			if (parsedReply.data.reply === "CLOSE" && requestId) {
 				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+				posthog.capture("ta_pilot_request_removed", {
+					request_id: requestId,
+					reason: "close_reply",
+					source_format: "json",
+					received_payload: parsedPayload,
+				});
 			}
 			return;
 		}
 
-		// Validate and process full pilot request
-		validated = PilotRequestJsonSchema.parse(parsed);
+		// Parse and validate full pilot request
+		validated = PilotRequestJsonSchema.parse(parsedPayload);
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to decode PilotRequestJson:", error);
@@ -458,11 +521,21 @@ export function pilotRequestJson(
 		});
 		return;
 	}
+
 	aircraftStore.setTeamAssistantRequest(
 		validated.context.flight_id,
 		validated.context.request_id,
 		validated,
 	);
+	posthog.capture("ta_pilot_request_received", {
+		request_id: validated.context.request_id,
+		flight_id: validated.context.flight_id,
+		request_type: validated.context.request_type,
+		goals_count: validated.goals.length,
+		iteration_count: validated.iteration_count,
+		source_format: "json",
+		received_payload: parsedPayload,
+	});
 }
 
 /**
@@ -481,17 +554,31 @@ export function pilotRequestJson(
  * }
  */
 export function workloadUpdate(_parameters: unknown, message: Buffer): void {
+	let parsedPayload: unknown;
+	let parsed;
 	try {
-		const parsed = WorkloadUpdateMessageSchema.parse(
-			JSON.parse(message.toString()),
-		);
-		const { workload, accuracy, timestamp } = parsed.params;
-		brainStore.updateAgentWorkload(workload, accuracy, timestamp);
+		parsedPayload = JSON.parse(message.toString());
+		parsed = WorkloadUpdateMessageSchema.parse(parsedPayload);
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: Error logging for debugging
 		console.error("Error parsing WorkloadUpdate message:", error);
 		Sentry.captureException(error);
+		return;
 	}
+
+	const { workload, accuracy, timestamp } = parsed.params;
+	brainStore.updateAgentWorkload(workload, accuracy, timestamp);
+	posthog.capture("ta_workload_update_received", {
+		workload,
+		accuracy,
+		timestamp,
+		task_load: brainStore.taskLoad,
+		autonomy_profile: brainStore.autonomyProfile,
+		number_of_assumed_flights: brainStore.numberOfAssumedFlights,
+		number_of_requests: brainStore.numberOfRequests,
+		number_of_conflicts: brainStore.numberOfConflicts,
+		received_payload: parsedPayload,
+	});
 }
 
 /**
@@ -509,15 +596,25 @@ export function workloadUpdate(_parameters: unknown, message: Buffer): void {
  * }
  */
 export function isaUpdate(_parameters: unknown, message: Buffer): void {
+	let parsed;
 	try {
-		const parsed = ISAUpdateMessageSchema.parse(JSON.parse(message.toString()));
-		const { ISA, timestamp } = parsed.params;
-		brainStore.updateISAWorkload(ISA, timestamp);
+		parsed = ISAUpdateMessageSchema.parse(JSON.parse(message.toString()));
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: Error logging for debugging
 		console.error("Error parsing ISAUpdate message:", error);
 		Sentry.captureException(error);
+		return;
 	}
+
+	const { ISA, timestamp } = parsed.params;
+	brainStore.updateISAWorkload(ISA, timestamp);
+	posthog.capture("ta_isa_update_received", {
+		isa: ISA,
+		timestamp,
+		delta: brainStore.delta,
+		normalized_isa: brainStore.normalizedISA,
+		autonomy_profile: brainStore.autonomyProfile,
+	});
 }
 
 /**
@@ -532,6 +629,9 @@ export function frontendManualAP(_parameters: unknown, message: Buffer): void {
 		}
 		const value = FrontendManualAPMessageSchema.parse(JSON.parse(raw));
 		brainStore.setManualAP(value);
+		posthog.capture("ta_manual_ap_sync_received", {
+			manual_ap: value,
+		});
 	} catch (error) {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Error parsing manualAP message:", error);
@@ -569,9 +669,18 @@ async function forceRefreshWithoutCache(): Promise<void> {
  * Performs a cache-busting reload on all open pages for the same clientId.
  */
 export function frontendForceRefresh(): void {
+	posthog.capture("frontend_force_refresh_received", {
+		source: "mqtt",
+	});
+
 	forceRefreshWithoutCache().catch((error) => {
 		// biome-ignore lint/suspicious/noConsole: error logging
 		console.error("Failed to execute force refresh:", error);
+		posthog.capture("frontend_force_refresh_failed", {
+			source: "mqtt",
+			error_name: error instanceof Error ? error.name : "unknown",
+			error_message: error instanceof Error ? error.message : "Unknown error",
+		});
 		Sentry.captureException(error);
 	});
 }
