@@ -521,6 +521,8 @@ export default class CWPStore {
 
 	closeLevelPopupForAircraft(aircraftId: string): void {
 		this.aircraftsWithLevelPopup.delete(aircraftId);
+		this.nextSectorFlActivated = false;
+		this.flightLevelNextAccActivated = false;
 	}
 
 	openNextSectorPopupForAircraft(aircraftId: string): void {
@@ -649,10 +651,16 @@ export default class CWPStore {
 
 	showNSFL(value: boolean): void {
 		this.nextSectorFlActivated = value;
+		if (value) {
+			this.flightLevelNextAccActivated = false;
+		}
 	}
 
 	showFlACC(value: boolean): void {
 		this.flightLevelNextAccActivated = value;
+		if (value) {
+			this.nextSectorFlActivated = false;
+		}
 	}
 
 	toggleShowNextSectorsConfiguration(): void {
