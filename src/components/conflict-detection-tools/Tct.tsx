@@ -13,7 +13,7 @@ export default function Tct({
 	onPointerLeave,
 }: TctProps) {
 	const blinkPhaseRed = useSynchronizedBlinkPhaseRed();
-	const blinkingBackgroundClass = blinkPhaseRed ? "bg-white" : "bg-black";
+	const blinkingBackgroundClass = blinkPhaseRed ? "bg-black" : "bg-white";
 
 	return (
 		<div
