@@ -15,6 +15,7 @@ export type TimelineEvent = {
 	code: string | undefined; // the badge text (flight level or separation distance)
 	labels: string[]; // lines of text inside the chip
 	aircraftIds?: string[]; // optional aircraft IDs for hover functionality
+	priority?: number; // higher value means higher visual priority when events overlap
 	severity?: ConflictSeverity; // conflict severity: severe (orange) or potential (yellow)
 	eventType?: EventType; // type of event for styling (mtcd vs custom-datablock)
 };
