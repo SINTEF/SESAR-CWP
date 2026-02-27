@@ -6,6 +6,7 @@ import type { Feature, Polygon } from "geojson";
 import type { ObservableMap } from "mobx";
 import { computed, makeAutoObservable, observable } from "mobx";
 import type { NewSectorMessage } from "../proto/ProtobufAirTrafficSimulator";
+import type AirblockStore from "./AirblockStore";
 import AirspaceVolumeReference from "./AirspaceVolumeReference";
 import CoordinatePair from "./CoordinatePair";
 
@@ -104,17 +105,45 @@ export class Sector {
 		}
 		return booleanPointInPolygon([longitude, latitude], this.turfPolygon);
 	}
+
+	containsPoint(
+		longitude: number,
+		latitude: number,
+		altitude: number | undefined,
+		isPointInVolume: (
+			volume: AirspaceVolumeReference,
+			longitude: number,
+			latitude: number,
+			altitude?: number,
+		) => boolean,
+	): boolean {
+		if (this.includedAirspaceVolumes.length <= 1) {
+			return this.isWithinSector(longitude, latitude, altitude);
+		}
+
+		for (const volume of this.includedAirspaceVolumes) {
+			if (isPointInVolume(volume, longitude, latitude, altitude)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 export default class SectorStore {
+	readonly airblockStore: AirblockStore;
+
 	sectors: ObservableMap<string, Sector> = observable.map(undefined, {
 		deep: false,
 	});
 
-	constructor() {
+	constructor({ airblockStore }: { airblockStore: AirblockStore }) {
+		this.airblockStore = airblockStore;
 		makeAutoObservable(
 			this,
 			{
+				airblockStore: false,
 				sectorList: computed({ keepAlive: true }),
 				sectorIndex: computed({ keepAlive: true }),
 			},
@@ -212,7 +241,22 @@ export default class SectorStore {
 			latitude,
 			(index) => {
 				const sector = sectorList[index];
-				return sector.isWithinSector(longitude, latitude, altitude);
+				return sector.containsPoint(
+					longitude,
+					latitude,
+					altitude,
+					(volume, pointLongitude, pointLatitude, pointAltitude) =>
+						this.airblockStore.isPointInAirblockWithinBounds(
+							volume.volumeId,
+							pointLongitude,
+							pointLatitude,
+							pointAltitude,
+							{
+								bottomFlightLevel: volume.bottomFlightLevel,
+								topFlightLevel: volume.topFlightLevel,
+							},
+						),
+				);
 			},
 		);
 

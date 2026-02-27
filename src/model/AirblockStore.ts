@@ -1,7 +1,15 @@
+import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
+import { polygon as turfPolygon } from "@turf/helpers";
+import type { Feature, Polygon } from "geojson";
 import type { ObservableMap } from "mobx";
 import { makeAutoObservable, observable } from "mobx";
 import type { NewAirBlockMessage } from "../proto/ProtobufAirTrafficSimulator";
 import CoordinatePair from "./CoordinatePair";
+
+type FlightLevelBounds = {
+	bottomFlightLevel: number;
+	topFlightLevel: number;
+};
 
 class AirblockModel {
 	readonly airblockId: string;
@@ -11,6 +19,8 @@ class AirblockModel {
 	readonly topFlightLevel: number;
 
 	readonly area: readonly CoordinatePair[];
+
+	readonly turfPolygon: Feature<Polygon>;
 
 	constructor({
 		airblockId,
@@ -27,7 +37,44 @@ class AirblockModel {
 		this.bottomFlightLevel = bottomFlightLevel;
 		this.topFlightLevel = topFlightLevel;
 		this.area = Object.freeze([...area]);
+		const coordinates = this.area.map((coord) => [
+			coord.longitude,
+			coord.latitude,
+		]);
+		this.turfPolygon = turfPolygon([[...coordinates, coordinates[0]]]);
 		Object.freeze(this);
+	}
+
+	containsPoint(
+		longitude: number,
+		latitude: number,
+		altitude?: number,
+	): boolean {
+		if (
+			altitude !== undefined &&
+			(altitude < this.bottomFlightLevel || altitude > this.topFlightLevel)
+		) {
+			return false;
+		}
+
+		return booleanPointInPolygon([longitude, latitude], this.turfPolygon);
+	}
+
+	containsPointWithinBounds(
+		longitude: number,
+		latitude: number,
+		altitude: number | undefined,
+		flightLevelBounds: FlightLevelBounds,
+	): boolean {
+		if (
+			altitude !== undefined &&
+			(altitude < flightLevelBounds.bottomFlightLevel ||
+				altitude > flightLevelBounds.topFlightLevel)
+		) {
+			return false;
+		}
+
+		return booleanPointInPolygon([longitude, latitude], this.turfPolygon);
 	}
 }
 
@@ -85,5 +132,39 @@ export default class AirblockStore {
 
 	existsIn(airblockId: string): boolean {
 		return this.airblocks.has(airblockId);
+	}
+
+	isPointInAirblock(
+		airblockId: string,
+		longitude: number,
+		latitude: number,
+		altitude?: number,
+	): boolean {
+		const airblock = this.getAirblockFromId(airblockId);
+		if (!airblock) {
+			return false;
+		}
+
+		return airblock.containsPoint(longitude, latitude, altitude);
+	}
+
+	isPointInAirblockWithinBounds(
+		airblockId: string,
+		longitude: number,
+		latitude: number,
+		altitude: number | undefined,
+		flightLevelBounds: FlightLevelBounds,
+	): boolean {
+		const airblock = this.getAirblockFromId(airblockId);
+		if (!airblock) {
+			return false;
+		}
+
+		return airblock.containsPointWithinBounds(
+			longitude,
+			latitude,
+			altitude,
+			flightLevelBounds,
+		);
 	}
 }

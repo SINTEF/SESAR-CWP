@@ -28,7 +28,7 @@ export const simulatorStore = new SimulatorStore();
 export const adminStore = new AdminStore();
 export const airspaceStore = new AirspaceStore();
 export const airblockStore = new AirblockStore();
-export const sectorStore = new SectorStore();
+export const sectorStore = new SectorStore({ airblockStore });
 export const brainStore = new BrainStore();
 export const aircraftStore = new AircraftStore({
 	simulatorStore,
