@@ -249,8 +249,11 @@ export function LevelChangeGoalRows({
 				</tr>
 				<tr>
 					<td className="text-xs" colSpan={2}>
-						{getStatusColor(goal.results.is_conform_to_flight_plan)} FLP{" "}
-						{goal.requestedValue}
+						{/* It is a coordination, if it is false, should show yellow, not red */}
+						{getStatusColor(
+							(goal.results.is_conform_to_flight_plan ?? true) ? true : null,
+						)}{" "}
+						FPL {goal.requestedValue}
 					</td>
 				</tr>
 
