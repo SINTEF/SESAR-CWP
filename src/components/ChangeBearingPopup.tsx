@@ -11,7 +11,10 @@ import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { configurationStore, cwpStore } from "../state";
 import { normalizeBearing } from "../utils/bearingUtils";
 import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
-import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
+import {
+	type CommunicationMethod,
+	PopupCommunicationButtons,
+} from "./shared/CommunicationButtons";
 
 function QuickAdjustColumn(properties: {
 	offsets: number[];
@@ -179,7 +182,10 @@ export default observer(function ChangeBearingPopup(properties: {
 		});
 	};
 
-	const applyBearing = (newBearing: number): void => {
+	const applyBearing = (
+		newBearing: number,
+		method: CommunicationMethod,
+	): void => {
 		// If TA request callback is set, call it instead of normal behavior
 		if (cwpStore.taRequestCallback) {
 			cwpStore.taRequestCallback(newBearing.toString());
@@ -199,6 +205,7 @@ export default observer(function ChangeBearingPopup(properties: {
 			bearing_change: newBearing - lastKnownBearing,
 			controlled_by: controlledBy,
 			pilot_id: pilotId,
+			communication_method: method,
 		});
 
 		handlePublishPromise(
@@ -215,7 +222,7 @@ export default observer(function ChangeBearingPopup(properties: {
 	const handleBearingClick = (clickedBearing: number): void => {
 		// In TA request mode, always apply (even if clicking default bearing)
 		if (cwpStore.taRequestCallback) {
-			applyBearing(clickedBearing);
+			applyBearing(clickedBearing, "rt");
 			return;
 		}
 		if (clickedBearing === defaultBearing) {
@@ -223,12 +230,12 @@ export default observer(function ChangeBearingPopup(properties: {
 			close();
 		} else {
 			// Otherwise, apply immediately
-			applyBearing(clickedBearing);
+			applyBearing(clickedBearing, "rt");
 		}
 	};
 
-	const submit = (): void => {
-		applyBearing(bearing);
+	const submit = (method: CommunicationMethod): void => {
+		applyBearing(bearing, method);
 	};
 
 	const isTaRequestMode = !!cwpStore.taRequestCallback;
@@ -238,7 +245,14 @@ export default observer(function ChangeBearingPopup(properties: {
 
 	const handleQuickAdjust = (offset: number): void => {
 		const newBearing = normalizeBearing(currentBearingRounded + offset);
-		applyBearing(newBearing);
+		posthog?.capture("bearing_quick_adjust_applied", {
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			offset,
+			previous_bearing: currentBearingRounded,
+			new_bearing: newBearing,
+		});
+		applyBearing(newBearing, "rt");
 	};
 
 	return (

@@ -9,7 +9,10 @@ import {
 import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { configurationStore, cwpStore, fixStore } from "../state";
 import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
-import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
+import {
+	type CommunicationMethod,
+	PopupCommunicationButtons,
+} from "./shared/CommunicationButtons";
 
 /** Sub-component that displays the list of trajectory fixes as clickable buttons */
 function ListOfFixes(properties: {
@@ -228,7 +231,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 		});
 	};
 
-	const applyFix = (fixName: string): void => {
+	const applyFix = (fixName: string, method: CommunicationMethod): void => {
 		const upperFixName = fixName.toLocaleUpperCase();
 
 		// If TA request callback is set, call it instead of normal behavior
@@ -250,6 +253,12 @@ export default observer(function ChangeNextFixPopup(properties: {
 
 		// Validate that the fix exists
 		if (latOfFix === undefined || longOfFix === undefined) {
+			posthog?.capture("next_fix_manual_entry_failed", {
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				entered_fix: upperFixName,
+				reason: "fix_not_found",
+			});
 			setShowWarning(true);
 			return;
 		}
@@ -277,6 +286,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 			via_fix: null,
 			controlled_by: controlledBy,
 			pilot_id: pilotId,
+			communication_method: method,
 		});
 
 		clearMatchingTaRequests(properties.aircraft, [PilotRequestType.Direct]);
@@ -286,7 +296,7 @@ export default observer(function ChangeNextFixPopup(properties: {
 	const handleFixClick = (fix: string): void => {
 		// In TA request mode, always apply (even if clicking current fix)
 		if (cwpStore.taRequestCallback) {
-			applyFix(fix);
+			applyFix(fix, "rt");
 			return;
 		}
 		if (fix === nextFix) {
@@ -294,15 +304,15 @@ export default observer(function ChangeNextFixPopup(properties: {
 			close();
 		} else {
 			// Otherwise, apply immediately
-			applyFix(fix);
+			applyFix(fix, "rt");
 		}
 	};
 
-	const handleApply = (): void => {
+	const handleApply = (method: CommunicationMethod): void => {
 		// Prefer manual input over list selection
 		const fixToApply = manualFix.trim() || selectedFix;
 		if (fixToApply) {
-			applyFix(fixToApply);
+			applyFix(fixToApply, method);
 		}
 	};
 

@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { useState } from "react";
 
 import { getPasswordSalt, redirectToAdmin } from "../mqtt-client/auth";
@@ -15,9 +16,11 @@ export default observer(function AdminPasswordModal({
 	isOpen,
 	onClose,
 }: AdminPasswordModalProps) {
+	const posthog = usePostHog();
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [attemptCount, setAttemptCount] = useState(0);
 
 	if (!isOpen) {
 		return null;
@@ -27,6 +30,12 @@ export default observer(function AdminPasswordModal({
 		event.preventDefault();
 		setError(null);
 		setIsSubmitting(true);
+		const nextAttempt = attemptCount + 1;
+		setAttemptCount(nextAttempt);
+
+		posthog?.capture("admin_password_submitted", {
+			attempt_number: nextAttempt,
+		});
 
 		try {
 			const brokerUrl = getBrokerUrl();
@@ -34,10 +43,21 @@ export default observer(function AdminPasswordModal({
 
 			await persist(password, salt);
 
+			posthog?.capture("admin_login_succeeded", {
+				attempt_number: nextAttempt,
+			});
+
 			// Redirect to admin mode (this will reload the page)
 			redirectToAdmin();
 		} catch (persistError) {
 			Sentry.captureException(persistError);
+			posthog?.capture("admin_login_failed", {
+				attempt_number: nextAttempt,
+				error_message:
+					persistError instanceof Error
+						? persistError.message
+						: "Failed to save password",
+			});
 			setError(
 				persistError instanceof Error
 					? persistError.message
@@ -47,19 +67,24 @@ export default observer(function AdminPasswordModal({
 		}
 	};
 
-	const handleClose = () => {
+	const handleClose = (reason: "backdrop" | "close_button" | "cancel") => {
+		posthog?.capture("admin_password_modal_closed", {
+			reason,
+			had_error: Boolean(error),
+			attempt_count: attemptCount,
+		});
 		setPassword("");
 		setError(null);
 		onClose();
 	};
 
 	return (
-		<div className="modal modal-open" onClick={handleClose}>
+		<div className="modal modal-open" onClick={() => handleClose("backdrop")}>
 			<div className="modal-box w-96" onClick={(e) => e.stopPropagation()}>
 				<button
 					type="button"
 					className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-					onClick={handleClose}
+					onClick={() => handleClose("close_button")}
 				>
 					✕
 				</button>
@@ -107,7 +132,7 @@ export default observer(function AdminPasswordModal({
 							<button
 								type="button"
 								className="btn btn-ghost flex-1"
-								onClick={handleClose}
+								onClick={() => handleClose("cancel")}
 							>
 								Cancel
 							</button>

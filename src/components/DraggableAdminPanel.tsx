@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import { useEffect, useId, useRef, useState } from "react";
 import Draggable from "react-draggable";
 
@@ -25,6 +26,7 @@ function isAdminPanelTab(value: string | null): value is AdminPanelTab {
 }
 
 export default observer(function DraggableAdminPanel() {
+	const posthog = usePostHog();
 	const nodeRef = useRef<HTMLDivElement>(null);
 	const tabGroupName = useId();
 	const { startDragging, stopDragging } = useDragging();
@@ -38,6 +40,17 @@ export default observer(function DraggableAdminPanel() {
 	useEffect(() => {
 		window.sessionStorage.setItem(ADMIN_PANEL_TAB_STORAGE_KEY, activeTab);
 	}, [activeTab]);
+
+	const handleTabChange = (nextTab: AdminPanelTab): void => {
+		if (nextTab === activeTab) {
+			return;
+		}
+		posthog?.capture("admin_panel_tab_changed", {
+			previous_tab: activeTab,
+			new_tab: nextTab,
+		});
+		setActiveTab(nextTab);
+	};
 
 	if (!adminStore.adminModeEnabled || !adminStore.showAdminPanel) {
 		return null;
@@ -63,7 +76,12 @@ export default observer(function DraggableAdminPanel() {
 						<button
 							type="button"
 							className="btn btn-xs btn-ghost text-error"
-							onClick={() => redirectToNonAdmin()}
+							onClick={() => {
+								posthog?.capture("admin_mode_exited", {
+									from_tab: activeTab,
+								});
+								redirectToNonAdmin();
+							}}
 							title="Exit Admin Mode"
 						>
 							Exit
@@ -71,7 +89,12 @@ export default observer(function DraggableAdminPanel() {
 						<button
 							type="button"
 							className="btn btn-sm btn-ghost btn-circle"
-							onClick={() => adminStore.toggleMinimized()}
+							onClick={() => {
+								posthog?.capture("admin_panel_minimized_toggled", {
+									minimized: !adminStore.isMinimized,
+								});
+								adminStore.toggleMinimized();
+							}}
 						>
 							{adminStore.isMinimized ? "▼" : "▲"}
 						</button>
@@ -91,7 +114,7 @@ export default observer(function DraggableAdminPanel() {
 								className="ml-2 tab"
 								aria-label="Logs"
 								checked={activeTab === "logs"}
-								onChange={() => setActiveTab("logs")}
+								onChange={() => handleTabChange("logs")}
 							/>
 							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "logs" && <AdminLogs />}
@@ -102,7 +125,7 @@ export default observer(function DraggableAdminPanel() {
 								className="tab"
 								aria-label="Brian"
 								checked={activeTab === "brains"}
-								onChange={() => setActiveTab("brains")}
+								onChange={() => handleTabChange("brains")}
 							/>
 							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "brains" && <BrainPanel />}
@@ -113,7 +136,7 @@ export default observer(function DraggableAdminPanel() {
 								className="tab"
 								aria-label="Scenario Configuration"
 								checked={activeTab === "scenario"}
-								onChange={() => setActiveTab("scenario")}
+								onChange={() => handleTabChange("scenario")}
 							/>
 							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "scenario" && <ScenarioConfigurationPanel />}
@@ -124,7 +147,7 @@ export default observer(function DraggableAdminPanel() {
 								className="tab"
 								aria-label="Debug"
 								checked={activeTab === "debug"}
-								onChange={() => setActiveTab("debug")}
+								onChange={() => handleTabChange("debug")}
 							/>
 							<div className="tab-content border-base-300 border-0 border-t rounded-tl-none rounded-tr-none">
 								{activeTab === "debug" && <DebugPanel />}
