@@ -307,7 +307,6 @@ export async function publishPilotRequestRefresh(
 	await publish(
 		`IIS/${clientId}/PilotRequest/${requestId}`,
 		JSON.stringify(jsonRequest),
-		{ retain: true },
 	);
 }
 

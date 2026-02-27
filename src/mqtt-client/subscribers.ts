@@ -420,8 +420,9 @@ export function pilotRequestJson(
 
 		// Handle empty message (retained message cleared)
 		if (jsonString.length === 0) {
-			// Can't remove without knowing flight_id, but empty retained messages
-			// typically follow a removeTeamAssistantRequest call, so this is expected
+			if (requestId) {
+				aircraftStore.removeTeamAssistantRequestByRequestId(requestId);
+			}
 			return;
 		}
 

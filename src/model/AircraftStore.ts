@@ -117,6 +117,12 @@ export default class AircraftStore {
 		ReturnType<typeof setTimeout>
 	> = new Map();
 
+	/**
+	 * Tombstones for request IDs explicitly closed by the user/workflow.
+	 * Any later stale update with the same requestId is ignored and cleared on MQTT.
+	 */
+	private closedTeamAssistantRequestIds = new Set<string>();
+
 	/** Optional reference to DatablockStore for MTCD override logic */
 	private datablockStore: DatablockStore | null = null;
 
@@ -807,6 +813,11 @@ export default class AircraftStore {
 		requestId: string,
 		request: PilotRequestJson,
 	): void {
+		if (this.closedTeamAssistantRequestIds.has(requestId)) {
+			// Request was explicitly closed earlier. Ignore stale replay.
+			return;
+		}
+
 		// Calculate autonomyProfile once based on request type (immutable)
 		const rawRequestType = request.context?.request_type ?? 0;
 		const requestType = getPilotRequestType(rawRequestType);
@@ -889,6 +900,7 @@ export default class AircraftStore {
 			const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
 			for (const req of existingRequests) {
 				this.clearRefreshTimer(req.requestId);
+				this.closedTeamAssistantRequestIds.add(req.requestId);
 			}
 			this.teamAssistantRequests.delete(flightId);
 			return;
@@ -896,6 +908,7 @@ export default class AircraftStore {
 
 		// Clear timer for the specific request being removed
 		this.clearRefreshTimer(requestId);
+		this.closedTeamAssistantRequestIds.add(requestId);
 
 		const existingRequests = this.teamAssistantRequests.get(flightId) ?? [];
 		const filtered = existingRequests.filter((r) => r.requestId !== requestId);
