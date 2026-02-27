@@ -74,31 +74,82 @@ function stackEvents(events: PositionedEvent[]): PositionedEvent[] {
 		return [];
 	}
 
-	// Sort by bottomPx ascending (events closer to bottom/now first)
-	const sorted = events.toSorted((a, b) => a.bottomPx - b.bottomPx);
-	const result: PositionedEvent[] = [];
-
-	for (const event of sorted) {
-		let adjustedBottom = event.bottomPx;
-
-		// Check for overlaps with already placed events and shift up if needed
-		for (const placed of result) {
-			const eventTop = adjustedBottom + EVENT_HEIGHT_PX;
-			const placedTop = placed.bottomPx + EVENT_HEIGHT_PX;
-
-			// Events overlap if their vertical ranges intersect
-			// Event range: [adjustedBottom, eventTop]
-			// Placed range: [placed.bottomPx, placedTop]
-			if (adjustedBottom < placedTop && eventTop > placed.bottomPx) {
-				// Shift this event up (higher bottomPx = higher on screen)
-				adjustedBottom = placedTop + EVENT_GAP_PX;
-			}
+	const getEventPriority = (event: PositionedEvent): number => {
+		if (event.priority !== undefined) {
+			return event.priority;
 		}
 
-		// Preserve originalBottomPx for time calculation, only update display position
-		result.push({ ...event, bottomPx: adjustedBottom });
+		if (event.severity === "severe") {
+			return 2;
+		}
+
+		if (event.severity === "potential") {
+			return 1;
+		}
+
+		return 0;
+	};
+
+	const sortedByTime = events.toSorted((a, b) => a.bottomPx - b.bottomPx);
+	const spacing = EVENT_HEIGHT_PX + EVENT_GAP_PX;
+	const result: PositionedEvent[] = [];
+	const currentGroup: PositionedEvent[] = [];
+
+	let groupMaxTop = Number.NEGATIVE_INFINITY;
+	let nextAvailableBottom = Number.NEGATIVE_INFINITY;
+
+	const flushGroup = () => {
+		if (currentGroup.length === 0) {
+			return;
+		}
+
+		const groupBaseBottom = currentGroup[0].bottomPx;
+		const stackedBaseBottom = Math.max(groupBaseBottom, nextAvailableBottom);
+
+		const priorityOrderedGroup = currentGroup.toSorted((a, b) => {
+			const priorityDelta = getEventPriority(b) - getEventPriority(a);
+			if (priorityDelta !== 0) {
+				return priorityDelta;
+			}
+
+			const timeDelta = a.bottomPx - b.bottomPx;
+			if (timeDelta !== 0) {
+				return timeDelta;
+			}
+
+			return a.id.localeCompare(b.id);
+		});
+
+		for (const [index, event] of priorityOrderedGroup.entries()) {
+			result.push({ ...event, bottomPx: stackedBaseBottom + index * spacing });
+		}
+
+		nextAvailableBottom = stackedBaseBottom + currentGroup.length * spacing;
+		currentGroup.length = 0;
+	};
+
+	for (const event of sortedByTime) {
+		const eventTop = event.bottomPx + EVENT_HEIGHT_PX;
+
+		if (currentGroup.length === 0) {
+			currentGroup.push(event);
+			groupMaxTop = eventTop;
+			continue;
+		}
+
+		// Build transitive overlap groups from original time positions.
+		if (event.bottomPx < groupMaxTop) {
+			currentGroup.push(event);
+			groupMaxTop = Math.max(groupMaxTop, eventTop);
+			continue;
+		}
+
+		flushGroup();
+		currentGroup.push(event);
+		groupMaxTop = eventTop;
 	}
 
+	flushGroup();
 	return result;
 }
 
