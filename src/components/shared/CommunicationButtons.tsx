@@ -1,5 +1,6 @@
 /** Delay in ms applied when accepting via datalink (DL button). */
 export const DATALINK_DELAY_MS = 1000;
+export type CommunicationMethod = "rt" | "dl";
 
 /** R/T button (always shown) and DL button (only if aircraft has CPDLC) for TA rows. */
 export function CommunicationButtons({
@@ -38,18 +39,18 @@ export function PopupCommunicationButtons({
 	onClose,
 }: {
 	hasCPDLC: boolean;
-	onSubmit: () => void;
+	onSubmit: (method: CommunicationMethod) => void;
 	onClose: () => void;
 }) {
 	const handleDatalinkSubmit = () => {
-		setTimeout(onSubmit, DATALINK_DELAY_MS);
+		setTimeout(() => onSubmit("dl"), DATALINK_DELAY_MS);
 	};
 	return (
 		<div className="flex flex-col gap-0.5 mt-1">
 			<div className="flex gap-0.5">
 				<button
 					type="button"
-					onClick={onSubmit}
+					onClick={() => onSubmit("rt")}
 					className="btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2"
 				>
 					R/T

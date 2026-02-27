@@ -112,6 +112,18 @@ export default class AircraftStore {
 	/** Optional reference to DatablockStore for MTCD override logic */
 	private datablockStore: DatablockStore | null = null;
 
+	/**
+	 * Buffer latest flight-level values by flight ID when XFL/CFL arrives
+	 * before the corresponding NewFlight mapping is available.
+	 */
+	private pendingFlightLevelUpdates = new Map<
+		string,
+		{
+			exitFlightLevel?: string;
+			clearedFlightLevel?: string;
+		}
+	>();
+
 	constructor({
 		simulatorStore,
 		sectorStore,
@@ -174,28 +186,28 @@ export default class AircraftStore {
 
 	handleNewFlight(newFlight: NewFlightMessage): void {
 		const id = newFlight.aircraftId;
-		const aircraft = this.aircrafts.get(id);
+		let aircraft = this.aircrafts.get(id);
 		if (aircraft) {
 			aircraft.handleNewFlightUpdate(newFlight);
 		} else {
-			this.aircrafts.set(
-				id,
-				new AircraftModel({
-					aircraftId: id,
-					assignedFlightId: newFlight.flightUniqueId,
-					callSign: newFlight.callSign,
-					airlineIcaoCode: newFlight.airlineIcaoCode,
-					airlineCallSign: newFlight.airlineCallSign,
-					arrivalAirport: newFlight.arrivalAirport,
-					departureAirport: newFlight.departureAirport,
-					aircraftInfo: this.aircraftInfo,
-					aircraftTypes: this.aircraftTypes,
-					flightRoutes: this.flightRoutes,
-					sectorStore: this.sectorStore,
-					simulatorStore: this.simulatorStore,
-				}),
-			);
+			aircraft = new AircraftModel({
+				aircraftId: id,
+				assignedFlightId: newFlight.flightUniqueId,
+				callSign: newFlight.callSign,
+				airlineIcaoCode: newFlight.airlineIcaoCode,
+				airlineCallSign: newFlight.airlineCallSign,
+				arrivalAirport: newFlight.arrivalAirport,
+				departureAirport: newFlight.departureAirport,
+				aircraftInfo: this.aircraftInfo,
+				aircraftTypes: this.aircraftTypes,
+				flightRoutes: this.flightRoutes,
+				sectorStore: this.sectorStore,
+				simulatorStore: this.simulatorStore,
+			});
+			this.aircrafts.set(id, aircraft);
 		}
+
+		this.applyPendingFlightLevelUpdates(newFlight.flightUniqueId, aircraft);
 	}
 
 	handleTargetReport(targetReport: TargetReportMessage): void {
@@ -354,25 +366,12 @@ export default class AircraftStore {
 
 	handleExitFlightLevelMessage(message: ExitFlightLevelMessage): void {
 		const { flightId, exitFlightLevel } = message;
-
-		let aircraft;
-		for (const potentialAircraft of this.aircrafts.values()) {
-			if (potentialAircraft.assignedFlightId === flightId) {
-				aircraft = potentialAircraft;
-				break;
-			}
-		}
+		const aircraft = this.getAircraftByFlightId(flightId);
 
 		if (!aircraft) {
-			// biome-ignore lint/suspicious/noConsole: useful when backend sends XFL before flight mapping is available
-			console.warn(
-				"Received exit flight level message for unknown flight",
-				flightId,
-			);
-			Sentry.captureMessage(
-				`Received exit flight level message for unknown flight: ${flightId}`,
-				"warning",
-			);
+			this.queuePendingFlightLevelUpdate(flightId, {
+				exitFlightLevel: exitFlightLevel.toString(),
+			});
 			return;
 		}
 
@@ -381,29 +380,62 @@ export default class AircraftStore {
 
 	handleClearedFlightLevelMessage(message: ClearedFlightLevelMessage): void {
 		const { flightId, clearedFlightLevel } = message;
-
-		let aircraft;
-		for (const potentialAircraft of this.aircrafts.values()) {
-			if (potentialAircraft.assignedFlightId === flightId) {
-				aircraft = potentialAircraft;
-				break;
-			}
-		}
+		const aircraft = this.getAircraftByFlightId(flightId);
 
 		if (!aircraft) {
-			// biome-ignore lint/suspicious/noConsole: useful when backend sends CFL before flight mapping is available
-			console.warn(
-				"Received cleared flight level message for unknown flight",
-				flightId,
-			);
-			Sentry.captureMessage(
-				`Received cleared flight level message for unknown flight: ${flightId}`,
-				"warning",
-			);
+			this.queuePendingFlightLevelUpdate(flightId, {
+				clearedFlightLevel: clearedFlightLevel.toString(),
+			});
 			return;
 		}
 
 		aircraft.applyClearedFlightLevel(clearedFlightLevel.toString());
+	}
+
+	private getAircraftByFlightId(flightId: string): AircraftModel | undefined {
+		const directMatch = this.aircrafts.get(flightId);
+		if (directMatch) {
+			return directMatch;
+		}
+
+		for (const aircraft of this.aircrafts.values()) {
+			if (aircraft.assignedFlightId === flightId) {
+				return aircraft;
+			}
+		}
+
+		return undefined;
+	}
+
+	private queuePendingFlightLevelUpdate(
+		flightId: string,
+		update: { exitFlightLevel?: string; clearedFlightLevel?: string },
+	): void {
+		const existing = this.pendingFlightLevelUpdates.get(flightId);
+		this.pendingFlightLevelUpdates.set(flightId, {
+			exitFlightLevel: update.exitFlightLevel ?? existing?.exitFlightLevel,
+			clearedFlightLevel:
+				update.clearedFlightLevel ?? existing?.clearedFlightLevel,
+		});
+	}
+
+	private applyPendingFlightLevelUpdates(
+		flightId: string,
+		aircraft: AircraftModel,
+	): void {
+		const pending = this.pendingFlightLevelUpdates.get(flightId);
+		if (!pending) {
+			return;
+		}
+
+		if (pending.exitFlightLevel !== undefined) {
+			aircraft.setNextSectorFL(pending.exitFlightLevel);
+		}
+		if (pending.clearedFlightLevel !== undefined) {
+			aircraft.applyClearedFlightLevel(pending.clearedFlightLevel);
+		}
+
+		this.pendingFlightLevelUpdates.delete(flightId);
 	}
 
 	handleNewAircraftTypeMessage(

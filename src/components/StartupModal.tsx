@@ -1,4 +1,5 @@
 import { observer } from "mobx-react-lite";
+import { usePostHog } from "posthog-js/react";
 import * as React from "react";
 
 import {
@@ -47,8 +48,46 @@ function getAdminErrorMessage(code: string | null): string | null {
  * Allows users to select their controller role and access admin mode.
  */
 export default observer(function StartupModal() {
+	const posthog = usePostHog();
 	const { showControllerSelection } = cwpStore;
 	const [showPasswordModal, setShowPasswordModal] = React.useState(false);
+	const handleAdminModeClick = async (): Promise<void> => {
+		posthog?.capture("admin_mode_button_clicked", {
+			is_in_admin_mode: isInAdminMode,
+			has_admin_error: Boolean(adminStore.adminError),
+		});
+
+		if (isInAdminMode) {
+			// Already in admin mode, just show panel and select All
+			adminStore.setAdminPanel(true);
+			configurationStore.setCurrentCWP("All");
+			cwpStore.setPseudoPilot(false);
+			cwpStore.toggleControllerSelection();
+			posthog?.capture("admin_panel_opened_from_startup", {
+				mode: "already_authenticated",
+			});
+			return;
+		}
+
+		// Check if password is already stored
+		const brokerUrl = getBrokerUrl();
+		const salt = getPasswordSalt(brokerUrl);
+		const storedPassword = await loadPassword(salt);
+
+		if (storedPassword) {
+			posthog?.capture("admin_mode_redirect_requested", {
+				reason: "stored_password",
+			});
+			redirectToAdmin();
+			return;
+		}
+
+		posthog?.capture("admin_password_modal_opened", {
+			reason: "no_stored_password",
+		});
+		setShowPasswordModal(true);
+	};
+
 	const listOfControllers = roleConfigurationStore.listOfAllControllers;
 	const pseudoPilots = roleConfigurationStore.listOfAllPseudoControllers;
 	const controller = configurationStore.currentCWP;
@@ -120,28 +159,7 @@ export default observer(function StartupModal() {
 					{/* Admin mode section */}
 					<div className="flex flex-wrap gap-2 mt-4 items-center">
 						<button
-							onClick={async () => {
-								if (isInAdminMode) {
-									// Already in admin mode, just show panel and select All
-									adminStore.setAdminPanel(true);
-									configurationStore.setCurrentCWP("All");
-									cwpStore.setPseudoPilot(false);
-									cwpStore.toggleControllerSelection();
-								} else {
-									// Check if password is already stored
-									const brokerUrl = getBrokerUrl();
-									const salt = getPasswordSalt(brokerUrl);
-									const storedPassword = await loadPassword(salt);
-
-									if (storedPassword) {
-										// Password exists, redirect directly to admin mode
-										redirectToAdmin();
-									} else {
-										// No password stored, show the password modal
-										setShowPasswordModal(true);
-									}
-								}
-							}}
+							onClick={handleAdminModeClick}
 							// className={`btn ${isInAdminMode ? "btn-warning" : "btn-outliine border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-black"}`}
 							className={`btn ${isInAdminMode ? "btn-warning" : "btn-error"}`}
 						>
@@ -157,7 +175,12 @@ export default observer(function StartupModal() {
 								<button
 									type="button"
 									className="btn btn-ghost btn-xs"
-									onClick={() => adminStore.clearAdminError()}
+									onClick={() => {
+										posthog?.capture("admin_error_cleared", {
+											error: adminStore.adminError,
+										});
+										adminStore.clearAdminError();
+									}}
 								>
 									✕
 								</button>

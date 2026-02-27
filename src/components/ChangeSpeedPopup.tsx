@@ -9,7 +9,10 @@ import {
 	persistSpeedAircraft,
 } from "../mqtt-client/publishers";
 import { configurationStore, cwpStore } from "../state";
-import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
+import {
+	type CommunicationMethod,
+	PopupCommunicationButtons,
+} from "./shared/CommunicationButtons";
 
 const METERS_PER_SECOND_TO_DECIKNOT = 0.194_384;
 const DECIKNOT_TO_METERS_PER_SECOND = 1 / 0.194_384;
@@ -163,6 +166,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 			setSelectedSpeedMetersPerSecond(defaultSelectedSpeedMetersPerSecond);
 			posthog?.capture("speed_popup_opened", {
 				haircraft_id: aircraftId,
+				aircraft_id: aircraftId,
 				callsign: callSign,
 				current_speed: lastKnownSpeed,
 				assigned_speed: assignedSpeed,
@@ -216,7 +220,10 @@ export default observer(function ChangeSpeedPopup(properties: {
 		});
 	};
 
-	const applySpeed = (nextSpeedMetersPerSecond: number): void => {
+	const applySpeed = (
+		nextSpeedMetersPerSecond: number,
+		method: CommunicationMethod,
+	): void => {
 		const speedMetersPerSecond = Math.max(
 			MIN_KTM_SPEED * DECIKNOT_TO_METERS_PER_SECOND,
 			Math.min(
@@ -232,6 +239,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 			configurationStore.currentCWP === "All" ? "All" : controlledBy;
 
 		posthog?.capture("speed_changed", {
+			aircraft_id: aircraftId,
 			haircraft_id: aircraftId,
 			callsign: callSign,
 			previous_speed: lastKnownSpeed,
@@ -242,6 +250,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 			speed_change: speedMetersPerSecond - lastKnownSpeed,
 			controlled_by: controlledBy,
 			pilot_id: pilotId,
+			communication_method: method,
 		});
 
 		handlePublishPromise(
@@ -272,11 +281,24 @@ export default observer(function ChangeSpeedPopup(properties: {
 			return;
 		}
 
-		applySpeed(fromDisplaySpeed(clickedSpeed, speedDisplayUnit));
+		applySpeed(fromDisplaySpeed(clickedSpeed, speedDisplayUnit), "rt");
 	};
 
-	const submit = (): void => {
-		applySpeed(selectedSpeedMetersPerSecond);
+	const submit = (method: CommunicationMethod): void => {
+		applySpeed(selectedSpeedMetersPerSecond, method);
+	};
+
+	const setDisplayUnit = (unit: SpeedChangeDisplayUnit): void => {
+		if (speedDisplayUnit === unit) {
+			return;
+		}
+		posthog?.capture("speed_unit_changed", {
+			aircraft_id: aircraftId,
+			callsign: callSign,
+			previous_unit: speedDisplayUnit,
+			new_unit: unit,
+		});
+		cwpStore.setSpeedChangeDisplayUnit(unit);
 	};
 
 	return (
@@ -318,7 +340,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 			<div className="flex gap-0.5 mt-1">
 				<button
 					type="button"
-					onClick={(): void => cwpStore.setSpeedChangeDisplayUnit("MTN")}
+					onClick={(): void => setDisplayUnit("MTN")}
 					className={`btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2 ${
 						speedDisplayUnit === "MTN" ? "bg-[#4b90db] text-white" : ""
 					}`}
@@ -327,7 +349,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 				</button>
 				<button
 					type="button"
-					onClick={(): void => cwpStore.setSpeedChangeDisplayUnit("KT/M")}
+					onClick={(): void => setDisplayUnit("KT/M")}
 					className={`btn btn-sm btn-outline grow h-8 text-xs px-0 rounded-none border-2 ${
 						speedDisplayUnit === "KT/M" ? "bg-[#4b90db] text-white" : ""
 					}`}

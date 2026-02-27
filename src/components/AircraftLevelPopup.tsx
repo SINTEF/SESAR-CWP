@@ -14,7 +14,10 @@ import {
 import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
 import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
-import { PopupCommunicationButtons } from "./shared/CommunicationButtons";
+import {
+	type CommunicationMethod,
+	PopupCommunicationButtons,
+} from "./shared/CommunicationButtons";
 
 function ListOfLevels(properties: {
 	value: number;
@@ -143,8 +146,23 @@ export default observer(function AircraftLevelPopup(properties: {
 	React.useEffect(() => {
 		if (shouldShow) {
 			setFlightLevel(defaultLevel);
+			posthog?.capture("altitude_popup_opened", {
+				aircraft_id: aircraftId,
+				callsign: callSign,
+				current_altitude: currentAircraftLevel,
+				default_level: defaultLevel,
+				active_mode: activeMode,
+			});
 		}
-	}, [shouldShow, defaultLevel]);
+	}, [
+		shouldShow,
+		defaultLevel,
+		posthog,
+		aircraftId,
+		callSign,
+		currentAircraftLevel,
+		activeMode,
+	]);
 
 	React.useEffect(() => {
 		// Scroll to the level in the list (only within the container, not the whole page)
@@ -204,7 +222,12 @@ export default observer(function AircraftLevelPopup(properties: {
 		});
 	};
 
-	const applyFlightLevel = (level: number): void => {
+	const applyFlightLevel = (
+		level: number,
+		method: CommunicationMethod,
+	): void => {
+		const communicationMethod: CommunicationMethod =
+			method === "dl" ? "dl" : "rt";
 		const stringFlightLevel = level.toString();
 
 		// If TA request callback is set, call it instead of normal behavior
@@ -283,6 +306,7 @@ export default observer(function AircraftLevelPopup(properties: {
 			controlled_by: controlledBy,
 			current_cwp: currentCWP,
 			is_master: isMaster,
+			communication_method: communicationMethod,
 		});
 
 		clearMatchingTaRequests(properties.aircraft, [
@@ -291,15 +315,15 @@ export default observer(function AircraftLevelPopup(properties: {
 		cwpStore.closeLevelPopupForAircraft(aircraftId);
 	};
 
-	const setFLCP = (): void => {
-		applyFlightLevel(flightLevel);
+	const setFLCP = (method: CommunicationMethod): void => {
+		applyFlightLevel(flightLevel, method);
 	};
 
 	// Handler for clicking a flight level button in the list
 	const handleFlightLevelClick = (level: number): void => {
 		// In TA request mode, always apply (even if clicking default level)
 		if (cwpStore.taRequestCallback) {
-			applyFlightLevel(level);
+			applyFlightLevel(level, "rt");
 			return;
 		}
 		if (level === defaultLevel) {
@@ -307,7 +331,7 @@ export default observer(function AircraftLevelPopup(properties: {
 			close();
 		} else {
 			// Otherwise, apply immediately
-			applyFlightLevel(level);
+			applyFlightLevel(level, "rt");
 		}
 	};
 
