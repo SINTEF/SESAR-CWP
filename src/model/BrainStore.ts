@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { aircraftStore, configurationStore } from "../state";
+import { createPairKey } from "./DatablockStore";
 
 /**
  * BrainStore - Team Assistant Brain
@@ -92,10 +93,45 @@ export default class BrainStore {
 	}
 
 	get numberOfConflicts(): number {
-		// do not include STCA (From Yannick)
-		return (
-			aircraftStore.mtcdConflictIds.size + aircraftStore.tctConflictIds.size
-		);
+		// Do not include STCA (From Yannick). Count unique visible conflict pairs across TCT+MTCD.
+		const pairKeys = new Set<string>();
+		const radarVisibleAircraftIds = configurationStore.radarVisibleAircraftIds;
+
+		for (const conflict of aircraftStore.tctConflictIds.values()) {
+			if (!conflict.flightId || !conflict.conflictingFlightId) {
+				continue;
+			}
+
+			if (
+				!radarVisibleAircraftIds.has(conflict.flightId) ||
+				!radarVisibleAircraftIds.has(conflict.conflictingFlightId)
+			) {
+				continue;
+			}
+
+			pairKeys.add(
+				createPairKey(conflict.flightId, conflict.conflictingFlightId),
+			);
+		}
+
+		for (const conflict of aircraftStore.mtcdConflictIds.values()) {
+			if (!conflict.flightId || !conflict.conflictingFlightId) {
+				continue;
+			}
+
+			if (
+				!radarVisibleAircraftIds.has(conflict.flightId) ||
+				!radarVisibleAircraftIds.has(conflict.conflictingFlightId)
+			) {
+				continue;
+			}
+
+			pairKeys.add(
+				createPairKey(conflict.flightId, conflict.conflictingFlightId),
+			);
+		}
+
+		return pairKeys.size;
 	}
 
 	get normalizedFlights(): number {
