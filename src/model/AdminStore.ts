@@ -17,7 +17,6 @@ interface LatestPresenceEntry {
 }
 
 const MAX_LOG_ENTRIES = 500;
-const SIMULATION_STARTED_LOG = "Simulation started in paused state";
 const ADMIN_MINIMIZED_KEY = "adminPanelMinimized";
 const PRESENCE_SWITCH_WARNING_WINDOW_MS = 5000;
 const PRESENCE_SWITCH_WARNING_THRESHOLD = 2;
@@ -71,12 +70,6 @@ export default class AdminStore {
 	isMinimized = false;
 
 	logs: LogEntry[] = [];
-
-	/** Whether we're waiting for a simulator restart confirmation */
-	pendingRestart = false;
-
-	/** Set to true when simulator confirms it has restarted */
-	simulationRestarted = false;
 
 	/** Error from previous admin login attempt (stored in sessionStorage) */
 	adminError: string | null = null;
@@ -157,18 +150,6 @@ export default class AdminStore {
 		if (this.logs.length > MAX_LOG_ENTRIES) {
 			this.logs.splice(0, this.logs.length - MAX_LOG_ENTRIES);
 		}
-
-		// Check for simulator restart confirmation
-		if (this.pendingRestart && message.includes(SIMULATION_STARTED_LOG)) {
-			this.pendingRestart = false;
-			this.simulationRestarted = true;
-		}
-	}
-
-	/** Mark that we're expecting a simulator restart */
-	expectRestart(): void {
-		this.pendingRestart = true;
-		this.simulationRestarted = false;
 	}
 
 	handleLogMessage(jsonString: string): void {
