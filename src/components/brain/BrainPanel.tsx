@@ -192,7 +192,7 @@ export default observer(function BrainPanel() {
 			</div>
 
 			{/* Max Values Config */}
-			<div className="text-xs text-gray-400 space-y-1">
+			{/* <div className="text-xs text-gray-400 space-y-1">
 				<div className="font-semibold text-gray-300">Max Values</div>
 				<NumberInput
 					label="Max Flights"
@@ -209,10 +209,10 @@ export default observer(function BrainPanel() {
 					value={maxNumberOfConflicts}
 					onChange={(v) => brainStore.setMaxNumberOfConflicts(v)}
 				/>
-			</div>
+			</div> */}
 
 			{/* Gamma Slider */}
-			<div className="text-xs text-gray-400 space-y-1">
+			{/* <div className="text-xs text-gray-400 space-y-1">
 				<div className="font-semibold text-gray-300">
 					Gamma (urgency weight): {gamma.toFixed(2)}
 				</div>
@@ -225,10 +225,10 @@ export default observer(function BrainPanel() {
 					value={gamma}
 					onChange={(e) => brainStore.setGamma(Number(e.target.value))}
 				/>
-			</div>
+			</div> */}
 
 			{/* Swap Threshold */}
-			<div className="text-xs text-gray-400 space-y-1">
+			{/* <div className="text-xs text-gray-400 space-y-1">
 				<div className="font-semibold text-gray-300">
 					Swap Threshold: {swapValue.toFixed(2)}
 				</div>
@@ -241,7 +241,7 @@ export default observer(function BrainPanel() {
 					value={swapValue}
 					onChange={(e) => brainStore.setSwapValue(Number(e.target.value))}
 				/>
-			</div>
+			</div> */}
 
 			{/** Brain SVG */}
 			<svg

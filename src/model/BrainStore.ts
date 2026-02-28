@@ -24,9 +24,9 @@ export default class BrainStore {
 	timestampISA: number | null = null; // Unix timestamp in seconds
 
 	// Configurable max values for normalization
-	maxNumberOfFlights = 15; // Default, should be scenario-specific
-	maxNumberOfRequests = 3; // Default, should be scenario-specific
-	maxNumberOfConflicts = 3; // Default, should be scenario-specific
+	maxNumberOfFlights = 15;
+	maxNumberOfRequests = 3;
+	maxNumberOfConflicts = 5;
 	swapValue = 0.5; // Threshold for AP1/AP2 decision
 
 	// Manual override for AP (null = use computed, 1 or 2 = manual override)
