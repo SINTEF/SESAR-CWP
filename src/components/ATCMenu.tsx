@@ -71,7 +71,11 @@ export default observer(function ATCMenu(properties: {
 
 	const handleTrfClick = (aircraftId: string): void => {
 		aircraftStore.aircrafts.get(aircraftId)?.setController("FINISHED"); // Setting transfering to next sector as FINISHED for DIALOG
-		// change controlledBy to no longer currentCWP
+		// Persist to MQTT so the retained message is overwritten; without this, a reconnect
+		// would replay the old "CWP1" retained message and add the flight back to the count.
+		handlePublishPromise(
+			persistFrontendFlightController(aircraftId, "FINISHED"),
+		);
 
 		posthog?.capture("atc_menu_action", {
 			action: "transfer",
