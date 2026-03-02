@@ -76,9 +76,14 @@ export default class BrainStore {
 	// ========== Computed Properties ==========
 
 	get numberOfAssumedFlights(): number {
-		const currentCWP = configurationStore.currentCWP;
+		let currentCWP = configurationStore.currentCWP;
+
 		if (!currentCWP) {
 			return 0;
+		}
+
+		if (currentCWP === "All") {
+			currentCWP = "CWP1"; // Default to CWP1 if "All" is selected, since AP is per-CWP
 		}
 
 		return [...aircraftStore.aircrafts.values()].filter(
