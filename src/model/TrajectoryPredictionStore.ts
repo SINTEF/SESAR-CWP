@@ -2,7 +2,11 @@ import { distance } from "@turf/distance";
 import { lineString, point } from "@turf/helpers";
 import { length as turfLength } from "@turf/length";
 import { makeAutoObservable, type ObservableSet, observable } from "mobx";
+import type AircraftModel from "./AircraftModel";
 import type AircraftStore from "./AircraftStore";
+import type CWPStore from "./CwpStore";
+import type FlightRoute from "./FlightRoute";
+import { getPredictiveRouteAheadTrajectory } from "./predictiveTrajectory";
 import { getRouteAheadTrajectory } from "./routeProgress";
 import type SimulatorStore from "./SimulatorStore";
 import type Trajectory from "./Trajectory";
@@ -44,17 +48,41 @@ export default class TrajectoryPredictionStore {
 
 	private aircraftStore: AircraftStore;
 	private simulatorStore: SimulatorStore;
+	private cwpStore: CWPStore;
 
 	constructor({
 		aircraftStore,
 		simulatorStore,
+		cwpStore,
 	}: {
 		aircraftStore: AircraftStore;
 		simulatorStore: SimulatorStore;
+		cwpStore: CWPStore;
 	}) {
 		makeAutoObservable(this, {}, { autoBind: true });
 		this.aircraftStore = aircraftStore;
 		this.simulatorStore = simulatorStore;
+		this.cwpStore = cwpStore;
+	}
+
+	private getActiveRouteAheadTrajectory(
+		aircraft: AircraftModel,
+		route: FlightRoute,
+		currentTime: number,
+	): Trajectory[] {
+		if (this.cwpStore.usePredictiveTrajectories) {
+			return getPredictiveRouteAheadTrajectory({
+				aircraft,
+				route,
+				currentTime,
+			});
+		}
+
+		return getRouteAheadTrajectory({
+			aircraft,
+			route,
+			currentTime,
+		});
 	}
 
 	setEnabled(value: boolean): void {
@@ -137,11 +165,11 @@ export default class TrajectoryPredictionStore {
 		}
 		const now = this.simulatorStore.timestamp;
 
-		const aheadTrajectory = getRouteAheadTrajectory({
+		const aheadTrajectory = this.getActiveRouteAheadTrajectory(
 			aircraft,
-			route: flightRoute,
-			currentTime: now,
-		});
+			flightRoute,
+			now,
+		);
 		if (aheadTrajectory.length === 0) {
 			return null;
 		}
@@ -240,11 +268,11 @@ export default class TrajectoryPredictionStore {
 			aircraft.assignedFlightId,
 		);
 		if (flightRoute) {
-			const aheadTrajectory = getRouteAheadTrajectory({
+			const aheadTrajectory = this.getActiveRouteAheadTrajectory(
 				aircraft,
-				route: flightRoute,
+				flightRoute,
 				currentTime,
-			});
+			);
 			for (const t of aheadTrajectory) {
 				if (t.timestamp > currentTime && t.timestamp < futureTime) {
 					coords.push([
@@ -295,11 +323,11 @@ export default class TrajectoryPredictionStore {
 			return { ...currentPos };
 		}
 
-		const trajectories = getRouteAheadTrajectory({
+		const trajectories = this.getActiveRouteAheadTrajectory(
 			aircraft,
-			route: flightRoute,
-			currentTime: now,
-		});
+			flightRoute,
+			now,
+		);
 
 		if (trajectories.length === 0) {
 			return { ...currentPos };
@@ -425,8 +453,16 @@ export default class TrajectoryPredictionStore {
 		const currentTime = this.simulatorStore.timestamp;
 
 		// Find end times of both trajectories
-		const trajectory1 = flightRoute1.trajectory;
-		const trajectory2 = flightRoute2.trajectory;
+		const trajectory1 = this.getActiveRouteAheadTrajectory(
+			aircraft1,
+			flightRoute1,
+			currentTime,
+		);
+		const trajectory2 = this.getActiveRouteAheadTrajectory(
+			aircraft2,
+			flightRoute2,
+			currentTime,
+		);
 
 		const endTime1 = trajectory1.at(-1)?.timestamp;
 		const endTime2 = trajectory2.at(-1)?.timestamp;

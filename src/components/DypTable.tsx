@@ -77,6 +77,7 @@ export default observer(function DypTable(/* properties */) {
 		selectedAircraftIds: [
 			latestSelectedAircraftData?.aircraftId,
 		] as unknown as ObservableSet<string>,
+		usePredictiveTrajectories: cwpStore.usePredictiveTrajectories,
 	}).map(({ aircraft, trajectory }) => ({
 		aircraftId: aircraft.aircraftId,
 		callSign: aircraft.callSign,
