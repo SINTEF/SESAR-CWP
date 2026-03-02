@@ -65,6 +65,7 @@ export const roleConfigurationStore = new RoleConfigurationStore({
 export const trajectoryPredictionStore = new TrajectoryPredictionStore({
 	aircraftStore,
 	simulatorStore,
+	cwpStore,
 });
 export const mapViewportStore = new MapViewportStore();
 export const popupLinesStore = new PopupLinesStore();
