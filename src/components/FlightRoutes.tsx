@@ -86,6 +86,7 @@ export default observer(function FlightRoutes({ beforeId }: FlightRoutesProps) {
 	const flightRoutes = getAircraftsWithFlightRoutes({
 		aircraftStore,
 		selectedAircraftIds: aircraftsWithFlightRoutes,
+		usePredictiveTrajectories: cwpStore.usePredictiveTrajectories,
 	});
 
 	const features = flightRoutes.flatMap(({ aircraft, trajectory }) =>

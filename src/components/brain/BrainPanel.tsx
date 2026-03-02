@@ -5,7 +5,7 @@ import {
 } from "../../mqtt-client/publishers";
 import { brainStore } from "../../state";
 
-function NumberInput({
+function _NumberInput({
 	label,
 	value,
 	onChange,
