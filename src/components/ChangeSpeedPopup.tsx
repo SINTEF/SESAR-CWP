@@ -166,7 +166,6 @@ export default observer(function ChangeSpeedPopup(properties: {
 			setSelectedSpeedMetersPerSecond(defaultSelectedSpeedMetersPerSecond);
 			posthog?.capture("speed_popup_opened", {
 				aircraft_id: aircraftId,
-				aircraft_id: aircraftId,
 				callsign: callSign,
 				current_speed: lastKnownSpeed,
 				assigned_speed: assignedSpeed,
@@ -239,7 +238,6 @@ export default observer(function ChangeSpeedPopup(properties: {
 			configurationStore.currentCWP === "All" ? "All" : controlledBy;
 
 		posthog?.capture("speed_changed", {
-			aircraft_id: aircraftId,
 			aircraft_id: aircraftId,
 			callsign: callSign,
 			previous_speed: lastKnownSpeed,
