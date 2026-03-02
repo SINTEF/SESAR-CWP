@@ -165,7 +165,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 		if (shouldShow) {
 			setSelectedSpeedMetersPerSecond(defaultSelectedSpeedMetersPerSecond);
 			posthog?.capture("speed_popup_opened", {
-				haircraft_id: aircraftId,
+				aircraft_id: aircraftId,
 				aircraft_id: aircraftId,
 				callsign: callSign,
 				current_speed: lastKnownSpeed,
@@ -214,7 +214,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 	const close = (): void => {
 		cwpStore.closeChangeSpeedForAircraft(aircraftId);
 		posthog?.capture("speed_popup_closed", {
-			haircraft_id: aircraftId,
+			aircraft_id: aircraftId,
 			callsign: callSign,
 			action: "cancelled",
 		});
@@ -240,7 +240,7 @@ export default observer(function ChangeSpeedPopup(properties: {
 
 		posthog?.capture("speed_changed", {
 			aircraft_id: aircraftId,
-			haircraft_id: aircraftId,
+			aircraft_id: aircraftId,
 			callsign: callSign,
 			previous_speed: lastKnownSpeed,
 			new_speed: speedMetersPerSecond,
