@@ -511,11 +511,15 @@ export default class CWPStore {
 	): void {
 		const savedCallback = preserveCallback ? this.taRequestCallback : null;
 		const savedAircraftId = preserveCallback ? this.taRequestAircraftId : null;
+		const savedNextSectorMode = this.nextSectorFlActivated;
+		const savedNextAccMode = this.flightLevelNextAccActivated;
 		this.closeAllLabelPopupsForAircraft(aircraftId);
 		if (savedCallback) {
 			this.taRequestCallback = savedCallback;
 			this.taRequestAircraftId = savedAircraftId;
 		}
+		this.nextSectorFlActivated = savedNextSectorMode;
+		this.flightLevelNextAccActivated = savedNextAccMode;
 		this.aircraftsWithLevelPopup.add(aircraftId);
 	}
 
