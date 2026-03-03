@@ -3,7 +3,6 @@ import { usePostHog } from "posthog-js/react";
 import React from "react";
 import type AircraftModel from "../model/AircraftModel";
 import { isWaypointInFlightPlan } from "../model/predictiveTrajectoryState";
-import { getRouteAheadTrajectory } from "../model/routeProgress";
 import {
 	changeNextWaypointOfAircraft,
 	clearPredictiveTrajectoryState,
@@ -16,7 +15,6 @@ import {
 	configurationStore,
 	cwpStore,
 	fixStore,
-	simulatorStore,
 } from "../state";
 import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
 import {
@@ -302,29 +300,10 @@ export default observer(function ChangeNextFixPopup(properties: {
 				waypoint_id: upperFixName,
 			});
 		} else {
-			const nextFlightPlanWaypoint =
-				flightRoute === undefined
-					? undefined
-					: getRouteAheadTrajectory({
-							aircraft: properties.aircraft,
-							route: flightRoute,
-							currentTime: simulatorStore.timestamp,
-						}).find((trajectory) => trajectory.objectId !== undefined);
-
-			if (!nextFlightPlanWaypoint?.objectId) {
-				properties.aircraft.clearPredictiveTrajectoryState();
-				handlePublishPromise(clearPredictiveTrajectoryState(assignedFlightId));
-				close();
-				return;
-			}
-
 			properties.aircraft.setPredictiveTrajectoryReroutedViaWaypoint(
 				upperFixName,
 				latOfFix,
 				longOfFix,
-				nextFlightPlanWaypoint.objectId,
-				nextFlightPlanWaypoint.trajectoryCoordinate.latitude,
-				nextFlightPlanWaypoint.trajectoryCoordinate.longitude,
 			);
 			handlePublishPromise(
 				persistPredictiveTrajectoryReroutedViaWaypoint({
@@ -332,11 +311,6 @@ export default observer(function ChangeNextFixPopup(properties: {
 					waypointId: upperFixName,
 					latitude: latOfFix,
 					longitude: longOfFix,
-					nextWaypointId: nextFlightPlanWaypoint.objectId,
-					nextWaypointLatitude:
-						nextFlightPlanWaypoint.trajectoryCoordinate.latitude,
-					nextWaypointLongitude:
-						nextFlightPlanWaypoint.trajectoryCoordinate.longitude,
 				}),
 			);
 			posthog?.capture("predictive_trajectory_state_changed", {

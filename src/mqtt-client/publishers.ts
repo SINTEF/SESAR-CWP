@@ -251,17 +251,11 @@ export async function persistPredictiveTrajectoryReroutedViaWaypoint({
 	waypointId,
 	latitude,
 	longitude,
-	nextWaypointId,
-	nextWaypointLatitude,
-	nextWaypointLongitude,
 }: {
 	flightUniqueId: string;
 	waypointId: string;
 	latitude: number;
 	longitude: number;
-	nextWaypointId: string;
-	nextWaypointLatitude: number;
-	nextWaypointLongitude: number;
 }): Promise<void> {
 	await publish(
 		`frontend/${clientId}/flight/${flightUniqueId}/predictiveTrajectoryState`,
@@ -270,9 +264,6 @@ export async function persistPredictiveTrajectoryReroutedViaWaypoint({
 			waypointId,
 			latitude,
 			longitude,
-			nextWaypointId,
-			nextWaypointLatitude,
-			nextWaypointLongitude,
 		},
 		{ retain: true },
 	);

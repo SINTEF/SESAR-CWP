@@ -40,9 +40,6 @@ export const FrontendPredictiveTrajectoryStateMessageSchema =
 			waypointId: z.string().min(1),
 			latitude: z.number(),
 			longitude: z.number(),
-			nextWaypointId: z.string().min(1),
-			nextWaypointLatitude: z.number(),
-			nextWaypointLongitude: z.number(),
 		}),
 	]);
 

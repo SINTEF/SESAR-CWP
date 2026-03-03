@@ -2,7 +2,6 @@ import posthog from "posthog-js";
 import AircraftModel from "../model/AircraftModel";
 import { TeamAssistantRequest } from "../model/AircraftStore";
 import { isWaypointInFlightPlan } from "../model/predictiveTrajectoryState";
-import { getRouteAheadTrajectory } from "../model/routeProgress";
 import {
 	changeBearingOfAircraft,
 	changeFlightLevelOfAircraft,
@@ -311,30 +310,10 @@ export const handleAcceptAction = (
 					waypoint_id: waypointName,
 				});
 			} else {
-				const nextFlightPlanWaypoint =
-					flightRoute === undefined
-						? undefined
-						: getRouteAheadTrajectory({
-								aircraft,
-								route: flightRoute,
-								currentTime: aircraftStore.simulatorStore.timestamp,
-							}).find((trajectory) => trajectory.objectId !== undefined);
-
-				if (!nextFlightPlanWaypoint?.objectId) {
-					aircraft.clearPredictiveTrajectoryState();
-					handlePublishPromise(
-						clearPredictiveTrajectoryState(aircraft.assignedFlightId),
-					);
-					break;
-				}
-
 				aircraft.setPredictiveTrajectoryReroutedViaWaypoint(
 					waypointName,
 					fix.latitude,
 					fix.longitude,
-					nextFlightPlanWaypoint.objectId,
-					nextFlightPlanWaypoint.trajectoryCoordinate.latitude,
-					nextFlightPlanWaypoint.trajectoryCoordinate.longitude,
 				);
 				handlePublishPromise(
 					persistPredictiveTrajectoryReroutedViaWaypoint({
@@ -342,11 +321,6 @@ export const handleAcceptAction = (
 						waypointId: waypointName,
 						latitude: fix.latitude,
 						longitude: fix.longitude,
-						nextWaypointId: nextFlightPlanWaypoint.objectId,
-						nextWaypointLatitude:
-							nextFlightPlanWaypoint.trajectoryCoordinate.latitude,
-						nextWaypointLongitude:
-							nextFlightPlanWaypoint.trajectoryCoordinate.longitude,
 					}),
 				);
 				posthog.capture("predictive_trajectory_state_changed", {

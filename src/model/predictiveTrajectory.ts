@@ -8,7 +8,6 @@ import Trajectory from "./Trajectory";
 const EARTH_RADIUS_METERS = 6_371_008;
 const MIN_VALID_SPEED_MPS = 1;
 const MOVING_AWAY_HEADING_DIFF_DEGREES = 100;
-const ENABLE_PREDICTIVE_TRAJECTORY_DEBUG_LOGS = true;
 
 interface PredictiveRouteAheadParams {
 	aircraft: AircraftModel;
@@ -17,17 +16,6 @@ interface PredictiveRouteAheadParams {
 }
 
 const PREDICTION_OFFSETS_SECONDS = [180, 360, 540, 720, 900] as const;
-
-function logPredictiveTrajectoryDebug(
-	label: string,
-	payload: Record<string, unknown>,
-): void {
-	if (!ENABLE_PREDICTIVE_TRAJECTORY_DEBUG_LOGS) {
-		return;
-	}
-
-	console.log(`[predictiveTrajectory] ${label}`, payload);
-}
 
 function toRadians(degrees: number): number {
 	return (degrees * Math.PI) / 180;
@@ -240,37 +228,11 @@ export function getPredictiveRouteAheadTrajectory({
 	const speedMps = aircraft.lastKnownSpeed;
 	const headingDegrees = aircraft.lastKnownBearing;
 
-	logPredictiveTrajectoryDebug("input", {
-		aircraftId: aircraft.aircraftId,
-		flightId: aircraft.assignedFlightId,
-		mode: aircraft.predictiveTrajectoryMode,
-		currentTime,
-		lastKnownLatitude: aircraft.lastKnownLatitude,
-		lastKnownLongitude: aircraft.lastKnownLongitude,
-		speedMps,
-		headingDegrees,
-		predictiveTrajectoryWaypointId: aircraft.predictiveTrajectoryWaypointId,
-		predictiveTrajectoryWaypointLatitude:
-			aircraft.predictiveTrajectoryWaypointLatitude,
-		predictiveTrajectoryWaypointLongitude:
-			aircraft.predictiveTrajectoryWaypointLongitude,
-		predictiveTrajectoryNextWaypointId:
-			aircraft.predictiveTrajectoryNextWaypointId,
-		predictiveTrajectoryNextWaypointLatitude:
-			aircraft.predictiveTrajectoryNextWaypointLatitude,
-		predictiveTrajectoryNextWaypointLongitude:
-			aircraft.predictiveTrajectoryNextWaypointLongitude,
-	});
-
 	if (
 		!Number.isFinite(speedMps) ||
 		speedMps < MIN_VALID_SPEED_MPS ||
 		!Number.isFinite(headingDegrees)
 	) {
-		logPredictiveTrajectoryDebug("fallback: invalid speed or heading", {
-			speedMps,
-			headingDegrees,
-		});
 		return getRouteAheadTrajectory({
 			aircraft,
 			route,
@@ -279,7 +241,6 @@ export function getPredictiveRouteAheadTrajectory({
 	}
 
 	if (aircraft.predictiveTrajectoryMode === "unset") {
-		logPredictiveTrajectoryDebug("fallback: predictive mode unset", {});
 		return getRouteAheadTrajectory({
 			aircraft,
 			route,
@@ -288,10 +249,6 @@ export function getPredictiveRouteAheadTrajectory({
 	}
 
 	if (aircraft.predictiveTrajectoryMode === "rerouted") {
-		logPredictiveTrajectoryDebug("mode: rerouted", {
-			headingDegrees,
-			speedMps,
-		});
 		return buildProjectedTrajectory(
 			aircraft.lastKnownLatitude,
 			aircraft.lastKnownLongitude,
@@ -304,31 +261,12 @@ export function getPredictiveRouteAheadTrajectory({
 	const waypointLatitude = aircraft.predictiveTrajectoryWaypointLatitude;
 	const waypointLongitude = aircraft.predictiveTrajectoryWaypointLongitude;
 	const waypointId = aircraft.predictiveTrajectoryWaypointId;
-	const nextWaypointId = aircraft.predictiveTrajectoryNextWaypointId;
-	const nextWaypointLatitude =
-		aircraft.predictiveTrajectoryNextWaypointLatitude;
-	const nextWaypointLongitude =
-		aircraft.predictiveTrajectoryNextWaypointLongitude;
 
 	if (
 		waypointLatitude === undefined ||
 		waypointLongitude === undefined ||
-		waypointId === undefined ||
-		nextWaypointId === undefined ||
-		nextWaypointLatitude === undefined ||
-		nextWaypointLongitude === undefined
+		waypointId === undefined
 	) {
-		logPredictiveTrajectoryDebug(
-			"fallback: missing rerouted-via-waypoint data",
-			{
-				waypointLatitude,
-				waypointLongitude,
-				waypointId,
-				nextWaypointId,
-				nextWaypointLatitude,
-				nextWaypointLongitude,
-			},
-		);
 		return getRouteAheadTrajectory({
 			aircraft,
 			route,
@@ -337,12 +275,6 @@ export function getPredictiveRouteAheadTrajectory({
 	}
 
 	if (isWaypointInFlightPlan(route, waypointId)) {
-		logPredictiveTrajectoryDebug(
-			"fallback: reroute waypoint already in flight plan",
-			{
-				waypointId,
-			},
-		);
 		return getRouteAheadTrajectory({
 			aircraft,
 			route,
@@ -350,10 +282,21 @@ export function getPredictiveRouteAheadTrajectory({
 		});
 	}
 
-	if (!isWaypointInFlightPlan(route, nextWaypointId)) {
-		logPredictiveTrajectoryDebug("fallback: next waypoint not in flight plan", {
-			nextWaypointId,
-		});
+	const liveNextWaypoint = getRouteAheadTrajectory({
+		aircraft,
+		route,
+		currentTime,
+	}).find((trajectory) => trajectory.objectId !== undefined);
+	const nextWaypointId = liveNextWaypoint?.objectId;
+	const rejoinLatitude = liveNextWaypoint?.trajectoryCoordinate.latitude;
+	const rejoinLongitude = liveNextWaypoint?.trajectoryCoordinate.longitude;
+
+	if (
+		nextWaypointId === undefined ||
+		rejoinLatitude === undefined ||
+		rejoinLongitude === undefined ||
+		!isWaypointInFlightPlan(route, nextWaypointId)
+	) {
 		return getRouteAheadTrajectory({
 			aircraft,
 			route,
@@ -366,15 +309,6 @@ export function getPredictiveRouteAheadTrajectory({
 		waypointLatitude,
 		waypointLongitude,
 	);
-	logPredictiveTrajectoryDebug("rerouted-via-waypoint: moving-away check", {
-		isMovingAway: movingAwayInfo.isMovingAway,
-		headingDegrees,
-		bearingToWaypoint: movingAwayInfo.bearingToWaypoint,
-		headingDifference: movingAwayInfo.headingDifference,
-		movingAwayThreshold: MOVING_AWAY_HEADING_DIFF_DEGREES,
-		waypointId,
-		nextWaypointId,
-	});
 
 	if (movingAwayInfo.isMovingAway) {
 		const routeFromNextWaypoint = getRetimedRouteTrajectoryFromWaypoint(
@@ -384,14 +318,6 @@ export function getPredictiveRouteAheadTrajectory({
 			aircraft.lastKnownLongitude,
 			currentTime,
 			speedMps,
-		);
-		logPredictiveTrajectoryDebug(
-			"rerouted-via-waypoint: reset to flight plan from next waypoint",
-			{
-				nextWaypointId,
-				pointsReturned: routeFromNextWaypoint.length,
-				retimedFromCurrentPosition: true,
-			},
 		);
 
 		if (routeFromNextWaypoint.length > 0) {
@@ -405,19 +331,11 @@ export function getPredictiveRouteAheadTrajectory({
 		});
 	}
 
-	const rejoinLatitude = nextWaypointLatitude;
-	const rejoinLongitude = nextWaypointLongitude;
 	const distanceToWaypointMeters = haversineMeters(
 		aircraft.lastKnownLatitude,
 		aircraft.lastKnownLongitude,
 		waypointLatitude,
 		waypointLongitude,
-	);
-	const distanceWaypointToRejoinMeters = haversineMeters(
-		waypointLatitude,
-		waypointLongitude,
-		rejoinLatitude,
-		rejoinLongitude,
 	);
 	const secondsToWaypoint = secondsForDistanceAtSpeed(
 		distanceToWaypointMeters,
@@ -433,23 +351,6 @@ export function getPredictiveRouteAheadTrajectory({
 		speedMps,
 	);
 
-	logPredictiveTrajectoryDebug("rerouted-via-waypoint: geometry", {
-		waypointId,
-		nextWaypointId,
-		distanceToWaypointMeters,
-		distanceWaypointToRejoinMeters,
-		secondsToWaypoint,
-		secondsWaypointToRejoin: secondsForDistanceAtSpeed(
-			distanceWaypointToRejoinMeters,
-			speedMps,
-		),
-		remainingFlightPlanPointsFromNextWaypoint: routeTailFromNextWaypoint.length,
-		waypointLatitude,
-		waypointLongitude,
-		rejoinLatitude,
-		rejoinLongitude,
-	});
-
 	const trajectory = [
 		new Trajectory({
 			objectId: waypointId,
@@ -461,15 +362,6 @@ export function getPredictiveRouteAheadTrajectory({
 		}),
 		...routeTailFromNextWaypoint,
 	];
-
-	logPredictiveTrajectoryDebug("rerouted-via-waypoint: output trajectory", {
-		trajectory: trajectory.map((point) => ({
-			timestamp: point.timestamp,
-			objectId: point.objectId,
-			latitude: point.trajectoryCoordinate.latitude,
-			longitude: point.trajectoryCoordinate.longitude,
-		})),
-	});
 
 	return trajectory;
 }

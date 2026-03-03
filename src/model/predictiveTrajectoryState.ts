@@ -10,9 +10,6 @@ export interface PredictiveTrajectoryState {
 	waypointId?: string;
 	waypointLatitude?: number;
 	waypointLongitude?: number;
-	nextWaypointId?: string;
-	nextWaypointLatitude?: number;
-	nextWaypointLongitude?: number;
 }
 
 export function isWaypointInFlightPlan(
