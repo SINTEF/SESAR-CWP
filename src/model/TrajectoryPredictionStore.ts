@@ -4,10 +4,8 @@ import { length as turfLength } from "@turf/length";
 import { makeAutoObservable, type ObservableSet, observable } from "mobx";
 import type AircraftModel from "./AircraftModel";
 import type AircraftStore from "./AircraftStore";
-import type CWPStore from "./CwpStore";
 import type FlightRoute from "./FlightRoute";
 import { getPredictiveRouteAheadTrajectory } from "./predictiveTrajectory";
-import { getRouteAheadTrajectory } from "./routeProgress";
 import type SimulatorStore from "./SimulatorStore";
 import type Trajectory from "./Trajectory";
 
@@ -48,21 +46,17 @@ export default class TrajectoryPredictionStore {
 
 	private aircraftStore: AircraftStore;
 	private simulatorStore: SimulatorStore;
-	private cwpStore: CWPStore;
 
 	constructor({
 		aircraftStore,
 		simulatorStore,
-		cwpStore,
 	}: {
 		aircraftStore: AircraftStore;
 		simulatorStore: SimulatorStore;
-		cwpStore: CWPStore;
 	}) {
 		makeAutoObservable(this, {}, { autoBind: true });
 		this.aircraftStore = aircraftStore;
 		this.simulatorStore = simulatorStore;
-		this.cwpStore = cwpStore;
 	}
 
 	private getActiveRouteAheadTrajectory(
@@ -70,15 +64,7 @@ export default class TrajectoryPredictionStore {
 		route: FlightRoute,
 		currentTime: number,
 	): Trajectory[] {
-		if (this.cwpStore.usePredictiveTrajectories) {
-			return getPredictiveRouteAheadTrajectory({
-				aircraft,
-				route,
-				currentTime,
-			});
-		}
-
-		return getRouteAheadTrajectory({
+		return getPredictiveRouteAheadTrajectory({
 			aircraft,
 			route,
 			currentTime,

@@ -1,21 +1,20 @@
 import type AircraftModel from "./AircraftModel";
 import CoordinatePair from "./CoordinatePair";
 import type FlightRoute from "./FlightRoute";
+import { isWaypointInFlightPlan } from "./predictiveTrajectoryState";
 import { getRouteAheadTrajectory } from "./routeProgress";
 import Trajectory from "./Trajectory";
 
 const EARTH_RADIUS_METERS = 6_371_008;
-const DEFAULT_PREDICTION_WINDOW_SECONDS = 180;
-const DEFAULT_WAYPOINT_RADIUS_METERS = 3000;
 const MIN_VALID_SPEED_MPS = 1;
 
 interface PredictiveRouteAheadParams {
 	aircraft: AircraftModel;
 	route: FlightRoute;
 	currentTime: number;
-	predictionWindowSeconds?: number;
-	waypointRadiusMeters?: number;
 }
+
+const PREDICTION_OFFSETS_SECONDS = [180, 360, 540, 720, 900] as const;
 
 function toRadians(degrees: number): number {
 	return (degrees * Math.PI) / 180;
@@ -51,6 +50,23 @@ function haversineMeters(
 	return 2 * EARTH_RADIUS_METERS * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function initialBearingDegrees(
+	lat1: number,
+	lon1: number,
+	lat2: number,
+	lon2: number,
+): number {
+	const phi1 = toRadians(lat1);
+	const phi2 = toRadians(lat2);
+	const lambda1 = toRadians(lon1);
+	const lambda2 = toRadians(lon2);
+	const y = Math.sin(lambda2 - lambda1) * Math.cos(phi2);
+	const x =
+		Math.cos(phi1) * Math.sin(phi2) -
+		Math.sin(phi1) * Math.cos(phi2) * Math.cos(lambda2 - lambda1);
+	return normalizeBearingDegrees(toDegrees(Math.atan2(y, x)));
+}
+
 function projectPositionFromBearing(
 	lat: number,
 	lon: number,
@@ -80,23 +96,79 @@ function projectPositionFromBearing(
 	};
 }
 
+function projectLatLonToLocalMeters(
+	lat: number,
+	lon: number,
+	originLat: number,
+	originLon: number,
+): { east: number; north: number } {
+	const dLat = toRadians(lat - originLat);
+	const dLon = toRadians(lon - originLon);
+	const meanLat = toRadians((lat + originLat) / 2);
+
+	return {
+		east: dLon * Math.cos(meanLat) * EARTH_RADIUS_METERS,
+		north: dLat * EARTH_RADIUS_METERS,
+	};
+}
+
+function isMovingAwayFromWaypoint(
+	aircraft: AircraftModel,
+	waypointLatitude: number,
+	waypointLongitude: number,
+): boolean {
+	const heading = aircraft.lastKnownBearing;
+	if (!Number.isFinite(heading)) {
+		return false;
+	}
+
+	const vectorToWaypoint = projectLatLonToLocalMeters(
+		waypointLatitude,
+		waypointLongitude,
+		aircraft.lastKnownLatitude,
+		aircraft.lastKnownLongitude,
+	);
+
+	const headingRadians = toRadians(normalizeBearingDegrees(heading));
+	const velocityEast = Math.sin(headingRadians);
+	const velocityNorth = Math.cos(headingRadians);
+
+	const dotProduct =
+		vectorToWaypoint.east * velocityEast +
+		vectorToWaypoint.north * velocityNorth;
+	return dotProduct <= 0;
+}
+
+function buildProjectedTrajectory(
+	startLatitude: number,
+	startLongitude: number,
+	startTimestamp: number,
+	bearingDegrees: number,
+	speedMps: number,
+): Trajectory[] {
+	return PREDICTION_OFFSETS_SECONDS.map((offsetSeconds) => {
+		const projected = projectPositionFromBearing(
+			startLatitude,
+			startLongitude,
+			bearingDegrees,
+			speedMps * offsetSeconds,
+		);
+
+		return new Trajectory({
+			trajectoryCoordinate: new CoordinatePair({
+				latitude: projected.lat,
+				longitude: projected.lon,
+			}),
+			timestamp: startTimestamp + offsetSeconds,
+		});
+	});
+}
+
 export function getPredictiveRouteAheadTrajectory({
 	aircraft,
 	route,
 	currentTime,
-	predictionWindowSeconds = DEFAULT_PREDICTION_WINDOW_SECONDS,
-	waypointRadiusMeters = DEFAULT_WAYPOINT_RADIUS_METERS,
 }: PredictiveRouteAheadParams): Trajectory[] {
-	const flightPlanAhead = getRouteAheadTrajectory({
-		aircraft,
-		route,
-		currentTime,
-	});
-
-	if (flightPlanAhead.length === 0) {
-		return [];
-	}
-
 	const speedMps = aircraft.lastKnownSpeed;
 	const headingDegrees = aircraft.lastKnownBearing;
 
@@ -105,114 +177,111 @@ export function getPredictiveRouteAheadTrajectory({
 		speedMps < MIN_VALID_SPEED_MPS ||
 		!Number.isFinite(headingDegrees)
 	) {
-		return flightPlanAhead;
+		return getRouteAheadTrajectory({
+			aircraft,
+			route,
+			currentTime,
+		});
 	}
 
-	const predictionEndTime = currentTime + predictionWindowSeconds;
-
-	const firstWaypoint = flightPlanAhead[0];
-	const firstWaypointDeltaSeconds = Math.max(
-		0,
-		firstWaypoint.timestamp - currentTime,
-	);
-	const projectedAtFirstWaypointTime = projectPositionFromBearing(
-		aircraft.lastKnownLatitude,
-		aircraft.lastKnownLongitude,
-		headingDegrees,
-		speedMps * firstWaypointDeltaSeconds,
-	);
-	const distanceToFirstWaypoint = haversineMeters(
-		projectedAtFirstWaypointTime.lat,
-		projectedAtFirstWaypointTime.lon,
-		firstWaypoint.trajectoryCoordinate.latitude,
-		firstWaypoint.trajectoryCoordinate.longitude,
-	);
-
-	// If the next waypoint is still realistically reachable, keep the original flight plan.
-	if (distanceToFirstWaypoint <= waypointRadiusMeters) {
-		return flightPlanAhead;
+	if (aircraft.predictiveTrajectoryMode === "unset") {
+		return getRouteAheadTrajectory({
+			aircraft,
+			route,
+			currentTime,
+		});
 	}
 
-	const predictedEndPosition = projectPositionFromBearing(
-		aircraft.lastKnownLatitude,
-		aircraft.lastKnownLongitude,
-		headingDegrees,
-		speedMps * predictionWindowSeconds,
-	);
-
-	let firstValidWaypointIndex = 0;
-	for (const [index, trajectory] of flightPlanAhead.entries()) {
-		if (trajectory.timestamp > predictionEndTime) {
-			break;
-		}
-
-		const dtSeconds = Math.max(0, trajectory.timestamp - currentTime);
-		const projectedAtWaypointTime = projectPositionFromBearing(
+	if (aircraft.predictiveTrajectoryMode === "rerouted") {
+		return buildProjectedTrajectory(
 			aircraft.lastKnownLatitude,
 			aircraft.lastKnownLongitude,
+			currentTime,
 			headingDegrees,
-			speedMps * dtSeconds,
+			speedMps,
 		);
+	}
 
-		const distanceToWaypoint = haversineMeters(
-			projectedAtWaypointTime.lat,
-			projectedAtWaypointTime.lon,
-			trajectory.trajectoryCoordinate.latitude,
-			trajectory.trajectoryCoordinate.longitude,
+	const waypointLatitude = aircraft.predictiveTrajectoryWaypointLatitude;
+	const waypointLongitude = aircraft.predictiveTrajectoryWaypointLongitude;
+	const waypointId = aircraft.predictiveTrajectoryWaypointId;
+
+	if (
+		waypointLatitude === undefined ||
+		waypointLongitude === undefined ||
+		waypointId === undefined
+	) {
+		return getRouteAheadTrajectory({
+			aircraft,
+			route,
+			currentTime,
+		});
+	}
+
+	if (isWaypointInFlightPlan(route, waypointId)) {
+		return getRouteAheadTrajectory({
+			aircraft,
+			route,
+			currentTime,
+		});
+	}
+
+	if (isMovingAwayFromWaypoint(aircraft, waypointLatitude, waypointLongitude)) {
+		return buildProjectedTrajectory(
+			aircraft.lastKnownLatitude,
+			aircraft.lastKnownLongitude,
+			currentTime,
+			headingDegrees,
+			speedMps,
 		);
+	}
 
-		if (distanceToWaypoint <= waypointRadiusMeters) {
-			firstValidWaypointIndex = index;
-			break;
+	const bearingToWaypoint = initialBearingDegrees(
+		aircraft.lastKnownLatitude,
+		aircraft.lastKnownLongitude,
+		waypointLatitude,
+		waypointLongitude,
+	);
+	const distanceToWaypointMeters = haversineMeters(
+		aircraft.lastKnownLatitude,
+		aircraft.lastKnownLongitude,
+		waypointLatitude,
+		waypointLongitude,
+	);
+	const timeToWaypointSeconds = distanceToWaypointMeters / speedMps;
+
+	return PREDICTION_OFFSETS_SECONDS.map((offsetSeconds) => {
+		if (offsetSeconds <= timeToWaypointSeconds) {
+			const projected = projectPositionFromBearing(
+				aircraft.lastKnownLatitude,
+				aircraft.lastKnownLongitude,
+				bearingToWaypoint,
+				speedMps * offsetSeconds,
+			);
+
+			return new Trajectory({
+				trajectoryCoordinate: new CoordinatePair({
+					latitude: projected.lat,
+					longitude: projected.lon,
+				}),
+				timestamp: currentTime + offsetSeconds,
+			});
 		}
 
-		firstValidWaypointIndex = index + 1;
-	}
-
-	const remainingWaypoints = flightPlanAhead.slice(firstValidWaypointIndex);
-	const virtualWaypointAltitude =
-		remainingWaypoints.at(0)?.trajectoryCoordinate.altitude;
-
-	const virtualWaypoint = new Trajectory({
-		trajectoryCoordinate: new CoordinatePair({
-			longitude: predictedEndPosition.lon,
-			latitude: predictedEndPosition.lat,
-			altitude: virtualWaypointAltitude,
-		}),
-		timestamp: predictionEndTime,
-	});
-
-	if (remainingWaypoints.length === 0) {
-		return [virtualWaypoint];
-	}
-
-	const predictiveTrajectory: Trajectory[] = [virtualWaypoint];
-	let previousLatitude = predictedEndPosition.lat;
-	let previousLongitude = predictedEndPosition.lon;
-	let previousTimestamp = predictionEndTime;
-
-	for (const waypoint of remainingWaypoints) {
-		const distanceMeters = haversineMeters(
-			previousLatitude,
-			previousLongitude,
-			waypoint.trajectoryCoordinate.latitude,
-			waypoint.trajectoryCoordinate.longitude,
+		const postWaypointElapsedSeconds = offsetSeconds - timeToWaypointSeconds;
+		const projectedAfterWaypoint = projectPositionFromBearing(
+			waypointLatitude,
+			waypointLongitude,
+			bearingToWaypoint,
+			speedMps * postWaypointElapsedSeconds,
 		);
-		const travelSeconds = distanceMeters / speedMps;
-		const updatedTimestamp = previousTimestamp + travelSeconds;
 
-		predictiveTrajectory.push(
-			new Trajectory({
-				trajectoryCoordinate: waypoint.trajectoryCoordinate,
-				timestamp: updatedTimestamp,
-				objectId: waypoint.objectId,
+		return new Trajectory({
+			trajectoryCoordinate: new CoordinatePair({
+				latitude: projectedAfterWaypoint.lat,
+				longitude: projectedAfterWaypoint.lon,
 			}),
-		);
-
-		previousLatitude = waypoint.trajectoryCoordinate.latitude;
-		previousLongitude = waypoint.trajectoryCoordinate.longitude;
-		previousTimestamp = updatedTimestamp;
-	}
-
-	return predictiveTrajectory;
+			timestamp: currentTime + offsetSeconds,
+		});
+	});
 }

@@ -30,7 +30,6 @@ export const PersistedCwpDisplaySettingsSchema = z
 		showAirways: z.boolean().optional(),
 		showSectorLabels: z.boolean().optional(),
 		showVerticalWindow: z.boolean().optional(),
-		usePredictiveTrajectories: z.boolean().optional(),
 		showSpeedVectors: z.boolean().optional(),
 		speedVectorMinutes: z.number().optional(),
 		speedChangeDisplayUnit: SpeedChangeDisplayUnitSchema.optional(),

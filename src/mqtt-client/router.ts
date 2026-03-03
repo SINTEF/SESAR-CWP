@@ -22,6 +22,7 @@ import {
 	frontendLocalAssignedFlightLevel,
 	frontendManualAP,
 	frontendNextSectorFlightLevel,
+	frontendPredictiveTrajectoryState,
 	frontendSpeed,
 	ignored,
 	initCompleted,
@@ -100,6 +101,8 @@ const router = rlite<Buffer>(notFound, {
 	"frontend/:clientId/flight/:flightId/ACCBearing": frontendACCBearing,
 	"frontend/:clientId/flight/:flightId/assignedFL": frontendAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/speed": frontendSpeed,
+	"frontend/:clientId/flight/:flightId/predictiveTrajectoryState":
+		frontendPredictiveTrajectoryState,
 	"frontend/:clientId/flight/:flightId/localAssignedFL":
 		frontendLocalAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/hidden": frontendFlightHidden,

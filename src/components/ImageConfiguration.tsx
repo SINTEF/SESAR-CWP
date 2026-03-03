@@ -248,27 +248,6 @@ const OpenVerticalWindowButton = observer(function OpenVerticalWindowButton() {
 	);
 });
 
-const PredictiveTrajectoriesButton = observer(
-	function PredictiveTrajectoriesButton() {
-		const posthog = usePostHog();
-		const onClick = (): void => {
-			cwpStore.togglePredictiveTrajectories();
-			posthog?.capture("predictive_trajectories_toggled", {
-				enabled: !cwpStore.usePredictiveTrajectories,
-			});
-		};
-
-		return (
-			<GenericButton
-				onClick={onClick}
-				active={cwpStore.usePredictiveTrajectories}
-			>
-				PT
-			</GenericButton>
-		);
-	},
-);
-
 export default function ImageConfiguration() {
 	return (
 		<div className="absolute top-0 left-0 h-auto p-0 flex flex-col justify-start items-start z-[1]">
@@ -284,9 +263,6 @@ export default function ImageConfiguration() {
 				</div>
 				<div className="flex">
 					<OpenVerticalWindowButton />
-				</div>
-				<div className="flex">
-					<PredictiveTrajectoriesButton />
 				</div>
 				{/* <div>
 					<NSFLButton />

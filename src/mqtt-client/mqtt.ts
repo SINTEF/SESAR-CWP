@@ -258,9 +258,16 @@ function processIncomingMessages(): void {
 		for (const { topic, message } of incomingMessagesQueue) {
 			const isInitCompletedTopic = /\/data\/init-completed$/.test(topic);
 			const isPresenceTopic = /\/status\/presence\//.test(topic);
+			const isPredictiveTrajectoryStateTopic =
+				/\/flight\/[^/]+\/predictiveTrajectoryState$/.test(topic);
 
 			// Ignore empty messages (they are most likely deletion messages)
-			if (message.length === 0 && !isInitCompletedTopic && !isPresenceTopic) {
+			if (
+				message.length === 0 &&
+				!isInitCompletedTopic &&
+				!isPresenceTopic &&
+				!isPredictiveTrajectoryStateTopic
+			) {
 				continue;
 			}
 

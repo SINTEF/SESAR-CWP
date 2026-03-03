@@ -91,8 +91,6 @@ export default class CWPStore {
 
 	showVerticalWindow = false; /* should be true by default, if you see this, Antoine made a mistake by pushing this change */
 
-	usePredictiveTrajectories = true;
-
 	showControllerSelection = true;
 
 	showSpeedVectors = false;
@@ -279,9 +277,6 @@ export default class CWPStore {
 			if (typeof parsed.showVerticalWindow === "boolean") {
 				this.showVerticalWindow = parsed.showVerticalWindow;
 			}
-			if (typeof parsed.usePredictiveTrajectories === "boolean") {
-				this.usePredictiveTrajectories = parsed.usePredictiveTrajectories;
-			}
 			if (typeof parsed.showSpeedVectors === "boolean") {
 				this.showSpeedVectors = parsed.showSpeedVectors;
 			}
@@ -312,7 +307,6 @@ export default class CWPStore {
 				showAirways: this.showAirways,
 				showSectorLabels: this.showSectorLabels,
 				showVerticalWindow: this.showVerticalWindow,
-				usePredictiveTrajectories: this.usePredictiveTrajectories,
 				showSpeedVectors: this.showSpeedVectors,
 				speedVectorMinutes: this.speedVectorMinutes,
 				speedChangeDisplayUnit: this.speedChangeDisplayUnit,
@@ -351,14 +345,6 @@ export default class CWPStore {
 
 	toggleVerticalWindow(): void {
 		this.showVerticalWindow = !this.showVerticalWindow;
-	}
-
-	togglePredictiveTrajectories(): void {
-		this.usePredictiveTrajectories = !this.usePredictiveTrajectories;
-	}
-
-	setPredictiveTrajectories(value: boolean): void {
-		this.usePredictiveTrajectories = value;
 	}
 
 	setFixes(boolean: boolean): void {

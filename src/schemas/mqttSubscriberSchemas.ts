@@ -27,6 +27,22 @@ export const ISAUpdateMessageSchema = z.object({
 
 export const FrontendManualAPMessageSchema = z.union([z.number(), z.null()]);
 
+export const FrontendPredictiveTrajectoryStateMessageSchema =
+	z.discriminatedUnion("mode", [
+		z.object({
+			mode: z.literal("unset"),
+		}),
+		z.object({
+			mode: z.literal("rerouted"),
+		}),
+		z.object({
+			mode: z.literal("rerouted-via-waypoint"),
+			waypointId: z.string().min(1),
+			latitude: z.number(),
+			longitude: z.number(),
+		}),
+	]);
+
 export const PilotRequestFinishedMessageSchema = z.object({
 	finished: z.literal(true),
 });
@@ -39,4 +55,7 @@ export type WorkloadUpdateMessage = z.infer<typeof WorkloadUpdateMessageSchema>;
 export type ISAUpdateMessage = z.infer<typeof ISAUpdateMessageSchema>;
 export type FrontendManualAPMessage = z.infer<
 	typeof FrontendManualAPMessageSchema
+>;
+export type FrontendPredictiveTrajectoryStateMessage = z.infer<
+	typeof FrontendPredictiveTrajectoryStateMessageSchema
 >;

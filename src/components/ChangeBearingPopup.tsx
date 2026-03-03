@@ -6,6 +6,7 @@ import {
 	changeBearingOfAircraft,
 	handlePublishPromise,
 	persistACCBearing,
+	persistPredictiveTrajectoryRerouted,
 } from "../mqtt-client/publishers";
 import { PilotRequestType } from "../schemas/pilotRequestSchema";
 import { configurationStore, cwpStore } from "../state";
@@ -212,6 +213,14 @@ export default observer(function ChangeBearingPopup(properties: {
 			changeBearingOfAircraft(pilotId, assignedFlightId, newBearing),
 		);
 		handlePublishPromise(persistACCBearing(aircraftId, newBearing));
+		properties.aircraft.setPredictiveTrajectoryRerouted();
+		handlePublishPromise(persistPredictiveTrajectoryRerouted(assignedFlightId));
+		posthog?.capture("predictive_trajectory_state_changed", {
+			flight_id: assignedFlightId,
+			aircraft_id: aircraftId,
+			mode: "rerouted",
+			source: "change_bearing_popup",
+		});
 		clearMatchingTaRequests(properties.aircraft, [
 			PilotRequestType.AbsoluteHeading,
 			PilotRequestType.RelativeHeading,
