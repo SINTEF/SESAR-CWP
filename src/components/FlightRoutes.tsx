@@ -9,6 +9,7 @@ import type AircraftModel from "../model/AircraftModel";
 import type Trajectory from "../model/Trajectory";
 import { getAircraftsWithFlightRoutes } from "../selectors/flightRouteSelectors";
 import { aircraftStore, cwpStore } from "../state";
+import { formatSimulatorTimeHMS } from "../utils";
 
 function buildGeoJsonFlightRoute(
 	aircraft: AircraftModel,
@@ -34,7 +35,9 @@ function buildGeoJsonFlightRoute(
 			],
 		},
 		properties: {
-			title: trajectory.objectId,
+			title: trajectory.objectId
+				? `${trajectory.objectId}\n${formatSimulatorTimeHMS(trajectory.timestamp)}`
+				: undefined,
 		},
 	}));
 
