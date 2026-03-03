@@ -289,4 +289,20 @@ export default class SepQdmStore {
 			this.savedSepLines.splice(index, 1);
 		}
 	}
+
+	/**
+	 * Remove all SEP/QDM state that references a specific aircraft.
+	 */
+	removeAircraftRelations(aircraftId: string): void {
+		this.savedSepLines = this.savedSepLines.filter(
+			(line) => line.fromId !== aircraftId && line.toId !== aircraftId,
+		);
+		this.savedQdmLines = this.savedQdmLines.filter(
+			(line) => line.fromId !== aircraftId && line.toId !== aircraftId,
+		);
+
+		if (this.fromAircraftId === aircraftId) {
+			this.disable();
+		}
+	}
 }
