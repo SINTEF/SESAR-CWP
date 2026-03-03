@@ -75,6 +75,11 @@ export const sepQdmStore = new SepQdmStore({
 	trajectoryPredictionStore,
 });
 
+configurationStore.setAircraftLeftVisibleAreaHandler((aircraftId) => {
+	cwpStore.removeAircraftUIState(aircraftId);
+	sepQdmStore.removeAircraftRelations(aircraftId);
+});
+
 window.mobxDebugStores = {
 	simulatorStore,
 	adminStore,

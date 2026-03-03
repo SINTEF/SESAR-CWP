@@ -734,6 +734,54 @@ export default class CWPStore {
 			this.selectedAircraftIds.add(aircraftId);
 		}
 	}
+
+	/**
+	 * Remove all per-aircraft UI state for one aircraft.
+	 * Useful when an aircraft leaves the visible area.
+	 */
+	removeAircraftUIState(aircraftId: string): void {
+		this.selectedAircraftIds.delete(aircraftId);
+		this.aircraftWarningLevels.delete(aircraftId);
+		this.aircraftsWithSpeedVectors.delete(aircraftId);
+		this.aircraftsWithFlightRoutes.delete(aircraftId);
+		this.aircraftsWithManuallyOpenedPopup.delete(aircraftId);
+		this.aircraftsWithManuallyClosedPopup.delete(aircraftId);
+		this.aircraftsWithLevelPopup.delete(aircraftId);
+		this.aircraftsWithSectorPopup.delete(aircraftId);
+		this.aircraftsWithBearingPopup.delete(aircraftId);
+		this.aircraftsWithNextFixPopup.delete(aircraftId);
+		this.aircraftWithSpeedChangePopup.delete(aircraftId);
+		this.aircraftsWithAddRequestDialog.delete(aircraftId);
+
+		if (this.highlightedAircraftId === aircraftId) {
+			this.highlightedAircraftId = "";
+		}
+		if (this.ATCMenuAircraftId === aircraftId) {
+			this.ATCMenuAircraftId = "";
+		}
+		if (this.hoveredMarkerAircraftId === aircraftId) {
+			this.hoveredMarkerAircraftId = null;
+		}
+		if (this.hoveredFlightLabelId === aircraftId) {
+			this.hoveredFlightLabelId = null;
+		}
+		if (this.hoveredTaLabelAircraftId === aircraftId) {
+			this.hoveredTaLabelAircraftId = null;
+		}
+		if (this.taArrowClickedAircraftId === aircraftId) {
+			this.taArrowClickedAircraftId = null;
+		}
+
+		this.hoveredConflictAircraftIds.delete(aircraftId);
+
+		if (this.nextFixPreview?.aircraftId === aircraftId) {
+			this.nextFixPreview = null;
+		}
+
+		if (this.taRequestAircraftId === aircraftId) {
+			this.clearTaRequestCallback();
+		}
+	}
 	toggleShowSpeedVectors(): void {
 		this.showSpeedVectors = !this.showSpeedVectors;
 	}

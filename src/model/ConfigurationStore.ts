@@ -52,6 +52,10 @@ export default class ConfigurationStore {
 	/** Tracks aircraft IDs currently within extended edges for lifecycle events */
 	private trackedAircraftIds: Set<string> = new Set();
 
+	/** Optional callback fired when an aircraft leaves the visible radar bounds */
+	private onAircraftLeftVisibleArea: ((aircraftId: string) => void) | null =
+		null;
+
 	constructor({
 		aircraftStore,
 		airspaceStore,
@@ -114,6 +118,7 @@ export default class ConfigurationStore {
 						if (aircraft) {
 							this.captureAircraftLeftEvent(aircraft);
 						}
+						this.onAircraftLeftVisibleArea?.(id);
 					}
 				}
 
@@ -150,6 +155,12 @@ export default class ConfigurationStore {
 			lastLongitude: aircraft.lastKnownLongitude,
 			lastAltitude: aircraft.lastKnownAltitude,
 		});
+	}
+
+	setAircraftLeftVisibleAreaHandler(
+		handler: ((aircraftId: string) => void) | null,
+	): void {
+		this.onAircraftLeftVisibleArea = handler;
 	}
 
 	handleNewAirspaceConfiguration(
