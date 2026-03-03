@@ -500,6 +500,9 @@ export default class AircraftStore {
 			state.waypointId,
 			state.latitude,
 			state.longitude,
+			state.nextWaypointId,
+			state.nextWaypointLatitude,
+			state.nextWaypointLongitude,
 		);
 	}
 

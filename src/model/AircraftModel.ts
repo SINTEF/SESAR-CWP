@@ -92,6 +92,12 @@ export default class AircraftModel {
 
 	predictiveTrajectoryWaypointLongitude: number | undefined;
 
+	predictiveTrajectoryNextWaypointId: string | undefined;
+
+	predictiveTrajectoryNextWaypointLatitude: number | undefined;
+
+	predictiveTrajectoryNextWaypointLongitude: number | undefined;
+
 	/** Explicitly set next sector flight level (raw value), or undefined if derived from trajectory */
 	manualNextSectorFL: number | undefined = undefined;
 
@@ -213,6 +219,9 @@ export default class AircraftModel {
 			predictiveTrajectoryWaypointId: observable,
 			predictiveTrajectoryWaypointLatitude: observable,
 			predictiveTrajectoryWaypointLongitude: observable,
+			predictiveTrajectoryNextWaypointId: observable,
+			predictiveTrajectoryNextWaypointLatitude: observable,
+			predictiveTrajectoryNextWaypointLongitude: observable,
 			localAssignedFlightLevel: observable,
 			manualNextSectorFL: observable,
 			nextACCFL: observable,
@@ -669,17 +678,26 @@ export default class AircraftModel {
 		this.predictiveTrajectoryWaypointId = undefined;
 		this.predictiveTrajectoryWaypointLatitude = undefined;
 		this.predictiveTrajectoryWaypointLongitude = undefined;
+		this.predictiveTrajectoryNextWaypointId = undefined;
+		this.predictiveTrajectoryNextWaypointLatitude = undefined;
+		this.predictiveTrajectoryNextWaypointLongitude = undefined;
 	}
 
 	setPredictiveTrajectoryReroutedViaWaypoint(
 		waypointId: string,
 		latitude: number,
 		longitude: number,
+		nextWaypointId: string,
+		nextWaypointLatitude: number,
+		nextWaypointLongitude: number,
 	): void {
 		this.predictiveTrajectoryMode = "rerouted-via-waypoint";
 		this.predictiveTrajectoryWaypointId = waypointId;
 		this.predictiveTrajectoryWaypointLatitude = latitude;
 		this.predictiveTrajectoryWaypointLongitude = longitude;
+		this.predictiveTrajectoryNextWaypointId = nextWaypointId;
+		this.predictiveTrajectoryNextWaypointLatitude = nextWaypointLatitude;
+		this.predictiveTrajectoryNextWaypointLongitude = nextWaypointLongitude;
 	}
 
 	clearPredictiveTrajectoryState(): void {
@@ -687,6 +705,9 @@ export default class AircraftModel {
 		this.predictiveTrajectoryWaypointId = undefined;
 		this.predictiveTrajectoryWaypointLatitude = undefined;
 		this.predictiveTrajectoryWaypointLongitude = undefined;
+		this.predictiveTrajectoryNextWaypointId = undefined;
+		this.predictiveTrajectoryNextWaypointLatitude = undefined;
+		this.predictiveTrajectoryNextWaypointLongitude = undefined;
 	}
 
 	setLocalAssignedFlightLevel(localAssignedFlightLevel: string): void {
