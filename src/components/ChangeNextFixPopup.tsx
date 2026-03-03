@@ -2,12 +2,20 @@ import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import React from "react";
 import type AircraftModel from "../model/AircraftModel";
+import { isWaypointInFlightPlan } from "../model/predictiveTrajectoryState";
 import {
 	changeNextWaypointOfAircraft,
+	clearPredictiveTrajectoryState,
 	handlePublishPromise,
+	persistPredictiveTrajectoryReroutedViaWaypoint,
 } from "../mqtt-client/publishers";
 import { PilotRequestType } from "../schemas/pilotRequestSchema";
-import { configurationStore, cwpStore, fixStore } from "../state";
+import {
+	aircraftStore,
+	configurationStore,
+	cwpStore,
+	fixStore,
+} from "../state";
 import { clearMatchingTaRequests } from "../utils/teamAssistantHelper";
 import {
 	type CommunicationMethod,
@@ -277,6 +285,44 @@ export default observer(function ChangeNextFixPopup(properties: {
 				viaWaypointId: "",
 			}),
 		);
+
+		const flightRoute = aircraftStore.flightRoutes.get(assignedFlightId);
+		const isFixInFlightPlan = isWaypointInFlightPlan(flightRoute, upperFixName);
+
+		if (isFixInFlightPlan) {
+			properties.aircraft.clearPredictiveTrajectoryState();
+			handlePublishPromise(clearPredictiveTrajectoryState(assignedFlightId));
+			posthog?.capture("predictive_trajectory_state_changed", {
+				flight_id: assignedFlightId,
+				aircraft_id: aircraftId,
+				mode: "unset",
+				source: "change_next_fix_popup",
+				waypoint_id: upperFixName,
+			});
+		} else {
+			properties.aircraft.setPredictiveTrajectoryReroutedViaWaypoint(
+				upperFixName,
+				latOfFix,
+				longOfFix,
+			);
+			handlePublishPromise(
+				persistPredictiveTrajectoryReroutedViaWaypoint({
+					flightUniqueId: assignedFlightId,
+					waypointId: upperFixName,
+					latitude: latOfFix,
+					longitude: longOfFix,
+				}),
+			);
+			posthog?.capture("predictive_trajectory_state_changed", {
+				flight_id: assignedFlightId,
+				aircraft_id: aircraftId,
+				mode: "rerouted-via-waypoint",
+				source: "change_next_fix_popup",
+				waypoint_id: upperFixName,
+				waypoint_latitude: latOfFix,
+				waypoint_longitude: longOfFix,
+			});
+		}
 
 		posthog?.capture("next_fix_changed", {
 			aircraft_id: aircraftId,

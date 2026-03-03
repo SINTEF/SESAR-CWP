@@ -14,6 +14,7 @@ import type AircraftType from "./AircraftType";
 import convertTimestamp from "./convertTimestamp";
 import FlightInSectorModel from "./FlightInSectorModel";
 import type FlightRoute from "./FlightRoute";
+import type { PredictiveTrajectoryMode } from "./predictiveTrajectoryState";
 import { getUpcomingRouteFixes } from "./routeProgress";
 import type SectorStore from "./SectorStore";
 import type SimulatorStore from "./SimulatorStore";
@@ -82,6 +83,14 @@ export default class AircraftModel {
 	assignedBearing: number | undefined;
 
 	assignedSpeed: number | undefined;
+
+	predictiveTrajectoryMode: PredictiveTrajectoryMode = "unset";
+
+	predictiveTrajectoryWaypointId: string | undefined;
+
+	predictiveTrajectoryWaypointLatitude: number | undefined;
+
+	predictiveTrajectoryWaypointLongitude: number | undefined;
 
 	/** Explicitly set next sector flight level (raw value), or undefined if derived from trajectory */
 	manualNextSectorFL: number | undefined = undefined;
@@ -200,6 +209,10 @@ export default class AircraftModel {
 			assignedFlightLevel: observable,
 			assignedBearing: observable,
 			assignedSpeed: observable,
+			predictiveTrajectoryMode: observable,
+			predictiveTrajectoryWaypointId: observable,
+			predictiveTrajectoryWaypointLatitude: observable,
+			predictiveTrajectoryWaypointLongitude: observable,
 			localAssignedFlightLevel: observable,
 			manualNextSectorFL: observable,
 			nextACCFL: observable,
@@ -233,6 +246,9 @@ export default class AircraftModel {
 			setNextSectorController: action.bound,
 			setAssignedBearing: action.bound,
 			setAssignedSpeed: action.bound,
+			setPredictiveTrajectoryRerouted: action.bound,
+			setPredictiveTrajectoryReroutedViaWaypoint: action.bound,
+			clearPredictiveTrajectoryState: action.bound,
 			setLocalAssignedFlightLevel: action.bound,
 			setNextSectorFL: action.bound,
 			setNextACCFL: action.bound,
@@ -646,6 +662,31 @@ export default class AircraftModel {
 
 	setAssignedSpeed(assignedSpeed: number): void {
 		this.assignedSpeed = assignedSpeed === -1 ? undefined : assignedSpeed;
+	}
+
+	setPredictiveTrajectoryRerouted(): void {
+		this.predictiveTrajectoryMode = "rerouted";
+		this.predictiveTrajectoryWaypointId = undefined;
+		this.predictiveTrajectoryWaypointLatitude = undefined;
+		this.predictiveTrajectoryWaypointLongitude = undefined;
+	}
+
+	setPredictiveTrajectoryReroutedViaWaypoint(
+		waypointId: string,
+		latitude: number,
+		longitude: number,
+	): void {
+		this.predictiveTrajectoryMode = "rerouted-via-waypoint";
+		this.predictiveTrajectoryWaypointId = waypointId;
+		this.predictiveTrajectoryWaypointLatitude = latitude;
+		this.predictiveTrajectoryWaypointLongitude = longitude;
+	}
+
+	clearPredictiveTrajectoryState(): void {
+		this.predictiveTrajectoryMode = "unset";
+		this.predictiveTrajectoryWaypointId = undefined;
+		this.predictiveTrajectoryWaypointLatitude = undefined;
+		this.predictiveTrajectoryWaypointLongitude = undefined;
 	}
 
 	setLocalAssignedFlightLevel(localAssignedFlightLevel: string): void {

@@ -236,6 +236,49 @@ export async function persistSpeedAircraft(
 	);
 }
 
+export async function persistPredictiveTrajectoryRerouted(
+	flightUniqueId: string,
+): Promise<void> {
+	await publish(
+		`frontend/${clientId}/flight/${flightUniqueId}/predictiveTrajectoryState`,
+		{ mode: "rerouted" },
+		{ retain: true },
+	);
+}
+
+export async function persistPredictiveTrajectoryReroutedViaWaypoint({
+	flightUniqueId,
+	waypointId,
+	latitude,
+	longitude,
+}: {
+	flightUniqueId: string;
+	waypointId: string;
+	latitude: number;
+	longitude: number;
+}): Promise<void> {
+	await publish(
+		`frontend/${clientId}/flight/${flightUniqueId}/predictiveTrajectoryState`,
+		{
+			mode: "rerouted-via-waypoint",
+			waypointId,
+			latitude,
+			longitude,
+		},
+		{ retain: true },
+	);
+}
+
+export async function clearPredictiveTrajectoryState(
+	flightUniqueId: string,
+): Promise<void> {
+	await publish(
+		`frontend/${clientId}/flight/${flightUniqueId}/predictiveTrajectoryState`,
+		"",
+		{ retain: true },
+	);
+}
+
 export async function persistLocalAssignedFlightLevel(
 	flightUniqueId: string,
 	flightLevel: string,

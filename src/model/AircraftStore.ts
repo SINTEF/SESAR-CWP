@@ -15,6 +15,7 @@ import type {
 	TargetReportMessage,
 } from "../proto/ProtobufAirTrafficSimulator";
 import { PlanningStage } from "../proto/ProtobufAirTrafficSimulator";
+import type { FrontendPredictiveTrajectoryStateMessage } from "../schemas/mqttSubscriberSchemas";
 import type {
 	NormalizedGoal,
 	PilotRequestJson,
@@ -473,6 +474,33 @@ export default class AircraftStore {
 
 	handleFrontendSpeed(flightId: string, speed: number): void {
 		this.aircrafts.get(flightId)?.setAssignedSpeed(speed);
+	}
+
+	handleFrontendPredictiveTrajectoryState(
+		flightId: string,
+		state: FrontendPredictiveTrajectoryStateMessage | null,
+	): void {
+		const aircraft =
+			this.getAircraftByFlightId(flightId) ?? this.aircrafts.get(flightId);
+		if (!aircraft) {
+			return;
+		}
+
+		if (!state || state.mode === "unset") {
+			aircraft.clearPredictiveTrajectoryState();
+			return;
+		}
+
+		if (state.mode === "rerouted") {
+			aircraft.setPredictiveTrajectoryRerouted();
+			return;
+		}
+
+		aircraft.setPredictiveTrajectoryReroutedViaWaypoint(
+			state.waypointId,
+			state.latitude,
+			state.longitude,
+		);
 	}
 
 	handleFrontendLocalAssignedFlightLevel(

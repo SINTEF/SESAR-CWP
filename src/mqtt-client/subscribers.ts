@@ -31,6 +31,7 @@ import {
 } from "../proto/ProtobufAirTrafficSimulator";
 import {
 	FrontendManualAPMessageSchema,
+	FrontendPredictiveTrajectoryStateMessageSchema,
 	ISAUpdateMessageSchema,
 	PilotRequestFinishedMessageSchema,
 	PilotRequestReplyMessageSchema,
@@ -270,6 +271,31 @@ export function frontendSpeed(
 ): void {
 	const speed = Number.parseInt(message.toString(), 10) || 0;
 	aircraftStore.handleFrontendSpeed(flightId, speed);
+}
+
+export function frontendPredictiveTrajectoryState(
+	{ flightId }: { [key: string]: string },
+	message: Buffer,
+): void {
+	try {
+		const raw = message.toString().trim();
+		if (raw.length === 0) {
+			aircraftStore.handleFrontendPredictiveTrajectoryState(flightId, null);
+			return;
+		}
+
+		const parsed = FrontendPredictiveTrajectoryStateMessageSchema.parse(
+			JSON.parse(raw),
+		);
+		aircraftStore.handleFrontendPredictiveTrajectoryState(flightId, parsed);
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: error logging
+		console.error("Failed to parse predictive trajectory state message", {
+			flightId,
+			error,
+		});
+		Sentry.captureException(error);
+	}
 }
 
 export function frontendLocalAssignedFlightLevel(

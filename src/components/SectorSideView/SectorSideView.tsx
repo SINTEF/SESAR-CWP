@@ -46,7 +46,6 @@ export default observer(function SectorSideView() {
 	const flightRoutesData: FlightData[] = getAircraftsWithFlightRoutes({
 		aircraftStore,
 		selectedAircraftIds,
-		usePredictiveTrajectories: cwpStore.usePredictiveTrajectories,
 	}).map(({ aircraft, trajectory }) => ({
 		aircraftId: aircraft.aircraftId,
 		callSign: aircraft.callSign,

@@ -1,12 +1,17 @@
+import posthog from "posthog-js";
 import AircraftModel from "../model/AircraftModel";
 import { TeamAssistantRequest } from "../model/AircraftStore";
+import { isWaypointInFlightPlan } from "../model/predictiveTrajectoryState";
 import {
 	changeBearingOfAircraft,
 	changeFlightLevelOfAircraft,
 	changeNextWaypointOfAircraft,
+	clearPredictiveTrajectoryState,
 	handlePublishPromise,
 	persistACCBearing,
 	persistACCFlightLevel,
+	persistPredictiveTrajectoryRerouted,
+	persistPredictiveTrajectoryReroutedViaWaypoint,
 	publishPilotRequestClear,
 } from "../mqtt-client/publishers";
 import {
@@ -282,6 +287,53 @@ export const handleAcceptAction = (
 					viaWaypointId: "",
 				}),
 			);
+
+			const flightRoute = aircraftStore.flightRoutes.get(
+				aircraft.assignedFlightId,
+			);
+			const isFixInFlightPlan = isWaypointInFlightPlan(
+				flightRoute,
+				waypointName,
+			);
+
+			if (isFixInFlightPlan) {
+				aircraft.clearPredictiveTrajectoryState();
+				handlePublishPromise(
+					clearPredictiveTrajectoryState(aircraft.assignedFlightId),
+				);
+				posthog.capture("predictive_trajectory_state_changed", {
+					flight_id: aircraft.assignedFlightId,
+					aircraft_id: aircraft.aircraftId,
+					mode: "unset",
+					source: "ta_request_accept",
+					request_type: "direct",
+					waypoint_id: waypointName,
+				});
+			} else {
+				aircraft.setPredictiveTrajectoryReroutedViaWaypoint(
+					waypointName,
+					fix.latitude,
+					fix.longitude,
+				);
+				handlePublishPromise(
+					persistPredictiveTrajectoryReroutedViaWaypoint({
+						flightUniqueId: aircraft.assignedFlightId,
+						waypointId: waypointName,
+						latitude: fix.latitude,
+						longitude: fix.longitude,
+					}),
+				);
+				posthog.capture("predictive_trajectory_state_changed", {
+					flight_id: aircraft.assignedFlightId,
+					aircraft_id: aircraft.aircraftId,
+					mode: "rerouted-via-waypoint",
+					source: "ta_request_accept",
+					request_type: "direct",
+					waypoint_id: waypointName,
+					waypoint_latitude: fix.latitude,
+					waypoint_longitude: fix.longitude,
+				});
+			}
 			break;
 		}
 		case PilotRequestType.AbsoluteHeading: {
@@ -302,6 +354,17 @@ export const handleAcceptAction = (
 				),
 			);
 			handlePublishPromise(persistACCBearing(aircraft.aircraftId, bearing));
+			aircraft.setPredictiveTrajectoryRerouted();
+			handlePublishPromise(
+				persistPredictiveTrajectoryRerouted(aircraft.assignedFlightId),
+			);
+			posthog.capture("predictive_trajectory_state_changed", {
+				flight_id: aircraft.assignedFlightId,
+				aircraft_id: aircraft.aircraftId,
+				mode: "rerouted",
+				source: "ta_request_accept",
+				request_type: "absolute_heading",
+			});
 			break;
 		}
 		case PilotRequestType.RelativeHeading: {
@@ -329,6 +392,17 @@ export const handleAcceptAction = (
 			handlePublishPromise(
 				persistACCBearing(aircraft.aircraftId, absoluteBearing),
 			);
+			aircraft.setPredictiveTrajectoryRerouted();
+			handlePublishPromise(
+				persistPredictiveTrajectoryRerouted(aircraft.assignedFlightId),
+			);
+			posthog.capture("predictive_trajectory_state_changed", {
+				flight_id: aircraft.assignedFlightId,
+				aircraft_id: aircraft.aircraftId,
+				mode: "rerouted",
+				source: "ta_request_accept",
+				request_type: "relative_heading",
+			});
 			break;
 		}
 		default:
