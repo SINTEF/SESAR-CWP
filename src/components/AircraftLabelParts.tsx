@@ -489,8 +489,12 @@ export const NextNav = observer(({ aircraft }: SubContentProperties) => {
 	const { isDragging } = useDragging();
 
 	const middleClickNextWaypoint = (
-		_event: React.MouseEvent<HTMLElement>,
+		event: React.MouseEvent<HTMLElement>,
 	): void => {
+		if (event.button !== 1) {
+			return;
+		}
+
 		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
 		posthog?.capture("next_nav_clicked", {
 			aircraft_id: aircraft.aircraftId,
@@ -506,6 +510,7 @@ export const NextNav = observer(({ aircraft }: SubContentProperties) => {
 		if (isDragging) {
 			return;
 		}
+
 		cwpStore.openChangeNextFixForAircraft(aircraft.aircraftId);
 		posthog?.capture("next_fix_popup_opened", {
 			aircraft_id: aircraft.aircraftId,
