@@ -306,10 +306,9 @@ export async function persistWarningLevel(
 	level: string,
 	role: string,
 ): Promise<void> {
-	// Publishing an empty payload clears the retained message on the broker (level = "none")
 	await publish(
 		`frontend/${clientId}/cwp/${role}/flight/${flightUniqueId}/warningLevel`,
-		level === "none" ? "" : level,
+		level,
 		{ retain: true },
 	);
 }
@@ -341,7 +340,7 @@ export async function publishFrontendForceRefresh(): Promise<void> {
  * Publishing an empty retained message clears the retained message on the broker.
  */
 export async function publishPilotRequestClear(
-	flightId: string,
+	_flightId: string,
 	requestId: string,
 ): Promise<void> {
 	const jsonRequest = { reply: "CLOSE" };
