@@ -403,7 +403,12 @@ export const WarningIcon = observer(
 );
 
 export const AssignedBearing = observer(
-	({ aircraft }: SubContentProperties) => {
+	({
+		aircraft,
+		showPlaceholderWhenNotRerouted = true,
+	}: SubContentProperties & {
+		showPlaceholderWhenNotRerouted?: boolean;
+	}) => {
 		const { assignedBearing, lastKnownBearing } = aircraft;
 		const changeBearing = (): void => {
 			cwpStore.openChangeBearingForAircraft(aircraft.aircraftId);
@@ -412,6 +417,10 @@ export const AssignedBearing = observer(
 		const isPredictiveTrajectoryRerouted =
 			aircraft.predictiveTrajectoryMode === "rerouted";
 		if (!isPredictiveTrajectoryRerouted) {
+			if (!showPlaceholderWhenNotRerouted) {
+				return null;
+			}
+
 			return (
 				<span
 					onClick={changeBearing}

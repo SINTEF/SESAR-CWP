@@ -31,7 +31,12 @@ export default observer(function AircraftContentSmall(properties: {
 	};
 
 	const displayBearing = (): JSX.Element | null => {
-		return <AssignedBearing aircraft={aircraft} />;
+		return (
+			<AssignedBearing
+				aircraft={aircraft}
+				showPlaceholderWhenNotRerouted={false}
+			/>
+		);
 	};
 
 	return (
