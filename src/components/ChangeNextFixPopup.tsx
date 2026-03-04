@@ -346,7 +346,20 @@ export default observer(function ChangeNextFixPopup(properties: {
 			return;
 		}
 		if (fix === nextFix) {
-			// If clicking on the current fix (no change), just close the popup
+			// Clicking the current next fix normally closes the popup.
+			// If predictive state is active (e.g. from heading changes),
+			// treat this as an explicit reset action and sync it via MQTT.
+			if (properties.aircraft.predictiveTrajectoryMode !== "unset") {
+				properties.aircraft.clearPredictiveTrajectoryState();
+				handlePublishPromise(clearPredictiveTrajectoryState(assignedFlightId));
+				posthog?.capture("predictive_trajectory_state_changed", {
+					flight_id: assignedFlightId,
+					aircraft_id: aircraftId,
+					mode: "unset",
+					source: "change_next_fix_popup_current_fix_click",
+					waypoint_id: fix,
+				});
+			}
 			close();
 		} else {
 			// Otherwise, apply immediately
