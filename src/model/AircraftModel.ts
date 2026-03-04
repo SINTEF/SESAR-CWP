@@ -676,6 +676,8 @@ export default class AircraftModel {
 		latitude: number,
 		longitude: number,
 	): void {
+		// Entering direct-to mode: clear heading assignment to avoid stale ACC bearing.
+		this.assignedBearing = undefined;
 		this.predictiveTrajectoryMode = "rerouted-via-waypoint";
 		this.predictiveTrajectoryWaypointId = waypointId;
 		this.predictiveTrajectoryWaypointLatitude = latitude;
@@ -683,6 +685,8 @@ export default class AircraftModel {
 	}
 
 	clearPredictiveTrajectoryState(): void {
+		// Returning to nominal route mode: heading assignment is no longer active.
+		this.assignedBearing = undefined;
 		this.predictiveTrajectoryMode = "unset";
 		this.predictiveTrajectoryWaypointId = undefined;
 		this.predictiveTrajectoryWaypointLatitude = undefined;

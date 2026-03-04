@@ -404,11 +404,14 @@ export const WarningIcon = observer(
 
 export const AssignedBearing = observer(
 	({ aircraft }: SubContentProperties) => {
-		const { assignedBearing } = aircraft;
+		const { assignedBearing, lastKnownBearing } = aircraft;
 		const changeBearing = (): void => {
 			cwpStore.openChangeBearingForAircraft(aircraft.aircraftId);
 		};
-		if (assignedBearing === -1 || assignedBearing === undefined) {
+
+		const isPredictiveTrajectoryRerouted =
+			aircraft.predictiveTrajectoryMode === "rerouted";
+		if (!isPredictiveTrajectoryRerouted) {
 			return (
 				<span
 					onClick={changeBearing}
@@ -419,7 +422,19 @@ export const AssignedBearing = observer(
 			);
 		}
 
-		let displayedBearing = Math.round(assignedBearing) % 360;
+		const hasAssignedBearing =
+			assignedBearing !== undefined && assignedBearing !== -1;
+		const bearingToDisplay = hasAssignedBearing
+			? assignedBearing
+			: isPredictiveTrajectoryRerouted
+				? lastKnownBearing
+				: undefined;
+
+		if (bearingToDisplay === undefined) {
+			return null;
+		}
+
+		let displayedBearing = Math.round(bearingToDisplay) % 360;
 		if (displayedBearing < 1) {
 			displayedBearing = 360;
 		}
@@ -442,22 +457,9 @@ export const AssignedBearing = observer(
  */
 export const BearingChangeIcon = observer(
 	({ aircraft }: SubContentProperties) => {
-		const { assignedBearing, lastKnownBearing } = aircraft;
-
-		// Only show icon when bearing is assigned and aircraft hasn't reached target heading yet
-		const hasBearingAssigned =
-			assignedBearing !== undefined && assignedBearing !== -1;
-
-		if (!hasBearingAssigned) {
-			return null;
-		}
-
-		// Check if bearing is still changing (with a small tolerance of 2 degrees)
-		const bearingDifference = Math.abs(assignedBearing - lastKnownBearing);
-		const normalizedDiff = Math.min(bearingDifference, 360 - bearingDifference);
-		const isBearingChanging = normalizedDiff > 2;
-
-		if (!isBearingChanging) {
+		const isPredictiveTrajectoryRerouted =
+			aircraft.predictiveTrajectoryMode === "rerouted";
+		if (!isPredictiveTrajectoryRerouted) {
 			return null;
 		}
 
@@ -519,8 +521,8 @@ export const NextNav = observer(({ aircraft }: SubContentProperties) => {
 		});
 	};
 
-	const { nextNav, assignedBearing } = aircraft;
-	const showNextNav = assignedBearing === -1 || assignedBearing === undefined;
+	const { nextNav } = aircraft;
+	const showNextNav = aircraft.predictiveTrajectoryMode !== "rerouted";
 
 	return (
 		<span
