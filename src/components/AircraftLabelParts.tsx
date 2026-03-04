@@ -9,6 +9,7 @@ import React from "react";
 import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { FLIGHT_LABEL_COLORS } from "../model/CwpStore";
+import { isMovingAwayFromWaypoint } from "../model/predictiveTrajectory";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 
@@ -557,18 +558,36 @@ export const NextNav = observer(
 			nextNav,
 			predictiveTrajectoryMode,
 			predictiveTrajectoryWaypointId,
+			predictiveTrajectoryWaypointLatitude,
+			predictiveTrajectoryWaypointLongitude,
 		} = aircraft;
 
 		let content: React.ReactNode = null;
 		if (predictiveTrajectoryMode === "unset") {
 			content = showInUnsetMode ? nextNav : null;
 		} else if (predictiveTrajectoryMode === "rerouted-via-waypoint") {
-			content = predictiveTrajectoryWaypointId ? (
-				<>
-					<ReroutedViaWaypointIcon />
-					{predictiveTrajectoryWaypointId}
-				</>
-			) : null;
+			const canCheckMovingAway =
+				predictiveTrajectoryWaypointLatitude !== undefined &&
+				predictiveTrajectoryWaypointLongitude !== undefined;
+
+			const shouldShowNextNav =
+				canCheckMovingAway &&
+				isMovingAwayFromWaypoint(
+					aircraft,
+					predictiveTrajectoryWaypointLatitude,
+					predictiveTrajectoryWaypointLongitude,
+				).isMovingAway;
+
+			if (shouldShowNextNav) {
+				content = showInUnsetMode ? nextNav : null;
+			} else {
+				content = predictiveTrajectoryWaypointId ? (
+					<>
+						<ReroutedViaWaypointIcon />
+						{predictiveTrajectoryWaypointId}
+					</>
+				) : null;
+			}
 		} else if (showPlaceholderWhenRerouted) {
 			content = "--";
 		}
