@@ -300,7 +300,6 @@ function getWarningIconPath(warningLevel: string): React.ReactNode {
 	}
 }
 
-
 /**
  * Warning icon component that works with just an aircraftId.
  * Can be used anywhere without needing the full AircraftModel.

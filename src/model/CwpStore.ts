@@ -840,7 +840,11 @@ export default class CWPStore {
 	}
 
 	/** Buffer a warning level message received before the role is known */
-	bufferWarningLevel(role: string, aircraftId: string, level: WarningLevel): void {
+	bufferWarningLevel(
+		role: string,
+		aircraftId: string,
+		level: WarningLevel,
+	): void {
 		let roleBuffer = this.warningLevelBuffer.get(role);
 		if (!roleBuffer) {
 			roleBuffer = new Map();
@@ -852,7 +856,9 @@ export default class CWPStore {
 	/** Apply buffered warning levels for the given role and discard the buffer */
 	applyBufferedWarningLevels(role: string): void {
 		const buffer = this.warningLevelBuffer.get(role);
-		if (!buffer) return;
+		if (!buffer) {
+			return;
+		}
 		for (const [aircraftId, level] of buffer) {
 			this.setWarningLevel(aircraftId, level);
 		}
