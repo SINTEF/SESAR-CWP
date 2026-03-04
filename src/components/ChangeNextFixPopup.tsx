@@ -345,11 +345,14 @@ export default observer(function ChangeNextFixPopup(properties: {
 			applyFix(fix, "rt");
 			return;
 		}
-		if (fix === nextFix) {
-			// If clicking on the current fix (no change), just close the popup
+		if (
+			fix === nextFix &&
+			properties.aircraft.predictiveTrajectoryMode === "unset"
+		) {
+			// No route or predictive change to apply.
 			close();
 		} else {
-			// Otherwise, apply immediately
+			// Apply immediately, including same-fix clicks when predictive mode is active.
 			applyFix(fix, "rt");
 		}
 	};

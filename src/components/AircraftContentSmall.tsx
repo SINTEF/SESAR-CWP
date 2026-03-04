@@ -9,6 +9,7 @@ import {
 	AssignedBearing,
 	CallSign,
 	NextACCFlightLevel,
+	NextNav,
 	NextSectorFL,
 	VerticalSpeedIcon,
 	WarningIcon,
@@ -21,7 +22,7 @@ export default observer(function AircraftContentSmall(properties: {
 }) {
 	const { isDragging } = useDragging();
 	const { aircraft, flightColor } = properties;
-	const { lastKnownSpeed, assignedBearing, lastKnownBearing } = aircraft;
+	const { lastKnownSpeed } = aircraft;
 
 	const openSpeedPopup = (): void => {
 		if (isDragging) {
@@ -31,18 +32,15 @@ export default observer(function AircraftContentSmall(properties: {
 	};
 
 	const displayBearing = (): JSX.Element | null => {
-		const hasBearingAssigned =
-			assignedBearing !== undefined && assignedBearing !== -1;
-
-		if (!hasBearingAssigned) {
-			return null;
-		}
-		// Check if bearing is still changing (with a small tolerance of 2 degrees)
-		const bearingDifference = Math.abs(assignedBearing - lastKnownBearing);
-		const normalizedDiff = Math.min(bearingDifference, 360 - bearingDifference);
-		const isBearingChanging = normalizedDiff > 2;
-
-		return isBearingChanging ? <AssignedBearing aircraft={aircraft} /> : null;
+		return (
+			<>
+				<NextNav aircraft={aircraft} showInUnsetMode={false} />
+				<AssignedBearing
+					aircraft={aircraft}
+					showPlaceholderWhenNotRerouted={false}
+				/>
+			</>
+		);
 	};
 
 	return (
