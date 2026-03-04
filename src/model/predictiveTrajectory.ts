@@ -54,7 +54,7 @@ function smallestAngularDifferenceDegrees(a: number, b: number): number {
 	return Math.min(absoluteDifference, 360 - absoluteDifference);
 }
 
-function isMovingAwayFromWaypoint(
+export function isMovingAwayFromWaypoint(
 	aircraft: AircraftModel,
 	waypointLatitude: number,
 	waypointLongitude: number,
