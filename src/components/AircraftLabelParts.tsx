@@ -495,54 +495,99 @@ export const BearingChangeIcon = observer(
 	},
 );
 
-export const NextNav = observer(({ aircraft }: SubContentProperties) => {
-	const posthog = usePostHog();
-	const { isDragging } = useDragging();
+const ReroutedViaWaypointIcon = () => (
+	<svg
+		viewBox="0 0 24 24"
+		xmlns="http://www.w3.org/2000/svg"
+		className="inline-block ml-0.5 size-2.5 -mt-px fill-none mr-0.5"
+		strokeWidth="2"
+	>
+		<polyline points="16 3 21 3 21 8" stroke="currentColor"></polyline>
+		<line x1="4" y1="20" x2="21" y2="3" stroke="currentColor"></line>
+		<polyline points="21 16 21 21 16 21" stroke="currentColor"></polyline>
+		<line x1="15" y1="15" x2="21" y2="21" stroke="currentColor"></line>
+		<line x1="4" y1="4" x2="9" y2="9" stroke="currentColor"></line>
+	</svg>
+);
 
-	const middleClickNextWaypoint = (
-		event: React.MouseEvent<HTMLElement>,
-	): void => {
-		if (event.button !== 1) {
-			return;
+export const NextNav = observer(
+	({
+		aircraft,
+		showInUnsetMode = true,
+		showPlaceholderWhenRerouted = true,
+	}: SubContentProperties & {
+		showInUnsetMode?: boolean;
+		showPlaceholderWhenRerouted?: boolean;
+	}) => {
+		const posthog = usePostHog();
+		const { isDragging } = useDragging();
+
+		const middleClickNextWaypoint = (
+			event: React.MouseEvent<HTMLElement>,
+		): void => {
+			if (event.button !== 1) {
+				return;
+			}
+
+			cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
+			posthog?.capture("next_nav_clicked", {
+				aircraft_id: aircraft.aircraftId,
+				callsign: aircraft.callSign,
+				next_nav: aircraft.nextNav,
+				flight_route_visible: cwpStore.aircraftsWithFlightRoutes.has(
+					aircraft.aircraftId,
+				),
+			});
+		};
+
+		const openNextFixPopup = (): void => {
+			if (isDragging) {
+				return;
+			}
+
+			cwpStore.openChangeNextFixForAircraft(aircraft.aircraftId);
+			posthog?.capture("next_fix_popup_opened", {
+				aircraft_id: aircraft.aircraftId,
+				callsign: aircraft.callSign,
+				next_nav: aircraft.nextNav,
+			});
+		};
+
+		const {
+			nextNav,
+			predictiveTrajectoryMode,
+			predictiveTrajectoryWaypointId,
+		} = aircraft;
+
+		let content: React.ReactNode = null;
+		if (predictiveTrajectoryMode === "unset") {
+			content = showInUnsetMode ? nextNav : null;
+		} else if (predictiveTrajectoryMode === "rerouted-via-waypoint") {
+			content = predictiveTrajectoryWaypointId ? (
+				<>
+					<ReroutedViaWaypointIcon />
+					{predictiveTrajectoryWaypointId}
+				</>
+			) : null;
+		} else if (showPlaceholderWhenRerouted) {
+			content = "--";
 		}
 
-		cwpStore.toggleFlightRouteForAircraft(aircraft.aircraftId);
-		posthog?.capture("next_nav_clicked", {
-			aircraft_id: aircraft.aircraftId,
-			callsign: aircraft.callSign,
-			next_nav: aircraft.nextNav,
-			flight_route_visible: cwpStore.aircraftsWithFlightRoutes.has(
-				aircraft.aircraftId,
-			),
-		});
-	};
-
-	const openNextFixPopup = (): void => {
-		if (isDragging) {
-			return;
+		if (!content) {
+			return null;
 		}
 
-		cwpStore.openChangeNextFixForAircraft(aircraft.aircraftId);
-		posthog?.capture("next_fix_popup_opened", {
-			aircraft_id: aircraft.aircraftId,
-			callsign: aircraft.callSign,
-			next_nav: aircraft.nextNav,
-		});
-	};
-
-	const { nextNav } = aircraft;
-	const showNextNav = aircraft.predictiveTrajectoryMode !== "rerouted";
-
-	return (
-		<span
-			onClick={openNextFixPopup}
-			onMouseDown={middleClickNextWaypoint}
-			className="hover:outline-2 hover:outline-white"
-		>
-			{showNextNav ? nextNav : "--"}
-		</span>
-	);
-});
+		return (
+			<span
+				onClick={openNextFixPopup}
+				onMouseDown={middleClickNextWaypoint}
+				className="hover:outline-2 hover:outline-white"
+			>
+				{content}
+			</span>
+		);
+	},
+);
 
 export const TransferAltitude = ({
 	altitude,

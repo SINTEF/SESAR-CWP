@@ -9,6 +9,7 @@ import {
 	AssignedBearing,
 	CallSign,
 	NextACCFlightLevel,
+	NextNav,
 	NextSectorFL,
 	VerticalSpeedIcon,
 	WarningIcon,
@@ -32,10 +33,13 @@ export default observer(function AircraftContentSmall(properties: {
 
 	const displayBearing = (): JSX.Element | null => {
 		return (
-			<AssignedBearing
-				aircraft={aircraft}
-				showPlaceholderWhenNotRerouted={false}
-			/>
+			<>
+				<NextNav aircraft={aircraft} showInUnsetMode={false} />
+				<AssignedBearing
+					aircraft={aircraft}
+					showPlaceholderWhenNotRerouted={false}
+				/>
+			</>
 		);
 	};
 
