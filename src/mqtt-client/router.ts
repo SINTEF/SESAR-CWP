@@ -24,6 +24,7 @@ import {
 	frontendNextSectorFlightLevel,
 	frontendPredictiveTrajectoryState,
 	frontendSpeed,
+	frontendWarningLevel,
 	ignored,
 	initCompleted,
 	isaUpdate,
@@ -106,6 +107,8 @@ const router = rlite<Buffer>(notFound, {
 	"frontend/:clientId/flight/:flightId/localAssignedFL":
 		frontendLocalAssignedFlightLevel,
 	"frontend/:clientId/flight/:flightId/hidden": frontendFlightHidden,
+	"frontend/:clientId/cwp/:roleName/flight/:flightId/warningLevel":
+		frontendWarningLevel,
 	"frontend/:clientId/commands/force-refresh": frontendForceRefresh,
 	"ats/:clientId/status/presence/:sessionUuid": simulatorPresenceStatus,
 	"frontend/:clientId/brain/manualAP": frontendManualAP,

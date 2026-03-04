@@ -4,6 +4,10 @@ import { usePostHog } from "posthog-js/react";
 import React from "react";
 
 import {
+	handlePublishPromise,
+	persistWarningLevel,
+} from "../mqtt-client/publishers";
+import {
 	configurationStore,
 	cwpStore,
 	distanceLineStore,
@@ -131,6 +135,12 @@ const AirwaysButton = observer(function AirwaysButton() {
 const ResetButton = observer(function ResetButton() {
 	const posthog = usePostHog();
 	const resetAll = (): void => {
+		// Clear retained MQTT messages for all active warning levels before resetting
+		const role = configurationStore.currentCWP;
+		for (const aircraftId of cwpStore.aircraftWarningLevels.keys()) {
+			handlePublishPromise(persistWarningLevel(aircraftId, "none", role));
+		}
+
 		// Reset per-aircraft UI state (selections, warnings, popups)
 		cwpStore.resetUIState();
 

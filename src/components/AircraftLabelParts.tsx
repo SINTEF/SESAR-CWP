@@ -10,6 +10,10 @@ import { useDragging } from "../contexts/DraggingContext";
 import type AircraftModel from "../model/AircraftModel";
 import { FLIGHT_LABEL_COLORS } from "../model/CwpStore";
 import { isMovingAwayFromWaypoint } from "../model/predictiveTrajectory";
+import {
+	handlePublishPromise,
+	persistWarningLevel,
+} from "../mqtt-client/publishers";
 import { configurationStore, cwpStore, roleConfigurationStore } from "../state";
 import { convertMetersToFlightLevel } from "../utils";
 
@@ -297,24 +301,6 @@ function getWarningIconPath(warningLevel: string): React.ReactNode {
 }
 
 /**
- * Compute the next warning level in the cycle: none -> blue -> yellow -> orange -> none
- */
-function getNextWarningLevel(currentLevel: string): string {
-	switch (currentLevel) {
-		case "none":
-			return "blue";
-		case "blue":
-			return "yellow";
-		case "yellow":
-			return "orange";
-		case "orange":
-			return "none";
-		default:
-			return "blue";
-	}
-}
-
-/**
  * Warning icon component that works with just an aircraftId.
  * Can be used anywhere without needing the full AircraftModel.
  */
@@ -340,8 +326,14 @@ export const WarningIconById = observer(
 		const handleClick = (event: React.MouseEvent): void => {
 			event.stopPropagation();
 			const previousLevel = warningLevel;
-			const newLevel = getNextWarningLevel(previousLevel);
-			cwpStore.cycleWarningLevel(aircraftId);
+			const newLevel = cwpStore.cycleWarningLevel(aircraftId);
+			handlePublishPromise(
+				persistWarningLevel(
+					aircraftId,
+					newLevel,
+					configurationStore.currentCWP,
+				),
+			);
 			posthog.capture("warning_level_cycled", {
 				aircraft_id: aircraftId,
 				callsign: undefined,
@@ -379,8 +371,14 @@ export const WarningIcon = observer(
 		const handleClick = (event: React.MouseEvent): void => {
 			event.stopPropagation();
 			const previousLevel = warningLevel;
-			const newLevel = getNextWarningLevel(previousLevel);
-			cwpStore.cycleWarningLevel(aircraft.aircraftId);
+			const newLevel = cwpStore.cycleWarningLevel(aircraft.aircraftId);
+			handlePublishPromise(
+				persistWarningLevel(
+					aircraft.aircraftId,
+					newLevel,
+					configurationStore.currentCWP,
+				),
+			);
 			posthog.capture("warning_level_cycled", {
 				aircraft_id: aircraft.aircraftId,
 				callsign: aircraft.callSign,

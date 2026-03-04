@@ -301,6 +301,19 @@ export async function persistHiddenAircraft(
 	);
 }
 
+export async function persistWarningLevel(
+	flightUniqueId: string,
+	level: string,
+	role: string,
+): Promise<void> {
+	// Publishing an empty payload clears the retained message on the broker (level = "none")
+	await publish(
+		`frontend/${clientId}/cwp/${role}/flight/${flightUniqueId}/warningLevel`,
+		level === "none" ? "" : level,
+		{ retain: true },
+	);
+}
+
 /**
  * Publish manual AP override to MQTT as a retained message.
  * All instances sharing the same clientId will receive this and sync their AP mode.
