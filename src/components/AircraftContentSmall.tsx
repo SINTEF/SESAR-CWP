@@ -34,7 +34,11 @@ export default observer(function AircraftContentSmall(properties: {
 	const displayBearing = (): JSX.Element | null => {
 		return (
 			<>
-				<NextNav aircraft={aircraft} showInUnsetMode={false} />
+				<NextNav
+					aircraft={aircraft}
+					showInUnsetMode={false}
+					showPlaceholderWhenRerouted={false}
+				/>
 				<AssignedBearing
 					aircraft={aircraft}
 					showPlaceholderWhenNotRerouted={false}
