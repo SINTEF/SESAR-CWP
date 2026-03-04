@@ -194,6 +194,9 @@ export default class CWPStore {
 
 	highligtedAircraftIdTimeoutId = 0;
 
+	/** Warning levels received before role selection, keyed by role name then flightId */
+	warningLevelBuffer: Map<string, Map<string, WarningLevel>> = new Map();
+
 	disabledCWPIn3DView: ObservableSet<string> = observable.set(undefined, {
 		deep: false,
 	});
@@ -243,6 +246,7 @@ export default class CWPStore {
 				highligtedAircraftIdTimeoutId: false,
 				switchBackToAutomaticNextSectorsConfigurationTimeoutId: false,
 				isCWPDisabledIn3DView: false,
+				warningLevelBuffer: false,
 			},
 			{ autoBind: true },
 		);
@@ -835,13 +839,42 @@ export default class CWPStore {
 		this.taArrowClickedAircraftId = null;
 	}
 
+	/** Buffer a warning level message received before the role is known */
+	bufferWarningLevel(role: string, aircraftId: string, level: WarningLevel): void {
+		let roleBuffer = this.warningLevelBuffer.get(role);
+		if (!roleBuffer) {
+			roleBuffer = new Map();
+			this.warningLevelBuffer.set(role, roleBuffer);
+		}
+		roleBuffer.set(aircraftId, level);
+	}
+
+	/** Apply buffered warning levels for the given role and discard the buffer */
+	applyBufferedWarningLevels(role: string): void {
+		const buffer = this.warningLevelBuffer.get(role);
+		if (!buffer) return;
+		for (const [aircraftId, level] of buffer) {
+			this.setWarningLevel(aircraftId, level);
+		}
+		this.warningLevelBuffer.delete(role);
+	}
+
 	/** Get the warning level for an aircraft */
 	getWarningLevel(aircraftId: string): WarningLevel {
 		return this.aircraftWarningLevels.get(aircraftId) ?? "none";
 	}
 
-	/** Cycle to the next warning level: none → blue → orange → yellow → none */
-	cycleWarningLevel(aircraftId: string): void {
+	/** Set warning level directly, e.g. when received from MQTT sync */
+	setWarningLevel(aircraftId: string, level: WarningLevel): void {
+		if (level === "none") {
+			this.aircraftWarningLevels.delete(aircraftId);
+		} else {
+			this.aircraftWarningLevels.set(aircraftId, level);
+		}
+	}
+
+	/** Cycle to the next warning level: none → blue → orange → yellow → none. Returns the new level. */
+	cycleWarningLevel(aircraftId: string): WarningLevel {
 		const currentLevel = this.getWarningLevel(aircraftId);
 		const currentIndex = WARNING_LEVEL_ORDER.indexOf(currentLevel);
 		const nextIndex = (currentIndex + 1) % WARNING_LEVEL_ORDER.length;
@@ -852,6 +885,7 @@ export default class CWPStore {
 		} else {
 			this.aircraftWarningLevels.set(aircraftId, nextLevel);
 		}
+		return nextLevel;
 	}
 
 	/** Reset warning level to none */

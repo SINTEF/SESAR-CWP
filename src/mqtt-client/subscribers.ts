@@ -46,6 +46,7 @@ import {
 	airwaysStore,
 	brainStore,
 	configurationStore,
+	cwpStore,
 	fixStore,
 	frequenciesStore,
 	roleConfigurationStore,
@@ -312,6 +313,28 @@ export function frontendFlightHidden(
 ): void {
 	const hidden = message.toString() === "true";
 	aircraftStore.handleFrontendFlightHidden(flightId, hidden);
+}
+
+export function frontendWarningLevel(
+	{ roleName, flightId }: { [key: string]: string },
+	message: Buffer,
+): void {
+	const raw = message.toString();
+	const level =
+		raw === "blue" || raw === "orange" || raw === "yellow"
+			? (raw as "blue" | "orange" | "yellow")
+			: "none";
+
+	const currentCWP = configurationStore.currentCWP;
+	if (!currentCWP) {
+		// Role not yet selected — buffer by role so only the right role's data is applied later
+		cwpStore.bufferWarningLevel(roleName, flightId, level);
+		return;
+	}
+	if (roleName !== currentCWP) {
+		return;
+	}
+	cwpStore.setWarningLevel(flightId, level);
 }
 
 export function flightConflictMessage(

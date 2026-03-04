@@ -4,6 +4,10 @@ import { useCallback, useEffect } from "react";
 import { Layer, Source, useMap } from "react-map-gl/maplibre";
 import type AircraftModel from "../model/AircraftModel";
 import {
+	handlePublishPromise,
+	persistWarningLevel,
+} from "../mqtt-client/publishers";
+import {
 	aircraftStore,
 	configurationStore,
 	cwpStore,
@@ -190,7 +194,14 @@ export default observer(function SpeedVectors({ beforeId }: SpeedVectorsProps) {
 				const aircraftId = features[0].properties?.aircraftId as unknown;
 				if (typeof aircraftId === "string") {
 					event.preventDefault();
-					cwpStore.cycleWarningLevel(aircraftId);
+					const newLevel = cwpStore.cycleWarningLevel(aircraftId);
+					handlePublishPromise(
+						persistWarningLevel(
+							aircraftId,
+							newLevel,
+							configurationStore.currentCWP,
+						),
+					);
 				}
 			}
 		};

@@ -1,3 +1,4 @@
+import { reaction } from "mobx";
 import AdminStore from "./model/AdminStore";
 import AirblockStore from "./model/AirblockStore";
 import AircraftStore from "./model/AircraftStore";
@@ -74,6 +75,16 @@ export const sepQdmStore = new SepQdmStore({
 	configurationStore,
 	trajectoryPredictionStore,
 });
+
+// When the role is selected, apply any warning level messages that arrived before role selection
+reaction(
+	() => configurationStore.currentCWP,
+	(currentCWP) => {
+		if (currentCWP) {
+			cwpStore.applyBufferedWarningLevels(currentCWP);
+		}
+	},
+);
 
 configurationStore.setAircraftLeftVisibleAreaHandler((aircraftId) => {
 	cwpStore.removeAircraftUIState(aircraftId);
