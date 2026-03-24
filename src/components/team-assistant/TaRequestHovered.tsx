@@ -2,6 +2,10 @@ import { observer } from "mobx-react-lite";
 import { usePostHog } from "posthog-js/react";
 import type AircraftModel from "../../model/AircraftModel";
 import { TeamAssistantRequest } from "../../model/AircraftStore";
+import {
+	getPilotRequestType,
+	PilotRequestType,
+} from "../../schemas/pilotRequestSchema";
 import { cwpStore } from "../../state";
 import {
 	handleAcceptAction,
@@ -9,6 +13,7 @@ import {
 } from "../../utils/teamAssistantHelper";
 import { CommunicationButtons } from "../shared/CommunicationButtons";
 import {
+	DirectGoalRow,
 	DismissButton,
 	ExpandArrow,
 	HeadingGoalRow,
@@ -111,10 +116,17 @@ export default observer(function TaRequestHovered(properties: {
 							isAP2,
 							requestParameter: request.context.request_parameter,
 						};
-						if (goal.results) {
-							return <LevelChangeGoalRows key={index} {...sharedProps} />;
+						const requestType = getPilotRequestType(
+							request.context?.request_type ?? 0,
+						);
+						switch (requestType) {
+							case PilotRequestType.FlightLevel:
+								return <LevelChangeGoalRows key={index} {...sharedProps} />;
+							case PilotRequestType.Direct:
+								return <DirectGoalRow key={index} {...sharedProps} />;
+							default: // AbsoluteHeading, RelativeHeading
+								return <HeadingGoalRow key={index} {...sharedProps} />;
 						}
-						return <HeadingGoalRow key={index} {...sharedProps} />;
 					})}
 
 				{/* Suggestion + communication buttons (AP2 only) */}

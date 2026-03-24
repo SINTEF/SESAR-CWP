@@ -24,7 +24,8 @@ import { normalizeBearing } from "./bearingUtils";
 
 /**
  * Check if a normalized goal has a positive recommendation, based on request type.
- * - FlightLevel / Direct: higher_level_available must be true.
+ * - FlightLevel: higher_level_available must be true.
+ * - Direct: direct_value_available must be true.
  * - AbsoluteHeading / RelativeHeading: isHeadingFound must be true.
  */
 export function isGoalPositive(
@@ -33,8 +34,9 @@ export function isGoalPositive(
 ): boolean {
 	switch (requestType) {
 		case PilotRequestType.FlightLevel:
-		case PilotRequestType.Direct:
 			return goal.results?.higher_level_available ?? false;
+		case PilotRequestType.Direct:
+			return goal.directValueAvailable ?? false;
 		case PilotRequestType.AbsoluteHeading:
 		case PilotRequestType.RelativeHeading:
 			return goal.isHeadingFound ?? false;
@@ -54,12 +56,11 @@ export function getRequestStatusColorClass(
 	let isAccepted = false;
 	for (const goal of results.normalizedGoals) {
 		switch (requestType) {
-			case PilotRequestType.FlightLevel:
-			case PilotRequestType.Direct: {
+			case PilotRequestType.FlightLevel: {
 				if (!isGoalPositive(goal, requestType)) {
 					break;
 				}
-				// Check if initial_climb and exit_level match request_parameter
+				// Green if initial_climb and exit_level match request_parameter exactly
 				const initDifferent =
 					goal.results?.initial_climb !== results.context.request_parameter;
 				const exitDifferent =
@@ -67,6 +68,16 @@ export function getRequestStatusColorClass(
 				isAccepted = !initDifferent && !exitDifferent;
 				break;
 			}
+			case PilotRequestType.Direct:
+				// Green if the goal for the requested waypoint is directly available
+				if (
+					goal.directWaypointName ===
+						String(results.context.request_parameter) &&
+					goal.directValueAvailable
+				) {
+					isAccepted = true;
+				}
+				break;
 			case PilotRequestType.AbsoluteHeading:
 			case PilotRequestType.RelativeHeading:
 				// Find the goal matching request_parameter (Req_hdg_value) and
@@ -131,11 +142,14 @@ export function findSuggestionForRequest(
 			let suggestionValue: string;
 			switch (requestType) {
 				case PilotRequestType.FlightLevel:
-				case PilotRequestType.Direct:
-					// Use initial_climb as the suggested value for level-change goals
+					// Use initial_climb as the suggested flight level
 					suggestionValue =
 						goal.results?.initial_climb.toString() ??
 						goal.requestedValue.toString();
+					break;
+				case PilotRequestType.Direct:
+					// Use the candidate waypoint name
+					suggestionValue = goal.directWaypointName ?? "";
 					break;
 				default:
 					suggestionValue = goal.requestedValue.toString();
@@ -158,11 +172,12 @@ export function getSuggestionForRequest(
 		if (isGoalPositive(goal, requestType)) {
 			switch (requestType) {
 				case PilotRequestType.FlightLevel:
-				case PilotRequestType.Direct:
 					return (
 						goal.results?.initial_climb.toString() ??
 						goal.requestedValue.toString()
 					);
+				case PilotRequestType.Direct:
+					return goal.directWaypointName ?? null;
 				default:
 					return goal.requestedValue.toString();
 			}
@@ -179,8 +194,7 @@ export function isAccepted(request: TeamAssistantRequest): boolean {
 	for (const goal of request.normalizedGoals) {
 		if (isGoalPositive(goal, requestType)) {
 			switch (requestType) {
-				case PilotRequestType.FlightLevel:
-				case PilotRequestType.Direct: {
+				case PilotRequestType.FlightLevel: {
 					const initDifferent =
 						goal.results?.initial_climb !== request.context.request_parameter;
 					const exitDifferent =
@@ -190,6 +204,15 @@ export function isAccepted(request: TeamAssistantRequest): boolean {
 					}
 					break;
 				}
+				case PilotRequestType.Direct:
+					// Accepted = the requested waypoint itself is directly available
+					if (
+						goal.directWaypointName ===
+						String(request.context.request_parameter)
+					) {
+						return true;
+					}
+					break;
 				case PilotRequestType.AbsoluteHeading:
 				case PilotRequestType.RelativeHeading:
 					// Positive heading goal means accepted
@@ -268,9 +291,12 @@ export const handleAcceptAction = (
 			handleChangeCFL(request, aircraft);
 			break;
 		case PilotRequestType.Direct: {
-			const waypointName = request.context.request_parameter
-				.toString()
-				.toUpperCase();
+			// Use first available waypoint if it differs from the
+			// requested waypoint; otherwise fall back to the requested waypoint.
+			const suggestedWaypoint = getSuggestionForRequest(request);
+			const waypointName = (
+				suggestedWaypoint ?? request.context.request_parameter.toString()
+			).toUpperCase();
 			const fix = fixStore.fixes.get(waypointName);
 			if (!fix) {
 				return;

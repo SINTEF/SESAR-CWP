@@ -56,15 +56,30 @@ const LevelChangeGoalSchema = z.object({
 });
 
 /**
+ * Schema for a conflict object within direct-to goals (shared by in_sector_conflicts and exit_conflicts).
+ */
+const DirectConflictSchema = z.object({
+	conflict_id: z.string(),
+	mach_number: z.number(),
+	min_separation: z.number(),
+	distance_to_exit: z.number(),
+	first_flight_call_sign_at_the_exit: z.string().nullable(),
+	conflict_FL: z.number(),
+	compatible: z.boolean().optional(),
+});
+
+/**
  * Schema for a direct-to goal entry (request_type is Direct).
- * Conflict shapes (in_sector_conflicts, exit_conflicts) are not yet confirmed with IIS.
+ * Each goal represents one candidate waypoint evaluated by the IIS.
  */
 const DirectGoalSchema = z.object({
 	Req_dir_value: z.string(),
 	direct_value_available: z.boolean(),
+	is_conflict_free: z.boolean(),
+	is_exit_possible_internal: z.boolean(),
 	next_sector: z.string(),
-	in_sector_conflicts: z.array(z.unknown()),
-	exit_conflicts: z.array(z.unknown()),
+	in_sector_conflicts: z.array(DirectConflictSchema),
+	exit_conflicts: z.array(DirectConflictSchema),
 });
 
 /**
@@ -149,6 +164,7 @@ export type GoalResults = z.infer<typeof GoalResultsSchema>;
 export type Goal = z.infer<typeof GoalSchema>;
 export type LevelChangeGoal = z.infer<typeof LevelChangeGoalSchema>;
 export type DirectGoal = z.infer<typeof DirectGoalSchema>;
+export type DirectConflict = z.infer<typeof DirectConflictSchema>;
 export type HeadingGoal = z.infer<typeof HeadingGoalSchema>;
 export type HeadingConflict = z.infer<typeof HeadingConflictSchema>;
 export type RequestContext = z.infer<typeof RequestContextSchema>;
@@ -167,10 +183,18 @@ export interface NormalizedGoal {
 	nextSector?: string;
 	/** Whether a valid heading was found — only for heading goals */
 	isHeadingFound?: boolean;
-	/** Conflicts within the sector — only for heading goals */
-	inSectorConflicts?: (string | HeadingConflict)[];
+	/** Conflicts within the sector — for heading and direct goals */
+	inSectorConflicts?: (string | HeadingConflict | DirectConflict)[];
 	/** Whether a valid direct routing was found — only for direct goals */
 	directValueAvailable?: boolean;
+	/** The candidate waypoint name for this goal — only for direct goals */
+	directWaypointName?: string;
+	/** Whether the direct route is conflict-free — only for direct goals */
+	directConflictFree?: boolean;
+	/** Whether exit from the sector is possible — only for direct goals */
+	directExitPossible?: boolean;
+	/** Conflicts at the sector exit — only for direct goals */
+	directExitConflicts?: DirectConflict[];
 }
 
 /** Converts a raw Goal into a NormalizedGoal based on the request type. */
@@ -193,6 +217,11 @@ export function normalizeGoal(
 				requestedValue: 0,
 				nextSector: g.next_sector,
 				directValueAvailable: g.direct_value_available,
+				directWaypointName: g.Req_dir_value,
+				directConflictFree: g.is_conflict_free,
+				directExitPossible: g.is_exit_possible_internal,
+				inSectorConflicts: g.in_sector_conflicts,
+				directExitConflicts: g.exit_conflicts,
 			};
 		}
 		case PilotRequestType.AbsoluteHeading:

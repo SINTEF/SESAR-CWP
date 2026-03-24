@@ -402,7 +402,7 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 		],
 	},
 
-	// 8. Direct-to request (NOT CONFIRMED WITH IIS)
+	// 8. Direct-to request — requested waypoint is accepted
 	{
 		timestamp: "2026-01-16T14:39:21.070850Z",
 		iteration_count: 0,
@@ -416,7 +416,92 @@ export const TA_TEST_REQUESTS: PilotRequestJson[] = [
 			{
 				Req_dir_value: "LUSOL",
 				direct_value_available: true,
-				next_sector: "E3",
+				is_conflict_free: true,
+				is_exit_possible_internal: true,
+				next_sector: "A3",
+				in_sector_conflicts: [],
+				exit_conflicts: [],
+			},
+		],
+	},
+
+	// 9. Direct-to request — requested waypoint not available, alternative suggested
+	{
+		timestamp: "2026-03-20T16:02:20.929257Z",
+		iteration_count: 0,
+		context: {
+			request_id: "939d7392-ec74-4868-9463-96d998ef2ecf",
+			flight_id: "FPO215H",
+			request_type: 1,
+			request_parameter: "MAXIR",
+		},
+		goals: [
+			{
+				Req_dir_value: "MAXIR",
+				direct_value_available: false,
+				is_conflict_free: false,
+				is_exit_possible_internal: true,
+				next_sector: "F3",
+				in_sector_conflicts: [
+					{
+						conflict_id: "DAH1016",
+						mach_number: 0.78,
+						min_separation: 4.1,
+						distance_to_exit: 0,
+						first_flight_call_sign_at_the_exit: null,
+						conflict_FL: 360,
+					},
+				],
+				exit_conflicts: [],
+			},
+			{
+				Req_dir_value: "LUSOL",
+				direct_value_available: true,
+				is_conflict_free: true,
+				is_exit_possible_internal: true,
+				next_sector: "A3",
+				in_sector_conflicts: [],
+				exit_conflicts: [],
+			},
+		],
+	},
+
+	// 10. Direct-to request — no alternatives available, exit conflict present
+	{
+		timestamp: "2026-03-20T16:02:22.217109Z",
+		iteration_count: 0,
+		context: {
+			request_id: "e1e0ddc7-a42b-4b43-b0e7-c20477c9e0f5",
+			flight_id: "FPO215H",
+			request_type: 1,
+			request_parameter: "MEDAM",
+		},
+		goals: [
+			{
+				Req_dir_value: "MEDAM",
+				direct_value_available: false,
+				is_conflict_free: true,
+				is_exit_possible_internal: false,
+				next_sector: "4L",
+				in_sector_conflicts: [],
+				exit_conflicts: [
+					{
+						conflict_id: "AZA63C",
+						mach_number: 0.79,
+						min_separation: 6.5,
+						distance_to_exit: 12.0,
+						first_flight_call_sign_at_the_exit: "AZA63C",
+						conflict_FL: 350,
+						compatible: false,
+					},
+				],
+			},
+			{
+				Req_dir_value: "VEVAR",
+				direct_value_available: true,
+				is_conflict_free: true,
+				is_exit_possible_internal: true,
+				next_sector: "MIN34536",
 				in_sector_conflicts: [],
 				exit_conflicts: [],
 			},

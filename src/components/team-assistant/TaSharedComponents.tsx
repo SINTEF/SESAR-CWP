@@ -311,3 +311,66 @@ export function HeadingGoalRow({
 		)
 	);
 }
+
+/**
+ * Direct-to goal detail row.
+ * Shows the candidate waypoint, availability status, and next sector.
+ * In AP1 mode only the goal matching the requested waypoint is shown;
+ * in AP2 mode all goals are shown.
+ */
+export function DirectGoalRow({
+	goal,
+	index,
+	totalGoals,
+	isAP2,
+	requestParameter,
+}: {
+	goal: NormalizedGoal;
+	index: number;
+	totalGoals: number;
+	isAP2: boolean;
+	requestParameter: number | string;
+}) {
+	// In AP1, show only the goal matching the requested waypoint;
+	// in AP2, show all goals (so the controller can see alternatives)
+	if (!isAP2 && goal.directWaypointName !== String(requestParameter)) {
+		return null;
+	}
+
+	// Green = no conflicts, red = has conflicts, yellow = unknown (undefined)
+	const noInSectorConflicts =
+		goal.inSectorConflicts === undefined
+			? null
+			: goal.inSectorConflicts.length === 0;
+	const noExitConflicts =
+		goal.directExitConflicts === undefined
+			? null
+			: goal.directExitConflicts.length === 0;
+
+	return (
+		<React.Fragment key={index}>
+			{/* TCT row — in-sector conflicts */}
+			<tr>
+				<td className="text-xs" colSpan={2}>
+					{getStatusColor(noInSectorConflicts)} TCT {goal.directWaypointName}
+				</td>
+			</tr>
+
+			{/* MTCD row — exit conflicts */}
+			<tr>
+				<td className="text-xs" colSpan={2}>
+					{getStatusColor(noExitConflicts)} {goal.nextSector} MTCD{" "}
+					{goal.directWaypointName}
+				</td>
+			</tr>
+
+			{isAP2 && index < totalGoals - 1 && (
+				<tr>
+					<td colSpan={2}>
+						<hr className="border-t border-white/30 mr-2 ml-0" />
+					</td>
+				</tr>
+			)}
+		</React.Fragment>
+	);
+}
